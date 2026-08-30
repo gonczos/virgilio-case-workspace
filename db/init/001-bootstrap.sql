@@ -88,6 +88,8 @@ CREATE TABLE IF NOT EXISTS casework.case_file (
   canonical_confidence TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT case_file_id_case_workspace_id_key
+    UNIQUE (id, case_workspace_id),
   UNIQUE (source_system, processo),
   UNIQUE (source_system, idprocesso)
 );
@@ -195,6 +197,8 @@ CREATE TABLE IF NOT EXISTS casework.case_workspace_document (
   document_id BIGINT NOT NULL REFERENCES casework.document(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT case_workspace_document_id_case_workspace_id_key
+    UNIQUE (id, case_workspace_id),
   UNIQUE (case_workspace_id, document_id)
 );
 
@@ -214,17 +218,58 @@ CREATE TABLE IF NOT EXISTS casework.document_origin (
   CHECK (origin_kind IN ('manual_received', 'manual_uploaded', 'user_authored'))
 );
 
+CREATE TABLE IF NOT EXISTS casework.work_group (
+  id BIGSERIAL PRIMARY KEY,
+  case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT NULL,
+  archived_at TIMESTAMPTZ NULL,
+  created_by TEXT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT work_group_id_case_workspace_id_key
+    UNIQUE (id, case_workspace_id),
+  CONSTRAINT work_group_title_not_blank_check
+    CHECK (BTRIM(title) <> '')
+);
+
+CREATE TABLE IF NOT EXISTS casework.work_group_document (
+  id BIGSERIAL PRIMARY KEY,
+  case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE CASCADE,
+  work_group_id BIGINT NOT NULL,
+  case_workspace_document_id BIGINT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT work_group_document_membership_key
+    UNIQUE (work_group_id, case_workspace_document_id),
+  FOREIGN KEY (work_group_id, case_workspace_id)
+    REFERENCES casework.work_group(id, case_workspace_id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (case_workspace_document_id, case_workspace_id)
+    REFERENCES casework.case_workspace_document(id, case_workspace_id)
+    ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS casework.consultation_note (
   id BIGSERIAL PRIMARY KEY,
-  case_file_id BIGINT NULL REFERENCES casework.case_file(id),
-  bucket_id BIGINT NULL REFERENCES casework.bucket(id),
-  document_id BIGINT NULL REFERENCES casework.document(id),
-  file_binary_id BIGINT NULL REFERENCES casework.file_binary(id),
+  case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE RESTRICT,
+  work_group_id BIGINT NULL,
+  case_file_id BIGINT NULL,
+  case_workspace_document_id BIGINT NULL,
   note_kind TEXT NOT NULL,
   note_text TEXT NOT NULL,
   author_name TEXT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (num_nonnulls(case_file_id, case_workspace_document_id) <= 1),
+  FOREIGN KEY (work_group_id, case_workspace_id)
+    REFERENCES casework.work_group(id, case_workspace_id)
+    ON DELETE RESTRICT,
+  FOREIGN KEY (case_file_id, case_workspace_id)
+    REFERENCES casework.case_file(id, case_workspace_id)
+    ON DELETE RESTRICT,
+  FOREIGN KEY (case_workspace_document_id, case_workspace_id)
+    REFERENCES casework.case_workspace_document(id, case_workspace_id)
+    ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS casework.document_issue (
@@ -262,11 +307,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_document_binary_primary_per_document ON cas
 CREATE INDEX IF NOT EXISTS ix_document_origin_case_workspace_document_id ON casework.document_origin(case_workspace_document_id);
 CREATE INDEX IF NOT EXISTS ix_document_origin_origin_kind ON casework.document_origin(origin_kind);
 CREATE INDEX IF NOT EXISTS ix_document_origin_origin_at ON casework.document_origin(origin_at);
+CREATE INDEX IF NOT EXISTS ix_work_group_case_workspace_id ON casework.work_group(case_workspace_id);
+CREATE INDEX IF NOT EXISTS ix_work_group_archived_at ON casework.work_group(archived_at);
+CREATE INDEX IF NOT EXISTS ix_work_group_document_case_workspace_id ON casework.work_group_document(case_workspace_id);
+CREATE INDEX IF NOT EXISTS ix_work_group_document_case_workspace_document_id ON casework.work_group_document(case_workspace_document_id);
 CREATE INDEX IF NOT EXISTS ix_document_document_procinfo ON casework.document(document_procinfo);
 CREATE INDEX IF NOT EXISTS ix_document_document_date ON casework.document(document_date);
 CREATE INDEX IF NOT EXISTS ix_document_binary_file_binary_id ON casework.document_binary(file_binary_id);
+CREATE INDEX IF NOT EXISTS ix_consultation_note_case_workspace_id ON casework.consultation_note(case_workspace_id);
+CREATE INDEX IF NOT EXISTS ix_consultation_note_work_group_id ON casework.consultation_note(work_group_id);
 CREATE INDEX IF NOT EXISTS ix_consultation_note_case_file_id ON casework.consultation_note(case_file_id);
-CREATE INDEX IF NOT EXISTS ix_consultation_note_document_id ON casework.consultation_note(document_id);
+CREATE INDEX IF NOT EXISTS ix_consultation_note_case_workspace_document_id ON casework.consultation_note(case_workspace_document_id);
 CREATE INDEX IF NOT EXISTS ix_document_issue_document_id ON casework.document_issue(document_id);
 
 CREATE OR REPLACE VIEW casework.v_case_summary AS

@@ -1,6 +1,6 @@
 # PostgreSQL Schema V2 Evolution Plan
 
-Last updated: 2026-08-30
+Last updated: 2026-08-31
 
 ## Status
 
@@ -14,8 +14,8 @@ It is based on:
 - the current import contract in `docs/architecture/02-import-contract.md`
 - the currently imported Portuguese package and live PostgreSQL data
 
-This is a planning document.
-It does not itself perform schema changes.
+This document remains the implementation specification for later phases.
+Phases A1, A2a, A2b, and A2c are now implemented in repository SQL, but the document still serves as the forward plan for later phases.
 
 ## Terminology
 
@@ -161,13 +161,10 @@ These decisions follow from the actual repository as it exists now:
 
 These are genuine pre-implementation decisions, not hypothetical future design debates:
 
-1. Exact lifecycle value set for `case_workspace.lifecycle_status`.
-2. Exact taxonomy for `document_origin.origin_kind`.
-3. Whether imported `document_origin` rows are backfilled in Phase A or added immediately after in Phase B.
-4. Exact partial unique/index strategy on `document` so imported guarantees remain strict while manual documents become possible.
-5. Whether `processing_result` should duplicate target FKs or reference target only through `processing_job`.
-6. Whether `document_segment` should store large extracted text inline or via separate artifact references for very large formats.
-7. The exact direction/cardinality between `source_capture` and `import_batch`.
+1. Whether imported official occurrences should later receive explicit `document_origin` rows in addition to `bucket_document`, or remain represented only by canonical official structure plus later source-observation provenance.
+2. Whether `processing_result` should duplicate target FKs or reference target only through `processing_job`.
+3. Whether `document_segment` should store large extracted text inline or via separate artifact references for very large formats.
+4. The exact direction/cardinality between `source_capture` and `import_batch`.
 
 ## Deliberately Deferred Concerns
 
@@ -1188,11 +1185,490 @@ Before moving past A2b, validate:
 
 ### Proposed Phase A2c: Work Groups And Workspace-Level Notes
 
-Implement after A2b:
+Purpose:
+
+- introduce user organization inside a workspace without confusing it with official legal structure
+- add workspace-aware notes that can exist before or without an official `case_file`
+- preserve a strict boundary between organization, provenance, and official court structure
+
+Recommended smallest implementation slice:
 
 - `work_group`
 - `work_group_document`
-- workspace/group expansion of `consultation_note`
+- evolve `consultation_note` so new notes always belong to a `case_workspace`
+- move document-scoped note targeting from raw `document_id` to `case_workspace_document_id`
+
+Deliberately defer from A2c:
+
+- nested or parent work groups
+- tags / ontology / topic systems
+- task management
+- calendar/deadline features
+- bucket-level note targeting
+- binary-level note targeting redesign
+- generic polymorphic annotation framework
+
+Why this is the smallest safe slice:
+
+- `case_workspace`, `case_workspace_document`, and `document_origin` already exist and define the canonical/provenance baseline
+- the next missing capability is organization and annotation in the workspace layer
+- work groups should organize workspace documents, not redefine documents or their provenance
+- notes should gain required workspace context before additional workflow features are layered on top
+
+#### New `work_group`
+
+Meaning:
+
+- user-created organizational grouping inside exactly one `case_workspace`
+
+This table does not mean:
+
+- official court structure
+- provenance
+- source-observation evidence
+
+Recommended columns:
+
+- `id BIGSERIAL PRIMARY KEY`
+- `case_workspace_id BIGINT NOT NULL`
+- `title TEXT NOT NULL`
+- `description TEXT NULL`
+- `archived_at TIMESTAMPTZ NULL`
+- `created_by TEXT NULL`
+- `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+
+Recommended constraints:
+
+- `FOREIGN KEY (case_workspace_id) REFERENCES casework.case_workspace(id) ON DELETE CASCADE`
+- `CHECK (BTRIM(title) <> '')`
+- `UNIQUE (id, case_workspace_id)`
+
+Recommended indexes:
+
+- `ix_work_group_case_workspace_id` on `(case_workspace_id)`
+- `ix_work_group_archived_at` on `(archived_at)`
+
+What is intentionally omitted in A2c:
+
+- `group_kind`
+- `status`
+- `sort_order`
+- parent/nesting columns
+
+Reason:
+
+- none of those are required to satisfy the current repository scenarios
+- `archived_at` is enough to support soft-retirement without inventing a status taxonomy
+- ordering and hierarchy can be added later if real usage demonstrates a need
+
+Uniqueness semantics:
+
+- `id` is the identity
+- `title` is user-facing, not canonical identity
+- two groups in the same workspace may have the same title if the user intentionally creates them
+
+Lifecycle semantics:
+
+- work groups should normally be archived, not physically deleted
+- physical deletion may still be allowed, but note FKs should make accidental loss of human notes unlikely
+
+#### New `work_group_document`
+
+Meaning:
+
+- membership of a workspace-scoped logical document in a user work group
+
+This table does not mean:
+
+- provenance
+- official occurrence
+- document identity
+
+Recommended shape:
+
+- `id BIGSERIAL PRIMARY KEY`
+- `case_workspace_id BIGINT NOT NULL`
+- `work_group_id BIGINT NOT NULL`
+- `case_workspace_document_id BIGINT NOT NULL`
+- `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+
+Recommended constraints:
+
+- `FOREIGN KEY (case_workspace_id) REFERENCES casework.case_workspace(id) ON DELETE CASCADE`
+- `FOREIGN KEY (work_group_id, case_workspace_id) REFERENCES casework.work_group(id, case_workspace_id) ON DELETE CASCADE`
+- `FOREIGN KEY (case_workspace_document_id, case_workspace_id) REFERENCES casework.case_workspace_document(id, case_workspace_id) ON DELETE CASCADE`
+- `UNIQUE (work_group_id, case_workspace_document_id)`
+
+Recommended indexes:
+
+- `ix_work_group_document_case_workspace_id` on `(case_workspace_id)`
+- `ix_work_group_document_case_workspace_document_id` on `(case_workspace_document_id)`
+
+Recommended supporting parent constraints:
+
+- `UNIQUE (id, case_workspace_id)` on `casework.work_group`
+- `UNIQUE (id, case_workspace_id)` on `casework.case_workspace_document`
+
+Why the redundant `case_workspace_id` is recommended:
+
+- independent FKs on `work_group_id` and `case_workspace_document_id` do not prove same-workspace membership
+- the redundant workspace key allows PostgreSQL to enforce that the group and workspace-document pair both belong to the same workspace
+- this is a small, explicit integrity cost for a strong correctness gain
+
+Why application-only validation is not recommended:
+
+- the cross-workspace failure mode is real
+- the required redundancy is modest
+- this is precisely the kind of invariant PostgreSQL should enforce directly
+
+Minimal membership metadata:
+
+- `created_at` only
+
+Deliberately omitted in A2c:
+
+- `added_by`
+- membership notes
+- membership sort order
+
+Reason:
+
+- these are helpful but not required to solve the current organization problem
+- they can be added later without changing the core relational shape
+
+#### `consultation_note` Evolution
+
+Current repository state:
+
+- table exists
+- columns are:
+  - `case_file_id`
+  - `bucket_id`
+  - `document_id`
+  - `file_binary_id`
+  - `note_kind`
+  - `note_text`
+  - `author_name`
+- current live row count: `0`
+
+Recommended A2c evolution:
+
+- add `case_workspace_id BIGINT NOT NULL`
+- add `work_group_id BIGINT NULL`
+- add `case_workspace_document_id BIGINT NULL`
+- keep `case_file_id BIGINT NULL`
+- drop legacy `bucket_id`, `document_id`, and `file_binary_id`
+- do not add generic polymorphic targeting
+
+Smallest recommended target model:
+
+- `case_workspace_id` is the required context
+- optional `work_group_id` is organizational context
+- optional `case_file_id` is an official-proceeding subject
+- optional `case_workspace_document_id` is a workspace-scoped document subject
+
+Recommended A2c omission:
+
+- do not retain `bucket_id` in the evolved target model
+- do not retain `file_binary_id` in the evolved target model
+
+Reason:
+
+- neither is required by the current concrete scenarios
+- `file_binary_id` is not naturally workspace-scoped because binaries may be shared
+- bucket-specific notes can be deferred until there is a concrete workflow need and a clean workspace-consistent model
+- current repository search shows no runtime dependency that requires these legacy note target columns to survive one transitional migration
+
+#### Note Targeting Semantics
+
+Recommended model:
+
+- context plus optional subject
+
+Required context:
+
+- every new note belongs to exactly one `case_workspace`
+
+Optional organizational context:
+
+- `work_group_id`
+
+Optional subject:
+
+- `case_file_id`
+- or `case_workspace_document_id`
+- or neither
+
+Recommended constraint:
+
+- `num_nonnulls(case_file_id, case_workspace_document_id) <= 1`
+
+This means:
+
+- workspace strategy note:
+  - workspace only
+- work-group note:
+  - workspace + work group
+- official-case note:
+  - workspace + case file
+- document note:
+  - workspace + case workspace document
+- group-specific document note:
+  - workspace + work group + case workspace document
+- group-specific case note:
+  - workspace + work group + case file
+
+Why not exactly one target:
+
+- a work-group note naturally has workspace context plus group context
+- a document note may also belong to a work group
+- requiring exactly one target FK would force artificial duplication of note meaning
+
+Why not allow both `case_file_id` and `case_workspace_document_id` in A2c:
+
+- that would invite a more complex “case-specific meaning of a document” model
+- PostgreSQL cannot cheaply enforce that the selected document is official/relevant to the selected case file without a more elaborate cross-table design
+- that scenario can be added later if it becomes a demonstrated need
+
+#### Note Workspace Integrity
+
+Recommended constraints:
+
+- `FOREIGN KEY (case_workspace_id) REFERENCES casework.case_workspace(id)`
+- `FOREIGN KEY (work_group_id, case_workspace_id) REFERENCES casework.work_group(id, case_workspace_id)`
+- `FOREIGN KEY (case_file_id, case_workspace_id) REFERENCES casework.case_file(id, case_workspace_id)`
+- `FOREIGN KEY (case_workspace_document_id, case_workspace_id) REFERENCES casework.case_workspace_document(id, case_workspace_id)`
+- `CHECK (num_nonnulls(case_file_id, case_workspace_document_id) <= 1)`
+
+Recommended indexes:
+
+- `ix_consultation_note_case_workspace_id` on `(case_workspace_id)`
+- `ix_consultation_note_work_group_id` on `(work_group_id)`
+- `ix_consultation_note_case_file_id` on `(case_file_id)`
+- `ix_consultation_note_case_workspace_document_id` on `(case_workspace_document_id)`
+
+Recommended supporting parent constraints:
+
+- `UNIQUE (id, case_workspace_id)` on `casework.case_file`
+- `UNIQUE (id, case_workspace_id)` on `casework.case_workspace_document`
+- `UNIQUE (id, case_workspace_id)` on `casework.work_group`
+
+Result:
+
+- a note cannot point to a `case_file` from another workspace
+- a note cannot point to a `work_group` from another workspace
+- a note cannot point to a workspace-document membership from another workspace
+
+Document note targeting recommendation:
+
+- target `case_workspace_document`, not raw `document`
+
+Reason:
+
+- `document` alone is not workspace-scoped
+- the same logical document may belong to multiple workspaces
+- `case_workspace_document` preserves the intended note context naturally
+
+#### Relationship Between Work Groups And Notes
+
+Recommendation:
+
+- work-group notes should directly reference `work_group`
+
+Reason:
+
+- the group itself is the organizational object
+- storing group meaning in note metadata would weaken integrity and make querying clumsier
+
+Deletion/archive behavior:
+
+- work groups should normally be archived via `archived_at`
+- `work_group_document` may cascade on physical group deletion
+- `consultation_note.work_group_id` should not cascade-delete notes
+- preferred FK behavior for `consultation_note.work_group_id` is `ON DELETE RESTRICT` / `NO ACTION`
+- `consultation_note.case_file_id` and `consultation_note.case_workspace_document_id` should also default to `ON DELETE RESTRICT` / `NO ACTION` in A2c
+- `consultation_note.case_workspace_id` should also use `ON DELETE RESTRICT` / `NO ACTION`; notes must not be cascade-deleted at workspace deletion time
+
+This encourages archiving rather than deletion and avoids silent loss of human notes.
+
+#### Relationship Between Work Groups And Provenance
+
+This must remain explicit:
+
+- `document_origin` = how a document became known in a workspace
+- `work_group_document` = how a user organizes that workspace document
+
+Example:
+
+- a French letter may have `document_origin = manual_received`
+- and also belong to:
+  - “French proceedings”
+  - “Hearing preparation”
+  - “Evidence”
+  - “Documents to translate”
+
+Those group memberships are organization, not provenance.
+
+#### Scenario Check
+
+##### A. Portuguese hearing preparation
+
+- create `work_group = 'Hearing 3 November'` under the PT workspace
+- add multiple `case_workspace_document` memberships to it
+- those documents may come from different official `case_file` / `bucket` paths
+- no canonical official structure changes
+
+##### B. French prospective workspace
+
+- create workspace with no `case_file`
+- create `work_group = 'Initial French material'`
+- create workspace-native documents and origins
+- add workspace notes and work-group notes
+
+No official proceeding is required.
+
+##### C. Same document in several groups
+
+- one `case_workspace_document`
+- many `work_group_document` rows
+- still one logical `document`
+- still one provenance history per workspace/document membership
+
+##### D. Cross-workspace integrity failure
+
+Example attempted insert:
+
+- `work_group_id = group from workspace A`
+- `case_workspace_document_id = membership from workspace B`
+- `case_workspace_id = workspace A`
+
+Why PostgreSQL rejects it:
+
+- `(work_group_id, case_workspace_id)` must match `work_group(id, case_workspace_id)`
+- `(case_workspace_document_id, case_workspace_id)` must match `case_workspace_document(id, case_workspace_id)`
+- the workspace key cannot satisfy both parents if they belong to different workspaces
+
+##### E. Workspace-level strategy note
+
+- `case_workspace_id` set
+- `work_group_id` null
+- `case_file_id` null
+- `case_workspace_document_id` null
+
+Valid.
+
+##### F. Work-group note
+
+- `case_workspace_id` set
+- `work_group_id` set
+- `case_file_id` null
+- `case_workspace_document_id` null
+
+Valid.
+
+##### G. Document-specific note
+
+- target `case_workspace_document_id`, not raw `document_id`
+- optional `work_group_id` may also be set
+
+This preserves workspace integrity naturally.
+
+##### H. Existing consultation notes
+
+- current live row count is `0`
+- therefore no destructive data rewrite is required for the current repository state
+- if future non-empty rows appear before A2c lands, deterministic workspace derivation should use:
+  - `case_file.case_workspace_id` when `case_file_id` is present
+  - otherwise `case_workspace_document.case_workspace_id` when document-targeted rows have already been migrated
+
+#### Directus Implications
+
+This relational shape should be straightforward for Directus to expose:
+
+- workspace page:
+  - workspace metadata
+  - work-group list
+  - workspace notes
+- work-group page:
+  - group metadata
+  - group notes
+  - group document memberships via `work_group_document`
+- document note view:
+  - note joined through `case_workspace_document`
+
+The model should not be distorted for Directus.
+Directus can consume the explicit relations once they exist.
+
+#### PostgreSQL Backfill And Migration Requirements
+
+Current live data:
+
+- `consultation_note` row count = `0`
+- current target combinations present = none
+- ambiguous workspace resolution count = `0`
+
+Repository dependency check for legacy note target columns:
+
+- no SQL views reference `consultation_note.bucket_id`, `consultation_note.document_id`, or `consultation_note.file_binary_id`
+- no app importer/runtime code references those note target columns
+- no Directus-specific runtime SQL/config in the repository depends on those note target columns
+- the only concrete repository references are the current `consultation_note` table definition and the bootstrap index `ix_consultation_note_document_id`
+
+Recommended A2c backfill for the current repository:
+
+- no `work_group` backfill
+- no `work_group_document` backfill
+- no `consultation_note` data backfill required because there are no live rows
+- drop the legacy `consultation_note.bucket_id`, `document_id`, and `file_binary_id` columns directly in A2c rather than carrying them as deprecated compatibility columns
+
+Deterministic migration pattern to preserve if notes become non-empty before implementation:
+
+1. add `case_workspace_id` nullable
+2. backfill from `case_file.case_workspace_id` for case-targeted notes
+3. migrate document-targeted notes to `case_workspace_document_id`
+4. validate no ambiguous or unresolved workspace assignments remain
+5. set `case_workspace_id` to `NOT NULL`
+6. add composite workspace-integrity FKs
+
+Recommended validation queries:
+
+- count notes with null resolved workspace after backfill
+- count notes whose target rows disagree on workspace
+- count notes with both `case_file_id` and `case_workspace_document_id` non-null if that shape is disallowed
+
+#### Fresh-Bootstrap Dependency Implications
+
+Required creation order:
+
+1. `case_workspace`
+2. `case_file`
+3. `document`
+4. `case_workspace_document`
+5. `document_origin`
+6. `work_group`
+7. `work_group_document`
+8. evolved `consultation_note`
+
+Important detail:
+
+- any composite unique constraints required for child FKs should exist before the child FK declarations that reference them
+
+#### Validation Criteria For A2c
+
+Before moving past A2c, validate:
+
+- a work group cannot exist without a workspace
+- a work group cannot span workspaces
+- a workspace document can be added to zero, one, or many groups
+- duplicate `(work_group_id, case_workspace_document_id)` memberships are rejected
+- cross-workspace `work_group_document` inserts are rejected by PostgreSQL
+- workspace note, group note, case note, and document note shapes all insert successfully
+- notes with mismatched workspace/context targets are rejected by PostgreSQL
+- document notes target `case_workspace_document`, not raw `document`
+- existing canonical imported counts remain unchanged
+- `document_origin` semantics remain unchanged
+- current consultation views remain unchanged unless explicit new workspace/group views are added
 
 ## Phase B: Source Capture, Source Observation, Canonical Mapping Provenance
 
@@ -1748,10 +2224,15 @@ Phase D is complete when:
 
 ## Recommended Migration Sequence
 
-1. Phase A1 PostgreSQL schema migration
-2. Phase A1 PostgreSQL backfill and validation
-3. minimum importer enhancement for Phase A1 compatibility
-4. later Phase A2 PostgreSQL schema evolution
+Completed:
+
+1. Phase A1 PostgreSQL schema migration, PostgreSQL backfill, and importer compatibility
+2. Phase A2a PostgreSQL schema evolution, PostgreSQL backfill, and importer compatibility
+3. Phase A2b PostgreSQL schema evolution and importer compatibility
+4. Phase A2c PostgreSQL schema evolution for `work_group`, `work_group_document`, and workspace-aware `consultation_note`
+
+Next recommended sequence:
+
 5. Phase B PostgreSQL schema migration
 6. Phase B PostgreSQL backfill from current package/import data
 7. Phase B importer enhancement
@@ -1780,9 +2261,9 @@ Recommended migration file grouping:
    - `document_binary` primary-binary integrity refinement
 
 4. `2026-08-xx-006-phase-a2c-workgroup-notes.sql`
-   - later `work_group`
-   - later `work_group_document`
-   - later `consultation_note` additions
+   - `work_group`
+   - `work_group_document`
+   - workspace-aware `consultation_note` evolution
 
 5. `2026-08-xx-007-phase-b-source-provenance.sql`
    - `source_capture`
@@ -1801,44 +2282,37 @@ Implementation files:
 - later backlog/enqueue utility in `app/` or `scripts/`
 - later worker implementation in a separate module, not Directus
 
-## First Implementation Slice Recommended
+## Phase A2c Implementation Result
 
-Start with Phase A1 only.
+Implemented on 2026-08-31: Phase A2c only.
 
-Implementation slice:
+Implemented slice:
 
-1. add `case_workspace`
-2. add `case_file.case_workspace_id`
-3. backfill workspace from explicit `parent_case_file_id` tree
-4. validate no official relationship changed
-5. make the minimum importer enhancement required for future compatibility
+1. add `work_group`
+2. add `work_group_document`
+3. evolve `consultation_note` to require workspace context and use workspace-safe targets
+4. drop legacy `consultation_note.bucket_id`, `document_id`, and `file_binary_id`
+5. validate composite same-workspace integrity and unchanged canonical counts
 
-Why this slice first:
+Why this slice was the correct boundary:
 
-- it is the smallest high-value extension
-- it proves the new application root without touching imported `document` guarantees
-- it creates the anchor needed by later provenance and manual-document work
+- `case_workspace`, `case_workspace_document`, and `document_origin` are already in place
+- the next missing capability is user organization and workspace-safe notes
+- the repository currently has zero note rows, so the target-model cleanup can be done directly without transitional data shims
 
-## Questions That Genuinely Block Starting Phase A1
+## Questions That Block Phase B, Not A2c
 
-None block Phase A1 if the slice is limited to:
+Questions that block Phase B implementation:
 
-- `case_workspace`
-- `case_workspace_id`
-- recursive PT backfill
-- minimum importer enhancement
+1. the exact direction/cardinality between `source_capture` and `import_batch`
+2. the minimum observation payload needed to preserve acquisition evidence without duplicating canonical schema
+3. the exact mapping-provenance fields to persist on `source_observation_link`
 
-Questions that block Phase A2b implementation:
+Questions deliberately deferred beyond Phase A2c:
 
-1. final `document_identity_class` value set
-2. final imported-only partial unique index definition for `document`
-3. whether the initial workspace-native document flow needs any additional non-importer write-path metadata beyond `document_origin`
-
-Questions deliberately deferred to Phase A2c:
-
-1. final `work_group` shape
-2. exact database-enforced workspace-integrity pattern for `work_group_document`
-3. whether `consultation_note` should target workspace, work group, or both
+1. whether bucket-level or binary-level note targets justify a later workspace-safe extension
+2. whether `work_group_document` needs extra audit fields such as `added_by` or membership note text once real usage appears
+3. whether future case-specific document notes need a richer model that allows both `case_file_id` and `case_workspace_document_id` on the same note without weakening integrity
 
 ## Summary
 
@@ -1852,5 +2326,5 @@ The repository can evolve safely if the work is staged as:
 - Phase C: processing orchestration and derived content infrastructure
 - Phase D: first PDF processor and backlog rollout
 
-The next caution point is the `document` identity transition, not workspace membership.
-That is why A2b should stay focused on manual-document enablement and additive provenance before grouping and note expansion.
+The current next caution point is preserving explicit source/acquisition evidence in Phase B without collapsing it into canonical entities or `document_origin`.
+That is why A2c should stay focused on user organization and workspace-safe note targeting, and leave source-observation provenance to the following phase.
