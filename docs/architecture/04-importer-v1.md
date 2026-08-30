@@ -73,3 +73,11 @@ Those stay on disk and can be integrated later.
 
 The workspace-assignment step is a PostgreSQL application-database concern.
 It is separate from the legacy corpus extraction/package flow and only runs when the evolved PostgreSQL schema is present.
+
+
+## A2a Compatibility
+
+If the evolved PostgreSQL schema includes casework.case_workspace_document, the importer also maintains workspace-level document membership after canonical case, bucket, and document links are imported.
+
+This is PostgreSQL-side maintenance for the normal import path. It is insert-safe and idempotent, but it is not a general reconciliation mechanism for arbitrary later case_file.case_workspace_id reassignment.
+

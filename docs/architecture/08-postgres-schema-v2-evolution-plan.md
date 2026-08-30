@@ -442,13 +442,261 @@ Phase A1 is complete when:
 - importer remains able to import the current package
 - existing canonical data and parent relationships are unchanged
 
-### Later Phase A2 Work
+### Proposed Phase A2a: Workspace Reference Plus Workspace-Document Closure
 
-Do later, not in the first slice:
+Purpose:
+
+- make `case_workspace` useful beyond the current imported PT family
+- keep workspace-level organization distinct from official court structure
+- avoid introducing manual-document provenance before `document_origin` is ready
+- create the dependency base that later `work_group` can safely build on
+
+Recommended PostgreSQL schema-evolution scope:
 
 - `case_workspace_reference`
-- `work_group`
 - `case_workspace_document`
+- minimal importer enhancement so future package imports keep `case_workspace_document` current
+
+Deliberately defer from A2a:
+
+- `work_group`
+- `work_group_document`
+- `document_origin`
+- `consultation_note` workspace/group linkage
+- `document` uniqueness transition
+
+Why this is the smallest useful boundary:
+
+- `case_workspace_reference` is the minimum structure that makes a workspace meaningful before or without an imported official `case_file`
+- `case_workspace_document` is the minimum structure that makes a workspace document-bearing rather than only a parent of proceedings
+- `work_group` should follow, not precede, `case_workspace_document`, because group membership should be constrained inside a workspace document universe rather than floating directly against `document`
+- `document_origin` must remain separate so workspace association does not become a provenance table
+
+#### New `case_workspace_reference`
+
+Purpose:
+
+- workspace-level legal/external reference registry
+- supports known identifiers and labels before, after, or without a canonical `case_file`
+
+Recommended semantic choice:
+
+- Option A: avoid duplication
+
+Reason:
+
+- official proceeding identity already lives authoritatively on `case_file`
+- duplicating `case_file.processo` into `case_workspace_reference` would create a second stored representation of the same canonical imported fact without adding new semantics
+- `case_workspace_reference` is most useful precisely where no authoritative `case_file` representation exists yet, or where the reference is contextual rather than the canonical proceeding identifier
+- this preserves the boundary that `case_file` is the canonical official-proceeding record and `case_workspace_reference` is additive workspace context
+
+Option B was considered and rejected for A2a:
+
+- adding `case_file_id` to support derived official-case-number rows would avoid an unlinked duplicate, but it would still create redundant storage of an authoritative canonical fact
+- it would also introduce synchronization responsibility for little immediate gain
+- if a later repository need emerges for explicitly denormalized workspace-level official references, that can still be added then with a deliberate derivation model
+
+This table means:
+
+- a reference the application associates with the broader workspace
+
+This table does not mean:
+
+- an official proceeding row
+- source-observation evidence
+- document provenance
+- a copy of official proceeding identity already structurally represented by `case_file`
+
+Columns:
+
+- `id BIGSERIAL PRIMARY KEY`
+- `case_workspace_id BIGINT NOT NULL`
+- `reference_kind TEXT NOT NULL`
+- `country_id CHAR(2) NULL`
+- `court_name TEXT NULL`
+- `reference_value TEXT NOT NULL`
+- `reference_label TEXT NULL`
+- `is_primary BOOLEAN NOT NULL DEFAULT FALSE`
+- `valid_from DATE NULL`
+- `valid_to DATE NULL`
+- `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+
+Constraints:
+
+- `FOREIGN KEY (case_workspace_id) REFERENCES casework.case_workspace(id) ON DELETE CASCADE`
+- `FOREIGN KEY (country_id) REFERENCES casework.country(id)`
+- `CHECK (reference_kind IN ('external_reference', 'internal_reference', 'prospective_reference'))`
+- `CHECK (BTRIM(reference_value) <> '')`
+- `CHECK (valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from)`
+
+Indexes:
+
+- `ix_case_workspace_reference_case_workspace_id`
+- `ix_case_workspace_reference_country_id`
+- `ix_case_workspace_reference_reference_kind`
+- unique expression index on workspace/reference identity:
+  - `(case_workspace_id, reference_kind, COALESCE(country_id, ''), COALESCE(court_name, ''), reference_value)`
+- partial unique index for one primary reference per workspace:
+  - `(case_workspace_id) WHERE is_primary`
+
+Backfill recommendation:
+
+- no automatic backfill for the current imported Portuguese workspace
+- the authoritative official proceeding numbers remain represented by `case_file.processo`
+- `case_workspace_reference` starts empty unless there are workspace-level references not already structurally represented by attached `case_file` rows
+
+Examples that do belong here:
+
+- a French reference known before a structured official importer exists
+- a pre-filing/prospective matter reference
+- a user-assigned internal reference
+- a contextual external reference not equivalent to a canonical `case_file` identifier
+
+Implication for the current PT corpus:
+
+- the current workspace can be valid and useful with zero `case_workspace_reference` rows
+- workspace identity continues to come from `case_workspace`
+- official proceeding identity continues to come from the attached `case_file` rows
+
+#### New `case_workspace_document`
+
+Purpose:
+
+- workspace-level membership of logical documents
+- defines which canonical `document` rows belong to a workspace regardless of which official bucket exposed them
+
+This table means:
+
+- the workspace currently includes this logical document
+
+This table does not mean:
+
+- why the document entered the application
+- how the document was observed at the source
+- official bucket occurrence
+
+Those later concerns belong to:
+
+- `document_origin`
+- `source_observation`
+- `bucket_document`
+
+Columns:
+
+- `id BIGSERIAL PRIMARY KEY`
+- `case_workspace_id BIGINT NOT NULL`
+- `document_id BIGINT NOT NULL`
+- `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+
+Constraints:
+
+- `FOREIGN KEY (case_workspace_id) REFERENCES casework.case_workspace(id) ON DELETE CASCADE`
+- `FOREIGN KEY (document_id) REFERENCES casework.document(id) ON DELETE CASCADE`
+- `UNIQUE (case_workspace_id, document_id)`
+
+Indexes:
+
+- `ix_case_workspace_document_document_id`
+
+Backfill recommendation:
+
+- automatically populate from the canonical imported path:
+  - `case_workspace -> case_file -> bucket -> bucket_document -> document`
+- insert distinct pairs only
+- use `ON CONFLICT (case_workspace_id, document_id) DO NOTHING`
+
+This backfill is a pure PostgreSQL backfill.
+It does not alter `bucket_document`, `document`, or provenance semantics.
+
+Importer enhancement recommendation:
+
+- after `bucket_document` import is complete and workspaces are assigned, insert distinct workspace/document pairs for all imported `bucket_document` rows whose `case_file.case_workspace_id` is not null
+- do not infer anything from package artifacts or source-observation data in this slice
+- treat this as insert-safe maintenance for the normal importer path where `case_file.case_workspace_id` is stable or only grows through fresh imports
+- do not treat it as a full reconciliation mechanism for arbitrary later workspace reassignment
+
+If `case_file.case_workspace_id` is later reassigned:
+
+- existing `case_workspace_document` rows would need an explicit reconciliation/backfill routine
+- insert-only importer logic would not remove stale workspace/document membership rows from the old workspace
+- that reassignment case should therefore be considered outside normal A2a importer behavior unless a dedicated reconciliation step is added
+
+Why no `association_kind` in A2a:
+
+- the row should remain a simple workspace-membership closure
+- a single document may later have multiple reasons for being known in the same workspace
+- encoding one reason here would either become misleading or force provenance semantics into the wrong table
+- later provenance belongs in `document_origin`
+
+#### Why `work_group` And `work_group_document` Stay Deferred
+
+They are intentionally not part of A2a.
+
+Reasons:
+
+- they are user-organization structures, not a prerequisite for establishing workspace identity or workspace document closure
+- once `case_workspace_document` exists, later `work_group_document` can safely point to workspace-scoped document membership rather than free-floating `document` rows
+- adding `work_group` first would create UI structure without solving the more fundamental workspace/document boundary
+- the repository does not yet have a workspace-first Directus model, so adding grouping now would add schema without immediate stable UI semantics
+
+#### Manual/External Document Path After A2a
+
+A2a does not yet complete the manual-document path.
+
+After A2a, the system will support:
+
+- a workspace with references but no `case_file`
+- official imported documents visible at workspace level
+- later attachment of official `case_file` rows to an existing workspace without changing workspace identity
+
+What still remains missing for a principled manual/external document path:
+
+- additive `document_origin`
+- a resolved `document` identity/uniqueness transition for non-imported documents
+- importer-agnostic manual upload/write path into `document` plus `file_binary`
+- workspace/group note linkage if notes must exist before any `case_file`
+
+This means:
+
+- a partially known French proceeding can be represented as a workspace plus references after A2a
+- a prospective proceeding can be represented as a workspace plus references after A2a
+- but manually uploaded letters, drafts, and user-authored work product should wait for the next provenance/document slice rather than being forced through imported-document assumptions
+
+#### Directus And Consultation Impact
+
+Existing consultation views should remain unchanged.
+
+No existing view depends on the new A2a tables.
+
+Immediate utility after A2a:
+
+- PostgreSQL can answer workspace-level document inventory
+- PostgreSQL can answer workspace-level reference inventory
+- the current PT workspace becomes queryable as one workspace-level document set rather than only as five separate proceedings
+
+Directus changes are not required for the schema slice itself.
+If a small UI follow-up is wanted later, the lowest-risk addition would be:
+
+- expose `case_workspace_reference`
+- add a read-oriented workspace-document view
+
+#### Validation Criteria For A2a
+
+Before moving past A2a, validate:
+
+- every imported `case_file` with a `case_workspace_id` contributes its canonical documents into exactly one matching `case_workspace_document` set
+- no `case_workspace_document` row exists without a valid workspace and document
+- `case_workspace_reference` remains empty for the current PT workspace unless non-duplicative workspace-level references are intentionally added
+- existing `case_file`, `bucket`, `bucket_document`, `document`, and `document_binary` counts remain unchanged
+- existing consultation views still return the same results unless new optional workspace views are explicitly added
+
+### Later Phase A2b Work
+
+Do later, after A2a:
+
+- `work_group`
 - `work_group_document`
 - `document_origin`
 - `consultation_note` workspace/group linkage
@@ -1029,21 +1277,24 @@ Recommended migration file grouping:
    - `case_file.case_workspace_id`
    - validation-safe PostgreSQL backfill
 
-2. `2026-08-xx-004-phase-a2-workspace-provenance.sql`
-   - later `case_workspace_reference`
+2. `2026-08-xx-004-phase-a2a-workspace-reference-document.sql`
+   - `case_workspace_reference`
+   - `case_workspace_document`
+   - PostgreSQL backfill for workspace references and workspace-document closure
+
+3. `2026-08-xx-005-phase-a2b-workgroup-document-origin.sql`
    - later `work_group`
-   - later `case_workspace_document`
    - later `work_group_document`
    - later `document_origin`
    - later `consultation_note` additions
    - later `document` uniqueness transition
 
-3. `2026-08-xx-005-phase-b-source-provenance.sql`
+4. `2026-08-xx-006-phase-b-source-provenance.sql`
    - `source_capture`
    - `source_observation`
    - `source_observation_link`
 
-4. `2026-08-xx-006-phase-c-processing-core.sql`
+5. `2026-08-xx-007-phase-c-processing-core.sql`
    - `document_representation`
    - `document_segment`
    - `processing_job`

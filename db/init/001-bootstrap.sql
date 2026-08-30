@@ -53,6 +53,32 @@ CREATE TABLE IF NOT EXISTS casework.case_workspace (
   CHECK (lifecycle_status IN ('prospective', 'preparing', 'filed', 'active', 'closed', 'archived'))
 );
 
+CREATE TABLE IF NOT EXISTS casework.case_workspace_reference (
+  id BIGSERIAL PRIMARY KEY,
+  case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE CASCADE,
+  reference_kind TEXT NOT NULL,
+  country_id CHAR(2) NULL REFERENCES casework.country(id),
+  court_name TEXT NULL,
+  reference_value TEXT NOT NULL,
+  reference_label TEXT NULL,
+  is_primary BOOLEAN NOT NULL DEFAULT FALSE,
+  valid_from DATE NULL,
+  valid_to DATE NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (reference_kind IN ('external_reference', 'internal_reference', 'prospective_reference')),
+  CHECK (BTRIM(reference_value) <> ''),
+  CHECK (valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from)
+);
+
+CREATE TABLE IF NOT EXISTS casework.case_workspace_document (
+  id BIGSERIAL PRIMARY KEY,
+  case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE CASCADE,
+  document_id BIGINT NOT NULL REFERENCES casework.document(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (case_workspace_id, document_id)
+);
 CREATE TABLE IF NOT EXISTS casework.case_file (
   id BIGSERIAL PRIMARY KEY,
   court_id BIGINT NOT NULL REFERENCES casework.court(id),
@@ -198,6 +224,18 @@ CREATE INDEX IF NOT EXISTS ix_bucket_document_document_id ON casework.bucket_doc
 CREATE INDEX IF NOT EXISTS ix_case_workspace_primary_country_id ON casework.case_workspace(primary_country_id);
 CREATE INDEX IF NOT EXISTS ix_case_workspace_lifecycle_status ON casework.case_workspace(lifecycle_status);
 CREATE INDEX IF NOT EXISTS ix_case_file_case_workspace_id ON casework.case_file(case_workspace_id);
+CREATE INDEX IF NOT EXISTS ix_case_workspace_reference_case_workspace_id ON casework.case_workspace_reference(case_workspace_id);
+CREATE INDEX IF NOT EXISTS ix_case_workspace_reference_country_id ON casework.case_workspace_reference(country_id);
+CREATE INDEX IF NOT EXISTS ix_case_workspace_reference_reference_kind ON casework.case_workspace_reference(reference_kind);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_case_workspace_reference_identity ON casework.case_workspace_reference (
+  case_workspace_id,
+  reference_kind,
+  COALESCE(country_id, ''),
+  COALESCE(court_name, ''),
+  reference_value
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_case_workspace_reference_primary ON casework.case_workspace_reference(case_workspace_id) WHERE is_primary;
+CREATE INDEX IF NOT EXISTS ix_case_workspace_document_document_id ON casework.case_workspace_document(document_id);
 CREATE INDEX IF NOT EXISTS ix_document_document_procinfo ON casework.document(document_procinfo);
 CREATE INDEX IF NOT EXISTS ix_document_document_date ON casework.document(document_date);
 CREATE INDEX IF NOT EXISTS ix_document_binary_file_binary_id ON casework.document_binary(file_binary_id);
@@ -458,3 +496,4 @@ ON CONFLICT (id) DO UPDATE
 SET
   country_name = EXCLUDED.country_name,
   iso_alpha3 = EXCLUDED.iso_alpha3;
+

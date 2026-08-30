@@ -245,6 +245,50 @@ async function assignCaseWorkspaces(client) {
   );
 }
 
+async function hasCaseWorkspaceDocumentSchema(client) {
+  const result = await client.query(
+    "SELECT EXISTS (" +
+      " SELECT 1" +
+      " FROM information_schema.tables" +
+      " WHERE table_schema = 'casework'" +
+      "   AND table_name = 'case_workspace_document'" +
+      ") AS has_case_workspace_document",
+  );
+  return Boolean(result.rows[0]?.has_case_workspace_document);
+}
+
+async function populateCaseWorkspaceDocuments(client) {
+  const orphanResult = await client.query(
+    "SELECT 1" +
+      " FROM casework.case_file AS cf" +
+      " LEFT JOIN casework.case_workspace AS cw" +
+      "   ON cw.id = cf.case_workspace_id" +
+      " WHERE cf.case_workspace_id IS NOT NULL" +
+      "   AND cw.id IS NULL" +
+      " LIMIT 1",
+  );
+
+  if (orphanResult.rowCount > 0) {
+    throw new Error("case_file contains case_workspace_id values that do not resolve to case_workspace rows");
+  }
+
+  await client.query(
+    "INSERT INTO casework.case_workspace_document (" +
+      " case_workspace_id," +
+      " document_id" +
+      ")" +
+      " SELECT DISTINCT" +
+      "   cf.case_workspace_id," +
+      "   bd.document_id" +
+      " FROM casework.case_file AS cf" +
+      " JOIN casework.bucket AS b" +
+      "   ON b.case_file_id = cf.id" +
+      " JOIN casework.bucket_document AS bd" +
+      "   ON bd.bucket_id = b.id" +
+      " WHERE cf.case_workspace_id IS NOT NULL" +
+      " ON CONFLICT (case_workspace_id, document_id) DO NOTHING",
+  );
+}
 async function upsertImportBatch(client, manifest) {
   const result = await client.query(
     `
@@ -638,6 +682,7 @@ async function main() {
   try {
     await withTransaction(client, async () => {
       const workspaceSchemaEnabled = await hasCaseWorkspaceSchema(client);
+      const workspaceDocumentSchemaEnabled = await hasCaseWorkspaceDocumentSchema(client);
       await upsertImportBatch(client, manifest);
 
       const caseIdByProcesso = new Map();
@@ -706,6 +751,10 @@ async function main() {
         }
         await upsertDocumentBinary(client, documentId, fileBinaryId, row);
       }
+
+      if (workspaceDocumentSchemaEnabled) {
+        await populateCaseWorkspaceDocuments(client);
+      }
     });
   } finally {
     await client.end();
@@ -726,3 +775,6 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+
+
