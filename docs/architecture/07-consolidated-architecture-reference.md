@@ -634,11 +634,19 @@ Architectural treatment:
 - later attach official proceeding identifiers and imported `case_file`s
 - preserve continuity of the same workspace rather than creating a second disconnected area
 
-## What We Intend To Implement Now
+## Planned Delivery Phases
 
-The next schema evolution should focus on the smallest changes that unlock broader case-work while preserving the current importer.
+The next architecture steps should be implemented in phases that preserve clear boundaries and avoid mixing concerns too early.
 
-Implement now:
+### Phase A: case/workspace plus document provenance
+
+Purpose:
+
+- broaden the application from imported proceeding consultation into a real legal workspace
+- keep imported official structure intact
+- support manual/user material in the same document system
+
+Implement in this phase:
 
 - `case_workspace`
 - `case_workspace_id` on `case_file`
@@ -650,15 +658,64 @@ Implement now:
 - `document_origin`
 - `case_workspace_id` and `work_group_id` on `consultation_note`
 - adjustment of `document` uniqueness assumptions for non-imported documents
-- processing/job state
+
+### Phase B: source capture / source observation / canonical mapping provenance
+
+Purpose:
+
+- preserve acquisition evidence as a first-class layer
+- distinguish source exposure from importer interpretation
+- retain source-to-canonical mapping history
+
+Implement in this phase:
+
+- `source_capture`
+- `source_observation`
+- `source_observation_link`
+- importer-side population of the new provenance layer
+- capture/mapping linkage to existing `import_batch` where appropriate
+
+Important boundary:
+
+- `source_capture` must not be assumed 1:1 with `import_batch`
+- source observation preserves what the source showed
+- canonical entities preserve the normalized interpretation
+
+### Phase C: processing jobs plus representation/segment infrastructure
+
+Purpose:
+
+- introduce format-agnostic processing orchestration
+- keep processing separate from acquisition and canonical interpretation
+- prepare common downstream infrastructure for extraction, normalization, and later retrieval
+
+Implement in this phase:
+
+- `processing_job`
+- `processing_result`
 - `document_representation`
 - `document_segment`
+- typed processing targets with FK integrity and a one-target CHECK rule
 
-## What The Model Should Leave Room For
+### Phase D: first concrete PDF processing plus existing corpus backlog
+
+Purpose:
+
+- make the first high-priority processor real without defining the whole system around PDF
+- validate the processing framework against the current corpus
+
+Implement in this phase:
+
+- first PDF-focused binary verification/inspection/extraction path
+- selective OCR decisioning and OCR fallback for PDFs where needed
+- representation/segment population for PDFs
+- existing imported PDF backlog creation from current `file_binary`
+- worker execution against the current corpus
+
+### What Later Phases Should Leave Room For
 
 Leave room for:
 
-- source-capture/source-observation layer
 - email attachments and other container decomposition
 - confidentiality/visibility policy growth
 - entities/parties/institutions
@@ -667,7 +724,7 @@ Leave room for:
 - managed runtime content-addressed storage separate from import-package paths
 - richer search services and APIs
 
-## What Remains Deliberately Deferred
+### What Remains Deliberately Deferred
 
 Deliberately defer:
 
@@ -730,26 +787,27 @@ That distinction is especially important in a legal context, where later review 
    document_origin        file_binary
                                 │
                                 ▼
-                    document_representation
-                                │
-                                ▼
-                        document_segment
-                                │
-                                ▼
                         processing_job/result
                                 │
                                 ▼
                               worker
                                 │
-                ┌───────────────┼───────────────┐
-                ▼               ▼               ▼
-           extraction       indexing        AI/reference
-                                │
-                                ▼
-                          search / graph
-                                │
-                                ▼
-                        domain services / MCP
+               ┌────────────────┼────────────────┐
+               ▼                ▼                ▼
+     document_representation  indexing      AI/reference
+               │
+               ▼
+        document_segment
+               │
+               └──────────────┐
+                              ▼
+                     subsequent processing jobs
+                              │
+                              ▼
+                         search / graph
+                              │
+                              ▼
+                      domain services / MCP
 
  source_capture / source_observation / source_observation_link
  sit alongside acquisition/import and preserve what the source showed
