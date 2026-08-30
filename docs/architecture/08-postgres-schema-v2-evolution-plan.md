@@ -692,15 +692,507 @@ Before moving past A2a, validate:
 - existing `case_file`, `bucket`, `bucket_document`, `document`, and `document_binary` counts remain unchanged
 - existing consultation views still return the same results unless new optional workspace views are explicitly added
 
-### Later Phase A2b Work
+### Proposed Phase A2b: Manual Documents And Additive Document Provenance
 
-Do later, after A2a:
+Purpose:
+
+- allow the workspace to contain manually received documents
+- allow manual uploads and user-authored documents without weakening imported-document guarantees
+- preserve additive provenance without collapsing it into `case_workspace_document`
+- keep official imported occurrence semantics in `bucket_document`
+
+Recommended smallest implementation slice:
+
+- evolve `document` identity rules so non-imported logical documents are possible
+- add `document_origin`
+- add one narrow `document_binary` integrity rule so multiple binaries can exist but only one primary binary is current
+
+Deliberately defer from A2b:
 
 - `work_group`
 - `work_group_document`
+- workspace/group expansion of `consultation_note`
+- explicit document-merge tooling
+- source-capture/source-observation provenance
+- processing/revision lineage beyond basic logical-document-to-binary linking
+
+Why this is the smallest safe slice:
+
+- A2a already made documents visible at workspace level through `case_workspace_document`
+- the next missing capability is not grouping but the ability to create non-imported documents and explain how they entered the workspace
+- `document_origin` is necessary before any manual-document workflow, because otherwise manual documents would have workspace membership but no provenance
+- `work_group` becomes more coherent after manual/user documents exist in the shared workspace document pool
+
+#### `document` Identity Transition
+
+Current repository constraint:
+
+- `document.source_system` is `NOT NULL`
+- imported identity is enforced globally by
+  `(source_system, document_procinfo, document_name, document_date, document_type, claimed_size_bytes)`
+
+This works for imported court material but blocks:
+
+- documents with no source system
+- user-authored drafts
+- incomplete manually received material
+- workspace-native documents that later gain additional origins
+
+Recommended A2b change:
+
+- keep one shared `document` table
+- add `document_identity_class TEXT NOT NULL DEFAULT 'imported_source_keyed'`
+- relax `document.source_system` to nullable
+- replace the current global unique index with a partial imported-only unique index
+
+Recommended `document_identity_class` values:
+
+- `imported_source_keyed`
+- `workspace_native`
+
+Why identity class instead of provenance kind:
+
+- provenance belongs in `document_origin`, not on `document`
+- the same logical document may later have both manual and imported origins
+- what needs to differ on `document` is the identity rule, not the historical path by which it became known
+
+Proposed `document` constraints:
+
+- `CHECK (document_identity_class IN ('imported_source_keyed', 'workspace_native'))`
+- `CHECK (document_identity_class <> 'imported_source_keyed' OR source_system IS NOT NULL)`
+
+Imported uniqueness rule to preserve:
+
+- drop `ux_document_source_identity`
+- create partial unique index on
+  `(source_system, document_procinfo, document_name, document_date, document_type, claimed_size_bytes)`
+  `WHERE document_identity_class = 'imported_source_keyed'`
+
+Important PostgreSQL behavior:
+
+- the current importer uses
+  `ON CONFLICT (source_system, document_procinfo, document_name, document_date, document_type, claimed_size_bytes) DO UPDATE`
+- once the global index becomes a partial unique index, that conflict target is no longer sufficient for PostgreSQL index inference by itself
+- for A2b, importer compatibility therefore does require a small change
+
+Smallest importer compatibility strategy:
+
+- keep pre-A2b compatibility by detecting whether `document.document_identity_class` exists
+- if it does not exist, keep the current document upsert
+- if it does exist:
+  - insert imported rows with `document_identity_class = 'imported_source_keyed'`
+  - use
+    `ON CONFLICT (source_system, document_procinfo, document_name, document_date, document_type, claimed_size_bytes) WHERE document_identity_class = 'imported_source_keyed' DO UPDATE`
+  - keep the package contract unchanged
+
+This is the minimum A2b importer enhancement required so current PT package reruns continue to work after the schema evolution.
+
+Backfill for existing imported corpus:
+
+- set all existing rows to `document_identity_class = 'imported_source_keyed'`
+- preserve all existing source-facing values
+- preserve the imported uniqueness guarantee exactly for those rows
+
+Actual current nullability and corpus behavior:
+
+- current schema nullability:
+  - `source_system`: `NOT NULL`
+  - `document_procinfo`: nullable
+  - `document_name`: nullable
+  - `document_date`: nullable
+  - `document_type`: nullable
+  - `claimed_size_bytes`: nullable
+- current imported corpus state in PostgreSQL:
+  - `source_system NULLs = 0`
+  - `document_procinfo NULLs = 0`
+  - `document_name NULLs = 0`
+  - `document_date NULLs = 0`
+  - `document_type NULLs = 0`
+  - `claimed_size_bytes NULLs = 0`
+  - duplicate imported identity tuples under current values = 0
+
+Implication:
+
+- the current imported uniqueness claim is strict for the current corpus and current observed package behavior, because every imported identity column is populated
+- the claim should still be qualified at the schema level, because ordinary PostgreSQL unique indexes treat `NULL` values as distinct
+
+Recommendation for A2b:
+
+- keep ordinary partial unique index behavior
+- do not introduce `NULLS NOT DISTINCT` or expression-normalized identity in A2b
+- explicitly document that imported uniqueness remains strict for the current observed imported packages, while future null-bearing imported packages would require a deliberate follow-up decision if they appear
+
+Non-imported documents after A2b:
+
+- use `document_identity_class = 'workspace_native'`
+- may have `source_system = NULL`
+- may have sparse metadata
+- are not automatically deduplicated by metadata alone
+
+Repository-specific note:
+
+- `canonical_confidence` remains an imported/canonical confidence field
+- it is required for `document_identity_class = 'imported_source_keyed'`
+- it may be `NULL` for `document_identity_class = 'workspace_native'`
+- a broader terminology cleanup is not required to start A2b
+
+#### New `document_origin`
+
+Purpose:
+
+- additive provenance describing how a logical document became known in a workspace/application context
+
+This table means:
+
+- an origin/event/context by which one workspace-level logical document entered or became known in that workspace
+
+This table does not mean:
+
+- official bucket occurrence
+- source-observation evidence
+- workspace membership itself
+
+Those remain:
+
+- `bucket_document`
+- future `source_observation`
+- `case_workspace_document`
+
+Recommended scoping:
+
+- `document_origin` should be workspace-scoped
+- implement that by referencing `case_workspace_document`
+
+Why:
+
+- the same logical document may legitimately belong to multiple workspaces
+- each workspace may know that document through different origins
+- tying origin to `case_workspace_document` enforces that origin is about a specific workspace/document membership, not just a global document row
+
+Recommended columns:
+
+- `id BIGSERIAL PRIMARY KEY`
+- `case_workspace_document_id BIGINT NOT NULL`
+- `origin_kind TEXT NOT NULL`
+- `origin_reference TEXT NULL`
+- `origin_label TEXT NULL`
+- `origin_at TIMESTAMPTZ NULL`
+- `actor_name TEXT NULL`
+- `created_by TEXT NULL`
+- `note_text TEXT NULL`
+- `metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb`
+- `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+
+Recommended `origin_kind` values:
+
+- `manual_received`
+- `manual_uploaded`
+- `user_authored`
+
+Recommended constraints:
+
+- `FOREIGN KEY (case_workspace_document_id) REFERENCES casework.case_workspace_document(id) ON DELETE CASCADE`
+- `CHECK (origin_kind IN ('manual_received', 'manual_uploaded', 'user_authored'))`
+
+Recommended indexes:
+
+- `ix_document_origin_case_workspace_document_id`
+- `ix_document_origin_origin_kind`
+- `ix_document_origin_origin_at`
+
+Why imported official origin is deferred from A2b:
+
+- `bucket_document` already remains the authoritative canonical official occurrence model
+- adding `document_origin(imported_official)` in A2b would require cross-table integrity proving that the referenced official occurrence belongs to the same logical document and workspace membership
+- the straightforward FK shape does not provide that guarantee
+- introducing it now would either rely on application-only validation or force a larger composite-key redesign than A2b needs
+
+Therefore:
+
+- A2b origin kinds are limited to manual/user paths only
+- imported official occurrence remains represented only by
+  `case_file -> bucket -> bucket_document -> document`
+- a future convergence/reconciliation slice may add an explicit official-origin representation if a real need appears and a clean PostgreSQL-enforced model is identified
+
+#### `document_binary` Rule For A2b
+
+The existing table is already the correct place for logical-document-to-binary association.
+
+Small A2b refinement recommended:
+
+- add a partial unique index on `(document_id) WHERE is_primary`
+
+Why:
+
+- a manual or user-authored document may accumulate multiple binaries over time
+- one logical document should have at most one currently primary binary
+- this supports cases such as Markdown draft plus later PDF export without adding a full revision system yet
+
+What A2b deliberately does not solve here:
+
+- explicit revision numbering
+- semantic distinction between source, export, and attachment binaries
+- merge history across documents
+
+Preflight validation required before migration:
+
+- run:
+  `SELECT document_id FROM casework.document_binary WHERE is_primary GROUP BY document_id HAVING COUNT(*) > 1`
+- current corpus result: `0` rows
+
+Primary-binary invariant:
+
+- zero primary binaries is valid
+- one primary binary is valid
+- more than one primary binary for the same logical document is invalid
+
+Those can be added later if the repository proves a real need.
+
+#### Manual Document Transaction Path
+
+Smallest repository-safe transactional path:
+
+1. require an existing `case_workspace`
+2. decide whether this should attach to an existing logical `document` or create a new one
+3. if creating new:
+   - insert `document`
+   - `document_identity_class = 'workspace_native'`
+   - set available metadata such as `document_name`, `document_date`, `document_type`
+4. ensure workspace membership:
+   - insert into `case_workspace_document`
+   - `ON CONFLICT (case_workspace_id, document_id) DO NOTHING`
+5. if a binary exists:
+   - compute SHA-256
+   - upsert/find `file_binary`
+   - insert `document_binary`
+   - if this is the current preferred binary, set `is_primary = TRUE` and clear any prior primary in the same transaction
+6. insert `document_origin`
+   - `origin_kind = 'manual_received'`, `manual_uploaded`, or `user_authored`
+   - include `origin_at`, `actor_name`, `origin_reference`, and `metadata_json` as available
+7. commit one transaction
+
+Required fields in practice:
+
+- `case_workspace_id`
+- either an existing `document_id` or enough metadata to create a new logical document
+- one `document_origin.origin_kind`
+
+Optional fields:
+
+- binary payload / SHA-256
+- `document_name`
+- `document_date`
+- `document_type`
+- origin timestamp/reference/notes
+
+Dedupe rule:
+
+- never collapse logical documents by SHA-256 alone
+- reuse existing `file_binary` when the same SHA-256 already exists
+- reuse existing `document` only by explicit decision or strong matching logic outside the bare storage transaction
+
+If the binary already exists:
+
+- reuse the existing `file_binary`
+- still create or reuse the intended logical `document`
+- still create `case_workspace_document`
+- still create a new `document_origin`
+
+This preserves the invariant that binary dedupe does not force logical-document dedupe.
+
+#### Convergence With Later Imported Official Material
+
+Scenario:
+
+- a manual workspace document later also appears in imported official court material
+
+Repository-safe convergence rule:
+
+- do not merge silently on binary match alone
+- do not create a second logical document if the application already has enough evidence, at import/attach time, to link the official occurrence to the existing logical document
+- if enough evidence is not available and two logical documents are created, require an explicit later reconciliation step
+
+How provenance remains intact:
+
+- the earlier manual/user `document_origin` rows stay as historical facts
+- the later official occurrence stays represented by `bucket_document`
+
+What remains deferred:
+
+- a full document-merge procedure for the case where two logical documents already exist and are later proven equivalent
+- any explicit `document_origin` representation of official imported occurrence
+
+That merge/reconciliation workflow should be explicit, audited, and separate from the first A2b schema slice.
+
+#### User-Authored Documents
+
+Recommendation:
+
+- use the same `document` table
+
+Why:
+
+- user-authored drafts are still logical documents in the same workspace corpus
+- they may later gain binaries, exports, official filing status, and cross-links to imported material
+- a separate draft-document system would undermine later convergence
+
+Minimum A2b semantics:
+
+- a draft may exist with no binary yet
+- that means:
+  - `document`
+  - `case_workspace_document`
+  - `document_origin(user_authored)`
+- a draft stored as Markdown/text can create a `file_binary` and `document_binary`
+- a later generated PDF can create another `file_binary` and another `document_binary`
+- one binary can be primary at a time
+
+Revision policy for A2b:
+
+- do not create a new `document` row for every revision by default
+- one logical draft may have multiple linked binaries over time
+- full revision lineage/version control is deliberately deferred
+
+#### `work_group` Recommendation
+
+Recommendation:
+
+- defer `work_group` and `work_group_document` to a small A2c immediately after A2b
+
+Reason:
+
+- A2b can solve manual documents without any user-organization schema
+- grouping becomes cleaner once workspace-native documents and their origins exist
+- keeping A2b focused reduces risk in the `document` identity transition
+
+When implemented, `work_group_document` should not point directly to `document`.
+
+Preferred direction:
+
+- `work_group_document` should point to `case_workspace_document`
+
+Reason:
+
+- a work group must not include a document outside its workspace
+- `case_workspace_document` is already the workspace-scoped document membership table
+
+Preferred integrity approach for A2c:
+
+- make workspace consistency database-enforced, even if that requires composite keys or paired FKs, rather than relying only on application discipline
+
+#### `consultation_note` Recommendation
+
+Recommendation:
+
+- defer workspace/group linkage on `consultation_note` to A2c
+
+Reason:
+
+- note linkage is not required to make manual documents and origins possible
+- the current note table remains usable for existing official-case consultation
+- once `work_group` direction is settled, note targeting can be expanded coherently rather than incrementally patched twice
+
+If a small earlier note follow-up becomes necessary, the smallest addition would be:
+
+- nullable `case_workspace_id` on `consultation_note`
+
+But that is not required to start A2b.
+
+#### Scenario Check
+
+##### A. Current Portuguese imported PDF
+
+- remains authoritative through `case_file -> bucket -> bucket_document -> document`
+- no A2b `document_origin` backfill is required
+- imported uniqueness remains preserved through `document_identity_class = 'imported_source_keyed'`
+
+##### B. French manually received letter
+
+- create a workspace
+- create or choose a logical `document`
+- optionally link a `file_binary`
+- create `case_workspace_document`
+- create `document_origin(manual_received)`
+
+No `case_file` is required.
+
+##### C. Same French letter later officially imported
+
+- if enough evidence exists at import/attach time, reuse the same logical `document`
+- add official canonical occurrence via `bucket_document`
+- earlier manual origin remains intact
+
+If enough evidence does not exist and two logical documents are created, explicit later reconciliation is required.
+
+##### D. User-authored hearing-preparation draft
+
+- create `document` with `document_identity_class = 'workspace_native'`
+- create `case_workspace_document`
+- create `document_origin(user_authored)`
+- binary may be absent initially
+- later Markdown and PDF binaries can both attach through `document_binary`
+
+##### E. Shared binary
+
+- one `file_binary` row by SHA-256
+- two distinct `document` rows may still reference it through two `document_binary` rows
+- each logical document can have its own workspace memberships and origins
+
+##### F. Multi-workspace relevance
+
+- one logical `document` may have two `case_workspace_document` rows
+- provenance should then use multiple `document_origin` rows, one per workspace/document membership as applicable
+
+#### PostgreSQL Backfill And Importer Implications
+
+PostgreSQL schema evolution in A2b should include:
+
+- `document.document_identity_class`
+- `document.source_system` nullable
+- partial imported-only unique index
 - `document_origin`
-- `consultation_note` workspace/group linkage
-- `document` uniqueness transition
+- partial unique primary-binary index on `document_binary`
+
+PostgreSQL backfill in A2b should include only:
+
+- set existing imported `document` rows to `document_identity_class = 'imported_source_keyed'`
+
+Do not backfill:
+
+- manual/user origins
+- imported official `document_origin` rows for the current PT corpus
+
+Importer enhancement for A2b:
+
+- required for the current settled PT package import path because imported document upsert must target the new imported-only partial unique index correctly
+- keep that enhancement minimal and schema-detected so pre-A2b schema compatibility remains intact
+- do not add non-imported/workspace-native document import behavior to the portable package importer
+- any later importer enhancement for convergence between imported official material and existing workspace-native documents should be explicit and conservative
+
+#### Validation Criteria For A2b
+
+Before moving past A2b, validate:
+
+- all existing imported documents are marked `document_identity_class = 'imported_source_keyed'`
+- imported uniqueness is preserved by the new partial unique index
+- existing imported counts remain unchanged
+- new workspace-native `document` rows can be inserted with `source_system = NULL`
+- one logical document can exist with zero binaries
+- one logical document can have multiple binaries but at most one primary binary
+- one binary can be shared by multiple logical documents
+- one logical document can have multiple `document_origin` rows
+- one logical document can belong to multiple workspaces through multiple `case_workspace_document` rows
+- manual document transaction path succeeds atomically
+- current importer reruns still succeed after the A2b schema evolution because the importer uses the imported-only conflict predicate when `document_identity_class` exists
+
+### Proposed Phase A2c: Work Groups And Workspace-Level Notes
+
+Implement after A2b:
+
+- `work_group`
+- `work_group_document`
+- workspace/group expansion of `consultation_note`
 
 ## Phase B: Source Capture, Source Observation, Canonical Mapping Provenance
 
@@ -1282,19 +1774,22 @@ Recommended migration file grouping:
    - `case_workspace_document`
    - PostgreSQL backfill for workspace references and workspace-document closure
 
-3. `2026-08-xx-005-phase-a2b-workgroup-document-origin.sql`
+3. `2026-08-xx-005-phase-a2b-document-origin.sql`
+   - `document` identity transition
+   - `document_origin`
+   - `document_binary` primary-binary integrity refinement
+
+4. `2026-08-xx-006-phase-a2c-workgroup-notes.sql`
    - later `work_group`
    - later `work_group_document`
-   - later `document_origin`
    - later `consultation_note` additions
-   - later `document` uniqueness transition
 
-4. `2026-08-xx-006-phase-b-source-provenance.sql`
+5. `2026-08-xx-007-phase-b-source-provenance.sql`
    - `source_capture`
    - `source_observation`
    - `source_observation_link`
 
-5. `2026-08-xx-007-phase-c-processing-core.sql`
+6. `2026-08-xx-008-phase-c-processing-core.sql`
    - `document_representation`
    - `document_segment`
    - `processing_job`
@@ -1333,21 +1828,29 @@ None block Phase A1 if the slice is limited to:
 - recursive PT backfill
 - minimum importer enhancement
 
-Questions that block later Phase A2:
+Questions that block Phase A2b implementation:
 
-1. exact `document_class` value set
+1. final `document_identity_class` value set
 2. final imported-only partial unique index definition for `document`
-3. whether imported `document_origin` rows are created in Phase A2 or Phase B
+3. whether the initial workspace-native document flow needs any additional non-importer write-path metadata beyond `document_origin`
+
+Questions deliberately deferred to Phase A2c:
+
+1. final `work_group` shape
+2. exact database-enforced workspace-integrity pattern for `work_group_document`
+3. whether `consultation_note` should target workspace, work group, or both
 
 ## Summary
 
 The repository can evolve safely if the work is staged as:
 
 - Phase A1: application root and workspace membership
-- Phase A2: broader workspace/document provenance
+- Phase A2a: workspace references and workspace-document closure
+- Phase A2b: manual documents and additive document provenance
+- Phase A2c: work groups and workspace-level notes
 - Phase B: acquisition/canonical mapping evidence layer
 - Phase C: processing orchestration and derived content infrastructure
 - Phase D: first PDF processor and backlog rollout
 
-The first slice is deliberately narrow and low risk.
-The main caution for later work remains the `document` uniqueness transition, not the workspace addition itself.
+The next caution point is the `document` identity transition, not workspace membership.
+That is why A2b should stay focused on manual-document enablement and additive provenance before grouping and note expansion.

@@ -257,6 +257,21 @@ async function hasCaseWorkspaceDocumentSchema(client) {
   return Boolean(result.rows[0]?.has_case_workspace_document);
 }
 
+async function hasDocumentIdentityClassSchema(client) {
+  const result = await client.query(
+    `
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'casework'
+          AND table_name = 'document'
+          AND column_name = 'document_identity_class'
+      ) AS has_document_identity_class
+    `,
+  );
+  return Boolean(result.rows[0]?.has_document_identity_class);
+}
+
 async function populateCaseWorkspaceDocuments(client) {
   const orphanResult = await client.query(
     "SELECT 1" +
@@ -487,7 +502,56 @@ async function upsertBucket(client, row, caseFileId) {
   return result.rows[0].id;
 }
 
-async function upsertDocument(client, row) {
+async function upsertDocument(client, row, documentIdentityClassSchemaEnabled) {
+  if (documentIdentityClassSchemaEnabled) {
+    const result = await client.query(
+      `
+        INSERT INTO casework.document (
+          document_identity_class,
+          source_system,
+          document_procinfo,
+          document_name,
+          document_anchor_title,
+          document_date,
+          document_type,
+          document_type_from_attr,
+          claimed_size_bytes,
+          canonical_confidence
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        ON CONFLICT (
+          source_system,
+          document_procinfo,
+          document_name,
+          document_date,
+          document_type,
+          claimed_size_bytes
+        )
+        WHERE document_identity_class = 'imported_source_keyed'
+        DO UPDATE
+        SET
+          document_anchor_title = EXCLUDED.document_anchor_title,
+          document_type_from_attr = EXCLUDED.document_type_from_attr,
+          canonical_confidence = EXCLUDED.canonical_confidence,
+          updated_at = NOW()
+        RETURNING id
+      `,
+      [
+        "imported_source_keyed",
+        row.source_system,
+        normalizeText(row.document_procinfo),
+        normalizeText(row.document_name),
+        normalizeText(row.document_anchor_title),
+        toNullableDate(row.document_date),
+        normalizeText(row.document_type),
+        normalizeText(row.document_type_from_attr),
+        toNullableInt(row.claimed_size_bytes),
+        row.canonical_confidence,
+      ],
+    );
+    return result.rows[0].id;
+  }
+
   const result = await client.query(
     `
       INSERT INTO casework.document (
@@ -683,6 +747,7 @@ async function main() {
     await withTransaction(client, async () => {
       const workspaceSchemaEnabled = await hasCaseWorkspaceSchema(client);
       const workspaceDocumentSchemaEnabled = await hasCaseWorkspaceDocumentSchema(client);
+      const documentIdentityClassSchemaEnabled = await hasDocumentIdentityClassSchema(client);
       await upsertImportBatch(client, manifest);
 
       const caseIdByProcesso = new Map();
@@ -718,7 +783,7 @@ async function main() {
         if (!documentKey) {
           throw new Error("Document row missing document_key");
         }
-        const documentId = await upsertDocument(client, row);
+        const documentId = await upsertDocument(client, row, documentIdentityClassSchemaEnabled);
         documentIdByKey.set(documentKey, documentId);
       }
 

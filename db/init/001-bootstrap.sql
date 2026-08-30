@@ -71,14 +71,6 @@ CREATE TABLE IF NOT EXISTS casework.case_workspace_reference (
   CHECK (valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from)
 );
 
-CREATE TABLE IF NOT EXISTS casework.case_workspace_document (
-  id BIGSERIAL PRIMARY KEY,
-  case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE CASCADE,
-  document_id BIGINT NOT NULL REFERENCES casework.document(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE (case_workspace_id, document_id)
-);
 CREATE TABLE IF NOT EXISTS casework.case_file (
   id BIGSERIAL PRIMARY KEY,
   court_id BIGINT NOT NULL REFERENCES casework.court(id),
@@ -120,7 +112,8 @@ CREATE TABLE IF NOT EXISTS casework.bucket (
 
 CREATE TABLE IF NOT EXISTS casework.document (
   id BIGSERIAL PRIMARY KEY,
-  source_system TEXT NOT NULL,
+  document_identity_class TEXT NOT NULL DEFAULT 'imported_source_keyed',
+  source_system TEXT NULL,
   document_procinfo TEXT NULL,
   document_name TEXT NULL,
   document_anchor_title TEXT NULL,
@@ -128,12 +121,15 @@ CREATE TABLE IF NOT EXISTS casework.document (
   document_type TEXT NULL,
   document_type_from_attr TEXT NULL,
   claimed_size_bytes BIGINT NULL,
-  canonical_confidence TEXT NOT NULL,
+  canonical_confidence TEXT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (document_identity_class IN ('imported_source_keyed', 'workspace_native')),
+  CHECK (document_identity_class <> 'imported_source_keyed' OR source_system IS NOT NULL),
+  CHECK (document_identity_class <> 'imported_source_keyed' OR canonical_confidence IS NOT NULL)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_document_source_identity
+CREATE UNIQUE INDEX IF NOT EXISTS ux_document_imported_source_identity
 ON casework.document (
   source_system,
   document_procinfo,
@@ -141,7 +137,8 @@ ON casework.document (
   document_date,
   document_type,
   claimed_size_bytes
-);
+)
+WHERE document_identity_class = 'imported_source_keyed';
 
 CREATE TABLE IF NOT EXISTS casework.bucket_document (
   id BIGSERIAL PRIMARY KEY,
@@ -192,6 +189,31 @@ CREATE TABLE IF NOT EXISTS casework.document_binary (
   UNIQUE (document_id, file_binary_id)
 );
 
+CREATE TABLE IF NOT EXISTS casework.case_workspace_document (
+  id BIGSERIAL PRIMARY KEY,
+  case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE CASCADE,
+  document_id BIGINT NOT NULL REFERENCES casework.document(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (case_workspace_id, document_id)
+);
+
+CREATE TABLE IF NOT EXISTS casework.document_origin (
+  id BIGSERIAL PRIMARY KEY,
+  case_workspace_document_id BIGINT NOT NULL REFERENCES casework.case_workspace_document(id) ON DELETE CASCADE,
+  origin_kind TEXT NOT NULL,
+  origin_reference TEXT NULL,
+  origin_label TEXT NULL,
+  origin_at TIMESTAMPTZ NULL,
+  actor_name TEXT NULL,
+  created_by TEXT NULL,
+  note_text TEXT NULL,
+  metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (origin_kind IN ('manual_received', 'manual_uploaded', 'user_authored'))
+);
+
 CREATE TABLE IF NOT EXISTS casework.consultation_note (
   id BIGSERIAL PRIMARY KEY,
   case_file_id BIGINT NULL REFERENCES casework.case_file(id),
@@ -236,6 +258,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_case_workspace_reference_identity ON casewo
 );
 CREATE UNIQUE INDEX IF NOT EXISTS ux_case_workspace_reference_primary ON casework.case_workspace_reference(case_workspace_id) WHERE is_primary;
 CREATE INDEX IF NOT EXISTS ix_case_workspace_document_document_id ON casework.case_workspace_document(document_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_document_binary_primary_per_document ON casework.document_binary(document_id) WHERE is_primary;
+CREATE INDEX IF NOT EXISTS ix_document_origin_case_workspace_document_id ON casework.document_origin(case_workspace_document_id);
+CREATE INDEX IF NOT EXISTS ix_document_origin_origin_kind ON casework.document_origin(origin_kind);
+CREATE INDEX IF NOT EXISTS ix_document_origin_origin_at ON casework.document_origin(origin_at);
 CREATE INDEX IF NOT EXISTS ix_document_document_procinfo ON casework.document(document_procinfo);
 CREATE INDEX IF NOT EXISTS ix_document_document_date ON casework.document(document_date);
 CREATE INDEX IF NOT EXISTS ix_document_binary_file_binary_id ON casework.document_binary(file_binary_id);

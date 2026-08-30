@@ -81,3 +81,5 @@ If the evolved PostgreSQL schema includes casework.case_workspace_document, the 
 
 This is PostgreSQL-side maintenance for the normal import path. It is insert-safe and idempotent, but it is not a general reconciliation mechanism for arbitrary later case_file.case_workspace_id reassignment.
 
+If the evolved PostgreSQL schema includes `casework.document.document_identity_class`, the importer also uses the imported-only document identity predicate for its `document` upsert. This preserves imported-package rerun idempotency after the imported document unique index becomes partial.
+
