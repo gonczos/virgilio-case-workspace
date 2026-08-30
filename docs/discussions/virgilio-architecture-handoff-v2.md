@@ -1,5 +1,11 @@
 # Virgilio Case Workspace — Architecture Handoff v2
 
+Superseded on 2026-08-30 by:
+
+- `docs/architecture/07-consolidated-architecture-reference.md`
+
+This document remains useful as design-history context, but it is no longer the authoritative architecture reference.
+
 ## Purpose
 
 This supersedes the domain assumptions in the earlier architecture handoff while preserving its worker/search/AI direction.
