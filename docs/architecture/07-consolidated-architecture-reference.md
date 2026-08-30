@@ -199,6 +199,10 @@ The backfill rule is:
 
 Even though the current data appears to have one descendant level, the rule should support deeper chains transitively.
 
+This root-to-workspace creation rule is the bootstrap/backfill policy for the currently imported corpus.
+It should not be treated as a universal future rule.
+A newly imported root proceeding may later need to attach to an already existing `case_workspace` rather than creating a new one.
+
 No higher umbrella above `case_workspace` should be introduced at this stage.
 
 ## Bucket Semantics

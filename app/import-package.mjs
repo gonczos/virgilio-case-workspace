@@ -131,6 +131,120 @@ async function withTransaction(client, work) {
   }
 }
 
+async function hasCaseWorkspaceSchema(client) {
+  const result = await client.query(
+    `
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'casework'
+          AND table_name = 'case_file'
+          AND column_name = 'case_workspace_id'
+      ) AS has_case_workspace
+    `,
+  );
+  return Boolean(result.rows[0]?.has_case_workspace);
+}
+
+async function assignCaseWorkspaces(client) {
+  await client.query(
+    `
+      WITH RECURSIVE root_tree AS (
+        SELECT
+          root.id AS root_id,
+          root.id AS case_file_id,
+          ARRAY[root.id] AS path
+        FROM casework.case_file AS root
+        WHERE root.parent_case_file_id IS NULL
+
+        UNION ALL
+
+        SELECT
+          root_tree.root_id,
+          child.id AS case_file_id,
+          root_tree.path || child.id
+        FROM root_tree
+        JOIN casework.case_file AS child
+          ON child.parent_case_file_id = root_tree.case_file_id
+        WHERE NOT child.id = ANY(root_tree.path)
+      ),
+      root_info AS (
+        SELECT
+          root.id AS root_id,
+          root.source_system,
+          root.processo,
+          court.country_id
+        FROM casework.case_file AS root
+        JOIN casework.court AS court
+          ON court.id = root.court_id
+        WHERE root.parent_case_file_id IS NULL
+      )
+      INSERT INTO casework.case_workspace (
+        workspace_code,
+        title,
+        description,
+        lifecycle_status,
+        primary_country_id
+      )
+      SELECT
+        root_info.source_system || ':' || root_info.processo AS workspace_code,
+        root_info.processo AS title,
+        'Backfilled from imported root case_file.',
+        'active',
+        root_info.country_id
+      FROM root_info
+      ON CONFLICT (workspace_code) DO UPDATE
+      SET
+        title = EXCLUDED.title,
+        description = EXCLUDED.description,
+        primary_country_id = EXCLUDED.primary_country_id,
+        updated_at = NOW()
+    `,
+  );
+
+  await client.query(
+    `
+      WITH RECURSIVE root_tree AS (
+        SELECT
+          root.id AS root_id,
+          root.id AS case_file_id,
+          ARRAY[root.id] AS path
+        FROM casework.case_file AS root
+        WHERE root.parent_case_file_id IS NULL
+
+        UNION ALL
+
+        SELECT
+          root_tree.root_id,
+          child.id AS case_file_id,
+          root_tree.path || child.id
+        FROM root_tree
+        JOIN casework.case_file AS child
+          ON child.parent_case_file_id = root_tree.case_file_id
+        WHERE NOT child.id = ANY(root_tree.path)
+      ),
+      workspace_map AS (
+        SELECT
+          root.id AS root_id,
+          cw.id AS case_workspace_id
+        FROM casework.case_file AS root
+        JOIN casework.case_workspace AS cw
+          ON cw.workspace_code = root.source_system || ':' || root.processo
+        WHERE root.parent_case_file_id IS NULL
+      )
+      UPDATE casework.case_file AS cf
+      SET
+        case_workspace_id = workspace_map.case_workspace_id,
+        updated_at = NOW()
+      FROM root_tree
+      JOIN workspace_map
+        ON workspace_map.root_id = root_tree.root_id
+      WHERE cf.id = root_tree.case_file_id
+        AND cf.case_workspace_id IS DISTINCT FROM workspace_map.case_workspace_id
+    `,
+  );
+}
+
 async function upsertImportBatch(client, manifest) {
   const result = await client.query(
     `
@@ -523,6 +637,7 @@ async function main() {
 
   try {
     await withTransaction(client, async () => {
+      const workspaceSchemaEnabled = await hasCaseWorkspaceSchema(client);
       await upsertImportBatch(client, manifest);
 
       const caseIdByProcesso = new Map();
@@ -538,6 +653,10 @@ async function main() {
 
       for (const row of caseRows) {
         await setParentCaseFile(client, row);
+      }
+
+      if (workspaceSchemaEnabled) {
+        await assignCaseWorkspaces(client);
       }
 
       for (const row of bucketRows) {

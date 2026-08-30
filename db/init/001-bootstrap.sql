@@ -38,9 +38,25 @@ CREATE TABLE IF NOT EXISTS casework.court (
   UNIQUE (source_system, idtribref, idunorgref, idcliente)
 );
 
+CREATE TABLE IF NOT EXISTS casework.case_workspace (
+  id BIGSERIAL PRIMARY KEY,
+  workspace_code TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  description TEXT NULL,
+  lifecycle_status TEXT NOT NULL,
+  primary_country_id CHAR(2) NULL REFERENCES casework.country(id),
+  opened_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  closed_at TIMESTAMPTZ NULL,
+  created_by TEXT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (lifecycle_status IN ('prospective', 'preparing', 'filed', 'active', 'closed', 'archived'))
+);
+
 CREATE TABLE IF NOT EXISTS casework.case_file (
   id BIGSERIAL PRIMARY KEY,
   court_id BIGINT NOT NULL REFERENCES casework.court(id),
+  case_workspace_id BIGINT NULL REFERENCES casework.case_workspace(id),
   source_system TEXT NOT NULL,
   processo TEXT NOT NULL,
   idprocesso TEXT NULL,
@@ -179,6 +195,9 @@ CREATE TABLE IF NOT EXISTS casework.document_issue (
 CREATE INDEX IF NOT EXISTS ix_bucket_case_file_id ON casework.bucket(case_file_id);
 CREATE INDEX IF NOT EXISTS ix_bucket_bucket_date ON casework.bucket(bucket_date);
 CREATE INDEX IF NOT EXISTS ix_bucket_document_document_id ON casework.bucket_document(document_id);
+CREATE INDEX IF NOT EXISTS ix_case_workspace_primary_country_id ON casework.case_workspace(primary_country_id);
+CREATE INDEX IF NOT EXISTS ix_case_workspace_lifecycle_status ON casework.case_workspace(lifecycle_status);
+CREATE INDEX IF NOT EXISTS ix_case_file_case_workspace_id ON casework.case_file(case_workspace_id);
 CREATE INDEX IF NOT EXISTS ix_document_document_procinfo ON casework.document(document_procinfo);
 CREATE INDEX IF NOT EXISTS ix_document_document_date ON casework.document(document_date);
 CREATE INDEX IF NOT EXISTS ix_document_binary_file_binary_id ON casework.document_binary(file_binary_id);

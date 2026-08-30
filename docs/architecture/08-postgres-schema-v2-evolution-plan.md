@@ -386,6 +386,12 @@ Current expected PT outcome:
 
 - one workspace containing `13608/14.8T2SNT` and all of its descendants
 
+Important scope note:
+
+- this root `case_file` to `case_workspace` creation rule is the bootstrap/backfill policy for the currently imported corpus
+- it is not a universal future attachment rule
+- later importer-enhancement logic may need to attach a newly imported root proceeding to an already existing workspace instead of creating a new one
+
 ### Phase A1 Importer Enhancement
 
 Compatibility requirement:

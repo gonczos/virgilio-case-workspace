@@ -58,14 +58,18 @@ Required files inside the package:
 2. register or update `import_batch`
 3. upsert courts and cases
 4. resolve parent-case links
-5. upsert buckets
-6. upsert documents
-7. upsert bucket-document links
-8. upsert file binaries
-9. upsert document-binary links
-10. commit transaction
+5. if the PostgreSQL schema includes `case_workspace`, assign workspace membership from the explicit `parent_case_file_id` tree
+6. upsert buckets
+7. upsert documents
+8. upsert bucket-document links
+9. upsert file binaries
+10. upsert document-binary links
+11. commit transaction
 
 ## Notes
 
 V1 does not yet import raw artifacts or provenance files into dedicated tables.
 Those stay on disk and can be integrated later.
+
+The workspace-assignment step is a PostgreSQL application-database concern.
+It is separate from the legacy corpus extraction/package flow and only runs when the evolved PostgreSQL schema is present.
