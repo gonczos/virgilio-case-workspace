@@ -77,6 +77,7 @@ docker exec -i virgilio-case-db psql -U virgilio -d virgilio_case_workspace < db
 See `docs/architecture/05-directus-consultation-v1.md` for the first Directus-facing consultation shape.
 See `docs/architecture/06-import-pipeline.md` for the end-to-end import and consultation flow.
 See `docs/architecture/07-consolidated-architecture-reference.md` for the current consolidated architecture reference.
+See `docs/architecture/08-postgres-schema-v2-evolution-plan.md` for the phased PostgreSQL schema-evolution and importer-enhancement plan.
 
 ## Binary Access
 
