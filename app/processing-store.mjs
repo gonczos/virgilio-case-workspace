@@ -180,12 +180,11 @@ function rankForPurpose(representation, purpose) {
   return 0;
 }
 
-export async function resolveEffectiveRepresentation(client, {
-  fileBinaryId,
+export function resolveEffectiveRepresentationState({
+  representations,
+  explicitSelection = null,
   purpose = DEFAULT_SELECTION_PURPOSE,
 }) {
-  const explicitSelection = await getSelectionOverride(client, { fileBinaryId, purpose });
-  const representations = await listRepresentationsForBinary(client, fileBinaryId);
   if (explicitSelection) {
     const selected = representations.find((item) => item.id === explicitSelection.selected_representation_id);
     return {
@@ -212,6 +211,19 @@ export async function resolveEffectiveRepresentation(client, {
   };
 }
 
+export async function resolveEffectiveRepresentation(client, {
+  fileBinaryId,
+  purpose = DEFAULT_SELECTION_PURPOSE,
+}) {
+  const explicitSelection = await getSelectionOverride(client, { fileBinaryId, purpose });
+  const representations = await listRepresentationsForBinary(client, fileBinaryId);
+  return resolveEffectiveRepresentationState({
+    representations,
+    explicitSelection,
+    purpose,
+  });
+}
+
 export async function listComparisonsForBinary(client, fileBinaryId) {
   const result = await client.query(
     `
@@ -229,11 +241,12 @@ function attentionReason(reasonCode, detail = null) {
   return detail === null ? { reason_code: reasonCode } : { reason_code: reasonCode, detail };
 }
 
-export async function deriveRepresentationAttention(client, fileBinaryId) {
-  const resolved = await resolveEffectiveRepresentation(client, { fileBinaryId });
-  const comparisons = await listComparisonsForBinary(client, fileBinaryId);
+export function deriveRepresentationAttentionState({
+  effectiveSelection,
+  comparisons,
+}) {
   const reasons = [];
-  if (resolved.representations.some((item) => item.representation_source_kind === "human_authored")) {
+  if (effectiveSelection.representations.some((item) => item.representation_source_kind === "human_authored")) {
     reasons.push(attentionReason("human_representation_present"));
   }
   for (const comparison of comparisons) {
@@ -245,9 +258,11 @@ export async function deriveRepresentationAttention(client, fileBinaryId) {
       }));
     }
   }
-  if (resolved.explicit_selection) {
-    const selectedCreatedAt = new Date(resolved.representation?.created_at ?? 0).getTime();
-    const newerAvailable = resolved.representations.some((item) => new Date(item.created_at).getTime() > selectedCreatedAt);
+  if (effectiveSelection.explicit_selection) {
+    const selectedCreatedAt = new Date(effectiveSelection.representation?.created_at ?? 0).getTime();
+    const newerAvailable = effectiveSelection.representations.some(
+      (item) => new Date(item.created_at).getTime() > selectedCreatedAt,
+    );
     if (newerAvailable) {
       reasons.push(attentionReason("newer_representation_after_explicit_selection"));
     }
@@ -255,8 +270,17 @@ export async function deriveRepresentationAttention(client, fileBinaryId) {
   return {
     review_needed: reasons.length > 0,
     reasons,
-    effective_selection: resolved,
+    effective_selection: effectiveSelection,
   };
+}
+
+export async function deriveRepresentationAttention(client, fileBinaryId) {
+  const resolved = await resolveEffectiveRepresentation(client, { fileBinaryId });
+  const comparisons = await listComparisonsForBinary(client, fileBinaryId);
+  return deriveRepresentationAttentionState({
+    effectiveSelection: resolved,
+    comparisons,
+  });
 }
 
 export async function upsertSelectionOverride(client, {
