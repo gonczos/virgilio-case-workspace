@@ -2771,3 +2771,65 @@ The repository can evolve safely if the work is staged as:
 
 The current next caution point is preserving the clean boundary between the newly implemented Phase B provenance layer and the later Phase C processing layer.
 That is why Phase C should stay focused on processing orchestration and derived content, and not reopen capture/import or canonical-mapping semantics.
+
+## Phase C3.1 Implementation Result
+
+Implemented on 2026-08-31: a narrow binary-storage abstraction around the existing local `file_binary` storage resolution used by Phase C processing.
+
+Implemented slice:
+
+1. add a small `BinaryStore` boundary for processing consumers
+2. implement `LocalBinaryStore` only
+3. keep the existing `casework.file_binary` schema unchanged
+4. keep current importer storage semantics unchanged
+5. move worker-side processor input resolution from direct path construction to `BinaryStore.materialize(...)`
+6. distinguish explicit storage/materialization failures from extractor failures in `processing_job.error_code`
+
+Repository-specific storage finding:
+
+- the current repository does not use a `file_binary.storage_uri` column
+- the current local binary locator is:
+  - `file_binary.storage_package_id`
+  - `file_binary.storage_rel_path`
+- local path resolution currently means:
+  - resolve the imports root under `data/imports`
+  - join `storage_package_id`
+  - join `storage_rel_path`
+  - reject paths that escape the imports root
+- C3.1 intentionally wraps that existing mechanism rather than replacing it with fictitious provider-neutral storage fields
+
+`BinaryStore` contract in the implemented slice:
+
+- `materialize(fileBinary)` returns a usable local file materialization
+- `exists(fileBinary)` checks local availability without changing canonical identity
+- `verify(fileBinary)` validates the resolved local file against current canonical metadata when explicitly requested
+
+`LocalBinaryStore` semantics in the implemented slice:
+
+- `materialize(...)` returns the existing canonical local file path directly when it is readable
+- no unnecessary copy is created for current local storage
+- `release()` is a no-op for local canonical files
+- future remote stores may later materialize temporary local copies behind the same boundary
+
+Worker integration outcome:
+
+- job claim and state updates remain short PostgreSQL transactions
+- materialization and extraction still happen after the claim transaction has committed
+- processors now consume `materializedBinary.localPath` rather than resolving `storage_package_id` / `storage_rel_path` themselves
+- storage/materialization failure is persisted separately from extractor failure:
+  - `binary_store_failed`
+  - `processor_failed`
+
+Integrity / privacy boundary:
+
+- `file_binary.sha256` remains the immutable binary identity anchor
+- storage location remains retrieval metadata, not identity
+- C3.1 does not introduce any remote storage backend, cloud call, upload, or external document processing path
+- current derived processing artifacts remain on the existing artifact storage path; C3.1 does not redesign artifact storage
+
+Outcomes intentionally deferred beyond C3.1:
+
+- any schema redesign of `file_binary` storage metadata
+- any remote `BinaryStore` implementation such as Google Drive, S3, MinIO, or NAS
+- any artifact-store abstraction for derived processor outputs
+- any importer change to route binary writes through a generalized store

@@ -15,6 +15,7 @@ import {
   writeJson,
   writeText,
 } from "./processing-common.mjs";
+import { isBinaryStoreError, LocalBinaryStore } from "./binary-store.mjs";
 import {
   DEFAULT_COMPARISON_KIND,
   buildComparisonObservation,
@@ -823,6 +824,7 @@ export async function inspectRepresentationState(client, fileBinaryId) {
 export async function processOneJob(client, {
   registry = undefined,
   workspaceRoot = getWorkspaceRoot(),
+  binaryStore = null,
   afterClaim = null,
   beforePersist = null,
 }) {
@@ -839,31 +841,38 @@ export async function processOneJob(client, {
       throw new Error(`Unsupported processing target for job ${jobRow.id}`);
     }
     const binaryRow = await getBinaryRowById(client, jobRow.file_binary_id);
+    const resolvedBinaryStore = binaryStore ?? new LocalBinaryStore({ workspaceRoot });
     const processor = getProcessor(jobRow.processor_key, registry);
+    const materializedBinary = await resolvedBinaryStore.materialize(binaryRow);
     const tempArtifactDir = await makeTempDir(`virgilio-${slugForJob(jobRow)}-`);
     try {
-      const executionResult = await processor.execute({
-        workspaceRoot,
-        binaryRow,
-        tempArtifactDir,
-        outputRoot: getProcessingOutputRoot(workspaceRoot),
-        jobRow,
-      });
-      if (typeof beforePersist === "function") {
-        await beforePersist(jobRow, executionResult);
+      try {
+        const executionResult = await processor.execute({
+          workspaceRoot,
+          binaryRow,
+          materializedBinary,
+          tempArtifactDir,
+          outputRoot: getProcessingOutputRoot(workspaceRoot),
+          jobRow,
+        });
+        if (typeof beforePersist === "function") {
+          await beforePersist(jobRow, executionResult);
+        }
+        const representation = await markJobCompleted(client, jobRow, executionResult);
+        return {
+          job: jobRow,
+          representation,
+          status: "completed",
+        };
+      } finally {
+        await materializedBinary.release();
       }
-      const representation = await markJobCompleted(client, jobRow, executionResult);
-      return {
-        job: jobRow,
-        representation,
-        status: "completed",
-      };
     } finally {
       await fs.rm(tempArtifactDir, { recursive: true, force: true });
     }
   } catch (error) {
     await markJobFailure(client, jobRow, {
-      errorCode: "processor_failed",
+      errorCode: isBinaryStoreError(error) ? "binary_store_failed" : "processor_failed",
       errorText: error instanceof Error ? error.stack ?? error.message : String(error),
     });
     return {
@@ -884,6 +893,7 @@ function slugForJob(jobRow) {
 export async function runWorkerLoop(client, {
   registry = undefined,
   workspaceRoot = getWorkspaceRoot(),
+  binaryStore = null,
   once = false,
   pollMs = 2000,
   maxJobs = null,
@@ -896,6 +906,7 @@ export async function runWorkerLoop(client, {
     const result = await processOneJob(client, {
       registry,
       workspaceRoot,
+      binaryStore,
       afterClaim,
       beforePersist,
     });

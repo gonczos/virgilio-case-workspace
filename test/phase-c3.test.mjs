@@ -1,10 +1,19 @@
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  BinaryStoreError,
+  LocalBinaryStore,
+} from "../app/binary-store.mjs";
+import {
   DEFAULT_SELECTION_PURPOSE,
   QUICK_PREVIEW_PURPOSE,
   assertProcessingSchema,
+  getWorkspaceRoot,
+  resolveBinaryPath,
   withClient,
 } from "../app/processing-common.mjs";
 import {
@@ -184,6 +193,48 @@ test("comparison remains processor-agnostic and preserves disagreement", async (
   });
   assert.equal(observation.disagreement_level, "high");
   assert.equal(observation.exact_normalized_match, false);
+});
+
+dbTest("LocalBinaryStore materializes the canonical local path without duplicating the file", async () => {
+  await withRollbackDb(async (client, binary) => {
+    const binaryRow = await getBinaryRowById(client, binary.id);
+    const binaryStore = new LocalBinaryStore({ workspaceRoot: getWorkspaceRoot() });
+    const materialized = await binaryStore.materialize(binaryRow);
+    try {
+      assert.equal(materialized.localPath, resolveBinaryPath(getWorkspaceRoot(), binaryRow));
+      assert.equal(materialized.materializationKind, "canonical_local_path");
+      assert.equal(materialized.isTemporary, false);
+      const verified = await binaryStore.verify(binaryRow, { verifySha256: true });
+      assert.equal(verified.verified, true);
+      assert.equal(verified.sha256Verified, true);
+    } finally {
+      await materialized.release();
+    }
+  });
+});
+
+test("LocalBinaryStore reports a missing canonical binary explicitly", async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "virgilio-bstore-"));
+  const binaryStore = new LocalBinaryStore({ workspaceRoot: tempRoot });
+  const binaryRow = {
+    id: 999001,
+    sha256: "0".repeat(64),
+    storage_package_id: "missing-package",
+    storage_rel_path: "missing/file.pdf",
+    actual_size_bytes: 12,
+  };
+  try {
+    await assert.rejects(
+      () => binaryStore.materialize(binaryRow),
+      (error) => {
+        assert.equal(error instanceof BinaryStoreError, true);
+        assert.equal(error.code, "binary_missing");
+        return true;
+      },
+    );
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  }
 });
 
 dbTest("automatic selection prefers docling over xberg for consultation_default", async () => {
@@ -444,6 +495,298 @@ dbTest("claimNextJob allows only one concurrent claimant for the same queued job
   });
 });
 
+dbTest("processOneJob obtains the binary through BinaryStore and passes a local path to the processor", async () => {
+  await withClient("phase-c3-test-binary-store-success", async (client) => {
+    await assertProcessingSchema(client);
+    const binary = (await client.query(
+      `
+        SELECT id
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+    )).rows[0];
+    await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "mock_store_success",
+      processorVersion: "v1",
+      status: "queued",
+      attemptCount: 0,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    const events = [];
+    const mockRegistry = [
+      {
+        key: "mock_store_success",
+        version: "v1",
+        representationKind: "extracted_document_bundle",
+        supportsBinary() {
+          return true;
+        },
+        async execute({ binaryRow, materializedBinary }) {
+          events.push({
+            binaryId: binaryRow.id,
+            localPath: materializedBinary.localPath,
+            materializationKind: materializedBinary.materializationKind,
+          });
+          return {
+            processorKey: "mock_store_success",
+            processorVersion: "v1",
+            representationKind: "extracted_document_bundle",
+            formatFamily: "pdf",
+            artifactRelPath: null,
+            metadataJson: { mock: true },
+            contentJson: { text_length: 4 },
+            segments: [
+              {
+                segment_kind: "document_text",
+                sequence_no: 1,
+                text_content: "mock",
+                structural_path: null,
+                page_no: null,
+                char_start: 0,
+                char_end: 4,
+                metadata_json: { source: "mock" },
+              },
+            ],
+          };
+        },
+      },
+    ];
+    const mockBinaryStore = {
+      async materialize(binaryRow) {
+        events.push({ stage: "materialize", binaryId: binaryRow.id });
+        return {
+          localPath: `C:/synthetic/${binaryRow.sha256}.bin`,
+          materializationKind: "test_materialization",
+          isTemporary: true,
+          async release() {
+            events.push({ stage: "release", binaryId: binaryRow.id });
+          },
+        };
+      },
+    };
+    try {
+      const result = await processOneJob(client, {
+        registry: mockRegistry,
+        binaryStore: mockBinaryStore,
+      });
+      assert.equal(result.status, "completed");
+      assert.deepEqual(events, [
+        { stage: "materialize", binaryId: binary.id },
+        {
+          binaryId: binary.id,
+          localPath: `C:/synthetic/${(await getBinaryRowById(client, binary.id)).sha256}.bin`,
+          materializationKind: "test_materialization",
+        },
+        { stage: "release", binaryId: binary.id },
+      ]);
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.document_representation_comparison
+          WHERE representation_a_id IN (
+            SELECT dr.id
+            FROM casework.document_representation AS dr
+            JOIN casework.processing_job AS pj
+              ON pj.id = dr.produced_by_job_id
+            WHERE pj.processor_key = 'mock_store_success'
+          )
+          OR representation_b_id IN (
+            SELECT dr.id
+            FROM casework.document_representation AS dr
+            JOIN casework.processing_job AS pj
+              ON pj.id = dr.produced_by_job_id
+            WHERE pj.processor_key = 'mock_store_success'
+          )
+        `,
+      );
+      await client.query(
+        `
+          DELETE FROM casework.document_segment
+          WHERE document_representation_id IN (
+            SELECT dr.id
+            FROM casework.document_representation AS dr
+            JOIN casework.processing_job AS pj
+              ON pj.id = dr.produced_by_job_id
+            WHERE pj.processor_key = 'mock_store_success'
+          )
+        `,
+      );
+      await client.query(
+        `
+          DELETE FROM casework.document_representation
+          WHERE produced_by_job_id IN (
+            SELECT id
+            FROM casework.processing_job
+            WHERE processor_key = 'mock_store_success'
+          )
+        `,
+      );
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_key = 'mock_store_success'
+        `,
+      );
+    }
+  });
+});
+
+dbTest("processOneJob releases the claim transaction before binary materialization and extraction", async () => {
+  await withClient("phase-c3-test-claim-release", async (client) => {
+    await assertProcessingSchema(client);
+    const binary = (await client.query(
+      `
+        SELECT id, sha256
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+    )).rows[0];
+    const createdJob = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "mock_claim_release",
+      processorVersion: "v1",
+      status: "queued",
+      attemptCount: 0,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    const registry = [
+      {
+        key: "mock_claim_release",
+        version: "v1",
+        representationKind: "extracted_document_bundle",
+        supportsBinary() {
+          return true;
+        },
+        async execute() {
+          return {
+            processorKey: "mock_claim_release",
+            processorVersion: "v1",
+            representationKind: "extracted_document_bundle",
+            formatFamily: "pdf",
+            artifactRelPath: null,
+            metadataJson: { mock: true },
+            contentJson: { text_length: 4 },
+            segments: [
+              {
+                segment_kind: "document_text",
+                sequence_no: 1,
+                text_content: "lock",
+                structural_path: null,
+                page_no: null,
+                char_start: 0,
+                char_end: 4,
+                metadata_json: { source: "mock" },
+              },
+            ],
+          };
+        },
+      },
+    ];
+    const lockCheck = [];
+    const binaryStore = {
+      async materialize(binaryRow) {
+        const observedStatus = await withClient("phase-c3-test-claim-release-status", async (checkClient) => {
+          const row = (await checkClient.query(
+            `
+              SELECT status
+              FROM casework.processing_job
+              WHERE id = $1
+            `,
+            [createdJob.id],
+          )).rows[0];
+          return row?.status ?? null;
+        });
+        lockCheck.push(observedStatus);
+        await withClient("phase-c3-test-claim-release-lock", async (lockClient) => {
+          await lockClient.query("BEGIN");
+          try {
+            await lockClient.query("SET LOCAL lock_timeout = '500ms'");
+            await lockClient.query(
+              `
+                UPDATE casework.processing_job
+                SET requested_by = requested_by
+                WHERE id = $1
+              `,
+              [createdJob.id],
+            );
+            await lockClient.query("COMMIT");
+          } catch (error) {
+            await lockClient.query("ROLLBACK");
+            throw error;
+          }
+        });
+        return {
+          localPath: `C:/synthetic/${binaryRow.sha256}.bin`,
+          materializationKind: "test_materialization",
+          isTemporary: true,
+          async release() {},
+        };
+      },
+    };
+    try {
+      const result = await processOneJob(client, {
+        registry,
+        binaryStore,
+      });
+      assert.equal(result.status, "completed");
+      assert.deepEqual(lockCheck, ["running"]);
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.document_representation_comparison
+          WHERE representation_a_id IN (
+            SELECT dr.id
+            FROM casework.document_representation AS dr
+            JOIN casework.processing_job AS pj
+              ON pj.id = dr.produced_by_job_id
+            WHERE pj.processor_key = 'mock_claim_release'
+          )
+          OR representation_b_id IN (
+            SELECT dr.id
+            FROM casework.document_representation AS dr
+            JOIN casework.processing_job AS pj
+              ON pj.id = dr.produced_by_job_id
+            WHERE pj.processor_key = 'mock_claim_release'
+          )
+        `,
+      );
+      await client.query(
+        `
+          DELETE FROM casework.document_segment
+          WHERE document_representation_id IN (
+            SELECT dr.id
+            FROM casework.document_representation AS dr
+            JOIN casework.processing_job AS pj
+              ON pj.id = dr.produced_by_job_id
+            WHERE pj.processor_key = 'mock_claim_release'
+          )
+        `,
+      );
+      await client.query(
+        `
+          DELETE FROM casework.document_representation
+          WHERE produced_by_job_id IN (
+            SELECT id
+            FROM casework.processing_job
+            WHERE processor_key = 'mock_claim_release'
+          )
+        `,
+      );
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_key = 'mock_claim_release'
+        `,
+      );
+    }
+  });
+});
+
 dbTest("processOneJob completes through a mock processor and persists comparison-safe representations", async () => {
   await withClient("phase-c3-test-process-complete", async (client) => {
     await assertProcessingSchema(client);
@@ -548,6 +891,80 @@ dbTest("processOneJob completes through a mock processor and persists comparison
         `
           DELETE FROM casework.processing_job
           WHERE requested_by = 'phase-c3-test'
+        `,
+      );
+    }
+  });
+});
+
+dbTest("processOneJob persists explicit binary-store failure without invoking the processor", async () => {
+  await withClient("phase-c3-test-process-store-failure", async (client) => {
+    await assertProcessingSchema(client);
+    const binary = (await client.query(
+      `
+        SELECT id
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+    )).rows[0];
+    await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "mock_store_fail",
+      processorVersion: "v1",
+      status: "queued",
+      attemptCount: 0,
+      maxAttempts: 1,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    let executeCalled = false;
+    const registry = [
+      {
+        key: "mock_store_fail",
+        version: "v1",
+        representationKind: "extracted_document_bundle",
+        supportsBinary() {
+          return true;
+        },
+        async execute() {
+          executeCalled = true;
+          throw new Error("processor should not run after binary-store failure");
+        },
+      },
+    ];
+    const failingBinaryStore = {
+      async materialize(binaryRow) {
+        throw new BinaryStoreError(
+          "binary_missing",
+          `Synthetic missing binary for file_binary ${binaryRow.id}`,
+        );
+      },
+    };
+    try {
+      const failure = await processOneJob(client, {
+        registry,
+        binaryStore: failingBinaryStore,
+      });
+      assert.equal(failure.status, "failed");
+      assert.equal(executeCalled, false);
+      const failedRow = (await client.query(
+        `
+          SELECT status, attempt_count, error_code, error_text
+          FROM casework.processing_job
+          WHERE id = $1
+        `,
+        [failure.job.id],
+      )).rows[0];
+      assert.equal(failedRow.status, "failed");
+      assert.equal(failedRow.attempt_count, 1);
+      assert.equal(failedRow.error_code, "binary_store_failed");
+      assert.match(failedRow.error_text, /Synthetic missing binary/u);
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_key = 'mock_store_fail'
         `,
       );
     }

@@ -9,7 +9,6 @@ import {
   getWorkspaceRoot,
   PROCESSING_OUTPUT_ROOT,
   PYTHON_PATH,
-  resolveBinaryPath,
   slugify,
 } from "./processing-common.mjs";
 
@@ -177,11 +176,14 @@ function createPythonProcessor({ key, version, profileKey, formatFamily }) {
       const isPdf = binaryRow.mime_type === "application/pdf" || binaryRow.file_extension === ".pdf";
       return isPdf;
     },
-    async execute({ workspaceRoot, binaryRow, tempArtifactDir, outputRoot }) {
+    async execute({ workspaceRoot, binaryRow, materializedBinary, tempArtifactDir, outputRoot }) {
+      if (!materializedBinary?.localPath) {
+        throw new Error(`Processor ${key} did not receive a local materialized binary path`);
+      }
       const extraction = await runExtractor({
         workspaceRoot,
         engine: key === "plain_text_passthrough" ? "plain_text" : key,
-        inputPath: resolveBinaryPath(workspaceRoot, binaryRow),
+        inputPath: materializedBinary.localPath,
         artifactDir: tempArtifactDir,
         profileKey,
         ocrMode: determineOcrMode(binaryRow),
