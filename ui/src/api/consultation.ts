@@ -52,5 +52,8 @@ export async function getRepresentationContent(
   if (format === "native-json") {
     return { format: "native-json", body: await response.json() };
   }
-  return { format: format === "markdown" ? "markdown" : "text", body: await response.text() };
+  return {
+    format: format === "markdown" ? "markdown" : format === "complete-text" ? "complete-text" : "text",
+    body: await response.text(),
+  };
 }

@@ -21,6 +21,7 @@ export function isRepresentationArtifactError(error) {
 }
 
 const FORMAT_FILE_NAMES = new Map([
+  ["complete-text", "complete-text.txt"],
   ["markdown", "markdown.md"],
   ["native-json", "native.json"],
 ]);

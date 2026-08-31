@@ -11,7 +11,8 @@ import xberg
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions, RapidOcrOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
-from xberg import ExtractInput, extract
+from docling_core.types.doc.document import ContentLayer
+from xberg import ContentFilterConfig, ExtractInput, extract
 
 
 def ensure_ascii_json(value):
@@ -72,16 +73,29 @@ def build_docling_converter(ocr_mode: str):
     )
 
 
+def build_docling_projections(document):
+    body_layers = {ContentLayer.BODY}
+    complete_layers = {ContentLayer.BODY, ContentLayer.FURNITURE}
+    return {
+        "text_content": document.export_to_text(included_content_layers=body_layers) or "",
+        "complete_text_content": document.export_to_text(included_content_layers=complete_layers) or "",
+        "markdown_content": document.export_to_markdown(included_content_layers=body_layers) or "",
+    }
+
+
 def run_docling(input_path: Path, artifact_dir: Path, profile_key: str, ocr_mode: str):
     converter = build_docling_converter(ocr_mode)
     result = converter.convert(str(input_path))
     document = result.document
     native_document = document.export_to_dict()
-    text_content = document.export_to_text() or ""
-    markdown_content = document.export_to_markdown() or ""
+    projections = build_docling_projections(document)
+    text_content = projections["text_content"]
+    complete_text_content = projections["complete_text_content"]
+    markdown_content = projections["markdown_content"]
     write_json(artifact_dir / "native.json", native_document)
     write_text(artifact_dir / "text.txt", text_content)
     write_text(artifact_dir / "markdown.md", markdown_content)
+    write_text(artifact_dir / "complete-text.txt", complete_text_content)
     return {
         "processor_key": "docling",
         "processor_version": docling.__version__,
@@ -89,13 +103,15 @@ def run_docling(input_path: Path, artifact_dir: Path, profile_key: str, ocr_mode
         "format_family": "pdf",
         "ocr_mode": ocr_mode,
         "native_artifact": "native.json",
-        "artifact_files": ["native.json", "text.txt", "markdown.md"],
+        "artifact_files": ["native.json", "text.txt", "markdown.md", "complete-text.txt"],
         "text_artifact": "text.txt",
+        "complete_text_artifact": "complete-text.txt",
         "markdown_artifact": "markdown.md",
         "summary": {
             "page_count": len(native_document.get("pages", {}) or {}),
             "table_count": len(native_document.get("tables", []) or []),
             "text_length": len(text_content),
+            "complete_text_length": len(complete_text_content),
             "markdown_length": len(markdown_content),
             "native_root_keys": list(native_document.keys()),
         },
@@ -106,7 +122,7 @@ def run_docling(input_path: Path, artifact_dir: Path, profile_key: str, ocr_mode
     }
 
 
-async def run_xberg_async(input_path: Path, artifact_dir: Path, profile_key: str, ocr_mode: str):
+def build_xberg_config(ocr_mode: str):
     config = {
         "include_document_structure": True,
         "enable_quality_processing": True,
@@ -114,11 +130,22 @@ async def run_xberg_async(input_path: Path, artifact_dir: Path, profile_key: str
             "extract_pages": True,
             "insert_page_markers": False,
         },
+        "content_filter": ContentFilterConfig(
+            include_headers=True,
+            include_footers=True,
+            strip_repeating_text=False,
+            include_watermarks=False,
+        ),
     }
     if ocr_mode == "never":
         config["disable_ocr"] = True
     elif ocr_mode == "force":
         config["force_ocr"] = True
+    return config
+
+
+async def run_xberg_async(input_path: Path, artifact_dir: Path, profile_key: str, ocr_mode: str):
+    config = build_xberg_config(ocr_mode)
 
     output = await extract(
         ExtractInput(kind="uri", uri=str(input_path)),
@@ -133,11 +160,12 @@ async def run_xberg_async(input_path: Path, artifact_dir: Path, profile_key: str
     }
     write_json(artifact_dir / "native.json", native_document)
     write_text(artifact_dir / "text.txt", text_content)
+    write_text(artifact_dir / "complete-text.txt", text_content)
     if markdown_content:
         write_text(artifact_dir / "formatted.md", markdown_content)
-        artifact_files = ["native.json", "text.txt", "formatted.md"]
+        artifact_files = ["native.json", "text.txt", "complete-text.txt", "formatted.md"]
     else:
-        artifact_files = ["native.json", "text.txt"]
+        artifact_files = ["native.json", "text.txt", "complete-text.txt"]
     pages = getattr(document, "pages", None) or []
     tables = getattr(document, "tables", None) or []
     ocr_elements = getattr(document, "ocr_elements", None) or []
@@ -151,6 +179,7 @@ async def run_xberg_async(input_path: Path, artifact_dir: Path, profile_key: str
         "native_artifact": "native.json",
         "artifact_files": artifact_files,
         "text_artifact": "text.txt",
+        "complete_text_artifact": "complete-text.txt",
         "markdown_artifact": "formatted.md" if markdown_content else None,
         "summary": {
             "page_count": len(pages),
@@ -158,6 +187,7 @@ async def run_xberg_async(input_path: Path, artifact_dir: Path, profile_key: str
             "ocr_element_count": len(ocr_elements),
             "warning_count": len(processing_warnings),
             "text_length": len(text_content),
+            "complete_text_length": len(text_content),
             "markdown_length": len(markdown_content),
             "quality_score": getattr(document, "quality_score", None),
             "extraction_confidence": getattr(document, "extraction_confidence", None),

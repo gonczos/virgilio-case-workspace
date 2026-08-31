@@ -18,13 +18,16 @@ test("formatBytes renders readable values", () => {
   expect(formatBytes(3.8 * 1024 * 1024)).toBe("3.8 MB");
 });
 
-test("chooseInitialFormat prefers markdown then text then native-json", () => {
+test("chooseInitialFormat prefers markdown then text then complete-text then native-json", () => {
   expect(chooseInitialFormat({
     available_formats: ["native-json", "text", "markdown"],
   } as RepresentationListItem)).toBe("markdown");
   expect(chooseInitialFormat({
     available_formats: ["native-json", "text"],
   } as RepresentationListItem)).toBe("text");
+  expect(chooseInitialFormat({
+    available_formats: ["native-json", "complete-text"],
+  } as RepresentationListItem)).toBe("complete-text");
   expect(chooseInitialFormat({
     available_formats: ["native-json"],
   } as RepresentationListItem)).toBe("native-json");

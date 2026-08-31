@@ -2957,3 +2957,49 @@ HTTP compatibility outcome:
 Remaining intentional limitation:
 
 - `app/phase-c2-spike.mjs` still performs direct local path resolution because it remains historical evaluation tooling rather than an active runtime serving or processing boundary
+
+## Phase C5.2 Implementation Result
+
+Implemented on 2026-09-01: header/footer preservation without mutating historical representation identity.
+
+Implemented slice:
+
+1. keep historical successful `document_representation` rows and artifacts immutable
+2. introduce new Docling/Xberg representation identities for the preservation-policy change:
+   - Docling profile `docling-preserve-furniture-v2`, version `2.123.1-c5.2`
+   - Xberg profile `xberg-preserve-furniture-v2`, version `1.0.14-c5.2`
+3. keep readable Markdown body-oriented for Docling
+4. keep `format=text` on the consultation path backed by `document_segment` content rather than redefining it as complete text
+5. add a distinct durable `complete-text` artifact exposed through the representation-artifact access layer
+6. configure Xberg explicitly to preserve headers/footers instead of relying on library defaults
+7. preserve old representations as valid historical outputs while allowing new same-binary C5.2 representations to coexist
+
+Artifact semantics implemented:
+
+- `text.txt` keeps its prior plain-text/body-oriented role for current processor output compatibility
+- `complete-text.txt` is the new explicit completeness/search/reference-recovery artifact
+- `markdown.md` remains the readable body-oriented projection
+- `native.json` remains the structured/native extractor artifact
+- older successful representations that predate C5.2 do not claim `complete-text` unless that artifact actually exists
+
+Extractor behavior implemented:
+
+- Docling now produces:
+  - body-oriented text from `ContentLayer.BODY`
+  - body-oriented Markdown from `ContentLayer.BODY`
+  - complete text from `ContentLayer.BODY + ContentLayer.FURNITURE`
+- Xberg now runs with explicit preservation-oriented content filtering:
+  - `include_headers = true`
+  - `include_footers = true`
+  - `strip_repeating_text = false`
+  - `include_watermarks = false`
+- current Xberg C5.2 output writes both `text.txt` and `complete-text.txt` with the same preserved text content; this preserves the explicit complete-text artifact contract without inventing Docling-style layer semantics that Xberg does not expose
+
+Validation outcome:
+
+- older successful Docling/Xberg representations remained unchanged on disk and in PostgreSQL
+- new C5.2 processing created distinct new representations instead of overwriting older artifacts
+- the new `complete-text` artifact became available through the existing representation-content path
+- consultation/UI format handling remained compatible while allowing explicit `complete-text` access
+- real-document checks confirmed previously de-emphasized header/footer reference data was preserved in the new artifacts
+- no schema changes, importer changes, storage redesign, or `pdftotext` productionization were included

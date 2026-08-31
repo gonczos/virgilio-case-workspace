@@ -15,9 +15,11 @@ import {
 export const EXTRACT_STAGE_KEY = "EXTRACT_STRUCTURE";
 export const HUMAN_STAGE_KEY = "HUMAN_CREATE_REPRESENTATION";
 export const DEFAULT_REPRESENTATION_KIND = "extracted_document_bundle";
-export const DOCLING_PROFILE_KEY = "docling-default-v1";
-export const XBERG_PROFILE_KEY = "xberg-default-v1";
+export const DOCLING_PROFILE_KEY = "docling-preserve-furniture-v2";
+export const XBERG_PROFILE_KEY = "xberg-preserve-furniture-v2";
 export const PLAIN_TEXT_PROFILE_KEY = "plain-text-default-v1";
+export const DOCLING_PROCESSOR_VERSION = "2.123.1-c5.2";
+export const XBERG_PROCESSOR_VERSION = "1.0.14-c5.2";
 
 function determineOcrMode(binaryRow) {
   if (binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt") {
@@ -115,11 +117,15 @@ async function finalizeArtifactDir(outputDir, tempDir) {
 
 function buildMachineMetadata(binaryRow, extraction) {
   return {
+    engine_version: extraction.processor_version,
     profile_key: extraction.profile_key,
     ocr_mode: extraction.ocr_mode,
     summary: extraction.summary,
     native_summary: extraction.native_summary,
     artifact_files: extraction.artifact_files,
+    text_artifact: extraction.text_artifact,
+    complete_text_artifact: extraction.complete_text_artifact ?? null,
+    markdown_artifact: extraction.markdown_artifact ?? null,
     source_binary: {
       sha256: binaryRow.sha256,
       machine_readability_status: binaryRow.machine_readability_status,
@@ -133,6 +139,7 @@ function buildMachineMetadata(binaryRow, extraction) {
 function buildMachineContent(textContent, markdownContent, extraction) {
   return {
     text_length: textContent.length,
+    complete_text_length: extraction.summary.complete_text_length ?? null,
     markdown_length: markdownContent.length,
     page_count: extraction.summary.page_count ?? null,
     table_count: extraction.summary.table_count ?? null,
@@ -218,13 +225,13 @@ function createPythonProcessor({ key, version, profileKey, formatFamily }) {
 const BUILTIN_PROCESSORS = [
   createPythonProcessor({
     key: "docling",
-    version: "2.123.1",
+    version: DOCLING_PROCESSOR_VERSION,
     profileKey: DOCLING_PROFILE_KEY,
     formatFamily: "pdf",
   }),
   createPythonProcessor({
     key: "xberg",
-    version: "1.0.14",
+    version: XBERG_PROCESSOR_VERSION,
     profileKey: XBERG_PROFILE_KEY,
     formatFamily: "pdf",
   }),

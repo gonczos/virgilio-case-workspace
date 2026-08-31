@@ -184,5 +184,5 @@ export interface BinaryDetailResponse {
 }
 
 export type RepresentationContentResult =
-  | { format: "text" | "markdown"; body: string }
+  | { format: "text" | "markdown" | "complete-text"; body: string }
   | { format: "native-json"; body: unknown };

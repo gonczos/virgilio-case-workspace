@@ -99,6 +99,9 @@ async function determineRepresentationAvailableFormats(workspaceRoot, representa
   if (await hasRepresentationArtifactFormat(workspaceRoot, representation, "markdown")) {
     formats.push("markdown");
   }
+  if (await hasRepresentationArtifactFormat(workspaceRoot, representation, "complete-text")) {
+    formats.push("complete-text");
+  }
   if (await hasRepresentationArtifactFormat(workspaceRoot, representation, "native-json")) {
     formats.push("native-json");
   }
@@ -658,7 +661,12 @@ export async function getRepresentationContent(client, representationId, format,
     error.code = "INVALID_REPRESENTATION_ID";
     throw error;
   }
-  if (normalizedFormat !== "text" && normalizedFormat !== "markdown" && normalizedFormat !== "native-json") {
+  if (
+    normalizedFormat !== "text"
+    && normalizedFormat !== "markdown"
+    && normalizedFormat !== "complete-text"
+    && normalizedFormat !== "native-json"
+  ) {
     const error = new Error(`Invalid representation format: ${format}`);
     error.code = "INVALID_REPRESENTATION_FORMAT";
     throw error;

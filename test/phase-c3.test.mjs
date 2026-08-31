@@ -20,7 +20,11 @@ import {
   buildComparisonObservation,
   canonicalizeComparisonPair,
 } from "../app/processing-comparison.mjs";
-import { determineProcessingPolicy } from "../app/processing-registry.mjs";
+import {
+  DOCLING_PROCESSOR_VERSION,
+  XBERG_PROCESSOR_VERSION,
+  determineProcessingPolicy,
+} from "../app/processing-registry.mjs";
 import {
   claimNextJob,
   clearSelectionOverride,
@@ -185,6 +189,7 @@ test("determineProcessingPolicy selects both PDF engines and plain-text passthro
 
 test("comparison remains processor-agnostic and preserves disagreement", async () => {
   assert.deepEqual(canonicalizeComparisonPair(9, 3), [3, 9]);
+  assert.deepEqual(canonicalizeComparisonPair("532", "54"), ["54", "532"]);
   const observation = buildComparisonObservation({
     leftLabel: "left",
     rightLabel: "right",
@@ -1079,13 +1084,14 @@ dbTest("enqueueJobsForBinary avoids duplicate active work and completed-output d
       `,
       [binary.id],
     )).rows[0];
-    await insertRepresentation(client, {
-      fileBinaryId: binary.id,
-      producedByJobId: doclingJob.id,
-      processorKey: "docling",
-      processorVersion: "2.123.1",
+      await insertRepresentation(client, {
+        fileBinaryId: binary.id,
+        producedByJobId: doclingJob.id,
+        processorKey: "docling",
+        processorVersion: DOCLING_PROCESSOR_VERSION,
+      });
+      const third = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id));
+      assert.ok(third.some((item) => item.processor_key === "docling" && item.action === "already_satisfied"));
+      assert.ok(third.some((item) => item.processor_key === "xberg" && item.processor_version === XBERG_PROCESSOR_VERSION));
     });
-    const third = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id));
-    assert.ok(third.some((item) => item.processor_key === "docling" && item.action === "already_satisfied"));
   });
-});

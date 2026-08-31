@@ -69,7 +69,9 @@ export function canonicalizeComparisonPair(leftRepresentationId, rightRepresenta
   if (leftRepresentationId === rightRepresentationId) {
     throw new Error("Cannot compare a representation to itself");
   }
-  return leftRepresentationId < rightRepresentationId
+  const leftValue = BigInt(leftRepresentationId);
+  const rightValue = BigInt(rightRepresentationId);
+  return leftValue < rightValue
     ? [leftRepresentationId, rightRepresentationId]
     : [rightRepresentationId, leftRepresentationId];
 }

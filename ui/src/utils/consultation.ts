@@ -4,7 +4,7 @@ import type {
   RepresentationListItem,
 } from "../types/consultation";
 
-const FORMAT_PRIORITY = ["markdown", "text", "native-json"];
+const FORMAT_PRIORITY = ["markdown", "text", "complete-text", "native-json"];
 
 export function normalizeStableId(value: number | string | null | undefined): string | null {
   if (value === null || value === undefined || value === "") {
