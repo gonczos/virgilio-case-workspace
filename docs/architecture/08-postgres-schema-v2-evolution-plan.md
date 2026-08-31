@@ -2443,143 +2443,223 @@ Optional later:
 Phase C is complete when:
 
 - the processing-core schema exists with FK integrity
-- a claimable retryable job model is in place
-- representation/segment storage exists without assuming pages are universal
-- the schema cleanly supports later backlog seeding from current `file_binary`
+- the asynchronous multi-representation processing path is durable and restart-safe
+- independent Docling and Xberg interpretations are supported and remain separately attributable
+- representation comparison and effective-selection behavior exist without treating any extractor as authoritative truth
+- both processing and original-binary serving consume the `BinaryStore` boundary without changing canonical binary identity semantics
 
-## Phase D: First Concrete PDF Processing Plus Existing Corpus Backlog
+## Phase C4: Corpus Consultation MVP
 
 ### Goal
 
-Validate the processing framework on the current corpus using PDF as the first high-priority processor.
+Provide a thin, human-usable consultation layer over the already imported corpus, persisted processing state, and retained representations.
 
-### Initial PDF Path
+This phase exists to make the current corpus and processing foundation inspectable and demonstrable. It is not intended to become the primary long-term architectural focus of the project.
 
-Stages:
+### Scope
 
-1. `IDENTIFY_FORMAT`
-2. `VERIFY_BINARY`
-3. `EXTRACT_STRUCTURE`
-4. `OCR_FALLBACK` where needed
-5. `NORMALIZE_CONTENT`
+Phase C4 should stay deliberately thin:
 
-Phase D can collapse some of these into fewer concrete processors initially, but job stages should remain capability-based.
+- a binary catalogue/grid over the current corpus
+- a binary detail/inspection view
+- original-binary access through the existing `file-gateway -> BinaryStore` path
+- representation viewing without conflating viewing with explicit representation preference
+- simple human-readable presentation of processing, provenance, comparison, and review-needed state
 
-### Existing Corpus Backlog
+Directus remains useful for raw/admin consultation of PostgreSQL tables. The custom consultation UI should provide the human-friendly corpus experience rather than turning Directus into the final Virgilio product surface.
 
-Seed backlog from existing `file_binary` rows:
+### Non-Goals
 
-- all binaries with `mime_type = 'application/pdf'`
-- or `file_extension = '.pdf'`
-- or both with safety checks
+Do not turn C4 into a full document-management or legal-analysis application.
 
-No re-import required.
+Defer:
 
-### Verification / Inspection
+- annotations
+- PDF paragraph highlighting and synchronization
+- semantic editing
+- timeline editing
+- relationship graphs
+- workflow-heavy review tooling
+- advanced semantic navigation
 
-Use current `file_binary` metadata as hints, not as final truth.
+### Completion Criteria
 
-Verify:
+Phase C4 is complete when:
 
-- binary file exists at resolved path
-- file hash and size still align where expected
-- PDF opens successfully
+- a human can browse a useful catalogue of binaries and their current processing state
+- a human can inspect an original PDF beside available derived representations
+- available representations, effective selection, and selection provenance are visible
+- attention/review-needed signals remain visible without implementing a larger workflow system
 
-### Native Text Inspection / OCR Need Detection
+## Phase D: Search And Retrieval Foundation
 
-For PDFs:
+### Goal
 
-- inspect page count
-- inspect extractable text presence/quality
-- mark representation metadata with OCR-needed cues
+Turn selected document representations into a searchable, provenance-aware corpus suitable for later AI retrieval and downstream enrichment.
 
-Do not assume:
+This phase no longer introduces the first real PDF processor. Extraction, multiple representations, asynchronous execution, comparison, and selection already exist from Phases C2-C3.2.
 
-- non-empty text means high quality
+### D1 Search Derivation And Lineage Model
 
-Suggested metadata outcomes:
+Search-derived content must retain explicit lineage:
 
-- `text_quality = good | suspect | empty`
-- `ocr_needed = true | false | partial`
+```text
+document_representation
+        ->
+search_derivation
+        ->
+search_chunk
+```
 
-### Representation / Segment Creation
+Each derivation should identify at least:
 
-For PDFs:
+- input `document_representation`
+- derivation/chunking strategy
+- strategy version
+- materially relevant configuration identity
+- status
+- creation time
 
-- create one `document_representation` per processor version
-- create `document_segment` rows with page-aware metadata where appropriate
+Architectural invariants:
 
-Page is allowed here as segment metadata because it is format-specific, not universal.
+- indexed data is derived data, not canonical evidence
+- every search derivation must identify the exact immutable representation used as input
+- changing the effective representation, chunking strategy, or relevant configuration produces a new derivation rather than silently rewriting provenance
 
-### Failure Isolation
+### D2 Search-Ready Chunks
 
-Failures should be isolated per binary/job.
+Derive useful searchable units from the selected/effective representation.
 
-Examples:
+Prefer structure-aware chunking where available rather than arbitrary fixed-width windows. Preserve useful provenance where practical:
 
-- missing file
-- invalid PDF
-- extractor crash
-- OCR timeout
+- document
+- representation
+- source segment or structural element
+- page
+- ordinal
+- heading/context
 
-Do not block the whole backlog because one file fails.
+### D3 Lexical Retrieval
 
-### Safe Restart / Resume
+Implement useful text search over the corpus.
 
-Required behavior:
+PostgreSQL full-text search is the lowest-complexity initial option and should be considered before adding separate search infrastructure.
 
-- claimable queued jobs
-- active-job uniqueness
-- retries bounded by `max_attempts`
-- rerun based on explicit enqueue policy and processor version
+The target capability is:
 
-### Processor-Version-Driven Reprocessing
+```text
+query
+  ->
+ranked chunks
+  ->
+document + representation + source provenance
+```
 
-When processor version changes:
+### D4 Semantic/Vector Retrieval
 
-- enqueue new jobs for same target/stage with new version
-- preserve older representations/results
-- mark supersession through policy, not destructive overwrite
+After lexical retrieval and chunk quality are understood, add embedding/vector derivations if justified.
 
-When the same processor version is requested again for a representation-producing stage:
+Embedding outputs must also be versioned and attributable to the exact input representation and embedding model/version used.
 
-- ordinary enqueue should treat an existing successful immutable representation as already satisfied
-- do not normally create another same-version producing job
-- a later job with the same version is only for an explicit future forced-recomputation policy, which is deferred beyond C1
+External search/vector indexes should be treated as rebuildable projections rather than authoritative state.
 
-### Importer Enhancement
+### D5 AI Retrieval / Serving
 
-None required for initial Phase D if backlog seeding is external.
+Once retrieval is demonstrably useful:
 
-Later optional improvement:
+```text
+question
+   ->
+retrieval
+   ->
+relevant chunks
+   ->
+AI
+   ->
+answer + provenance
+```
 
-- enqueue `IDENTIFY_FORMAT` / `VERIFY_BINARY` after legacy/package import
-
-### Directus Impact
-
-- no immediate dependency
-- later useful to surface:
-  - processing status
-  - extracted coverage
-  - OCR-needed items
-  - failed items
-
-### Validation Queries / Invariants
-
-- every qualifying PDF `file_binary` has at least one queued or completed initial job
-- completed extraction jobs produce exactly one `document_representation` for target/processor version
-- representation/segment counts are stable under rerun with same version
-- failed jobs do not remove prior successful outputs
+AI-supported claims must remain traceable through retrieval and search derivation to the exact `document_representation`, canonical document context, and original binary.
 
 ### Completion Criteria
 
 Phase D is complete when:
 
-- existing imported PDFs can be queued without re-import
-- a first PDF processor can verify, inspect, extract, and segment
-- OCR-needed PDFs are distinguished
-- failures are isolated and resumable
-- rerun/version behavior is demonstrably idempotent
+- selected representations can be transformed into searchable derived chunks with explicit lineage
+- lexical retrieval is useful and navigable back to source provenance
+- any additional vector/AI-serving layer remains rebuildable and provenance-aware
+- representation changes can be detected as requiring new search derivations rather than silently reusing stale derived state
+
+## Phase E: Incremental Semantic Enrichment
+
+### Goal
+
+Add higher-value semantic derivations on top of the already searchable, representation-aware corpus without requiring the search foundation to be redesigned.
+
+This phase should follow a hybrid strategy:
+
+```text
+                         -> search chunks
+document_representation -+-> embeddings
+                         -> semantic derivations
+```
+
+These remain complementary derived interpretations of the same representation.
+
+### Initial Direction
+
+Begin with relatively objective, useful signals such as:
+
+- dates
+- court/process reference numbers
+- document references
+- named persons
+- organizations/institutions
+- courts
+- document-type signals
+- language
+
+Later phases may add cross-document relationships, event candidates, and structured matters/topics once the corpus evidence justifies them.
+
+### Interaction With Existing Search
+
+Semantic enrichment must work with an already-indexed corpus.
+
+Do not assume enrichment requires replacing existing search chunks. Instead, later semantic observations may:
+
+- attach to documents
+- attach to representations
+- attach to specific chunks/source spans where appropriate
+- become retrieval filters
+- become ranking signals
+- support navigation and AI context selection
+
+If enrichment logic changes, create/version new derivations rather than silently rewriting provenance.
+
+### Completion Criteria
+
+Phase E is complete when:
+
+- high-value semantic derivations exist with explicit provenance
+- semantic outputs can improve retrieval, filtering, and navigation without replacing canonical evidence
+- changed representations or changed enrichment logic can be detected as stale/non-current derived state rather than silently reassigned
+
+## Phase F: Rich Review / Knowledge Workspace
+
+Reserve richer human interaction for a later phase once consultation, retrieval, and semantic derivation are grounded in persisted provenance-aware data.
+
+Possible later capabilities include:
+
+- semantic review/correction
+- human assertions
+- timeline review
+- relationship graph exploration
+- richer PDF-to-interpretation synchronization
+- annotations
+- matter-oriented navigation
+- review workflows
+
+Do not treat Phase F as a prerequisite for C4, D, or E.
 
 ## Recommended Delivery Sequence
 
@@ -2594,12 +2674,14 @@ Completed:
 7. Phase C2 multi-engine extraction evaluation/spike with Docling and Xberg
 8. Phase C3 durable asynchronous multi-representation processing, selection, and comparison support on top of the existing C1 model
 9. Phase C3.1 binary-storage abstraction for the processing path via `BinaryStore` / `LocalBinaryStore`
+10. Phase C3.2 route original-binary serving through `BinaryStore` by wiring `app/file-gateway.mjs` to the existing local materialization boundary without changing API behavior
 
 Next recommended sequence:
 
-10. Optional Phase C3.2: route original-binary serving through `BinaryStore` by wiring `app/file-gateway.mjs` to the existing local materialization boundary without changing API behavior
-11. Re-scope the old Phase D plan before implementation
-12. Next major phase should focus on corpus preparation for search, provenance-aware AI retrieval/serving, and later semantic enrichment using selected `document_representation` inputs rather than blindly following the pre-C3 Phase D decomposition
+11. Phase C4 thin corpus consultation MVP over the existing canonical, processing, and representation state
+12. Phase D search and retrieval foundation built from selected `document_representation` inputs with explicit lineage and rebuildable derived projections
+13. Phase E incremental semantic enrichment that works with the already indexed corpus rather than replacing it
+14. Phase F richer review and knowledge-workspace capabilities after consultation, retrieval, and semantic derivation are in place
 
 ## Proposed Migration / File Boundaries
 
@@ -2638,8 +2720,9 @@ Recommended migration file grouping:
 Implementation files:
 
 - importer enhancements in `app/import-package.mjs`
-- later backlog/enqueue utility in `app/` or `scripts/`
-- later worker implementation in a separate module, not Directus
+- worker/runtime implementation in `app/`
+- later consultation UI in a dedicated frontend/client path
+- later search/derivation runtime in `app/` or `scripts/`
 
 ## Phase A2c Implementation Result
 
@@ -2772,11 +2855,15 @@ The repository can evolve safely if the work is staged as:
 - Phase C2: multi-engine extraction evaluation/spike
 - Phase C3: durable asynchronous processing, comparison, and representation selection
 - Phase C3.1: binary-storage abstraction for processing consumers
-- later possible Phase C3.2: original-binary serving through `BinaryStore`
-- next major phase after the Phase C foundation: corpus preparation and downstream derivation built on selected `document_representation` inputs
+- Phase C3.2: original-binary serving through `BinaryStore`
+- next major sequence after the Phase C foundation:
+  - Phase C4 thin corpus consultation MVP
+  - Phase D search and retrieval foundation
+  - Phase E incremental semantic enrichment
+  - Phase F richer review and knowledge-workspace capabilities
 
-The current next caution point is preserving the clean boundary between the newly implemented Phase B provenance layer and the later Phase C processing layer.
-That is why Phase C should stay focused on processing orchestration and derived content, and not reopen capture/import or canonical-mapping semantics.
+The current next caution point is preserving explicit lineage from the selected `document_representation` into later search, retrieval, and enrichment derivations.
+That is why the next roadmap steps should build on the completed Phase C foundation rather than reopen capture/import, canonical identity, or representation-selection semantics.
 
 ## Phase C3.1 Implementation Result
 

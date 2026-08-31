@@ -701,20 +701,16 @@ Implement in this phase:
 - `document_segment`
 - typed processing targets with FK integrity and a one-target CHECK rule
 
-### Phase D: first concrete PDF processing plus existing corpus backlog
+### Later phases after the completed processing foundation
 
-Purpose:
+The original "first concrete PDF processing plus existing corpus backlog" plan has already been satisfied by the completed Phase C implementation sequence.
 
-- make the first high-priority processor real without defining the whole system around PDF
-- validate the processing framework against the current corpus
+The next roadmap focus is:
 
-Implement in this phase:
-
-- first PDF-focused binary verification/inspection/extraction path
-- selective OCR decisioning and OCR fallback for PDFs where needed
-- representation/segment population for PDFs
-- existing imported PDF backlog creation from current `file_binary`
-- worker execution against the current corpus
+- Phase C4 thin corpus consultation MVP
+- Phase D search and retrieval foundation over selected `document_representation` inputs
+- Phase E incremental semantic enrichment with explicit provenance
+- Phase F richer review and knowledge-workspace capabilities
 
 ### What Later Phases Should Leave Room For
 
