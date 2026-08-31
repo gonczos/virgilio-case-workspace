@@ -173,8 +173,6 @@ These decisions follow from the actual repository as it exists now:
 These are genuine pre-implementation decisions, not hypothetical future design debates:
 
 1. Whether imported official occurrences should later receive explicit `document_origin` rows in addition to `bucket_document`, or remain represented only by canonical official structure plus later source-observation provenance.
-2. Whether `processing_result` should duplicate target FKs or reference target only through `processing_job`.
-3. Whether `document_segment` should store large extracted text inline or via separate artifact references for very large formats.
 
 ## Deliberately Deferred Concerns
 
@@ -2057,15 +2055,21 @@ Introduce a format-agnostic processing system without forcing PDF-specific assum
 
 #### New `document_representation`
 
+Purpose:
+
+- one immutable successful machine-derived representation emitted for a specific source binary, representation kind, and processor version
+- failed attempts do not create representation rows
+- an existing successful representation for the same `(file_binary_id, representation_kind, processor_key, processor_version)` normally means the requested same-version output is already satisfied
+
 Columns:
 
 - `id BIGSERIAL PRIMARY KEY`
 - `file_binary_id BIGINT NOT NULL`
+- `produced_by_job_id BIGINT NOT NULL`
 - `representation_kind TEXT NOT NULL`
 - `format_family TEXT NOT NULL`
 - `processor_key TEXT NOT NULL`
 - `processor_version TEXT NOT NULL`
-- `status TEXT NOT NULL`
 - `metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb`
 - `content_json JSONB NULL`
 - `artifact_rel_path TEXT NULL`
@@ -2073,24 +2077,47 @@ Columns:
 
 Constraints:
 
-- `FOREIGN KEY (file_binary_id) REFERENCES casework.file_binary(id)`
-- `CHECK (status IN ('pending','completed','failed','superseded'))`
+- `FOREIGN KEY (file_binary_id) REFERENCES casework.file_binary(id) ON DELETE RESTRICT`
+- `FOREIGN KEY (produced_by_job_id) REFERENCES casework.processing_job(id) ON DELETE RESTRICT`
 
 Indexes:
 
 - `ix_document_representation_file_binary_id`
 - `ix_document_representation_format_family`
 - `ix_document_representation_processor`
+- `ix_document_representation_produced_by_job_id`
 
 Unique:
 
 - `UNIQUE (file_binary_id, representation_kind, processor_key, processor_version)`
+- `UNIQUE (produced_by_job_id)`
 
 Classification:
 
 - machine-derived
 
+Semantics:
+
+- the durable idempotent identity is `(file_binary_id, representation_kind, processor_key, processor_version)`
+- `produced_by_job_id` identifies the exact successful job that created that immutable representation
+- one producing job creates at most one representation in the first slice
+- PostgreSQL should enforce the `produced_by_job_id` FK and uniqueness directly
+- semantic consistency between the producing job target and the representation `file_binary_id` remains runtime-enforced
+- do not add cross-table composite enforcement for that consistency in C1
+- `representation_kind` identifies the output type, not the stage
+- `format_family` identifies the source-binary family such as `pdf`
+- `processor_key` identifies the implementation
+- `processor_version` identifies the behavior/version lineage of that implementation
+- `metadata_json` stores compact summary metadata and diagnostics
+- `content_json` is allowed for compact structured representation-level content only
+- `artifact_rel_path` is allowed for optional large/raw sidecar artifacts and must not duplicate segment text
+
 #### New `document_segment`
+
+Purpose:
+
+- one ordered normalized content fragment emitted from a `document_representation`
+- the abstraction is format-agnostic; page is optional metadata, not the universal unit
 
 Columns:
 
@@ -2101,8 +2128,6 @@ Columns:
 - `text_content TEXT NULL`
 - `structural_path TEXT NULL`
 - `page_no INTEGER NULL`
-- `sheet_name TEXT NULL`
-- `bbox_json JSONB NULL`
 - `char_start INTEGER NULL`
 - `char_end INTEGER NULL`
 - `metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb`
@@ -2110,7 +2135,11 @@ Columns:
 
 Constraints:
 
-- `FOREIGN KEY (document_representation_id) REFERENCES casework.document_representation(id)`
+- `FOREIGN KEY (document_representation_id) REFERENCES casework.document_representation(id) ON DELETE CASCADE`
+- `CHECK (sequence_no >= 1)`
+- `CHECK (char_start IS NULL OR char_start >= 0)`
+- `CHECK (char_end IS NULL OR char_end >= 0)`
+- `CHECK (char_start IS NULL OR char_end IS NULL OR char_end >= char_start)`
 
 Unique:
 
@@ -2125,7 +2154,40 @@ Classification:
 
 - machine-derived
 
+First-slice segment guidance:
+
+- retain:
+  - `segment_kind`
+  - `sequence_no`
+  - `text_content`
+  - `structural_path`
+  - `page_no`
+  - `char_start`
+  - `char_end`
+  - `metadata_json`
+- defer dedicated `sheet_name` and `bbox_json` columns from the first implementation
+- if Phase D later needs bounding boxes or sheet identifiers, they can first live in `metadata_json` and only be promoted if a real query need appears
+
+Text storage policy:
+
+- Phase C/D should store extracted segment text inline in `document_segment.text_content`
+- the current corpus scale supports this comfortably:
+  - `1238` PDFs
+  - about `509 MB` total binary size
+  - about `6.8 million` currently extracted characters across `file_binary`
+  - about `6715` total pages
+- inline text keeps PostgreSQL-backed querying, inspection, backup, and future FTS simpler
+- do not introduce external text-artifact indirection for first-slice PDF extraction
+- very large raw/debug artifacts may still live outside PostgreSQL and be referenced from representation-level `artifact_rel_path`
+
 #### New `processing_job`
+
+Purpose:
+
+- one logical processing intent for one exact target, stage, processor implementation, and processor version
+- a row persists across bounded retries
+- a row is not an execution-attempt history record
+- later explicit rerun behavior depends on stage semantics rather than following one universal rule for every terminal row
 
 Columns:
 
@@ -2133,13 +2195,11 @@ Columns:
 - `stage_key TEXT NOT NULL`
 - `status TEXT NOT NULL`
 - `file_binary_id BIGINT NULL`
-- `document_id BIGINT NULL`
 - `document_representation_id BIGINT NULL`
 - `processor_key TEXT NOT NULL`
 - `processor_version TEXT NOT NULL`
 - `requested_by TEXT NULL`
 - `requested_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
-- `claimed_at TIMESTAMPTZ NULL`
 - `started_at TIMESTAMPTZ NULL`
 - `completed_at TIMESTAMPTZ NULL`
 - `attempt_count INTEGER NOT NULL DEFAULT 0`
@@ -2147,13 +2207,17 @@ Columns:
 - `error_code TEXT NULL`
 - `error_text TEXT NULL`
 - `depends_on_job_id BIGINT NULL`
-- `stale_after TIMESTAMPTZ NULL`
 
 Constraints:
 
-- FKs to `file_binary`, `document`, `document_representation`, `processing_job`
+- `FOREIGN KEY (file_binary_id) REFERENCES casework.file_binary(id) ON DELETE RESTRICT`
+- `FOREIGN KEY (document_representation_id) REFERENCES casework.document_representation(id) ON DELETE RESTRICT`
+- `FOREIGN KEY (depends_on_job_id) REFERENCES casework.processing_job(id) ON DELETE RESTRICT`
 - `CHECK` exactly one target FK is non-null
-- `CHECK (status IN ('queued','claimed','running','completed','failed','cancelled','blocked'))`
+- `CHECK (status IN ('queued','running','completed','failed','cancelled','blocked'))`
+- `CHECK (max_attempts >= 1)`
+- `CHECK (attempt_count >= 0)`
+- `CHECK (depends_on_job_id IS NULL OR depends_on_job_id <> id)`
 
 Indexes:
 
@@ -2161,79 +2225,196 @@ Indexes:
 - `ix_processing_job_stage_key`
 - `ix_processing_job_claimable`
 - `ix_processing_job_file_binary_id`
-- `ix_processing_job_document_id`
 - `ix_processing_job_document_representation_id`
 - `ix_processing_job_depends_on_job_id`
 
 Uniqueness / idempotency:
 
-- partial unique index preventing duplicate active jobs for same target/stage/processor version where status in `('queued','claimed','running')`
+- use target-specific partial unique indexes rather than a polymorphic generated key
+- file-binary target:
+  - `(file_binary_id, stage_key, processor_key, processor_version)`
+  - `WHERE file_binary_id IS NOT NULL AND status IN ('queued','running')`
+- representation target:
+  - `(document_representation_id, stage_key, processor_key, processor_version)`
+  - `WHERE document_representation_id IS NOT NULL AND status IN ('queued','running')`
 
 Classification:
 
 - machine operational state
 
-#### New `processing_result`
+First-slice target model:
 
-Columns:
+- retain `file_binary_id`
+  - for `IDENTIFY_FORMAT`
+  - for `VERIFY_BINARY`
+  - for `EXTRACT_STRUCTURE`
+  - for `OCR_FALLBACK`
+- retain `document_representation_id`
+  - for `NORMALIZE_CONTENT`
+  - for later chunking/index-preparation work that operates on derived content
+- defer `document_id` as a processing target from the first Phase C slice
 
-- `id BIGSERIAL PRIMARY KEY`
-- `processing_job_id BIGINT NOT NULL`
-- `result_status TEXT NOT NULL`
-- `payload_json JSONB NOT NULL DEFAULT '{}'::jsonb`
-- `artifact_rel_path TEXT NULL`
-- `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+Reason:
 
-Constraints:
+- the current repository and planned Phase D PDF path do not need document-level processing targets yet
+- keeping only the target classes Phase D actually uses avoids schema bloat while preserving typed FK integrity
 
-- `FOREIGN KEY (processing_job_id) REFERENCES casework.processing_job(id)`
-- `CHECK (result_status IN ('produced','no_output','failed_snapshot'))`
+Recommended first-slice `stage_key` examples:
 
-Indexes:
+- `IDENTIFY_FORMAT`
+- `VERIFY_BINARY`
+- `EXTRACT_STRUCTURE`
+- `OCR_FALLBACK`
+- `NORMALIZE_CONTENT`
 
-- `ix_processing_result_processing_job_id`
+Job semantics:
 
-Classification:
+- `stage_key` identifies the capability/stage, not the processor implementation
+- `processor_key` identifies the concrete implementation, for example `worker/pdfium-text`
+- `processor_version` identifies the implementation behavior/version, for example `2026-09-01`
+- `requested_by` is informational only and must not participate in idempotency
+- `attempt_count` starts at `0`
+- atomic claim/start increments `attempt_count` to `1` for the first attempt
+- retries reuse the same row and increment `attempt_count` again on the next claim/start
+- `requested_at` is the original enqueue timestamp and is never reset on retry
+- `started_at` records the most recent attempt start
+- first-attempt start history is deliberately not retained separately
+- `completed_at` is the terminal timestamp for the row despite the historical column name
+- `completed_at` is set when the row transitions to `completed`, `failed`, `cancelled`, or `blocked`
+- `completed_at` remains `NULL` while the row is `queued` or `running`
+- `error_code` and `error_text` reflect the latest failure/blocking reason on the row
 
-- machine-derived operational record
-
-### Job Lifecycle / Worker Semantics
-
-Lifecycle:
+Status model:
 
 - `queued`
-- `claimed`
+  - enqueued and eligible to run once dependency rules are satisfied
+  - inbound: initial insert, retry after a non-terminal failure
+  - outbound: `running`, `cancelled`, `blocked`
 - `running`
+  - atomically claimed and actively owned by a worker
+  - inbound: from `queued`
+  - outbound: `completed`, `queued`, `failed`, `cancelled`, `blocked`
 - `completed`
+  - terminal successful completion
+  - inbound: from `running`
 - `failed`
+  - terminal exhaustion or unrecoverable failure
+  - inbound: from `running`
 - `cancelled`
+  - terminal manual/operator cancellation before or during execution
+  - inbound: from `queued`, `running`
 - `blocked`
+  - terminal state for jobs whose declared dependency cannot be satisfied within the current chain
+  - inbound: from `queued`, `running`
+
+Retried failure behavior:
+
+- if an attempt fails and `attempt_count < max_attempts`, update the same row back to `queued`
+- preserve `requested_at`
+- keep the latest `error_code` / `error_text`
+- clear `completed_at`
+- if an attempt fails and `attempt_count >= max_attempts`, mark the row `failed`
+
+Dependency semantics:
+
+- one nullable `depends_on_job_id` is sufficient for the first PDF pipeline
+- a dependent job is claimable only when:
+  - `depends_on_job_id IS NULL`
+  - or the parent job is `completed`
+- if the parent job reaches `failed`, `cancelled`, or `blocked`, the dependent should be marked `blocked`
+- if the parent is `queued` or `running`, the dependent remains `queued` but ineligible
+- C1 only stores and supports the `blocked` state
+- automatic dependency-failure propagation is future queue-helper/worker behavior rather than schema behavior
+- reject self-dependency in the database
+- do not build a general cycle-detection/DAG engine in first Phase C
 
 Atomic claiming:
 
 - use `FOR UPDATE SKIP LOCKED`
-- claim only eligible `queued` jobs whose dependencies are satisfied
+- claimable statuses: only `queued`
+- eligible dependency predicate:
+  - no dependency
+  - or parent status = `completed`
+- ordering:
+  - `requested_at ASC, id ASC`
+- atomic claim transition:
+  - `queued -> running`
+  - `attempt_count = attempt_count + 1`
+  - `started_at = NOW()`
+  - `error_code = NULL`
+  - `error_text = NULL`
 
-Retry semantics:
+Stale worker recovery:
 
-- on failure increment `attempt_count`
-- if `attempt_count < max_attempts`, return to `queued`
-- otherwise mark `failed`
+- defer `stale_after` from the first Phase C slice
+- the current repository has no existing background worker or heartbeat model
+- first-slice recovery can be an explicit administrative requeue of `running` jobs if a local worker crashes
+- lease/heartbeat recovery can be added later if multi-worker or unattended processing justifies it
 
-Idempotency:
+Active-job uniqueness:
 
-- one active job per target/stage/processor version
-- outputs versioned by processor and representation uniqueness
+- `processor_key` and `processor_version` must both participate in active-job identity
+- `requested_by` must not participate
+- `completed`, `failed`, `cancelled`, and `blocked` rows must not block creation of a later new job with the same target/stage/processor/version
+- `blocked` is not active for uniqueness
+- these partial unique indexes prevent duplicate concurrent active work only
+- they do not prove the requested processing is still needed
+- future enqueue/runtime logic must separately determine whether processing is already satisfied
+- for representation-producing stages, ordinary same-version enqueue should usually check for an existing immutable successful representation and treat that output as already satisfied
+- non-representation-producing operational stages may later define a different explicit rerun/revalidation policy
 
-Staleness / reprocessing:
+#### `processing_result`
 
-- a newer processor version or stale source can enqueue new jobs
-- older outputs are not overwritten destructively; they become superseded by policy
+First-slice recommendation:
 
-Dependency handling:
+- defer `processing_result` from Phase C
 
-- `depends_on_job_id` is sufficient for initial sequential dependencies
-- do not build a full DAG engine yet
+Reason:
+
+- `processing_job` already carries operational status, attempt state, and failure reason
+- successful durable outputs are better represented by immutable `document_representation` plus `document_segment`
+- adding `processing_result` now would duplicate target/output semantics without giving the repository a true execution-history model
+
+If a later slice restores it:
+
+- it should reference `processing_job` only
+- it should not duplicate target FKs that are already present on the job row
+
+### Job Lifecycle / Worker Semantics
+
+Queue semantics:
+
+- Phase C provides processing state and claim semantics, not a full orchestration engine
+- one `processing_job` row is a retryable logical unit
+- bounded execution retries reuse the same row
+- a newer processor version is a new job identity because `processor_version` participates in uniqueness
+- after `failed` or `cancelled`, a later explicitly requested processing intent may use a new job row
+- for representation-producing stages, ordinary enqueue should treat an existing successful same-version representation as already satisfied rather than creating a redundant new job
+- deliberate forced same-version recomputation or revision history is deferred beyond C1
+- non-representation-producing operational stages may later define their own explicit rerun/revalidation policy
+- older successful representations are preserved; no destructive overwrite policy is needed in Phase C
+
+Processing provenance chain:
+
+- `processing_job` answers:
+  - what target was processed
+  - by which stage
+  - by which processor key/version
+  - when it was requested
+  - how many attempts ran
+  - whether it completed, failed, cancelled, or blocked
+- `document_representation.produced_by_job_id` answers exactly which job produced a successful representation
+- `document_segment` answers which ordered extracted text fragments belong to that representation
+
+First-slice representation/segment usage in the current repository:
+
+- Phase D PDF extraction jobs should create:
+  - one successful `document_representation` per `(file_binary_id, representation_kind, processor_key, processor_version)`
+  - ordered `document_segment` rows containing inline text and optional PDF page metadata
+- `content_json` should stay compact
+  - examples: outline summary, per-page statistics, OCR-needed summary, extraction diagnostics
+- full extracted text should live in segments, not be duplicated into `content_json`
+- raw or bulky sidecar artifacts may be referenced by `artifact_rel_path`
 
 ### Importer Enhancement
 
@@ -2242,6 +2423,7 @@ None required in Phase C if backlog seeding is a separate script.
 Optional later:
 
 - importer may enqueue initial binary jobs after importing `file_binary`
+- this should remain deferred until after the Phase C schema exists and the first worker path is proven
 
 ### Directus Impact
 
@@ -2251,17 +2433,19 @@ Optional later:
 ### Validation Queries / Invariants
 
 - every `processing_job` has exactly one target FK
-- no duplicate active jobs for same target/stage/processor version
+- no duplicate active jobs for same target/stage/processor/version within `queued` or `running`
 - every `document_segment` belongs to a valid `document_representation`
+- every `document_representation` points to exactly one producing `processing_job`
+- no self-dependency in `processing_job`
 
 ### Completion Criteria
 
 Phase C is complete when:
 
-- processing tables exist with FK integrity
-- a claimable job model is in place
-- representation/segment model exists without assuming pages are universal
-- backlog can be seeded from current `file_binary`
+- the processing-core schema exists with FK integrity
+- a claimable retryable job model is in place
+- representation/segment storage exists without assuming pages are universal
+- the schema cleanly supports later backlog seeding from current `file_binary`
 
 ## Phase D: First Concrete PDF Processing Plus Existing Corpus Backlog
 
@@ -2347,7 +2531,7 @@ Required behavior:
 - claimable queued jobs
 - active-job uniqueness
 - retries bounded by `max_attempts`
-- rerun based on processor version or stale policy
+- rerun based on explicit enqueue policy and processor version
 
 ### Processor-Version-Driven Reprocessing
 
@@ -2356,6 +2540,12 @@ When processor version changes:
 - enqueue new jobs for same target/stage with new version
 - preserve older representations/results
 - mark supersession through policy, not destructive overwrite
+
+When the same processor version is requested again for a representation-producing stage:
+
+- ordinary enqueue should treat an existing successful immutable representation as already satisfied
+- do not normally create another same-version producing job
+- a later job with the same version is only for an explicit future forced-recomputation policy, which is deferred beyond C1
 
 ### Importer Enhancement
 
@@ -2403,10 +2593,11 @@ Completed:
 
 Next recommended sequence:
 
-8. Phase C PostgreSQL schema migration
-9. backlog seeding utility for existing `file_binary`
-10. Phase D PDF worker implementation on a small sample
-11. Phase D full PDF backlog rollout
+6. Phase C processing-core schema migration
+7. Phase C lightweight enqueue/claim helper if desired outside Directus
+8. Phase D backlog seeding utility for existing `file_binary`
+9. Phase D PDF worker implementation on a small sample
+10. Phase D full PDF backlog rollout
 
 ## Proposed Migration / File Boundaries
 
@@ -2441,7 +2632,6 @@ Recommended migration file grouping:
    - `document_representation`
    - `document_segment`
    - `processing_job`
-   - `processing_result`
 
 Implementation files:
 
@@ -2504,6 +2694,28 @@ Questions deliberately deferred beyond Phase B:
 1. whether bucket-level or binary-level note targets justify a later workspace-safe extension
 2. whether `work_group_document` needs extra audit fields such as `added_by` or membership note text once real usage appears
 3. whether future case-specific document notes need a richer model that allows both `case_file_id` and `case_workspace_document_id` on the same note without weakening integrity
+
+## Phase C1 Implementation Result
+
+Implemented on 2026-08-31: Phase C1 schema only.
+
+Implemented slice:
+
+1. add `processing_job`
+2. add `document_representation`
+3. add `document_segment`
+4. preserve the finalized `processing_job` active-work partial uniqueness rules
+5. preserve the finalized `document_representation.produced_by_job_id` provenance link
+6. update fresh bootstrap to match the migrated schema exactly
+
+Validation outcome:
+
+- live migration succeeded without changing existing canonical or provenance row counts
+- `processing_job`, `document_representation`, and `document_segment` started empty on both migrated live schema and fresh bootstrap
+- rollback-only integrity and delete/FK tests passed on both migrated live schema and fresh bootstrap
+- consultation views remained unchanged from the accepted Phase B baseline
+- successful-output idempotency remains a future enqueue/runtime responsibility and is not enforced by C1 SQL
+- no queue helper, worker, backlog seeding, PDF processing, importer changes, or Directus runtime work was included
 
 ## Summary
 
