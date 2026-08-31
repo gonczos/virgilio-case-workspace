@@ -2581,7 +2581,7 @@ Phase D is complete when:
 - failures are isolated and resumable
 - rerun/version behavior is demonstrably idempotent
 
-## Recommended Migration Sequence
+## Recommended Delivery Sequence
 
 Completed:
 
@@ -2591,13 +2591,15 @@ Completed:
 4. Phase A2c PostgreSQL schema evolution for `work_group`, `work_group_document`, and workspace-aware `consultation_note`
 5. Phase B PostgreSQL schema migration, package-aware provenance backfill via importer, and importer compatibility
 6. Phase C1 processing-core schema migration
-7. Phase C3 durable asynchronous multi-representation processing, selection, and comparison support on top of the existing C1 model
+7. Phase C2 multi-engine extraction evaluation/spike with Docling and Xberg
+8. Phase C3 durable asynchronous multi-representation processing, selection, and comparison support on top of the existing C1 model
+9. Phase C3.1 binary-storage abstraction for the processing path via `BinaryStore` / `LocalBinaryStore`
 
 Next recommended sequence:
 
-8. Phase D backlog seeding utility for existing `file_binary`
-9. Phase D first downstream extraction/derivation flow explicitly tied to chosen `document_representation`
-10. Phase D broader processing rollout once representation/selection behavior is stable
+10. Optional Phase C3.2: route original-binary serving through `BinaryStore` by wiring `app/file-gateway.mjs` to the existing local materialization boundary without changing API behavior
+11. Re-scope the old Phase D plan before implementation
+12. Next major phase should focus on corpus preparation for search, provenance-aware AI retrieval/serving, and later semantic enrichment using selected `document_representation` inputs rather than blindly following the pre-C3 Phase D decomposition
 
 ## Proposed Migration / File Boundaries
 
@@ -2766,8 +2768,12 @@ The repository can evolve safely if the work is staged as:
 - Phase A2b: manual documents and additive document provenance
 - Phase A2c: work groups and workspace-level notes
 - Phase B: acquisition/canonical mapping evidence layer
-- Phase C: processing orchestration and derived content infrastructure
-- Phase D: first PDF processor and backlog rollout
+- Phase C1: processing-core schema
+- Phase C2: multi-engine extraction evaluation/spike
+- Phase C3: durable asynchronous processing, comparison, and representation selection
+- Phase C3.1: binary-storage abstraction for processing consumers
+- later possible Phase C3.2: original-binary serving through `BinaryStore`
+- next major phase after the Phase C foundation: corpus preparation and downstream derivation built on selected `document_representation` inputs
 
 The current next caution point is preserving the clean boundary between the newly implemented Phase B provenance layer and the later Phase C processing layer.
 That is why Phase C should stay focused on processing orchestration and derived content, and not reopen capture/import or canonical-mapping semantics.
