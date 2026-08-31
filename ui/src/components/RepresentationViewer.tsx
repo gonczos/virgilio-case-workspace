@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   Alert,
@@ -18,13 +18,13 @@ import {
 
 import { getRepresentationContent } from "../api/consultation";
 import type { RepresentationListItem } from "../types/consultation";
-import { chooseInitialFormat, getRepresentationLabel } from "../utils/consultation";
+import { chooseInitialFormat, getRepresentationLabel, sameStableId } from "../utils/consultation";
 
 interface RepresentationViewerProps {
   representations: RepresentationListItem[];
-  effectiveRepresentationId: number | null;
-  viewRepresentationId: number | "";
-  onViewRepresentationChange: (representationId: number) => void;
+  effectiveRepresentationId: string | null;
+  viewRepresentationId: string | "";
+  onViewRepresentationChange: (representationId: string) => void;
   viewFormat: string | "";
   onViewFormatChange: (format: string) => void;
 }
@@ -56,12 +56,7 @@ export function RepresentationViewer({
   viewFormat,
   onViewFormatChange,
 }: RepresentationViewerProps) {
-  const initialRepresentation = useMemo(() => (
-    representations.find((item) => item.representation_id === effectiveRepresentationId)
-    ?? representations[0]
-    ?? null
-  ), [representations, effectiveRepresentationId]);
-  const selectedRepresentation = representations.find((item) => item.representation_id === viewRepresentationId) ?? null;
+  const selectedRepresentation = representations.find((item) => sameStableId(item.representation_id, viewRepresentationId)) ?? null;
   const [renderMode, setRenderMode] = useState<"rendered" | "raw">("rendered");
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<unknown>(null);
@@ -69,7 +64,13 @@ export function RepresentationViewer({
 
   useEffect(() => {
     setRenderMode("rendered");
-  }, [initialRepresentation]);
+  }, [selectedRepresentation?.representation_id]);
+
+  useEffect(() => {
+    if (viewFormat !== "markdown") {
+      setRenderMode("rendered");
+    }
+  }, [viewFormat]);
 
   useEffect(() => {
     if (!selectedRepresentation) {
@@ -130,7 +131,7 @@ export function RepresentationViewer({
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Representation
           </Typography>
-          {selectedRepresentation?.representation_id === effectiveRepresentationId ? (
+          {sameStableId(selectedRepresentation?.representation_id, effectiveRepresentationId) ? (
             <Chip size="small" color="primary" label="Effective" />
           ) : null}
           {selectedRepresentation?.is_explicitly_selected ? (
@@ -149,11 +150,11 @@ export function RepresentationViewer({
                   value={viewRepresentationId}
                   label="View representation"
                   onChange={(event) => {
-                    onViewRepresentationChange(Number(event.target.value));
+                    onViewRepresentationChange(String(event.target.value));
                   }}
                 >
                   {representations.map((representation) => (
-                    <MenuItem key={representation.representation_id} value={representation.representation_id}>
+                    <MenuItem key={representation.representation_id} value={String(representation.representation_id)}>
                       {getRepresentationLabel(representation)} · {representation.processor_version}
                     </MenuItem>
                   ))}

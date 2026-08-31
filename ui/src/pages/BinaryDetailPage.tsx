@@ -31,6 +31,8 @@ import {
   getRepresentationLabel,
   getShortSha,
   isPdfBinary,
+  normalizeStableId,
+  sameStableId,
 } from "../utils/consultation";
 
 export function BinaryDetailPage() {
@@ -38,7 +40,7 @@ export function BinaryDetailPage() {
   const [detail, setDetail] = useState<BinaryDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewRepresentationId, setViewRepresentationId] = useState<number | "">("");
+  const [viewRepresentationId, setViewRepresentationId] = useState<string | "">("");
   const [viewFormat, setViewFormat] = useState<string | "">("");
 
   async function load() {
@@ -48,7 +50,7 @@ export function BinaryDetailPage() {
       const nextDetail = await getBinaryDetail(sha256);
       setDetail(nextDetail);
       const initialRepresentation = chooseInitialRepresentation(nextDetail);
-      setViewRepresentationId(initialRepresentation?.representation_id ?? "");
+      setViewRepresentationId(normalizeStableId(initialRepresentation?.representation_id) ?? "");
       setViewFormat(chooseInitialFormat(initialRepresentation) ?? "");
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : String(loadError));
@@ -66,7 +68,7 @@ export function BinaryDetailPage() {
       return null;
     }
     return detail.representations.items.find(
-      (item) => item.representation_id === viewRepresentationId,
+      (item) => sameStableId(item.representation_id, viewRepresentationId),
     ) ?? null;
   }, [detail, viewRepresentationId]);
 
@@ -169,12 +171,12 @@ export function BinaryDetailPage() {
         <Grid size={{ xs: 12, xl: 6 }}>
           <RepresentationViewer
             representations={detail.representations.items}
-            effectiveRepresentationId={detail.representations.effective?.representation_id ?? null}
+            effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id) ?? null}
             viewRepresentationId={viewRepresentationId}
             onViewRepresentationChange={(representationId) => {
               setViewRepresentationId(representationId);
               const representation = detail.representations.items.find(
-                (item) => item.representation_id === representationId,
+                (item) => sameStableId(item.representation_id, representationId),
               ) ?? null;
               setViewFormat(chooseInitialFormat(representation) ?? "");
             }}

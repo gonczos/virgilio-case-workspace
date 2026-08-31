@@ -6,6 +6,22 @@ import type {
 
 const FORMAT_PRIORITY = ["markdown", "text", "native-json"];
 
+export function normalizeStableId(value: number | string | null | undefined): string | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+  return String(value);
+}
+
+export function sameStableId(
+  left: number | string | null | undefined,
+  right: number | string | null | undefined,
+): boolean {
+  const normalizedLeft = normalizeStableId(left);
+  const normalizedRight = normalizeStableId(right);
+  return normalizedLeft !== null && normalizedLeft === normalizedRight;
+}
+
 export function formatBytes(value: number | null): string {
   if (value === null || Number.isNaN(value)) {
     return "Unknown";
@@ -101,9 +117,9 @@ export function chooseInitialFormat(representation: RepresentationListItem | nul
 }
 
 export function chooseInitialRepresentation(detail: BinaryDetailResponse): RepresentationListItem | null {
-  const effectiveId = detail.representations.effective?.representation_id ?? null;
+  const effectiveId = normalizeStableId(detail.representations.effective?.representation_id ?? null);
   if (effectiveId !== null) {
-    const effective = detail.representations.items.find((item) => item.representation_id === effectiveId);
+    const effective = detail.representations.items.find((item) => sameStableId(item.representation_id, effectiveId));
     if (effective) {
       return effective;
     }

@@ -9,6 +9,7 @@ import {
   getProcessingLabel,
   getRepresentationLabel,
   isPdfBinary,
+  sameStableId,
 } from "./consultation";
 
 test("formatBytes renders readable values", () => {
@@ -55,6 +56,13 @@ test("chooseInitialRepresentation falls back to the first available item", () =>
     },
   } as unknown as BinaryDetailResponse;
   expect(chooseInitialRepresentation(detail)?.representation_id).toBe(7);
+});
+
+test("sameStableId treats bigint-backed API ids consistently across string and number forms", () => {
+  expect(sameStableId("255", 255)).toBe(true);
+  expect(sameStableId(254, "254")).toBe(true);
+  expect(sameStableId("254", "255")).toBe(false);
+  expect(sameStableId(null, 255)).toBe(false);
 });
 
 test("getProcessingLabel distinguishes processed, partial, failed, and idle states", () => {
