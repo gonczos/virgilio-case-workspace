@@ -193,6 +193,18 @@ test("detail endpoint resolves a known binary and reuses effective-selection beh
         expectedSelection.representation?.id ?? null,
       );
       assert.equal(payload.representations.effective_selection_reason, expectedSelection.selection_source);
+      for (const representation of payload.representations.items) {
+        if (representation.processor_key === "docling") {
+          assert.equal(representation.available_formats.includes("text"), true);
+          assert.equal(representation.available_formats.includes("markdown"), true);
+          assert.equal(representation.available_formats.includes("native-json"), true);
+        }
+        if (representation.processor_key === "xberg") {
+          assert.equal(representation.available_formats.includes("text"), true);
+          assert.equal(representation.available_formats.includes("markdown"), false);
+          assert.equal(representation.available_formats.includes("native-json"), true);
+        }
+      }
     });
   });
 });

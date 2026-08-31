@@ -97,11 +97,15 @@ export async function listRepresentationsForBinary(client, fileBinaryId) {
         pj.status AS produced_by_job_status,
         pj.stage_key AS produced_by_stage_key,
         pj.requested_by AS produced_by_requested_by,
-        pj.completed_at AS produced_by_completed_at
+        pj.completed_at AS produced_by_completed_at,
+        COUNT(ds.id) AS segment_count
       FROM casework.document_representation AS dr
       JOIN casework.processing_job AS pj
         ON pj.id = dr.produced_by_job_id
+      LEFT JOIN casework.document_segment AS ds
+        ON ds.document_representation_id = dr.id
       WHERE dr.file_binary_id = $1
+      GROUP BY dr.id, pj.status, pj.stage_key, pj.requested_by, pj.completed_at
       ORDER BY dr.created_at ASC, dr.id ASC
     `,
     [fileBinaryId],

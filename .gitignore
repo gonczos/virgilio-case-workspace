@@ -1,4 +1,5 @@
 node_modules/
+dist/
 .venv-processing/
 __pycache__/
 .idea/

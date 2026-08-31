@@ -1,0 +1,89 @@
+import { describe, expect, test } from "vitest";
+
+import type { BinaryDetailResponse, RepresentationListItem } from "../types/consultation";
+import {
+  chooseInitialFormat,
+  chooseInitialRepresentation,
+  formatFileType,
+  formatBytes,
+  getProcessingLabel,
+  getRepresentationLabel,
+  isPdfBinary,
+} from "./consultation";
+
+test("formatBytes renders readable values", () => {
+  expect(formatBytes(42)).toBe("42 B");
+  expect(formatBytes(42 * 1024)).toBe("42 KB");
+  expect(formatBytes(3.8 * 1024 * 1024)).toBe("3.8 MB");
+});
+
+test("chooseInitialFormat prefers markdown then text then native-json", () => {
+  expect(chooseInitialFormat({
+    available_formats: ["native-json", "text", "markdown"],
+  } as RepresentationListItem)).toBe("markdown");
+  expect(chooseInitialFormat({
+    available_formats: ["native-json", "text"],
+  } as RepresentationListItem)).toBe("text");
+  expect(chooseInitialFormat({
+    available_formats: ["native-json"],
+  } as RepresentationListItem)).toBe("native-json");
+});
+
+test("chooseInitialRepresentation prefers the effective representation", () => {
+  const detail = {
+    binary: { mime_type: "application/pdf", file_extension: ".pdf" },
+    representations: {
+      effective: { representation_id: 2 },
+      items: [
+        { representation_id: 1 },
+        { representation_id: 2 },
+      ],
+    },
+  } as unknown as BinaryDetailResponse;
+  expect(chooseInitialRepresentation(detail)?.representation_id).toBe(2);
+});
+
+test("chooseInitialRepresentation falls back to the first available item", () => {
+  const detail = {
+    binary: { mime_type: "application/pdf", file_extension: ".pdf" },
+    representations: {
+      effective: null,
+      items: [
+        { representation_id: 7 },
+        { representation_id: 8 },
+      ],
+    },
+  } as unknown as BinaryDetailResponse;
+  expect(chooseInitialRepresentation(detail)?.representation_id).toBe(7);
+});
+
+test("getProcessingLabel distinguishes processed, partial, failed, and idle states", () => {
+  expect(getProcessingLabel({
+    processing_summary: { status_counts: { completed: 2 } },
+  } as never)).toBe("Processed");
+  expect(getProcessingLabel({
+    processing_summary: { status_counts: { completed: 1, failed: 1 } },
+  } as never)).toBe("Partially processed");
+  expect(getProcessingLabel({
+    processing_summary: { status_counts: { failed: 2 } },
+  } as never)).toBe("Failed");
+  expect(getProcessingLabel({
+    processing_summary: { status_counts: {} },
+  } as never)).toBe("Not processed");
+});
+
+test("representation label and pdf detection stay presentation-only", () => {
+  expect(getRepresentationLabel({ processor_key: "docling", representation_source_kind: "machine_generated" })).toBe("Docling");
+  expect(getRepresentationLabel({ processor_key: "xberg", representation_source_kind: "machine_generated" })).toBe("Xberg");
+  expect(getRepresentationLabel({ processor_key: "human", representation_source_kind: "human_authored" })).toBe("Human");
+  expect(isPdfBinary({
+    binary: { mime_type: "application/pdf", file_extension: ".pdf" },
+  } as BinaryDetailResponse)).toBe(true);
+});
+
+test("formatFileType prefers extension labels and falls back to mime type", () => {
+  expect(formatFileType("application/pdf", ".pdf")).toBe("PDF");
+  expect(formatFileType("text/plain", ".txt")).toBe("TXT");
+  expect(formatFileType("text/plain", null)).toBe("TXT");
+  expect(formatFileType("application/octet-stream", null)).toBe("application/octet-stream");
+});
