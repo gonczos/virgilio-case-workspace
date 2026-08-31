@@ -1,8 +1,24 @@
 CREATE SCHEMA IF NOT EXISTS casework;
 
+CREATE TABLE IF NOT EXISTS casework.source_capture (
+  id BIGSERIAL PRIMARY KEY,
+  source_system TEXT NOT NULL,
+  capture_kind TEXT NOT NULL,
+  capture_key TEXT NULL,
+  external_source_label TEXT NULL,
+  captured_at TIMESTAMPTZ NOT NULL,
+  scraper_key TEXT NULL,
+  scraper_version TEXT NULL,
+  source_locator TEXT NULL,
+  metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (capture_kind IN ('portable_package_export', 'live_scrape_snapshot', 'manual_source_capture'))
+);
+
 CREATE TABLE IF NOT EXISTS casework.import_batch (
   id BIGSERIAL PRIMARY KEY,
   package_id TEXT NOT NULL UNIQUE,
+  source_capture_id BIGINT NULL REFERENCES casework.source_capture(id),
   package_kind TEXT NOT NULL,
   source_system TEXT NOT NULL,
   schema_version TEXT NOT NULL,
@@ -191,6 +207,36 @@ CREATE TABLE IF NOT EXISTS casework.document_binary (
   UNIQUE (document_id, file_binary_id)
 );
 
+CREATE TABLE IF NOT EXISTS casework.source_observation (
+  id BIGSERIAL PRIMARY KEY,
+  source_capture_id BIGINT NOT NULL REFERENCES casework.source_capture(id),
+  observation_kind TEXT NOT NULL,
+  observation_key TEXT NOT NULL,
+  source_native_id TEXT NULL,
+  parent_source_native_id TEXT NULL,
+  source_path TEXT NOT NULL,
+  display_title TEXT NULL,
+  display_status TEXT NULL,
+  display_date TEXT NULL,
+  payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  observed_at TIMESTAMPTZ NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (source_capture_id, observation_kind, observation_key),
+  CHECK (observation_kind IN ('case_row', 'bucket_row', 'document_occurrence_group', 'package_artifact'))
+);
+
+CREATE TABLE IF NOT EXISTS casework.source_observation_link (
+  id BIGSERIAL PRIMARY KEY,
+  source_observation_id BIGINT NOT NULL REFERENCES casework.source_observation(id),
+  case_file_id BIGINT NULL REFERENCES casework.case_file(id),
+  bucket_id BIGINT NULL REFERENCES casework.bucket(id),
+  document_id BIGINT NULL REFERENCES casework.document(id),
+  mapper_key TEXT NOT NULL,
+  mapper_version TEXT NOT NULL,
+  mapped_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (num_nonnulls(case_file_id, bucket_id, document_id) = 1)
+);
+
 CREATE TABLE IF NOT EXISTS casework.case_workspace_document (
   id BIGSERIAL PRIMARY KEY,
   case_workspace_id BIGINT NOT NULL REFERENCES casework.case_workspace(id) ON DELETE CASCADE,
@@ -288,6 +334,11 @@ CREATE TABLE IF NOT EXISTS casework.document_issue (
 CREATE INDEX IF NOT EXISTS ix_bucket_case_file_id ON casework.bucket(case_file_id);
 CREATE INDEX IF NOT EXISTS ix_bucket_bucket_date ON casework.bucket(bucket_date);
 CREATE INDEX IF NOT EXISTS ix_bucket_document_document_id ON casework.bucket_document(document_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_source_capture_external_identity ON casework.source_capture(capture_kind, source_system, capture_key) WHERE capture_key IS NOT NULL;
+CREATE INDEX IF NOT EXISTS ix_source_capture_source_system ON casework.source_capture(source_system);
+CREATE INDEX IF NOT EXISTS ix_source_capture_captured_at ON casework.source_capture(captured_at);
+CREATE INDEX IF NOT EXISTS ix_source_capture_capture_kind ON casework.source_capture(capture_kind);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_import_batch_source_capture_id ON casework.import_batch(source_capture_id) WHERE source_capture_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS ix_case_workspace_primary_country_id ON casework.case_workspace(primary_country_id);
 CREATE INDEX IF NOT EXISTS ix_case_workspace_lifecycle_status ON casework.case_workspace(lifecycle_status);
 CREATE INDEX IF NOT EXISTS ix_case_file_case_workspace_id ON casework.case_file(case_workspace_id);
@@ -314,6 +365,19 @@ CREATE INDEX IF NOT EXISTS ix_work_group_document_case_workspace_document_id ON 
 CREATE INDEX IF NOT EXISTS ix_document_document_procinfo ON casework.document(document_procinfo);
 CREATE INDEX IF NOT EXISTS ix_document_document_date ON casework.document(document_date);
 CREATE INDEX IF NOT EXISTS ix_document_binary_file_binary_id ON casework.document_binary(file_binary_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_source_capture_id ON casework.source_observation(source_capture_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_observation_kind ON casework.source_observation(observation_kind);
+CREATE INDEX IF NOT EXISTS ix_source_observation_source_path ON casework.source_observation(source_path);
+CREATE INDEX IF NOT EXISTS ix_source_observation_source_native_id ON casework.source_observation(source_native_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_parent_source_native_id ON casework.source_observation(parent_source_native_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_link_source_observation_id ON casework.source_observation_link(source_observation_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_link_case_file_id ON casework.source_observation_link(case_file_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_link_bucket_id ON casework.source_observation_link(bucket_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_link_document_id ON casework.source_observation_link(document_id);
+CREATE INDEX IF NOT EXISTS ix_source_observation_link_mapper_key ON casework.source_observation_link(mapper_key);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_source_observation_link_case_file ON casework.source_observation_link(source_observation_id, case_file_id) WHERE case_file_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_source_observation_link_bucket ON casework.source_observation_link(source_observation_id, bucket_id) WHERE bucket_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_source_observation_link_document ON casework.source_observation_link(source_observation_id, document_id) WHERE document_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS ix_consultation_note_case_workspace_id ON casework.consultation_note(case_workspace_id);
 CREATE INDEX IF NOT EXISTS ix_consultation_note_work_group_id ON casework.consultation_note(work_group_id);
 CREATE INDEX IF NOT EXISTS ix_consultation_note_case_file_id ON casework.consultation_note(case_file_id);

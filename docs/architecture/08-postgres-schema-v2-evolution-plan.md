@@ -15,7 +15,7 @@ It is based on:
 - the currently imported Portuguese package and live PostgreSQL data
 
 This document remains the implementation specification for later phases.
-Phases A1, A2a, A2b, and A2c are now implemented in repository SQL, but the document still serves as the forward plan for later phases.
+Phases A1, A2a, A2b, A2c, and B are now implemented in repository SQL and importer code, but the document still serves as the forward plan for later phases.
 
 ## Terminology
 
@@ -81,6 +81,7 @@ Importer enhancement is not the same as PostgreSQL schema migration, though it m
 
 Current PostgreSQL schema:
 
+- `source_capture`
 - `import_batch`
 - `country`
 - `court`
@@ -90,22 +91,28 @@ Current PostgreSQL schema:
 - `bucket_document`
 - `file_binary`
 - `document_binary`
+- `source_observation`
+- `source_observation_link`
 - `consultation_note`
 - `document_issue`
 
 Current legacy/package importer behavior:
 
 1. validate package shape
-2. upsert `import_batch`
-3. upsert `court`
-4. upsert `case_file`
-5. resolve `parent_case_file_id`
-6. upsert `bucket`
-7. upsert `document`
-8. upsert `bucket_document`
-9. upsert `file_binary`
-10. upsert `document_binary`
-11. commit one transaction
+2. create/find package `source_capture` when Phase B schema is present
+3. upsert `import_batch`
+4. attach `import_batch.source_capture_id` when Phase B schema is present
+5. upsert `court`
+6. upsert `case_file`
+7. resolve `parent_case_file_id`
+8. upsert `bucket`
+9. upsert `document`
+10. upsert `bucket_document`
+11. upsert `file_binary`
+12. upsert `document_binary`
+13. create/update `source_observation` rows when Phase B schema is present
+14. create/update `source_observation_link` rows when Phase B schema is present
+15. commit one transaction
 
 Current portable package shape:
 
@@ -118,10 +125,14 @@ Current portable package shape:
 Current package/import provenance already retained:
 
 - package manifest fields in `import_batch.package_metadata_json`
+- capture-level package/export evidence in `source_capture.metadata_json`
+- package-derived observation rows in `source_observation`
+- canonical mapping provenance in `source_observation_link`
 - on-disk `package.json`
 - on-disk `provenance/export-notes.json`
 - canonical source-facing fields on `case_file`, `bucket`, `document`
-- narrow observation signal on `bucket_document.source_observation_count`
+- canonical occurrence aggregates on `bucket_document.source_observation_count`
+- canonical binary-link aggregates on `document_binary.source_observation_count`
 
 Current PT corpus fact relevant to backfill:
 
@@ -164,7 +175,6 @@ These are genuine pre-implementation decisions, not hypothetical future design d
 1. Whether imported official occurrences should later receive explicit `document_origin` rows in addition to `bucket_document`, or remain represented only by canonical official structure plus later source-observation provenance.
 2. Whether `processing_result` should duplicate target FKs or reference target only through `processing_job`.
 3. Whether `document_segment` should store large extracted text inline or via separate artifact references for very large formats.
-4. The exact direction/cardinality between `source_capture` and `import_batch`.
 
 ## Deliberately Deferred Concerns
 
@@ -1693,19 +1703,45 @@ What is missing in PostgreSQL:
 - explicit observation rows
 - explicit mapping provenance from observation to canonical entity
 
+Current repository-specific meaning of `import_batch`:
+
+- one row per imported `package_id`
+- inserted/upserted by the importer before canonical row upserts
+- not one row per import attempt or retry
+- currently mixes package identity with a first-import timestamp via `imported_at`
+
+Practical implication:
+
+- the current repository does not yet have a true import-execution table
+- Phase B should not force `import_batch` into a many-to-many capture/execution model it does not currently implement
+- if true execution logging is needed later, add a separate table then rather than overloading Phase B
+
 ### Tables
 
 #### New `source_capture`
 
 Purpose:
 
-- acquisition event or source snapshot
+- captured evidence unit that can exist before, without, or independently of import
+
+Repository-specific meaning:
+
+- for the current repository, the first concrete `source_capture` is the exported portable package snapshot identified by `package_id`
+- later captures may also represent a live scrape snapshot that has not been imported yet
+- later captures may also represent manually captured external evidence that never enters the legacy package importer
+
+What makes two captures distinct:
+
+- they represent different acquired evidence sets
+- or they were emitted under different stable capture identifiers
+- repeated import or retry of the same package does not create a new capture
 
 Columns:
 
 - `id BIGSERIAL PRIMARY KEY`
 - `source_system TEXT NOT NULL`
 - `capture_kind TEXT NOT NULL`
+- `capture_key TEXT NULL`
 - `external_source_label TEXT NULL`
 - `captured_at TIMESTAMPTZ NOT NULL`
 - `scraper_key TEXT NULL`
@@ -1717,48 +1753,75 @@ Columns:
 Constraints:
 
 - `CHECK (capture_kind IN ('portable_package_export','live_scrape_snapshot','manual_source_capture'))`
+- partial unique key for idempotent external capture identity:
+  - `UNIQUE (capture_kind, source_system, capture_key) WHERE capture_key IS NOT NULL`
 
 Indexes:
 
 - `ix_source_capture_source_system`
 - `ix_source_capture_captured_at`
+- `ix_source_capture_capture_kind`
 
 Classification:
 
 - source capture / ingestion provenance
 
-Open Phase B issue to resolve before implementation:
+Resolved Phase B recommendation:
 
-- revisit the direction/cardinality between `source_capture` and `import_batch`
-- conceptually source capture precedes import execution
-- the same captured package may potentially be imported multiple times
-- do not collapse this accidentally into `source_capture.import_batch_id`
+- add nullable `import_batch.source_capture_id`
+- direction is `import_batch -> source_capture`
+- for portable-package imports the Phase B schema should enforce one `source_capture` to zero-or-one `import_batch`
+- do not add `source_capture.import_batch_id`
+- do not add a `source_capture_import_batch` link table in Phase B
 
-The likely repository-safe direction is:
+Reason:
 
-- `import_batch` references a `source_capture`
-- or a separate link table relates them
+- the current importer and schema already treat `import_batch` as one row per package identity, not one row per import execution
+- one captured package imported repeatedly/idempotently still resolves to the same `import_batch` row today
+- live scrape captures and manual captures may exist without any import at all
+- a many-to-many link would model a future execution log the repository does not yet have
 
-This must be resolved before DDL.
+Current-package idempotency key:
+
+- for `capture_kind = 'portable_package_export'`, use `capture_key = package_id`
+
+Required import-batch constraint:
+
+- add a partial unique index on `import_batch(source_capture_id) WHERE source_capture_id IS NOT NULL`
+
+Reason:
+
+- this makes the zero-or-one package-import relationship explicit in the database rather than merely observational in current repository behavior
+
+Future note:
+
+- if the repository later needs one row per import attempt, add a separate import-execution table rather than changing the Phase B capture model
 
 #### New `source_observation`
 
 Purpose:
 
-- a source-observed object/occurrence as shown by the external source or captured package evidence
+- one captured row or coarse evidence record inside a `source_capture`
+
+Repository-specific meaning for the current package contract:
+
+- this is not a raw HTML/page-scrape replay table
+- it stores the package-level row evidence that survives export
+- it may also store artifact rows such as unresolved-document and size-mismatch reports that are currently only on disk
+- it should preserve capture lineage without pretending the repository still has per-click or per-page source evidence
 
 Columns:
 
 - `id BIGSERIAL PRIMARY KEY`
 - `source_capture_id BIGINT NOT NULL`
 - `observation_kind TEXT NOT NULL`
+- `observation_key TEXT NOT NULL`
 - `source_native_id TEXT NULL`
 - `parent_source_native_id TEXT NULL`
-- `source_path TEXT NULL`
+- `source_path TEXT NOT NULL`
 - `display_title TEXT NULL`
 - `display_status TEXT NULL`
 - `display_date TEXT NULL`
-- `display_order INTEGER NULL`
 - `payload_json JSONB NOT NULL DEFAULT '{}'::jsonb`
 - `observed_at TIMESTAMPTZ NULL`
 - `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
@@ -1766,18 +1829,75 @@ Columns:
 Constraints:
 
 - `FOREIGN KEY (source_capture_id) REFERENCES casework.source_capture(id)`
-- `CHECK (observation_kind IN ('case_row','bucket_row','document_occurrence','package_artifact'))`
+- `CHECK (observation_kind IN ('case_row','bucket_row','document_occurrence_group','package_artifact'))`
+- `UNIQUE (source_capture_id, observation_kind, observation_key)`
 
 Indexes:
 
 - `ix_source_observation_source_capture_id`
 - `ix_source_observation_observation_kind`
+- `ix_source_observation_source_path`
 - `ix_source_observation_source_native_id`
 - `ix_source_observation_parent_source_native_id`
 
 Classification:
 
 - source observation
+
+Recommended first Phase B observation kinds:
+
+- `case_row`
+  - produced from `cases/cases.jsonl`
+  - useful because it preserves which captured package contained which exported case rows, even though the row fields are also normalized canonically
+  - `source_native_id = idprocesso` when present
+  - `parent_source_native_id = parent_processo`
+  - `display_title = processo`
+  - `display_status = estado`
+  - `display_date = data_autuacao`
+- `bucket_row`
+  - produced from `cases/buckets.jsonl`
+  - useful because it preserves bucket membership in a specific capture and the exported row snapshot
+  - `source_native_id = bucket_id`
+  - `parent_source_native_id = processo`
+  - `display_title = COALESCE(modal_title, designation, reference_number)`
+  - `display_date = bucket_date`
+- `document_occurrence_group`
+  - produced from `cases/bucket_documents.jsonl`
+  - represents one exported bucket-document relation row, not each raw source occurrence separately
+  - preserves the important surviving multiplicity signal through `source_observation_count` and `has_intra_bucket_duplication`
+  - `source_native_id` is usually null because the package does not retain a true per-occurrence native identifier here
+  - `parent_source_native_id = bucket_id`
+- `package_artifact`
+  - produced from retained artifact files such as `artifacts/unresolved-documents.jsonl` and `artifacts/size-mismatches.jsonl`
+  - useful because these rows preserve evidence that is otherwise only on disk today
+
+Observation kinds to omit from the first Phase B slice:
+
+- do not add a separate raw `document_row` observation kind yet
+- do not add a separate `document_binary_row` observation kind yet
+
+Reason:
+
+- the current package does not retain richer per-row source-display evidence for those files beyond what the canonical imported tables already store
+- the first useful non-canonical gain comes from case/bucket capture lineage, grouped bucket-document occurrence evidence, and artifact preservation
+
+Observation payload guidance for the first slice:
+
+- required normalized fields:
+  - `source_capture_id`
+  - `observation_kind`
+  - `observation_key`
+  - `source_path`
+- usually optional normalized fields:
+  - `source_native_id`
+  - `parent_source_native_id`
+  - `display_title`
+  - `display_status`
+  - `display_date`
+  - `observed_at`
+- omit `display_order` from the first implementation unless a future package actually preserves stable source ordering
+- `payload_json` should contain the minimal row snapshot or artifact detail that is not worth normalizing further
+- do not copy every canonical field into dedicated columns when the same evidence can live in `payload_json`
 
 #### New `source_observation_link`
 
@@ -1792,19 +1912,19 @@ Columns:
 - `case_file_id BIGINT NULL`
 - `bucket_id BIGINT NULL`
 - `document_id BIGINT NULL`
-- `mapping_kind TEXT NOT NULL`
 - `mapper_key TEXT NOT NULL`
 - `mapper_version TEXT NOT NULL`
 - `mapped_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
-- `mapping_confidence TEXT NOT NULL`
-- `mapping_note TEXT NULL`
 
 Constraints:
 
 - `FOREIGN KEY (source_observation_id) REFERENCES casework.source_observation(id)`
 - FKs to `case_file`, `bucket`, `document`
 - `CHECK` exactly one canonical target FK is non-null
-- `CHECK (mapping_kind IN ('normalized_to_case_file','normalized_to_bucket','normalized_to_document'))`
+- partial unique indexes preventing duplicate links to the same populated target:
+  - `(source_observation_id, case_file_id) WHERE case_file_id IS NOT NULL`
+  - `(source_observation_id, bucket_id) WHERE bucket_id IS NOT NULL`
+  - `(source_observation_id, document_id) WHERE document_id IS NOT NULL`
 
 Indexes:
 
@@ -1817,6 +1937,28 @@ Indexes:
 Classification:
 
 - canonical mapping provenance
+
+Recommended first Phase B mapping semantics:
+
+- keep exactly one canonical target FK per mapping row
+- allow one observation to have multiple mapping rows when it meaningfully maps to more than one canonical entity
+  - example: one `document_occurrence_group` observation may map once to its canonical `bucket` and once to its canonical `document`
+- omit `mapping_kind` in the first slice because, with exactly one target FK, it duplicates the populated target type rather than adding new semantics
+- omit `mapping_confidence` and `mapping_note` in the first slice because current importer mappings are deterministic or should fail loudly
+- use partial unique indexes rather than plain multi-column `UNIQUE` constraints so the invariant is explicit under PostgreSQL null semantics
+
+Mapper fields:
+
+- `mapper_key = 'app/import-package.mjs'`
+- `mapper_version` should be an explicit importer mapping-version constant added when Phase B is implemented
+- do not reuse package `schema_version` as the mapper version; that is package-contract versioning, not importer-mapping versioning
+
+Package/import identity on mapping rows:
+
+- do not duplicate `package_id` or `import_batch_id` on `source_observation_link`
+- that provenance is already reachable through:
+  - `source_observation -> source_capture`
+  - and, for imported package captures, `import_batch.source_capture_id`
 
 ### Phase B Boundary Clarification
 
@@ -1835,15 +1977,38 @@ This sharpening does not block Phase A1, but it must be preserved before impleme
 
 ### PostgreSQL Backfill Strategy
 
-Smallest viable Phase B backfill for current data:
+Phase B has three distinct implementation steps and they should not be described as one mechanism:
 
-1. create one `source_capture` row for the currently imported package/export
-2. create coarse `source_observation` rows from package-level canonical payloads where useful
-3. create `source_observation_link` rows to canonical entities
+1. schema migration
+   - create the new tables and `import_batch.source_capture_id`
+   - this step alone cannot reconstruct package-only evidence
+2. PostgreSQL-only backfill
+   - limited to relationships derivable from rows already stored in PostgreSQL
+   - this may attach `import_batch` to an already-created `source_capture` if the capture row already exists
+   - this cannot reconstruct package-only artifacts or export metadata that were never copied into PostgreSQL
+3. package-aware importer/backfill execution
+   - required to create the package-derived `source_capture.metadata_json`
+   - required to create `source_observation` rows from retained package/artifact files
+   - required to create `source_observation_link` rows from package rows to canonical entities
+
+Smallest viable package-aware Phase B backfill for current data:
+
+1. create one `source_capture` row for the currently retained package/export
+2. populate `source_capture.metadata_json` from package manifest fields plus `provenance/export-notes.json`
+3. create `source_observation` rows from retained package rows for:
+   - `case_row`
+   - `bucket_row`
+   - `document_occurrence_group`
+   - `package_artifact`
+4. create `source_observation_link` rows to canonical entities
 
 Important limitation:
 
 - current package contract does not include full raw scrape observation rows
+- migration SQL by itself cannot reconstruct package-only evidence such as:
+  - `provenance/export-notes.json`
+  - `artifacts/unresolved-documents.jsonl`
+  - `artifacts/size-mismatches.jsonl`
 - therefore Phase B backfill will preserve package-export observation lineage, not reconstruct every original live scrape detail
 
 ### Importer Enhancement
@@ -1851,13 +2016,15 @@ Important limitation:
 Required in Phase B:
 
 - create/find `source_capture`
-- create `source_observation` rows from package payload records
+- attach the package-keyed `import_batch` row to that `source_capture`
+- store `provenance/export-notes.json` in `source_capture.metadata_json` for the first slice
+- create idempotent `source_observation` rows from retained package/artifact records
 - create `source_observation_link` rows during canonical upsert mapping
 
 Recommended mapper fields:
 
 - `mapper_key = 'app/import-package.mjs'`
-- `mapper_version = importer/schema version string`
+- `mapper_version = explicit importer mapping-version constant`
 
 ### Directus Impact
 
@@ -1868,7 +2035,9 @@ Recommended mapper fields:
 
 - observation links map to exactly one canonical entity
 - source capture and import execution are distinguishable
+- repeated import of the same package does not duplicate `source_capture` or `source_observation`
 - canonical counts do not change due to Phase B
+- `bucket_document.source_observation_count` remains unchanged as a useful canonical aggregate and is not recalculated from Phase B rows
 
 ### Completion Criteria
 
@@ -2230,12 +2399,10 @@ Completed:
 2. Phase A2a PostgreSQL schema evolution, PostgreSQL backfill, and importer compatibility
 3. Phase A2b PostgreSQL schema evolution and importer compatibility
 4. Phase A2c PostgreSQL schema evolution for `work_group`, `work_group_document`, and workspace-aware `consultation_note`
+5. Phase B PostgreSQL schema migration, package-aware provenance backfill via importer, and importer compatibility
 
 Next recommended sequence:
 
-5. Phase B PostgreSQL schema migration
-6. Phase B PostgreSQL backfill from current package/import data
-7. Phase B importer enhancement
 8. Phase C PostgreSQL schema migration
 9. backlog seeding utility for existing `file_binary`
 10. Phase D PDF worker implementation on a small sample
@@ -2300,15 +2467,39 @@ Why this slice was the correct boundary:
 - the next missing capability is user organization and workspace-safe notes
 - the repository currently has zero note rows, so the target-model cleanup can be done directly without transitional data shims
 
-## Questions That Block Phase B, Not A2c
+## Phase B Implementation Result
 
-Questions that block Phase B implementation:
+Implemented on 2026-08-31: Phase B only.
 
-1. the exact direction/cardinality between `source_capture` and `import_batch`
-2. the minimum observation payload needed to preserve acquisition evidence without duplicating canonical schema
-3. the exact mapping-provenance fields to persist on `source_observation_link`
+Implemented slice:
 
-Questions deliberately deferred beyond Phase A2c:
+1. add `source_capture`
+2. add `import_batch.source_capture_id` with one-capture-to-zero-or-one-import enforcement
+3. add `source_observation`
+4. add `source_observation_link`
+5. extend the importer to create/find one package `source_capture`, attach `import_batch`, and idempotently populate immutable observations and mapping links
+6. preserve canonical counts and consultation-view behavior under first import and rerun
+
+Implemented first-slice `source_observation` kinds:
+
+1. `case_row`, `bucket_row`, `document_occurrence_group`, and `package_artifact`
+2. first-slice `source_observation` payload remains deliberately narrow and omits unsupported `display_order`.
+3. first-slice `source_observation_link` keeps exactly one canonical target FK plus mapper fields, and omits `mapping_kind`, `mapping_confidence`, and `mapping_note`.
+4. first-slice export-notes data belongs in `source_capture.metadata_json`.
+
+Validation outcome:
+
+- repeated import of the same package reuses the same `source_capture` unchanged when the captured evidence is identical
+- conflicting capture-level evidence under the same `(capture_kind, source_system, capture_key)` identity is a hard error
+- repeated import leaves canonical counts unchanged
+- repeated import leaves `source_observation` and `source_observation_link` rows unchanged when the evidence and mappings are identical
+- conflicting observation payload or normalized observation fields under the same observation identity is a hard error
+- `bucket_document.source_observation_count` remains unchanged
+- `document_binary.source_observation_count` remains unchanged
+- package-only retained evidence from export-notes, unresolved-document artifacts, and size-mismatch artifacts is now preserved in PostgreSQL
+- ordinary importer reruns do not rewrite `source_observation_link.mapper_key`, `mapper_version`, or `mapped_at`; remapping/version-history semantics remain deferred
+
+Questions deliberately deferred beyond Phase B:
 
 1. whether bucket-level or binary-level note targets justify a later workspace-safe extension
 2. whether `work_group_document` needs extra audit fields such as `added_by` or membership note text once real usage appears
@@ -2326,5 +2517,5 @@ The repository can evolve safely if the work is staged as:
 - Phase C: processing orchestration and derived content infrastructure
 - Phase D: first PDF processor and backlog rollout
 
-The current next caution point is preserving explicit source/acquisition evidence in Phase B without collapsing it into canonical entities or `document_origin`.
-That is why A2c should stay focused on user organization and workspace-safe note targeting, and leave source-observation provenance to the following phase.
+The current next caution point is preserving the clean boundary between the newly implemented Phase B provenance layer and the later Phase C processing layer.
+That is why Phase C should stay focused on processing orchestration and derived content, and not reopen capture/import or canonical-mapping semantics.

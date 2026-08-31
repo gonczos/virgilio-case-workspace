@@ -1,9 +1,12 @@
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
+
+const IMPORTER_MAPPING_VERSION = "2026-08-31-phase-b-v1";
 
 const requiredRelativePaths = [
   "package.json",
@@ -14,6 +17,10 @@ const requiredRelativePaths = [
   path.join("cases", "file_binaries.jsonl"),
   path.join("cases", "document_binaries.jsonl"),
 ];
+
+const unresolvedArtifactsRelativePath = path.join("artifacts", "unresolved-documents.jsonl");
+const sizeMismatchArtifactsRelativePath = path.join("artifacts", "size-mismatches.jsonl");
+const exportNotesRelativePath = path.join("provenance", "export-notes.json");
 
 function normalizeText(value) {
   if (value === null || value === undefined) {
@@ -78,6 +85,20 @@ async function readJsonl(filePath) {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => JSON.parse(line));
+}
+
+async function readOptionalJson(filePath) {
+  if (!await pathExists(filePath)) {
+    return null;
+  }
+  return readJson(filePath);
+}
+
+async function readOptionalJsonl(filePath) {
+  if (!await pathExists(filePath)) {
+    return [];
+  }
+  return readJsonl(filePath);
 }
 
 function loadDotEnv(envPath) {
@@ -272,6 +293,46 @@ async function hasDocumentIdentityClassSchema(client) {
   return Boolean(result.rows[0]?.has_document_identity_class);
 }
 
+async function hasSourceProvenanceSchema(client) {
+  const result = await client.query(
+    `
+      SELECT
+        EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'casework'
+            AND table_name = 'source_capture'
+        ) AS has_source_capture,
+        EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_schema = 'casework'
+            AND table_name = 'import_batch'
+            AND column_name = 'source_capture_id'
+        ) AS has_import_batch_source_capture_id,
+        EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'casework'
+            AND table_name = 'source_observation'
+        ) AS has_source_observation,
+        EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'casework'
+            AND table_name = 'source_observation_link'
+        ) AS has_source_observation_link
+    `,
+  );
+  const row = result.rows[0] ?? {};
+  return Boolean(
+    row.has_source_capture &&
+    row.has_import_batch_source_capture_id &&
+    row.has_source_observation &&
+    row.has_source_observation_link,
+  );
+}
+
 async function populateCaseWorkspaceDocuments(client) {
   const orphanResult = await client.query(
     "SELECT 1" +
@@ -304,7 +365,244 @@ async function populateCaseWorkspaceDocuments(client) {
       " ON CONFLICT (case_workspace_id, document_id) DO NOTHING",
   );
 }
-async function upsertImportBatch(client, manifest) {
+function makeDocumentIdentityKey(row, fallbackSourceSystem = null) {
+  const claimedSizeBytes = toNullableInt(row.claimed_size_bytes);
+  return [
+    normalizeText(row.source_system) ?? fallbackSourceSystem ?? "",
+    normalizeText(row.document_procinfo) ?? "",
+    normalizeText(row.document_name) ?? "",
+    toNullableDate(row.document_date) ?? "",
+    normalizeText(row.document_type) ?? "",
+    claimedSizeBytes === null ? "" : String(claimedSizeBytes),
+  ].join("|");
+}
+
+function makeBucketMapKey(processo, bucketId) {
+  return `${processo}|${bucketId}`;
+}
+
+function buildCaptureMetadata(manifest, exportNotes) {
+  const metadata = {
+    package_manifest: manifest,
+  };
+  if (exportNotes !== null) {
+    metadata.export_notes = exportNotes;
+  }
+  return metadata;
+}
+
+function buildBucketDisplayTitle(row) {
+  return normalizeText(row.modal_title)
+    ?? normalizeText(row.designation)
+    ?? normalizeText(row.reference_number);
+}
+
+function canonicalizeJson(value) {
+  if (Array.isArray(value)) {
+    return value.map((item) => canonicalizeJson(item));
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonicalizeJson(value[key])]),
+    );
+  }
+  return value;
+}
+
+function canonicalJsonString(value) {
+  return JSON.stringify(canonicalizeJson(value));
+}
+
+function normalizeObservationKeyPart(part) {
+  if (part === null || part === undefined) {
+    return null;
+  }
+  if (typeof part === "number" || typeof part === "boolean") {
+    return part;
+  }
+  return String(part).trim();
+}
+
+function buildObservationKey(parts) {
+  const identityJson = canonicalJsonString(parts.map((part) => normalizeObservationKeyPart(part)));
+  return `sha256:${createHash("sha256").update(identityJson).digest("hex")}`;
+}
+
+function sameNullableText(left, right) {
+  return normalizeText(left) === normalizeText(right);
+}
+
+function sameNullableTimestamp(left, right) {
+  const normalizeTimestampValue = (value) => {
+    const text = toNullableTimestamp(value);
+    if (text === null) {
+      return null;
+    }
+    const timestamp = new Date(text);
+    if (Number.isNaN(timestamp.getTime())) {
+      return text;
+    }
+    return timestamp.toISOString();
+  };
+  return normalizeTimestampValue(left) === normalizeTimestampValue(right);
+}
+
+function sameJsonValue(left, right) {
+  return canonicalJsonString(left ?? {}) === canonicalJsonString(right ?? {});
+}
+
+function assertEquivalentStoredEvidence({ entityLabel, identity, existing, incoming, fields }) {
+  const mismatches = [];
+  for (const field of fields) {
+    if (!field.equals(existing[field.key], incoming[field.key])) {
+      mismatches.push(field.label);
+    }
+  }
+  if (mismatches.length) {
+    throw new Error(
+      `${entityLabel} drift for identity ${identity}: conflicting stored evidence in ${mismatches.join(", ")}`,
+    );
+  }
+}
+
+async function upsertSourceCapture(client, manifest, packageDir, exportNotes) {
+  const captureMetadata = buildCaptureMetadata(manifest, exportNotes);
+  const capturedAt = toNullableTimestamp(exportNotes?.exported_at) ?? toNullableTimestamp(manifest.created_at);
+  const scraperKey = normalizeText(exportNotes?.script) ?? normalizeText(manifest.producer);
+  const existingResult = await client.query(
+    `
+      SELECT
+        id,
+        external_source_label,
+        captured_at::text AS captured_at,
+        scraper_key,
+        scraper_version,
+        source_locator,
+        metadata_json
+      FROM casework.source_capture
+      WHERE capture_kind = $1
+        AND source_system = $2
+        AND capture_key = $3
+    `,
+    [
+      "portable_package_export",
+      manifest.source_system,
+      manifest.package_id,
+    ],
+  );
+  if (existingResult.rowCount) {
+    assertEquivalentStoredEvidence({
+      entityLabel: "source_capture",
+      identity: canonicalJsonString(["portable_package_export", manifest.source_system, manifest.package_id]),
+      existing: existingResult.rows[0],
+      incoming: {
+        external_source_label: null,
+        captured_at: capturedAt,
+        scraper_key: scraperKey,
+        scraper_version: null,
+        metadata_json: captureMetadata,
+      },
+      fields: [
+        { key: "external_source_label", label: "external_source_label", equals: sameNullableText },
+        { key: "captured_at", label: "captured_at", equals: sameNullableTimestamp },
+        { key: "scraper_key", label: "scraper_key", equals: sameNullableText },
+        { key: "scraper_version", label: "scraper_version", equals: sameNullableText },
+        { key: "metadata_json", label: "metadata_json", equals: sameJsonValue },
+      ],
+    });
+    return existingResult.rows[0].id;
+  }
+
+  const insertResult = await client.query(
+    `
+      INSERT INTO casework.source_capture (
+        source_system,
+        capture_kind,
+        capture_key,
+        external_source_label,
+        captured_at,
+        scraper_key,
+        scraper_version,
+        source_locator,
+        metadata_json
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
+      ON CONFLICT (capture_kind, source_system, capture_key)
+      WHERE capture_key IS NOT NULL
+      DO NOTHING
+      RETURNING id
+    `,
+    [
+      manifest.source_system,
+      "portable_package_export",
+      manifest.package_id,
+      null,
+      capturedAt,
+      scraperKey,
+      null,
+      packageDir,
+      canonicalJsonString(captureMetadata),
+    ],
+  );
+
+  if (insertResult.rowCount) {
+    return insertResult.rows[0].id;
+  }
+
+  return upsertSourceCapture(client, manifest, packageDir, exportNotes);
+}
+
+async function upsertImportBatch(client, manifest, sourceCaptureId = null, sourceProvenanceSchemaEnabled = false) {
+  if (sourceProvenanceSchemaEnabled) {
+    const result = await client.query(
+      `
+        INSERT INTO casework.import_batch (
+          package_id,
+          source_capture_id,
+          package_kind,
+          source_system,
+          schema_version,
+          producer,
+          created_at_source,
+          case_count,
+          document_count,
+          file_binary_count,
+          package_metadata_json
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb)
+        ON CONFLICT (package_id) DO UPDATE
+        SET
+          source_capture_id = EXCLUDED.source_capture_id,
+          package_kind = EXCLUDED.package_kind,
+          source_system = EXCLUDED.source_system,
+          schema_version = EXCLUDED.schema_version,
+          producer = EXCLUDED.producer,
+          created_at_source = EXCLUDED.created_at_source,
+          case_count = EXCLUDED.case_count,
+          document_count = EXCLUDED.document_count,
+          file_binary_count = EXCLUDED.file_binary_count,
+          package_metadata_json = EXCLUDED.package_metadata_json
+        RETURNING id
+      `,
+      [
+        manifest.package_id,
+        sourceCaptureId,
+        manifest.package_kind,
+        manifest.source_system,
+        manifest.schema_version,
+        normalizeText(manifest.producer),
+        toNullableTimestamp(manifest.created_at),
+        toNullableInt(manifest.case_count),
+        toNullableInt(manifest.document_count),
+        toNullableInt(manifest.file_binary_count),
+        JSON.stringify(manifest),
+      ],
+    );
+    return result.rows[0].id;
+  }
+
   const result = await client.query(
     `
       INSERT INTO casework.import_batch (
@@ -347,6 +645,370 @@ async function upsertImportBatch(client, manifest) {
     ],
   );
   return result.rows[0].id;
+}
+
+async function upsertSourceObservation(client, observation) {
+  const existingResult = await client.query(
+    `
+      SELECT
+        id,
+        source_native_id,
+        parent_source_native_id,
+        source_path,
+        display_title,
+        display_status,
+        display_date,
+        payload_json,
+        observed_at::text AS observed_at
+      FROM casework.source_observation
+      WHERE source_capture_id = $1
+        AND observation_kind = $2
+        AND observation_key = $3
+    `,
+    [
+      observation.sourceCaptureId,
+      observation.observationKind,
+      observation.observationKey,
+    ],
+  );
+  if (existingResult.rowCount) {
+    assertEquivalentStoredEvidence({
+      entityLabel: "source_observation",
+      identity: canonicalJsonString([
+        observation.sourceCaptureId,
+        observation.observationKind,
+        observation.observationKey,
+      ]),
+      existing: existingResult.rows[0],
+      incoming: {
+        source_native_id: observation.sourceNativeId,
+        parent_source_native_id: observation.parentSourceNativeId,
+        source_path: observation.sourcePath,
+        display_title: observation.displayTitle,
+        display_status: observation.displayStatus,
+        display_date: observation.displayDate,
+        payload_json: observation.payloadJson ?? {},
+        observed_at: observation.observedAt,
+      },
+      fields: [
+        { key: "source_native_id", label: "source_native_id", equals: sameNullableText },
+        { key: "parent_source_native_id", label: "parent_source_native_id", equals: sameNullableText },
+        { key: "source_path", label: "source_path", equals: sameNullableText },
+        { key: "display_title", label: "display_title", equals: sameNullableText },
+        { key: "display_status", label: "display_status", equals: sameNullableText },
+        { key: "display_date", label: "display_date", equals: sameNullableText },
+        { key: "payload_json", label: "payload_json", equals: sameJsonValue },
+        { key: "observed_at", label: "observed_at", equals: sameNullableTimestamp },
+      ],
+    });
+    return existingResult.rows[0].id;
+  }
+
+  const insertResult = await client.query(
+    `
+      INSERT INTO casework.source_observation (
+        source_capture_id,
+        observation_kind,
+        observation_key,
+        source_native_id,
+        parent_source_native_id,
+        source_path,
+        display_title,
+        display_status,
+        display_date,
+        payload_json,
+        observed_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11)
+      ON CONFLICT (source_capture_id, observation_kind, observation_key) DO NOTHING
+      RETURNING id
+    `,
+    [
+      observation.sourceCaptureId,
+      observation.observationKind,
+      observation.observationKey,
+      observation.sourceNativeId,
+      observation.parentSourceNativeId,
+      observation.sourcePath,
+      observation.displayTitle,
+      observation.displayStatus,
+      observation.displayDate,
+      JSON.stringify(observation.payloadJson ?? {}),
+      observation.observedAt,
+    ],
+  );
+  if (insertResult.rowCount) {
+    return insertResult.rows[0].id;
+  }
+
+  return upsertSourceObservation(client, observation);
+}
+
+async function upsertSourceObservationLink(client, link) {
+  if (link.caseFileId !== null) {
+    await client.query(
+      `
+        INSERT INTO casework.source_observation_link (
+          source_observation_id,
+          case_file_id,
+          mapper_key,
+          mapper_version
+        )
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (source_observation_id, case_file_id)
+        WHERE case_file_id IS NOT NULL
+        DO NOTHING
+      `,
+      [link.sourceObservationId, link.caseFileId, link.mapperKey, link.mapperVersion],
+    );
+    return;
+  }
+
+  if (link.bucketId !== null) {
+    await client.query(
+      `
+        INSERT INTO casework.source_observation_link (
+          source_observation_id,
+          bucket_id,
+          mapper_key,
+          mapper_version
+        )
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (source_observation_id, bucket_id)
+        WHERE bucket_id IS NOT NULL
+        DO NOTHING
+      `,
+      [link.sourceObservationId, link.bucketId, link.mapperKey, link.mapperVersion],
+    );
+    return;
+  }
+
+  if (link.documentId !== null) {
+    await client.query(
+      `
+        INSERT INTO casework.source_observation_link (
+          source_observation_id,
+          document_id,
+          mapper_key,
+          mapper_version
+        )
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (source_observation_id, document_id)
+        WHERE document_id IS NOT NULL
+        DO NOTHING
+      `,
+      [link.sourceObservationId, link.documentId, link.mapperKey, link.mapperVersion],
+    );
+    return;
+  }
+
+  throw new Error("Source observation link requires exactly one canonical target");
+}
+
+async function populateSourceProvenance(
+  client,
+  {
+    manifest,
+    packageDir,
+    exportNotes,
+    caseRows,
+    bucketRows,
+    bucketDocumentRows,
+    unresolvedArtifactRows,
+    sizeMismatchArtifactRows,
+    caseIdByProcesso,
+    bucketIdByCaseAndBucket,
+    documentIdByKey,
+    documentIdByIdentity,
+    sourceCaptureId,
+  },
+) {
+  const mapperKey = "app/import-package.mjs";
+  const mapperVersion = IMPORTER_MAPPING_VERSION;
+
+  for (const row of caseRows) {
+    const observationId = await upsertSourceObservation(client, {
+      sourceCaptureId,
+      observationKind: "case_row",
+      observationKey: buildObservationKey([row.processo]),
+      sourceNativeId: normalizeText(row.idprocesso),
+      parentSourceNativeId: normalizeText(row.parent_processo),
+      sourcePath: "cases/cases.jsonl",
+      displayTitle: normalizeText(row.processo),
+      displayStatus: normalizeText(row.estado),
+      displayDate: toNullableDate(row.data_autuacao),
+      payloadJson: row,
+      observedAt: null,
+    });
+    const caseFileId = caseIdByProcesso.get(row.processo) ?? null;
+    if (caseFileId !== null) {
+      await upsertSourceObservationLink(client, {
+        sourceObservationId: observationId,
+        caseFileId,
+        bucketId: null,
+        documentId: null,
+        mapperKey,
+        mapperVersion,
+      });
+    }
+  }
+
+  for (const row of bucketRows) {
+    const observationId = await upsertSourceObservation(client, {
+      sourceCaptureId,
+      observationKind: "bucket_row",
+      observationKey: buildObservationKey([row.processo, row.bucket_id]),
+      sourceNativeId: normalizeText(row.bucket_id),
+      parentSourceNativeId: normalizeText(row.processo),
+      sourcePath: "cases/buckets.jsonl",
+      displayTitle: buildBucketDisplayTitle(row),
+      displayStatus: null,
+      displayDate: toNullableDate(row.bucket_date),
+      payloadJson: row,
+      observedAt: null,
+    });
+    const bucketId = bucketIdByCaseAndBucket.get(makeBucketMapKey(row.processo, row.bucket_id)) ?? null;
+    if (bucketId !== null) {
+      await upsertSourceObservationLink(client, {
+        sourceObservationId: observationId,
+        caseFileId: null,
+        bucketId,
+        documentId: null,
+        mapperKey,
+        mapperVersion,
+      });
+    }
+  }
+
+  for (const row of bucketDocumentRows) {
+    const observationId = await upsertSourceObservation(client, {
+      sourceCaptureId,
+      observationKind: "document_occurrence_group",
+      observationKey: buildObservationKey([row.processo, row.bucket_id, row.document_key]),
+      sourceNativeId: null,
+      parentSourceNativeId: normalizeText(row.bucket_id),
+      sourcePath: "cases/bucket_documents.jsonl",
+      displayTitle: null,
+      displayStatus: null,
+      displayDate: null,
+      payloadJson: row,
+      observedAt: null,
+    });
+    const bucketId = bucketIdByCaseAndBucket.get(makeBucketMapKey(row.processo, row.bucket_id)) ?? null;
+    const documentId = documentIdByKey.get(row.document_key) ?? null;
+    if (bucketId !== null) {
+      await upsertSourceObservationLink(client, {
+        sourceObservationId: observationId,
+        caseFileId: null,
+        bucketId,
+        documentId: null,
+        mapperKey,
+        mapperVersion,
+      });
+    }
+    if (documentId !== null) {
+      await upsertSourceObservationLink(client, {
+        sourceObservationId: observationId,
+        caseFileId: null,
+        bucketId: null,
+        documentId,
+        mapperKey,
+        mapperVersion,
+      });
+    }
+  }
+
+  const artifactSpecs = [
+    {
+      artifactKind: "unresolved_document",
+      sourcePath: unresolvedArtifactsRelativePath.replace(/\\/gu, "/"),
+      rows: unresolvedArtifactRows,
+      buildObservationKeyParts: (row) => [
+        row.processo,
+        row.bucket_id,
+        row.document_procinfo,
+        row.document_name,
+        row.document_date,
+        row.document_type,
+        row.claimed_size_bytes,
+        row.unresolved_reason,
+      ],
+      buildObservation: (row) => ({
+        sourceNativeId: normalizeText(row.document_procinfo),
+        parentSourceNativeId: normalizeText(row.bucket_id),
+        displayTitle: normalizeText(row.document_name),
+        displayStatus: normalizeText(row.unresolved_reason),
+        displayDate: toNullableDate(row.document_date),
+      }),
+    },
+    {
+      artifactKind: "size_mismatch",
+      sourcePath: sizeMismatchArtifactsRelativePath.replace(/\\/gu, "/"),
+      rows: sizeMismatchArtifactRows,
+      buildObservationKeyParts: (row) => [
+        row.processo,
+        row.bucket_id,
+        row.document_procinfo,
+        row.sha256,
+      ],
+      buildObservation: (row) => ({
+        sourceNativeId: normalizeText(row.document_procinfo),
+        parentSourceNativeId: normalizeText(row.bucket_id),
+        displayTitle: normalizeText(row.document_name),
+        displayStatus: "size_mismatch",
+        displayDate: toNullableDate(row.document_date),
+      }),
+    },
+  ];
+
+  for (const artifactSpec of artifactSpecs) {
+    for (const row of artifactSpec.rows) {
+      const observationDetails = artifactSpec.buildObservation(row);
+      const observationId = await upsertSourceObservation(client, {
+        sourceCaptureId,
+        observationKind: "package_artifact",
+        observationKey: buildObservationKey([artifactSpec.artifactKind, ...artifactSpec.buildObservationKeyParts(row)]),
+        sourceNativeId: observationDetails.sourceNativeId,
+        parentSourceNativeId: observationDetails.parentSourceNativeId,
+        sourcePath: artifactSpec.sourcePath,
+        displayTitle: observationDetails.displayTitle,
+        displayStatus: observationDetails.displayStatus,
+        displayDate: observationDetails.displayDate,
+        payloadJson: {
+          artifact_kind: artifactSpec.artifactKind,
+          row,
+        },
+        observedAt: null,
+      });
+
+      const bucketId = bucketIdByCaseAndBucket.get(makeBucketMapKey(row.processo, row.bucket_id)) ?? null;
+      if (bucketId !== null) {
+        await upsertSourceObservationLink(client, {
+          sourceObservationId: observationId,
+          caseFileId: null,
+          bucketId,
+          documentId: null,
+          mapperKey,
+          mapperVersion,
+        });
+      }
+
+      const documentId = documentIdByIdentity.get(makeDocumentIdentityKey(
+        { ...row, source_system: manifest.source_system },
+        manifest.source_system,
+      )) ?? null;
+      if (documentId !== null) {
+        await upsertSourceObservationLink(client, {
+          sourceObservationId: observationId,
+          caseFileId: null,
+          bucketId: null,
+          documentId,
+          mapperKey,
+          mapperVersion,
+        });
+      }
+    }
+  }
 }
 
 async function upsertCourt(client, row) {
@@ -727,12 +1389,15 @@ async function main() {
   await assertPackageShape(packageDir);
 
   const manifest = await readJson(path.join(packageDir, "package.json"));
+  const exportNotes = await readOptionalJson(path.join(packageDir, exportNotesRelativePath));
   const caseRows = await readJsonl(path.join(packageDir, "cases", "cases.jsonl"));
   const bucketRows = await readJsonl(path.join(packageDir, "cases", "buckets.jsonl"));
   const documentRows = await readJsonl(path.join(packageDir, "cases", "documents.jsonl"));
   const bucketDocumentRows = await readJsonl(path.join(packageDir, "cases", "bucket_documents.jsonl"));
   const fileBinaryRows = await readJsonl(path.join(packageDir, "cases", "file_binaries.jsonl"));
   const documentBinaryRows = await readJsonl(path.join(packageDir, "cases", "document_binaries.jsonl"));
+  const unresolvedArtifactRows = await readOptionalJsonl(path.join(packageDir, unresolvedArtifactsRelativePath));
+  const sizeMismatchArtifactRows = await readOptionalJsonl(path.join(packageDir, sizeMismatchArtifactsRelativePath));
 
   const client = new Client({
     host: process.env.PGHOST ?? "127.0.0.1",
@@ -748,11 +1413,16 @@ async function main() {
       const workspaceSchemaEnabled = await hasCaseWorkspaceSchema(client);
       const workspaceDocumentSchemaEnabled = await hasCaseWorkspaceDocumentSchema(client);
       const documentIdentityClassSchemaEnabled = await hasDocumentIdentityClassSchema(client);
-      await upsertImportBatch(client, manifest);
+      const sourceProvenanceSchemaEnabled = await hasSourceProvenanceSchema(client);
+      const sourceCaptureId = sourceProvenanceSchemaEnabled
+        ? await upsertSourceCapture(client, manifest, packageDir, exportNotes)
+        : null;
+      await upsertImportBatch(client, manifest, sourceCaptureId, sourceProvenanceSchemaEnabled);
 
       const caseIdByProcesso = new Map();
       const bucketIdByCaseAndBucket = new Map();
       const documentIdByKey = new Map();
+      const documentIdByIdentity = new Map();
       const fileBinaryIdBySha = new Map();
 
       for (const row of caseRows) {
@@ -785,6 +1455,7 @@ async function main() {
         }
         const documentId = await upsertDocument(client, row, documentIdentityClassSchemaEnabled);
         documentIdByKey.set(documentKey, documentId);
+        documentIdByIdentity.set(makeDocumentIdentityKey(row), documentId);
       }
 
       for (const row of bucketDocumentRows) {
@@ -819,6 +1490,24 @@ async function main() {
 
       if (workspaceDocumentSchemaEnabled) {
         await populateCaseWorkspaceDocuments(client);
+      }
+
+      if (sourceProvenanceSchemaEnabled && sourceCaptureId !== null) {
+        await populateSourceProvenance(client, {
+          manifest,
+          packageDir,
+          exportNotes,
+          caseRows,
+          bucketRows,
+          bucketDocumentRows,
+          unresolvedArtifactRows,
+          sizeMismatchArtifactRows,
+          caseIdByProcesso,
+          bucketIdByCaseAndBucket,
+          documentIdByKey,
+          documentIdByIdentity,
+          sourceCaptureId,
+        });
       }
     });
   } finally {
