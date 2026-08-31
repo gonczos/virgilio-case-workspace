@@ -2839,3 +2839,34 @@ Outcomes intentionally deferred beyond C3.1:
 - any remote `BinaryStore` implementation such as Google Drive, S3, MinIO, or NAS
 - any artifact-store abstraction for derived processor outputs
 - any importer change to route binary writes through a generalized store
+
+## Phase C3.2 Implementation Result
+
+Implemented on 2026-08-31: original-binary serving now consumes the same `BinaryStore` boundary already used by the Phase C processing path.
+
+Implemented slice:
+
+1. route `app/file-gateway.mjs` through `BinaryStore.materialize(...)`
+2. preserve the existing SHA-based gateway route and streaming behavior
+3. keep the current `file_binary.storage_package_id` + `storage_rel_path` schema unchanged
+4. keep importer, processing schema, and legacy Phase C2 spike code unchanged
+
+Serving boundary outcome:
+
+- original binary serving no longer reconstructs the imports-root path directly inside `app/file-gateway.mjs`
+- the gateway now resolves the canonical `file_binary` row, delegates local file retrieval to `BinaryStore`, streams the materialized local path, and releases the materialization after response completion
+- this means both active byte-consuming paths now share the same storage boundary:
+  - Phase C processing
+  - original-binary serving
+
+HTTP compatibility outcome:
+
+- SHA-based lookup remains unchanged
+- route shape remains `/binary/<sha256>`
+- status-code behavior for not-found and invalid-path cases remains compatible
+- content headers and streaming behavior remain unchanged
+- no remote storage or provider-specific metadata was introduced
+
+Remaining intentional limitation:
+
+- `app/phase-c2-spike.mjs` still performs direct local path resolution because it remains historical evaluation tooling rather than an active runtime serving or processing boundary
