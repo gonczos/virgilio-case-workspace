@@ -1,7 +1,10 @@
 node_modules/
+.venv-processing/
+__pycache__/
 .idea/
 /data/postgres/
 /data/storage/
 /data/exports/
 /data/imports/
+/data/processing-runtime/
 /.env

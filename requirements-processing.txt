@@ -1,0 +1,2 @@
+docling[rapidocr]==2.123.1
+xberg==1.0.14

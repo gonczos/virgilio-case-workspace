@@ -1,0 +1,49 @@
+{
+  "manifest_version": 1,
+  "created_at": "2026-08-31",
+  "description": "Representative Phase C2 extraction spike corpus selected from the imported Virgilio PT package. The set is intentionally small, PDF-only, and biased toward difficult or diverse layouts rather than random sampling.",
+  "entries": [
+    {
+      "sha256": "6836f8732aae33a3bc79491748134bd2a77a7b48aeaa2cd7c66647ff1f468f1c",
+      "bucket": "text_pdf",
+      "label": "short_text_pdf_5p_a",
+      "notes": "Compact clean native-text PDF."
+    },
+    {
+      "sha256": "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691",
+      "bucket": "text_pdf",
+      "label": "short_text_pdf_5p_b",
+      "notes": "Compact clean native-text PDF."
+    },
+    {
+      "sha256": "414999a9d1ea47289bcddb9dabc8936fbc2596d9dc3c9f80ce1616176dd7d94d",
+      "bucket": "mixed_pdf",
+      "label": "mixed_requerimento_5p",
+      "notes": "Short mixed filing."
+    },
+    {
+      "sha256": "ce0574353b545ed3a84c40194fd7571ea40b2339963061c407febc0522bf1800",
+      "bucket": "mixed_pdf",
+      "label": "mixed_termo_12p",
+      "notes": "Short mixed document."
+    },
+    {
+      "sha256": "adcde0cb1e946487996d48762e70501bec852e2803c918aded1cb2ff3ace51c4",
+      "bucket": "mixed_pdf",
+      "label": "mixed_form_22p",
+      "notes": "Mixed structured form layout."
+    },
+    {
+      "sha256": "beaae8cef569cfddd3d14512aa4937561b0255df833973c312cec182755e594d",
+      "bucket": "mostly_image_pdf",
+      "label": "mostly_image_16p",
+      "notes": "Mostly-image PDF."
+    },
+    {
+      "sha256": "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e",
+      "bucket": "image_only_pdf",
+      "label": "image_only_peticao_11p",
+      "notes": "Smaller image-only PDF suitable for OCR checks."
+    }
+  ]
+}

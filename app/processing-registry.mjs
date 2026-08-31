@@ -1,0 +1,255 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import { spawn } from "node:child_process";
+
+import {
+  buildProcessingRuntimeEnv,
+  ensureDir,
+  EXTRACTOR_PATH,
+  getWorkspaceRoot,
+  PROCESSING_OUTPUT_ROOT,
+  PYTHON_PATH,
+  resolveBinaryPath,
+  slugify,
+} from "./processing-common.mjs";
+
+export const EXTRACT_STAGE_KEY = "EXTRACT_STRUCTURE";
+export const HUMAN_STAGE_KEY = "HUMAN_CREATE_REPRESENTATION";
+export const DEFAULT_REPRESENTATION_KIND = "extracted_document_bundle";
+export const DOCLING_PROFILE_KEY = "docling-default-v1";
+export const XBERG_PROFILE_KEY = "xberg-default-v1";
+export const PLAIN_TEXT_PROFILE_KEY = "plain-text-default-v1";
+
+function determineOcrMode(binaryRow) {
+  if (binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt") {
+    return "never";
+  }
+  if (binaryRow.machine_readability_status === "text_pdf" || binaryRow.machine_readability_status === "mixed_pdf") {
+    return "never";
+  }
+  return "force";
+}
+
+async function runExtractor({
+  workspaceRoot,
+  engine,
+  inputPath,
+  artifactDir,
+  profileKey,
+  ocrMode,
+  timeoutMs = 900000,
+}) {
+  await ensureDir(artifactDir);
+  const pythonPath = path.join(workspaceRoot, PYTHON_PATH);
+  const extractorPath = path.join(workspaceRoot, EXTRACTOR_PATH);
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      pythonPath,
+      [
+        extractorPath,
+        "--engine",
+        engine,
+        "--input-path",
+        inputPath,
+        "--artifact-dir",
+        artifactDir,
+        "--profile-key",
+        profileKey,
+        "--ocr-mode",
+        ocrMode,
+      ],
+      {
+        cwd: workspaceRoot,
+        stdio: ["ignore", "pipe", "pipe"],
+        env: buildProcessingRuntimeEnv(workspaceRoot),
+      },
+    );
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    const timeoutHandle = setTimeout(() => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      child.kill("SIGTERM");
+      reject(new Error(`Extractor ${engine} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString("utf8");
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString("utf8");
+    });
+    child.on("error", (error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timeoutHandle);
+      reject(error);
+    });
+    child.on("close", (code) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timeoutHandle);
+      if (code !== 0) {
+        reject(new Error(`Extractor ${engine} failed with code ${code}\n${stderr}`));
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout));
+      } catch (error) {
+        reject(new Error(`Failed to parse extractor output for ${engine}: ${error.message}\n${stdout}\n${stderr}`));
+      }
+    });
+  });
+}
+
+async function finalizeArtifactDir(outputDir, tempDir) {
+  await fs.rm(outputDir, { recursive: true, force: true });
+  await ensureDir(path.dirname(outputDir));
+  await fs.cp(tempDir, outputDir, { recursive: true });
+}
+
+function buildMachineMetadata(binaryRow, extraction) {
+  return {
+    profile_key: extraction.profile_key,
+    ocr_mode: extraction.ocr_mode,
+    summary: extraction.summary,
+    native_summary: extraction.native_summary,
+    artifact_files: extraction.artifact_files,
+    source_binary: {
+      sha256: binaryRow.sha256,
+      machine_readability_status: binaryRow.machine_readability_status,
+      page_count: binaryRow.page_count,
+      mime_type: binaryRow.mime_type,
+      file_extension: binaryRow.file_extension,
+    },
+  };
+}
+
+function buildMachineContent(textContent, markdownContent, extraction) {
+  return {
+    text_length: textContent.length,
+    markdown_length: markdownContent.length,
+    page_count: extraction.summary.page_count ?? null,
+    table_count: extraction.summary.table_count ?? null,
+    ocr_element_count: extraction.summary.ocr_element_count ?? null,
+    quality_score: extraction.summary.quality_score ?? null,
+    extraction_confidence: extraction.summary.extraction_confidence ?? null,
+    extraction_method: extraction.summary.extraction_method ?? null,
+  };
+}
+
+function buildSingleSegment(textContent, extraction) {
+  return [
+    {
+      segment_kind: "document_text",
+      sequence_no: 1,
+      text_content: textContent,
+      structural_path: null,
+      page_no: null,
+      char_start: 0,
+      char_end: textContent.length,
+      metadata_json: {
+        source: extraction.text_artifact,
+        profile_key: extraction.profile_key,
+        ocr_mode: extraction.ocr_mode,
+      },
+    },
+  ];
+}
+
+function createPythonProcessor({ key, version, profileKey, formatFamily }) {
+  return {
+    key,
+    version,
+    profileKey,
+    representationKind: DEFAULT_REPRESENTATION_KIND,
+    formatFamily,
+    supportsBinary(binaryRow) {
+      if (key === "plain_text_passthrough") {
+        return binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt";
+      }
+      const isPdf = binaryRow.mime_type === "application/pdf" || binaryRow.file_extension === ".pdf";
+      return isPdf;
+    },
+    async execute({ workspaceRoot, binaryRow, tempArtifactDir, outputRoot }) {
+      const extraction = await runExtractor({
+        workspaceRoot,
+        engine: key === "plain_text_passthrough" ? "plain_text" : key,
+        inputPath: resolveBinaryPath(workspaceRoot, binaryRow),
+        artifactDir: tempArtifactDir,
+        profileKey,
+        ocrMode: determineOcrMode(binaryRow),
+      });
+      const textContent = await fs.readFile(path.join(tempArtifactDir, extraction.text_artifact), "utf8");
+      const markdownContent = extraction.markdown_artifact
+        ? await fs.readFile(path.join(tempArtifactDir, extraction.markdown_artifact), "utf8")
+        : "";
+      const outputDir = path.join(
+        outputRoot,
+        slugify(key),
+        version,
+        binaryRow.sha256,
+      );
+      await finalizeArtifactDir(outputDir, tempArtifactDir);
+      const workspaceRootResolved = workspaceRoot || getWorkspaceRoot();
+      return {
+        processorKey: key,
+        processorVersion: version,
+        representationKind: DEFAULT_REPRESENTATION_KIND,
+        formatFamily,
+        artifactRelPath: path.relative(workspaceRootResolved, outputDir).replace(/\\/gu, "/"),
+        metadataJson: buildMachineMetadata(binaryRow, extraction),
+        contentJson: buildMachineContent(textContent, markdownContent, extraction),
+        segments: buildSingleSegment(textContent, extraction),
+        summary: extraction.summary,
+      };
+    },
+  };
+}
+
+const BUILTIN_PROCESSORS = [
+  createPythonProcessor({
+    key: "docling",
+    version: "2.123.1",
+    profileKey: DOCLING_PROFILE_KEY,
+    formatFamily: "pdf",
+  }),
+  createPythonProcessor({
+    key: "xberg",
+    version: "1.0.14",
+    profileKey: XBERG_PROFILE_KEY,
+    formatFamily: "pdf",
+  }),
+  createPythonProcessor({
+    key: "plain_text_passthrough",
+    version: "builtin-v1",
+    profileKey: PLAIN_TEXT_PROFILE_KEY,
+    formatFamily: "text",
+  }),
+];
+
+export function listBuiltinProcessors() {
+  return [...BUILTIN_PROCESSORS];
+}
+
+export function getProcessor(processorKey, registry = BUILTIN_PROCESSORS) {
+  const processor = registry.find((candidate) => candidate.key === processorKey);
+  if (!processor) {
+    throw new Error(`Unknown processor: ${processorKey}`);
+  }
+  return processor;
+}
+
+export function determineProcessingPolicy(binaryRow, registry = BUILTIN_PROCESSORS) {
+  return registry.filter((processor) => processor.supportsBinary(binaryRow));
+}
+
+export function getProcessingOutputRoot(workspaceRoot = getWorkspaceRoot()) {
+  return path.join(workspaceRoot, PROCESSING_OUTPUT_ROOT);
+}

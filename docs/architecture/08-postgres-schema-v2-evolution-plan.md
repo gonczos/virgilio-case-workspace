@@ -2590,14 +2590,14 @@ Completed:
 3. Phase A2b PostgreSQL schema evolution and importer compatibility
 4. Phase A2c PostgreSQL schema evolution for `work_group`, `work_group_document`, and workspace-aware `consultation_note`
 5. Phase B PostgreSQL schema migration, package-aware provenance backfill via importer, and importer compatibility
+6. Phase C1 processing-core schema migration
+7. Phase C3 durable asynchronous multi-representation processing, selection, and comparison support on top of the existing C1 model
 
 Next recommended sequence:
 
-6. Phase C processing-core schema migration
-7. Phase C lightweight enqueue/claim helper if desired outside Directus
 8. Phase D backlog seeding utility for existing `file_binary`
-9. Phase D PDF worker implementation on a small sample
-10. Phase D full PDF backlog rollout
+9. Phase D first downstream extraction/derivation flow explicitly tied to chosen `document_representation`
+10. Phase D broader processing rollout once representation/selection behavior is stable
 
 ## Proposed Migration / File Boundaries
 
@@ -2716,6 +2716,46 @@ Validation outcome:
 - consultation views remained unchanged from the accepted Phase B baseline
 - successful-output idempotency remains a future enqueue/runtime responsibility and is not enforced by C1 SQL
 - no queue helper, worker, backlog seeding, PDF processing, importer changes, or Directus runtime work was included
+
+## Phase C3 Implementation Result
+
+Implemented on 2026-08-31: durable asynchronous multi-representation processing on top of the existing C1 processing schema.
+
+Implemented slice:
+
+1. evolve `document_representation` to support:
+   - `representation_source_kind`
+   - `representation_variant_key`
+   - `based_on_representation_id`
+2. add `document_representation_selection`
+3. add `document_representation_comparison`
+4. add a small explicit processor registry for:
+   - `docling`
+   - `xberg`
+   - `plain_text_passthrough`
+5. add a PostgreSQL-backed worker/admin path for:
+   - enqueue
+   - durable claim
+   - bounded retry
+   - persisted failure
+   - explicit abandoned-job recovery
+6. add automatic representation selection with explicit-override support
+7. add generic pairwise persisted representation comparison
+8. add human-authored representation creation support without making human origin intrinsically preferred
+9. keep consultation isolated from worker execution by reading persisted PostgreSQL/artifact state only
+
+Validation outcome:
+
+- consultation views remained unchanged while and after background processing
+- the worker uses short claim/update transactions and does not hold a database transaction open for the duration of long Docling extraction
+- Docling and Xberg both completed through the same generic processing boundary
+- persisted comparison rows surfaced both low-disagreement and high-disagreement cases on representative PDFs
+- automatic consultation selection currently prefers Docling when available and otherwise falls back predictably
+- explicit human selection remains distinct from automatic policy; human representation existence alone does not override automatic selection
+- failed extraction attempts remain persisted as failed jobs
+- later explicit retries can create a new job row and succeed without overwriting the earlier failed history
+- C2-local processor caches had to be reused directly for offline Docling execution in the restricted local environment; this preserves local-only processing without introducing external services
+- no importer changes, no canonical schema changes, no consultation-view redesign, and no Phase D downstream extraction were included
 
 ## Summary
 

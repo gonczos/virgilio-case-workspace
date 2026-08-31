@@ -6,7 +6,12 @@
   "description": "Consultation and enrichment workspace for the Virgilio court-case corpus.",
   "scripts": {
     "import:package": "node ./app/import-package.mjs",
-    "start:gateway": "node ./app/file-gateway.mjs"
+    "start:gateway": "node ./app/file-gateway.mjs",
+    "spike:c2": "node ./app/phase-c2-spike.mjs",
+    "test:c2": "node --test ./test/phase-c2.test.mjs",
+    "process:c3:worker": "node ./app/processing-worker.mjs",
+    "process:c3:admin": "node ./app/processing-admin.mjs",
+    "test:c3": "node --test --test-concurrency=1 ./test/phase-c3.test.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"
