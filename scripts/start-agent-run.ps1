@@ -103,5 +103,5 @@ $codexCommand = "Get-Content -Raw `"$quotedPromptPath`" | codex exec -C `"$quote
 Write-Output "Recorded run created: $runDir"
 Write-Output "Frozen prompt: $relativePromptPath"
 Write-Output "Report path: $relativeReportPath"
-Write-Output "Execute Codex with the frozen prompt:"
+Write-Output "Suggested Codex command using the frozen prompt:"
 Write-Output $codexCommand

@@ -28,7 +28,7 @@ async function makeTempRepo(t) {
   return tempRoot;
 }
 
-test('snapshots the agreed prompt and prints the frozen execution command', async (t) => {
+test('snapshots the agreed prompt and prints a suggested frozen-prompt command', async (t) => {
   const tempRoot = await makeTempRepo(t);
   const sourcePrompt = path.join(tempRoot, 'docs', 'discussions', 'WIP-example.md');
   const promptContent = 'First line\r\nSecond line\r\n';
@@ -47,6 +47,7 @@ test('snapshots the agreed prompt and prints the frozen execution command', asyn
   assert.equal(await fs.readFile(frozenPrompt, 'utf8'), promptContent);
   assert.match(result.stdout, /Frozen prompt: docs\/agent-runs\/example-run\/prompt\.md/);
   assert.match(result.stdout, /Report path: docs\/agent-runs\/example-run\/report\.md/);
+  assert.match(result.stdout, /Suggested Codex command using the frozen prompt:/);
   assert.match(result.stdout, /codex exec -C/);
   assert.match(result.stdout, /prompt\.md/);
 
