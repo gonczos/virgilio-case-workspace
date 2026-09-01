@@ -66,6 +66,33 @@ function resolveArtifactDir(workspaceRoot, representation) {
   return resolvedPath;
 }
 
+export function resolveRepresentationArtifactDir(workspaceRoot, representation) {
+  return resolveArtifactDir(workspaceRoot, representation);
+}
+
+async function listFilesRecursive(dirPath, currentRelPath = "") {
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const sorted = [...entries].sort((left, right) => left.name.localeCompare(right.name, "en"));
+  const files = [];
+  for (const entry of sorted) {
+    const nextRelPath = currentRelPath ? path.join(currentRelPath, entry.name) : entry.name;
+    const absPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await listFilesRecursive(absPath, nextRelPath)));
+      continue;
+    }
+    if (!entry.isFile()) {
+      continue;
+    }
+    const stats = await fs.stat(absPath);
+    files.push({
+      relativePath: nextRelPath.replace(/\\/gu, "/"),
+      sizeBytes: Number(stats.size),
+    });
+  }
+  return files;
+}
+
 async function assertReadableFile(filePath, representationId, format) {
   try {
     await fs.access(filePath);
@@ -117,4 +144,9 @@ export async function readRepresentationArtifact(workspaceRoot, representation, 
     contentType: format === "markdown" ? "text/markdown; charset=utf-8" : "text/plain; charset=utf-8",
     body: await fs.readFile(artifactPath, "utf8"),
   };
+}
+
+export async function listRepresentationArtifactFiles(workspaceRoot, representation) {
+  const artifactDir = resolveArtifactDir(workspaceRoot, representation);
+  return listFilesRecursive(artifactDir);
 }

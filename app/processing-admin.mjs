@@ -7,6 +7,7 @@ import {
   assertProcessingSchema,
   withClient,
 } from "./processing-common.mjs";
+import { exportPortableBinaryPackage } from "./portable-export.mjs";
 import {
   clearSelectionOverride,
   countProcessingState,
@@ -130,6 +131,24 @@ async function handleCreateHuman(client, flags) {
   console.log(JSON.stringify(representation, null, 2));
 }
 
+async function handleExportBinary(client, flags) {
+  const sha = requireFlag(flags, "sha");
+  const outputDir = requireFlag(flags, "output");
+  const result = await exportPortableBinaryPackage(client, {
+    sha256: sha,
+    outputDir,
+  });
+  console.log(JSON.stringify({
+    sha256: result.manifest.persisted.file_binary.sha256,
+    file_binary_id: result.manifest.persisted.file_binary.id,
+    output_dir: result.outputDir,
+    package_format: result.manifest.package_format,
+    package_version: result.manifest.package_version,
+    representation_count: result.manifest.persisted.document_representations.length,
+    processing_job_count: result.manifest.persisted.processing_jobs.length,
+  }, null, 2));
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   if (!command) {
@@ -161,6 +180,9 @@ async function main() {
         break;
       case "create-human-representation":
         await handleCreateHuman(client, flags);
+        break;
+      case "export-binary":
+        await handleExportBinary(client, flags);
         break;
       case "list-purposes":
         console.log(JSON.stringify({
