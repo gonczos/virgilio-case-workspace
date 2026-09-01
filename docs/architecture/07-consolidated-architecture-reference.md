@@ -116,16 +116,33 @@ This is where imported official structures and broader case-work structures coex
 
 ### 3. Stored-file processing
 
-This layer starts from stored binaries and produces normalized content and downstream derived artifacts.
+This layer starts from stored binaries and produces both evidence-preserving extraction artifacts and downstream interpreted/derived artifacts.
 
 Examples:
 
 - `file_binary`
+- PDF evidence artifacts such as literal-text, signature-metadata, structure-inventory, and OCR-text channels
 - `document_representation`
 - `document_segment`
-- processing jobs/results
+- processing jobs
 
 This layer must be format-agnostic at the orchestration level.
+It must also preserve the distinction between:
+
+- evidence extraction:
+  - what information-bearing channels can be recovered directly from the immutable binary
+- interpretation:
+  - how humans or downstream systems should read and use the document
+
+Docling and Xberg belong to the interpretation side of this layer.
+They are useful machine interpretations, but they are not the authoritative evidence boundary for PDFs.
+
+Processing philosophy for PDFs:
+
+- preserve what is actually present in the immutable binary before preferring any one reading of it
+- keep evidence channels attributable and distinct rather than silently merging them
+- treat omission by one extractor as a tool limitation, not proof of absence from the source document
+- let downstream consultation, search, and AI build on explicit provenance instead of hidden extractor assumptions
 
 ## Source Capture Is Not The Same Thing As Import Execution
 
@@ -691,15 +708,40 @@ Purpose:
 
 - introduce format-agnostic processing orchestration
 - keep processing separate from acquisition and canonical interpretation
-- prepare common downstream infrastructure for extraction, normalization, and later retrieval
+- prepare common downstream infrastructure for evidence extraction, interpretation, normalization, and later retrieval
 
 Implement in this phase:
 
 - `processing_job`
-- `processing_result`
 - `document_representation`
 - `document_segment`
 - typed processing targets with FK integrity and a one-target CHECK rule
+
+Completed Phase C repository outcome now includes:
+
+- C1:
+  - processing-core schema
+- C2:
+  - multi-engine PDF interpretation evaluation with Docling and Xberg
+- C3:
+  - durable asynchronous processing, representation comparison, and effective selection
+- C3.1:
+  - `BinaryStore` / `LocalBinaryStore` for processing consumers
+- C3.2:
+  - original-binary serving through the same `BinaryStore` boundary
+- C5.3.1:
+  - first bounded PDF evidence-artifact slice parallel to interpretation:
+    - literal PDF text
+    - signature metadata
+    - compact structure inventory
+    - conditional OCR text
+
+Important processing conclusion:
+
+- the immutable `file_binary` remains the evidence source
+- PDF evidence extraction and PDF interpretation are related but distinct
+- no single extractor should be treated as universally authoritative for what exists in a PDF
+- completeness, traceability, and reproducibility come before prettiness or downstream convenience
 
 ### Later phases after the completed processing foundation
 
@@ -708,6 +750,7 @@ The original "first concrete PDF processing plus existing corpus backlog" plan h
 The next roadmap focus is:
 
 - Phase C4 thin corpus consultation MVP
+- Phase C5 narrow PDF evidence-boundary refinement and rollout validation
 - Phase D search and retrieval foundation over selected `document_representation` inputs
 - Phase E incremental semantic enrichment with explicit provenance
 - Phase F richer review and knowledge-workspace capabilities

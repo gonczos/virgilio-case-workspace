@@ -2497,7 +2497,35 @@ Phase C4 is complete when:
 
 Turn selected document representations into a searchable, provenance-aware corpus suitable for later AI retrieval and downstream enrichment.
 
-This phase no longer introduces the first real PDF processor. Extraction, multiple representations, asynchronous execution, comparison, and selection already exist from Phases C2-C3.2.
+This phase no longer introduces the first real PDF processor.
+Extraction, multiple representations, asynchronous execution, comparison, and selection already exist from Phases C2-C3.2.
+The repository also now has a first explicit PDF evidence-preservation slice from Phase C5.3.1.
+
+The PDF-side stack is therefore now conceptually:
+
+```text
+immutable file_binary PDF
+    ->
+PDF evidence artifacts
+    ->
+interpreted document representations
+    ->
+search / retrieval / AI-oriented derived projections
+```
+
+Important boundary:
+
+- the original `file_binary` remains the evidence source
+- PDF evidence artifacts preserve recoverable binary-level channels without forcing them into one reading-order model
+- Docling/Xberg remain interpretation engines rather than the universal PDF evidence boundary
+- search, retrieval, and AI-serving should build on this distinction rather than silently flattening it away
+
+Working philosophy behind this boundary:
+
+- preserve evidence before preferring interpretation
+- keep distinct PDF channels separately attributable rather than collapsing them into one "best text"
+- treat extractor disagreement as useful information about uncertainty or channel differences
+- optimize later convenience layers around traceable artifacts, not around silent loss of source evidence
 
 ### D1 Search Derivation And Lineage Model
 
@@ -2538,6 +2566,13 @@ Prefer structure-aware chunking where available rather than arbitrary fixed-widt
 - page
 - ordinal
 - heading/context
+
+Search-ready derivation should not assume that every useful PDF fact originates in the same artifact class.
+For example:
+
+- readable consultation text may come from an interpreted representation
+- signature facts may remain most defensibly queryable from dedicated evidence artifacts
+- OCR evidence may remain distinct from native PDF text even when later search projections combine them deliberately
 
 ### D3 Lexical Retrieval
 
@@ -2679,9 +2714,13 @@ Completed:
 Next recommended sequence:
 
 11. Phase C4 thin corpus consultation MVP over the existing canonical, processing, and representation state
-12. Phase D search and retrieval foundation built from selected `document_representation` inputs with explicit lineage and rebuildable derived projections
-13. Phase E incremental semantic enrichment that works with the already indexed corpus rather than replacing it
-14. Phase F richer review and knowledge-workspace capabilities after consultation, retrieval, and semantic derivation are in place
+12. Phase C5.2 preservation-oriented interpretation artifact update for Docling/Xberg readable outputs
+13. Phase C5.3 investigation establishing that PDF evidence extraction is a distinct boundary below interpretation
+14. Phase C5.3.1 first bounded PDF evidence-artifact implementation slice
+15. Phase C5.3.2 targeted rollout and implementation validation of the new PDF evidence artifacts
+16. Phase D search and retrieval foundation built from selected `document_representation` inputs with explicit lineage and rebuildable derived projections
+17. Phase E incremental semantic enrichment that works with the already indexed corpus rather than replacing it
+18. Phase F richer review and knowledge-workspace capabilities after consultation, retrieval, and semantic derivation are in place
 
 ## Proposed Migration / File Boundaries
 
@@ -3065,3 +3104,32 @@ Intentional current limits:
 - no embedded-file extraction beyond structure-inventory indicators
 - no revision-chain persistence
 - no blended search text or semantic/legal extraction
+
+## Phase C5.3.2 Direction
+
+The next PDF-evidence step should be framed narrowly as:
+
+- targeted rollout and implementation validation
+
+It should not be framed as a second broad investigation into whether the newly surfaced evidence channels matter.
+That question is already answered strongly enough by the completed C5.3 investigation and the C5.3.1 implementation checks.
+
+The purpose of the next bounded step is instead to validate the implemented boundary across representative real PDFs and determine where the first implementation policy is insufficient.
+
+Core questions for that next step:
+
+1. Does the C5.3.1 implementation produce the intended artifacts reliably across representative PDF classes?
+2. Are artifact semantics and provenance correct in practice?
+3. How often does `pdf_literal_text` materially add evidence beyond current interpretation artifacts?
+4. Does the current OCR gating policy behave correctly on:
+   - `image_only_pdf`
+   - `mostly_image_pdf`
+5. Are signature and structure inventories accurate across:
+   - ordinary PDFs
+   - signed PDFs
+   - multi-signature PDFs
+   - unusual/problematic PDFs
+6. Are there concrete failure modes that justify correcting C5.3.1 before broader rollout?
+7. Which deferred evidence channel, if any, is now the next highest-value implementation target?
+
+Minimal CLI/inspection support is reasonable in that step, but it should remain validation tooling rather than consultation UX or search consumption.
