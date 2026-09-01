@@ -18,6 +18,105 @@ Track what still needs to be defined or implemented so Virgilio can move
 from the current repository-grounded local setup to a more reproducible
 installation and portability story.
 
+## Current Versus Target Deployment Direction
+
+Current verified development/runtime behavior remains the hybrid
+host-plus-Docker setup documented in `docs/SETUP.md`.
+
+That means today:
+
+* Docker Compose runs PostgreSQL, Directus, and the binary gateway;
+* local host Node.js runs the importer, consultation API, and UI dev
+  server;
+* local host Python and CLI tools run processing.
+
+This document does not redefine that as already portable.
+
+The preferred portability direction to evaluate is a Docker-first
+deployment target in which the host provides primarily:
+
+* Docker Desktop or Docker Engine with Compose;
+* sufficient CPU, RAM, and disk;
+* persistent storage directories or volumes;
+* a small documented environment/configuration surface.
+
+Developer mode may still remain hybrid where convenient even if a
+Docker-first deployment target becomes the preferred portability path.
+
+## Deployment Strategies To Compare
+
+### A. Host-Managed Installation
+
+The host installs and manages:
+
+* Node.js;
+* Python;
+* Docling;
+* Xberg;
+* `pdftotext`;
+* `pdfinfo`;
+* `qpdf`;
+* OCR/model dependencies;
+* model caches;
+* runtime environment/configuration.
+
+This is close to the current processing/developer setup shape.
+
+### B. Docker-First Portable Deployment
+
+Conceptual target to evaluate:
+
+```text
+docker compose
+├─ postgres
+├─ directus
+├─ binary gateway
+├─ consultation API
+├─ UI
+├─ importer/runtime tooling as appropriate
+└─ processing worker
+   ├─ pdftotext
+   ├─ pdfinfo
+   ├─ qpdf
+   ├─ Xberg
+   ├─ Python
+   ├─ Docling
+   └─ OCR dependencies
+```
+
+This is a deployment-direction sketch only.
+
+It does not imply:
+
+* one container per processor;
+* a processor-specific container architecture;
+* Redis, RabbitMQ, or external queues;
+* Kubernetes or distributed worker orchestration.
+
+The existing processing registry and job architecture should remain
+responsible for processor selection and execution policy unless a later
+task deliberately changes that design.
+
+## Docker-First Constraints
+
+Dockerization is deployment infrastructure. It must not leak into the
+canonical evidence or provenance model.
+
+Canonical or provenance semantics must not depend on:
+
+* Docker container IDs;
+* Docker service names;
+* container-specific absolute paths;
+* machine-specific mount paths.
+
+Application/runtime code should continue to rely on storage and
+processing abstractions such as:
+
+* `BinaryStore`;
+* logical storage locators;
+* immutable representation identities;
+* persisted processing jobs.
+
 ## Future Goal Areas
 
 ### 1. Clean Windows Setup
@@ -154,7 +253,14 @@ Still unresolved:
   migrated across machines;
 * how to package or relocate canonical binaries safely;
 * whether later setup should support configurable storage roots;
-* when or whether artifact storage should receive its own abstraction.
+* when or whether artifact storage should receive its own abstraction;
+* how a Docker-first deployment would mount and preserve:
+  * PostgreSQL data
+  * canonical imported binaries
+  * derived processing artifacts
+  * processor/model caches where persistence is required
+
+The design must preserve restart and redeployment safety.
 
 This phase does not change the current `storage_package_id` +
 `storage_rel_path` model.
@@ -175,6 +281,13 @@ normal application startup should remain distinct from expensive corpus
 processing. Starting Virgilio should not implicitly start a large Docling
 or OCR backlog.
 
+This distinction must remain possible under any Docker-first deployment
+shape, including the current separation between:
+
+* cheap evidence extraction;
+* moderate interpretation;
+* heavy Docling/OCR work.
+
 ### 11. Setup Documentation Verification
 
 Still needed:
@@ -184,6 +297,30 @@ Still needed:
   only repository inspection and current local usage;
 * refine the boundary between stable instructions and unresolved
   portability work.
+
+### 12. Docker-First Portability Acceptance Target
+
+Future acceptance target to evaluate:
+
+```text
+clean supported Windows machine
+  -> install Docker Desktop
+  -> obtain Virgilio
+  -> configure documented host-level settings
+  -> create/mount persistent storage
+  -> docker compose up
+  -> bootstrap an empty instance
+  -> open the UI
+  -> ingest a real PDF
+  -> run baseline cheap evidence processors
+  -> run Xberg/Docling/OCR
+  -> inspect original and derived content
+  -> restart the stack
+  -> verify database, binaries and derived artifacts remain coherent
+```
+
+This is a future portability criterion, not a claim that the repository
+already supports that workflow today.
 
 ## Standing Documentation Policy
 
