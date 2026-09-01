@@ -11,15 +11,30 @@ import {
   PYTHON_PATH,
   slugify,
 } from "./processing-common.mjs";
+import {
+  extractPdfLiteralTextArtifact,
+  extractPdfSignatureMetadataArtifact,
+  extractPdfStructureInventoryArtifact,
+  readArtifactJson,
+} from "./pdf-evidence.mjs";
 
 export const EXTRACT_STAGE_KEY = "EXTRACT_STRUCTURE";
 export const HUMAN_STAGE_KEY = "HUMAN_CREATE_REPRESENTATION";
 export const DEFAULT_REPRESENTATION_KIND = "extracted_document_bundle";
+export const PDF_LITERAL_TEXT_REPRESENTATION_KIND = "pdf_literal_text";
+export const PDF_SIGNATURE_METADATA_REPRESENTATION_KIND = "pdf_signature_metadata";
+export const PDF_STRUCTURE_INVENTORY_REPRESENTATION_KIND = "pdf_structure_inventory";
+export const PDF_OCR_TEXT_REPRESENTATION_KIND = "pdf_ocr_text";
 export const DOCLING_PROFILE_KEY = "docling-preserve-furniture-v2";
 export const XBERG_PROFILE_KEY = "xberg-preserve-furniture-v2";
 export const PLAIN_TEXT_PROFILE_KEY = "plain-text-default-v1";
+export const PDF_OCR_EVIDENCE_PROFILE_KEY = "docling-ocr-evidence-v1";
 export const DOCLING_PROCESSOR_VERSION = "2.123.1-c5.2";
 export const XBERG_PROCESSOR_VERSION = "1.0.14-c5.2";
+export const PDF_LITERAL_TEXT_PROCESSOR_VERSION = "poppler-layout-v1-c5.3.1";
+export const PDF_SIGNATURE_METADATA_PROCESSOR_VERSION = "qpdf-signature-v1-c5.3.1";
+export const PDF_STRUCTURE_INVENTORY_PROCESSOR_VERSION = "qpdf-structure-v1-c5.3.1";
+export const PDF_OCR_TEXT_PROCESSOR_VERSION = "docling-force-ocr-v1-c5.3.1";
 
 function determineOcrMode(binaryRow) {
   if (binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt") {
@@ -29,6 +44,18 @@ function determineOcrMode(binaryRow) {
     return "never";
   }
   return "force";
+}
+
+function isPdfBinary(binaryRow) {
+  return binaryRow.mime_type === "application/pdf" || binaryRow.file_extension === ".pdf";
+}
+
+function shouldRunPdfOcrEvidence(binaryRow) {
+  return isPdfBinary(binaryRow)
+    && (
+      binaryRow.machine_readability_status === "image_only_pdf"
+      || binaryRow.machine_readability_status === "mostly_image_pdf"
+    );
 }
 
 async function runExtractor({
@@ -169,33 +196,40 @@ function buildSingleSegment(textContent, extraction) {
   ];
 }
 
-function createPythonProcessor({ key, version, profileKey, formatFamily }) {
+function createPythonProcessor({
+  key,
+  version,
+  profileKey,
+  formatFamily,
+  representationKind = DEFAULT_REPRESENTATION_KIND,
+  engine = null,
+  determineOcrModeForBinary = determineOcrMode,
+  selectTextArtifact = (extraction) => extraction.text_artifact ?? null,
+  supportsBinary,
+}) {
   return {
     key,
     version,
     profileKey,
-    representationKind: DEFAULT_REPRESENTATION_KIND,
+    representationKind,
     formatFamily,
-    supportsBinary(binaryRow) {
-      if (key === "plain_text_passthrough") {
-        return binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt";
-      }
-      const isPdf = binaryRow.mime_type === "application/pdf" || binaryRow.file_extension === ".pdf";
-      return isPdf;
-    },
+    supportsBinary,
     async execute({ workspaceRoot, binaryRow, materializedBinary, tempArtifactDir, outputRoot }) {
       if (!materializedBinary?.localPath) {
         throw new Error(`Processor ${key} did not receive a local materialized binary path`);
       }
       const extraction = await runExtractor({
         workspaceRoot,
-        engine: key === "plain_text_passthrough" ? "plain_text" : key,
+        engine: engine ?? (key === "plain_text_passthrough" ? "plain_text" : key),
         inputPath: materializedBinary.localPath,
         artifactDir: tempArtifactDir,
         profileKey,
-        ocrMode: determineOcrMode(binaryRow),
+        ocrMode: determineOcrModeForBinary(binaryRow),
       });
-      const textContent = await fs.readFile(path.join(tempArtifactDir, extraction.text_artifact), "utf8");
+      const selectedTextArtifact = selectTextArtifact(extraction);
+      const textContent = selectedTextArtifact
+        ? await fs.readFile(path.join(tempArtifactDir, selectedTextArtifact), "utf8")
+        : "";
       const markdownContent = extraction.markdown_artifact
         ? await fs.readFile(path.join(tempArtifactDir, extraction.markdown_artifact), "utf8")
         : "";
@@ -210,36 +244,140 @@ function createPythonProcessor({ key, version, profileKey, formatFamily }) {
       return {
         processorKey: key,
         processorVersion: version,
-        representationKind: DEFAULT_REPRESENTATION_KIND,
+        representationKind,
         formatFamily,
         artifactRelPath: path.relative(workspaceRootResolved, outputDir).replace(/\\/gu, "/"),
         metadataJson: buildMachineMetadata(binaryRow, extraction),
         contentJson: buildMachineContent(textContent, markdownContent, extraction),
-        segments: buildSingleSegment(textContent, extraction),
+        segments: selectedTextArtifact ? buildSingleSegment(textContent, {
+          ...extraction,
+          text_artifact: selectedTextArtifact,
+        }) : [],
         summary: extraction.summary,
       };
     },
   };
 }
 
+function createPdfEvidenceProcessor({
+  key,
+  version,
+  representationKind,
+  executeEvidence,
+}) {
+  return {
+    key,
+    version,
+    profileKey: version,
+    representationKind,
+    formatFamily: "pdf",
+    supportsBinary(binaryRow) {
+      return isPdfBinary(binaryRow);
+    },
+    async execute({ workspaceRoot, binaryRow, materializedBinary, tempArtifactDir, outputRoot }) {
+      if (!materializedBinary?.localPath) {
+        throw new Error(`Processor ${key} did not receive a local materialized binary path`);
+      }
+      await executeEvidence({
+        workspaceRoot,
+        inputPath: materializedBinary.localPath,
+        artifactDir: tempArtifactDir,
+        binaryRow,
+      });
+      const nativeArtifact = await readArtifactJson(tempArtifactDir);
+      const hasTextArtifact = nativeArtifact.artifact_kind === "pdf-literal-text";
+      const textContent = hasTextArtifact
+        ? await fs.readFile(path.join(tempArtifactDir, "text.txt"), "utf8")
+        : "";
+      const outputDir = path.join(outputRoot, slugify(key), version, binaryRow.sha256);
+      await finalizeArtifactDir(outputDir, tempArtifactDir);
+      const workspaceRootResolved = workspaceRoot || getWorkspaceRoot();
+      return {
+        processorKey: key,
+        processorVersion: version,
+        representationKind,
+        formatFamily: "pdf",
+        artifactRelPath: path.relative(workspaceRootResolved, outputDir).replace(/\\/gu, "/"),
+        metadataJson: {
+          artifact_kind: nativeArtifact.artifact_kind,
+          source_binary: nativeArtifact.source_binary,
+          extractor: nativeArtifact.extractor ?? null,
+          extractors: nativeArtifact.extractors ?? null,
+        },
+        contentJson: hasTextArtifact
+          ? { text_length: textContent.length }
+          : {
+              signature_count: nativeArtifact.signatures?.length ?? null,
+              channels_present: Object.fromEntries(
+                Object.entries(nativeArtifact.channels ?? {}).map(([name, value]) => [name, value?.status ?? null]),
+              ),
+            },
+        segments: hasTextArtifact
+          ? buildSingleSegment(textContent, {
+            text_artifact: "text.txt",
+            profile_key: version,
+            ocr_mode: "never",
+          })
+          : [],
+        summary: nativeArtifact,
+      };
+    },
+  };
+}
+
 const BUILTIN_PROCESSORS = [
+  createPdfEvidenceProcessor({
+    key: "pdf_literal_text",
+    version: PDF_LITERAL_TEXT_PROCESSOR_VERSION,
+    representationKind: PDF_LITERAL_TEXT_REPRESENTATION_KIND,
+    executeEvidence: extractPdfLiteralTextArtifact,
+  }),
+  createPdfEvidenceProcessor({
+    key: "pdf_signature_metadata",
+    version: PDF_SIGNATURE_METADATA_PROCESSOR_VERSION,
+    representationKind: PDF_SIGNATURE_METADATA_REPRESENTATION_KIND,
+    executeEvidence: extractPdfSignatureMetadataArtifact,
+  }),
+  createPdfEvidenceProcessor({
+    key: "pdf_structure_inventory",
+    version: PDF_STRUCTURE_INVENTORY_PROCESSOR_VERSION,
+    representationKind: PDF_STRUCTURE_INVENTORY_REPRESENTATION_KIND,
+    executeEvidence: extractPdfStructureInventoryArtifact,
+  }),
   createPythonProcessor({
     key: "docling",
     version: DOCLING_PROCESSOR_VERSION,
     profileKey: DOCLING_PROFILE_KEY,
     formatFamily: "pdf",
+    supportsBinary: isPdfBinary,
   }),
   createPythonProcessor({
     key: "xberg",
     version: XBERG_PROCESSOR_VERSION,
     profileKey: XBERG_PROFILE_KEY,
     formatFamily: "pdf",
+    supportsBinary: isPdfBinary,
+  }),
+  createPythonProcessor({
+    key: "pdf_ocr_text",
+    version: PDF_OCR_TEXT_PROCESSOR_VERSION,
+    profileKey: PDF_OCR_EVIDENCE_PROFILE_KEY,
+    formatFamily: "pdf",
+    representationKind: PDF_OCR_TEXT_REPRESENTATION_KIND,
+    engine: "docling_ocr_evidence",
+    determineOcrModeForBinary() {
+      return "force";
+    },
+    supportsBinary: shouldRunPdfOcrEvidence,
   }),
   createPythonProcessor({
     key: "plain_text_passthrough",
     version: "builtin-v1",
     profileKey: PLAIN_TEXT_PROFILE_KEY,
     formatFamily: "text",
+    supportsBinary(binaryRow) {
+      return binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt";
+    },
   }),
 ];
 

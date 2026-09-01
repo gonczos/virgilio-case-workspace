@@ -14,6 +14,9 @@ import {
   resolveEffectiveRepresentationState,
 } from "./processing-store.mjs";
 import {
+  DEFAULT_REPRESENTATION_KIND,
+} from "./processing-registry.mjs";
+import {
   hasRepresentationArtifactFormat,
   readRepresentationArtifact,
 } from "./representation-artifacts.mjs";
@@ -144,10 +147,11 @@ async function listBinaryRepresentationRows(client, fileBinaryIds) {
       LEFT JOIN casework.document_segment AS ds
         ON ds.document_representation_id = dr.id
       WHERE dr.file_binary_id = ANY($1::bigint[])
+        AND dr.representation_kind = $2
       GROUP BY dr.id, pj.status
       ORDER BY dr.file_binary_id ASC, dr.created_at ASC, dr.id ASC
     `,
-    [fileBinaryIds],
+    [fileBinaryIds, DEFAULT_REPRESENTATION_KIND],
   );
   return result.rows;
 }
@@ -635,7 +639,9 @@ export async function getConsultationBinaryDetail(client, sha256, {
 }
 
 async function inspectDetailState(client, fileBinaryId, workspaceRoot) {
-  const representations = await listRepresentationsForBinary(client, fileBinaryId);
+  const representations = await listRepresentationsForBinary(client, fileBinaryId, {
+    representationKinds: [DEFAULT_REPRESENTATION_KIND],
+  });
   const selection = await resolveEffectiveRepresentation(client, { fileBinaryId });
   const comparisons = await listComparisonsForBinary(client, fileBinaryId);
   const attention = await deriveRepresentationAttention(client, fileBinaryId);

@@ -3003,3 +3003,65 @@ Validation outcome:
 - consultation/UI format handling remained compatible while allowing explicit `complete-text` access
 - real-document checks confirmed previously de-emphasized header/footer reference data was preserved in the new artifacts
 - no schema changes, importer changes, storage redesign, or `pdftotext` productionization were included
+
+## Phase C5.3.1 Implementation Result
+
+Implemented on 2026-09-01: the first bounded PDF evidence-artifact slice parallel to the existing Docling/Xberg interpretation path.
+
+Implemented slice:
+
+1. add machine-generated PDF evidence representations with distinct `representation_kind` values:
+   - `pdf_literal_text`
+   - `pdf_signature_metadata`
+   - `pdf_structure_inventory`
+   - `pdf_ocr_text`
+2. add a narrow Windows-local PDF evidence extraction helper around:
+   - `pdftotext`
+   - `pdfinfo`
+   - `qpdf`
+3. keep OCR evidence as a distinct Docling-based processor/profile rather than folding it into native PDF text
+4. keep consultation selection/comparison restricted to the existing readable `extracted_document_bundle` kind so evidence artifacts do not become the default consultation interpretation
+5. preserve the existing processing execution model, worker boundary, canonical schema, importer behavior, and representation-content API contract
+
+Artifact semantics implemented:
+
+- `pdf_literal_text`
+  - preserves low-level literal PDF text via `pdftotext -layout`
+  - is not authoritative reading order or semantic structure
+  - an empty result means the selected literal-text extractor produced no text under that profile, not that the PDF contains no text in any channel
+- `pdf_signature_metadata`
+  - preserves signature-field and signature-dictionary facts such as field identity, populated state, `/ByteRange`, `/M`, signer name, reason, location/contact fields where present
+  - does not imply cryptographic validation, trust-chain validation, revocation checking, or legal validity
+  - certificate metadata remains explicitly best-effort and is currently left `unknown` under the Windows-local first slice
+- `pdf_structure_inventory`
+  - preserves a compact tri-state channel inventory for native text, page-raster content, annotations, widgets/AcroForm, signature fields/dictionaries, and embedded-file indicators
+  - distinguishes `present`, `absent`, and `unknown` rather than collapsing non-inspection into `false`
+- `pdf_ocr_text`
+  - preserves OCR-derived page-visible text separately from native PDF text
+  - is currently limited to the existing readability classes:
+    - `image_only_pdf`
+    - `mostly_image_pdf`
+  - does not introduce a new generalized text-strength heuristic
+
+Validation outcome:
+
+- the signed regression PDF `6836f8732aae33a3bc79491748134bd2a77a7b48aeaa2cd7c66647ff1f468f1c` now preserves:
+  - visible signature appearance text through `pdf_literal_text`
+  - separate structural signature facts through `pdf_signature_metadata`
+  - explicit channel presence through `pdf_structure_inventory`
+- the native-text PDF `00445e909e62504134764a6c333277a3b90d1346a9da17f7c0de2529dbbe277e` produced a narrow literal-text artifact and a structure inventory that correctly reported no forms or signatures
+- the image-heavy PDF `02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e` preserved:
+  - minimal native literal text
+  - image-heavy structure inventory
+  - a distinct OCR artifact with substantial rendered-page text
+- existing Docling/Xberg interpretation identities and artifacts remained unchanged
+- consultation/API regression tests remained green after filtering evidence kinds out of default consultation selection
+- no schema changes, bootstrap changes, importer changes, canonical-row changes, or full-corpus rollout were included
+
+Intentional current limits:
+
+- no certificate trust-chain or revocation validation
+- no generalized annotation-content persistence
+- no embedded-file extraction beyond structure-inventory indicators
+- no revision-chain persistence
+- no blended search text or semantic/legal extraction

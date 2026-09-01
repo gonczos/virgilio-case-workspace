@@ -89,7 +89,15 @@ export async function getBinaryRowById(client, id) {
   return result.rows[0];
 }
 
-export async function listRepresentationsForBinary(client, fileBinaryId) {
+export async function listRepresentationsForBinary(client, fileBinaryId, {
+  representationKinds = null,
+} = {}) {
+  const values = [fileBinaryId];
+  let kindsClause = "";
+  if (Array.isArray(representationKinds) && representationKinds.length > 0) {
+    values.push(representationKinds);
+    kindsClause = "AND dr.representation_kind = ANY($2::text[])";
+  }
   const result = await client.query(
     `
       SELECT
@@ -105,10 +113,11 @@ export async function listRepresentationsForBinary(client, fileBinaryId) {
       LEFT JOIN casework.document_segment AS ds
         ON ds.document_representation_id = dr.id
       WHERE dr.file_binary_id = $1
+        ${kindsClause}
       GROUP BY dr.id, pj.status, pj.stage_key, pj.requested_by, pj.completed_at
       ORDER BY dr.created_at ASC, dr.id ASC
     `,
-    [fileBinaryId],
+    values,
   );
   return result.rows;
 }
@@ -220,7 +229,9 @@ export async function resolveEffectiveRepresentation(client, {
   purpose = DEFAULT_SELECTION_PURPOSE,
 }) {
   const explicitSelection = await getSelectionOverride(client, { fileBinaryId, purpose });
-  const representations = await listRepresentationsForBinary(client, fileBinaryId);
+  const representations = await listRepresentationsForBinary(client, fileBinaryId, {
+    representationKinds: [DEFAULT_REPRESENTATION_KIND],
+  });
   return resolveEffectiveRepresentationState({
     representations,
     explicitSelection,
@@ -688,6 +699,9 @@ async function insertRepresentationArtifacts(client, jobRow, executionResult) {
 }
 
 async function ensureComparisonsForRepresentation(client, representation) {
+  if (representation.representation_kind !== DEFAULT_REPRESENTATION_KIND) {
+    return;
+  }
   const others = await client.query(
     `
       SELECT id, processor_key

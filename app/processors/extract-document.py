@@ -122,6 +122,53 @@ def run_docling(input_path: Path, artifact_dir: Path, profile_key: str, ocr_mode
     }
 
 
+def run_docling_ocr_evidence(input_path: Path, artifact_dir: Path, profile_key: str):
+    converter = build_docling_converter("force")
+    result = converter.convert(str(input_path))
+    document = result.document
+    complete_layers = {ContentLayer.BODY, ContentLayer.FURNITURE}
+    text_content = document.export_to_text(included_content_layers=complete_layers) or ""
+    native_document = document.export_to_dict()
+    write_text(artifact_dir / "text.txt", text_content)
+    write_json(
+        artifact_dir / "native.json",
+        {
+            "artifact_kind": "ocr-text",
+            "channel": "rendered_page_ocr_text",
+            "profile_key": profile_key,
+            "tool": "docling",
+            "tool_version": docling.__version__,
+            "ocr_mode": "force",
+            "content_layers": ["BODY", "FURNITURE"],
+            "page_count": len(native_document.get("pages", {}) or {}),
+            "text_length": len(text_content),
+            "native_root_keys": list(native_document.keys()),
+        },
+    )
+    return {
+        "processor_key": "pdf_ocr_text",
+        "processor_version": docling.__version__,
+        "profile_key": profile_key,
+        "format_family": "pdf",
+        "ocr_mode": "force",
+        "native_artifact": "native.json",
+        "artifact_files": ["native.json", "text.txt"],
+        "text_artifact": "text.txt",
+        "markdown_artifact": None,
+        "summary": {
+            "page_count": len(native_document.get("pages", {}) or {}),
+            "table_count": 0,
+            "text_length": len(text_content),
+            "markdown_length": 0,
+            "ocr_element_count": None,
+        },
+        "native_summary": {
+            "origin": native_document.get("origin"),
+            "pages": list((native_document.get("pages", {}) or {}).keys())[:20],
+        },
+    }
+
+
 def build_xberg_config(ocr_mode: str):
     config = {
         "include_document_structure": True,
@@ -238,7 +285,7 @@ def run_plain_text(input_path: Path, artifact_dir: Path, profile_key: str):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--engine", choices=["docling", "xberg", "plain_text"], required=True)
+    parser.add_argument("--engine", choices=["docling", "docling_ocr_evidence", "xberg", "plain_text"], required=True)
     parser.add_argument("--input-path", required=True)
     parser.add_argument("--artifact-dir", required=True)
     parser.add_argument("--profile-key", required=True)
@@ -253,6 +300,8 @@ def main():
     try:
         if args.engine == "docling":
             payload = run_docling(input_path, artifact_dir, args.profile_key, args.ocr_mode)
+        elif args.engine == "docling_ocr_evidence":
+            payload = run_docling_ocr_evidence(input_path, artifact_dir, args.profile_key)
         elif args.engine == "xberg":
             payload = run_xberg(input_path, artifact_dir, args.profile_key, args.ocr_mode)
         else:

@@ -172,7 +172,7 @@ async function insertRepresentation(client, {
   return representation;
 }
 
-test("determineProcessingPolicy selects both PDF engines and plain-text passthrough only for text files", async () => {
+test("determineProcessingPolicy selects PDF evidence plus interpretation processors and plain-text passthrough only for text files", async () => {
   const pdf = determineProcessingPolicy({
     mime_type: "application/pdf",
     file_extension: ".pdf",
@@ -183,7 +183,7 @@ test("determineProcessingPolicy selects both PDF engines and plain-text passthro
     file_extension: ".txt",
     machine_readability_status: null,
   }).map((item) => item.key);
-  assert.deepEqual(pdf, ["docling", "xberg"]);
+  assert.deepEqual(pdf, ["pdf_literal_text", "pdf_signature_metadata", "pdf_structure_inventory", "docling", "xberg"]);
   assert.deepEqual(text, ["plain_text_passthrough"]);
 });
 
