@@ -10,6 +10,14 @@ import {
 const DEFAULT_TIMEOUT_MS = 120000;
 const TOOL_VERSION_CACHE = new Map();
 
+function buildProcessorTimeoutError(command, args, timeoutMs) {
+  const error = new Error(`Command timed out: ${command} ${args.join(" ")}`);
+  error.code = "processor_timeout";
+  error.timeout_ms = timeoutMs;
+  error.command = command;
+  return error;
+}
+
 function firstNonEmptyLine(value) {
   return String(value ?? "")
     .split(/\r?\n/gu)
@@ -135,7 +143,7 @@ async function runCli(command, args, {
       }
       settled = true;
       child.kill("SIGTERM");
-      reject(new Error(`Command timed out: ${command} ${args.join(" ")}`));
+      reject(buildProcessorTimeoutError(command, args, timeoutMs));
     }, timeoutMs);
     child.stdout.on("data", (chunk) => stdoutChunks.push(Buffer.from(chunk)));
     child.stderr.on("data", (chunk) => stderrChunks.push(Buffer.from(chunk)));
@@ -180,7 +188,7 @@ async function getToolVersion(command, args, {
   return version;
 }
 
-async function runPdftotext(inputPath, workspaceRoot) {
+async function runPdftotext(inputPath, workspaceRoot, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   const toolVersion = await getToolVersion("pdftotext", ["-v"], {
     cwd: workspaceRoot,
     readFrom: "stderr",
@@ -188,6 +196,7 @@ async function runPdftotext(inputPath, workspaceRoot) {
   });
   const { stdout } = await runCli("pdftotext", ["-layout", "-enc", "UTF-8", inputPath, "-"], {
     cwd: workspaceRoot,
+    timeoutMs,
   });
   return {
     toolVersion,
@@ -196,22 +205,26 @@ async function runPdftotext(inputPath, workspaceRoot) {
   };
 }
 
-async function runPdfinfo(inputPath, workspaceRoot) {
+async function runPdfinfo(inputPath, workspaceRoot, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   const toolVersion = await getToolVersion("pdfinfo", ["-v"], {
     cwd: workspaceRoot,
     readFrom: "stderr",
     acceptedExitCodes: [0, 99],
   });
-  const { stdout } = await runCli("pdfinfo", [inputPath], { cwd: workspaceRoot });
+  const { stdout } = await runCli("pdfinfo", [inputPath], { cwd: workspaceRoot, timeoutMs });
   return {
     toolVersion,
     info: parsePdfInfoOutput(stdout),
   };
 }
 
-async function runQpdfJson(inputPath, workspaceRoot) {
+async function runQpdfJson(inputPath, workspaceRoot, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   const toolVersion = await getToolVersion("qpdf", ["--version"], { cwd: workspaceRoot });
-  const { stdout } = await runCli("qpdf", ["--json", inputPath], { cwd: workspaceRoot });
+  const { stdout } = await runCli("qpdf", ["--json", inputPath], {
+    cwd: workspaceRoot,
+    acceptedExitCodes: [0, 3],
+    timeoutMs,
+  });
   return {
     toolVersion,
     json: JSON.parse(stdout),
@@ -315,8 +328,9 @@ export async function extractPdfLiteralTextArtifact({
   inputPath,
   artifactDir,
   binaryRow,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
 }) {
-  const { toolVersion, text, args } = await runPdftotext(inputPath, workspaceRoot);
+  const { toolVersion, text, args } = await runPdftotext(inputPath, workspaceRoot, { timeoutMs });
   await writeText(path.join(artifactDir, "text.txt"), text);
   await writeJson(path.join(artifactDir, "native.json"), {
     artifact_kind: "pdf-literal-text",
@@ -344,11 +358,12 @@ export async function extractPdfStructureInventoryArtifact({
   inputPath,
   artifactDir,
   binaryRow,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
 }) {
   const [{ toolVersion: pdfinfoVersion, info }, { toolVersion: qpdfVersion, json }, { text: literalText, toolVersion: pdftotextVersion }] = await Promise.all([
-    runPdfinfo(inputPath, workspaceRoot),
-    runQpdfJson(inputPath, workspaceRoot),
-    runPdftotext(inputPath, workspaceRoot),
+    runPdfinfo(inputPath, workspaceRoot, { timeoutMs }),
+    runQpdfJson(inputPath, workspaceRoot, { timeoutMs }),
+    runPdftotext(inputPath, workspaceRoot, { timeoutMs }),
   ]);
   const payload = buildInventoryPayload({
     pdfInfo: info,
@@ -373,8 +388,9 @@ export async function extractPdfSignatureMetadataArtifact({
   inputPath,
   artifactDir,
   binaryRow,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
 }) {
-  const { toolVersion, json } = await runQpdfJson(inputPath, workspaceRoot);
+  const { toolVersion, json } = await runQpdfJson(inputPath, workspaceRoot, { timeoutMs });
   const objectMap = buildQpdfObjectMap(json);
   const signatures = extractSignatureRecords(json, objectMap);
   const payload = {

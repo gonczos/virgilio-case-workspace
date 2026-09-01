@@ -35,6 +35,19 @@ export const PDF_LITERAL_TEXT_PROCESSOR_VERSION = "poppler-layout-v1-c5.3.1";
 export const PDF_SIGNATURE_METADATA_PROCESSOR_VERSION = "qpdf-signature-v1-c5.3.1";
 export const PDF_STRUCTURE_INVENTORY_PROCESSOR_VERSION = "qpdf-structure-v1-c5.3.1";
 export const PDF_OCR_TEXT_PROCESSOR_VERSION = "docling-force-ocr-v1-c5.3.1";
+export const FAST_EXECUTION_CLASS = "fast";
+export const MODERATE_EXECUTION_CLASS = "moderate";
+export const HEAVY_EXECUTION_CLASS = "heavy";
+export const VERY_HEAVY_EXECUTION_CLASS = "very_heavy";
+export const SHARED_HEAVY_CONCURRENCY_GROUP = "shared_heavy_pdf_processing";
+
+function buildProcessorTimeoutError(engine, timeoutMs) {
+  const error = new Error(`Extractor ${engine} timed out after ${timeoutMs}ms`);
+  error.code = "processor_timeout";
+  error.timeout_ms = timeoutMs;
+  error.engine = engine;
+  return error;
+}
 
 function determineOcrMode(binaryRow) {
   if (binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt") {
@@ -101,7 +114,7 @@ async function runExtractor({
       }
       settled = true;
       child.kill("SIGTERM");
-      reject(new Error(`Extractor ${engine} timed out after ${timeoutMs}ms`));
+      reject(buildProcessorTimeoutError(engine, timeoutMs));
     }, timeoutMs);
     child.stdout.on("data", (chunk) => {
       stdout += chunk.toString("utf8");
@@ -205,6 +218,7 @@ function createPythonProcessor({
   engine = null,
   determineOcrModeForBinary = determineOcrMode,
   selectTextArtifact = (extraction) => extraction.text_artifact ?? null,
+  executionPolicy,
   supportsBinary,
 }) {
   return {
@@ -213,6 +227,7 @@ function createPythonProcessor({
     profileKey,
     representationKind,
     formatFamily,
+    executionPolicy,
     supportsBinary,
     async execute({ workspaceRoot, binaryRow, materializedBinary, tempArtifactDir, outputRoot }) {
       if (!materializedBinary?.localPath) {
@@ -225,6 +240,7 @@ function createPythonProcessor({
         artifactDir: tempArtifactDir,
         profileKey,
         ocrMode: determineOcrModeForBinary(binaryRow),
+        timeoutMs: executionPolicy?.timeoutMs,
       });
       const selectedTextArtifact = selectTextArtifact(extraction);
       const textContent = selectedTextArtifact
@@ -263,6 +279,7 @@ function createPdfEvidenceProcessor({
   key,
   version,
   representationKind,
+  executionPolicy,
   executeEvidence,
 }) {
   return {
@@ -271,6 +288,7 @@ function createPdfEvidenceProcessor({
     profileKey: version,
     representationKind,
     formatFamily: "pdf",
+    executionPolicy,
     supportsBinary(binaryRow) {
       return isPdfBinary(binaryRow);
     },
@@ -283,6 +301,7 @@ function createPdfEvidenceProcessor({
         inputPath: materializedBinary.localPath,
         artifactDir: tempArtifactDir,
         binaryRow,
+        timeoutMs: executionPolicy?.timeoutMs,
       });
       const nativeArtifact = await readArtifactJson(tempArtifactDir);
       const hasTextArtifact = nativeArtifact.artifact_kind === "pdf-literal-text";
@@ -330,18 +349,36 @@ const BUILTIN_PROCESSORS = [
     key: "pdf_literal_text",
     version: PDF_LITERAL_TEXT_PROCESSOR_VERSION,
     representationKind: PDF_LITERAL_TEXT_REPRESENTATION_KIND,
+    executionPolicy: {
+      executionClass: FAST_EXECUTION_CLASS,
+      claimPriority: 400,
+      timeoutMs: 120000,
+      maxAttempts: 1,
+    },
     executeEvidence: extractPdfLiteralTextArtifact,
   }),
   createPdfEvidenceProcessor({
     key: "pdf_signature_metadata",
     version: PDF_SIGNATURE_METADATA_PROCESSOR_VERSION,
     representationKind: PDF_SIGNATURE_METADATA_REPRESENTATION_KIND,
+    executionPolicy: {
+      executionClass: FAST_EXECUTION_CLASS,
+      claimPriority: 390,
+      timeoutMs: 120000,
+      maxAttempts: 1,
+    },
     executeEvidence: extractPdfSignatureMetadataArtifact,
   }),
   createPdfEvidenceProcessor({
     key: "pdf_structure_inventory",
     version: PDF_STRUCTURE_INVENTORY_PROCESSOR_VERSION,
     representationKind: PDF_STRUCTURE_INVENTORY_REPRESENTATION_KIND,
+    executionPolicy: {
+      executionClass: FAST_EXECUTION_CLASS,
+      claimPriority: 380,
+      timeoutMs: 120000,
+      maxAttempts: 1,
+    },
     executeEvidence: extractPdfStructureInventoryArtifact,
   }),
   createPythonProcessor({
@@ -349,6 +386,14 @@ const BUILTIN_PROCESSORS = [
     version: DOCLING_PROCESSOR_VERSION,
     profileKey: DOCLING_PROFILE_KEY,
     formatFamily: "pdf",
+    executionPolicy: {
+      executionClass: HEAVY_EXECUTION_CLASS,
+      claimPriority: 200,
+      timeoutMs: 2700000,
+      maxAttempts: 1,
+      concurrencyGroup: SHARED_HEAVY_CONCURRENCY_GROUP,
+      maxConcurrentInGroup: 1,
+    },
     supportsBinary: isPdfBinary,
   }),
   createPythonProcessor({
@@ -356,6 +401,12 @@ const BUILTIN_PROCESSORS = [
     version: XBERG_PROCESSOR_VERSION,
     profileKey: XBERG_PROFILE_KEY,
     formatFamily: "pdf",
+    executionPolicy: {
+      executionClass: MODERATE_EXECUTION_CLASS,
+      claimPriority: 300,
+      timeoutMs: 600000,
+      maxAttempts: 1,
+    },
     supportsBinary: isPdfBinary,
   }),
   createPythonProcessor({
@@ -365,6 +416,14 @@ const BUILTIN_PROCESSORS = [
     formatFamily: "pdf",
     representationKind: PDF_OCR_TEXT_REPRESENTATION_KIND,
     engine: "docling_ocr_evidence",
+    executionPolicy: {
+      executionClass: VERY_HEAVY_EXECUTION_CLASS,
+      claimPriority: 100,
+      timeoutMs: 2700000,
+      maxAttempts: 1,
+      concurrencyGroup: SHARED_HEAVY_CONCURRENCY_GROUP,
+      maxConcurrentInGroup: 1,
+    },
     determineOcrModeForBinary() {
       return "force";
     },
@@ -375,6 +434,12 @@ const BUILTIN_PROCESSORS = [
     version: "builtin-v1",
     profileKey: PLAIN_TEXT_PROFILE_KEY,
     formatFamily: "text",
+    executionPolicy: {
+      executionClass: FAST_EXECUTION_CLASS,
+      claimPriority: 500,
+      timeoutMs: 120000,
+      maxAttempts: 1,
+    },
     supportsBinary(binaryRow) {
       return binaryRow.mime_type === "text/plain" || binaryRow.file_extension === ".txt";
     },
@@ -391,6 +456,10 @@ export function getProcessor(processorKey, registry = BUILTIN_PROCESSORS) {
     throw new Error(`Unknown processor: ${processorKey}`);
   }
   return processor;
+}
+
+export function getProcessorExecutionPolicy(processorKey, registry = BUILTIN_PROCESSORS) {
+  return getProcessor(processorKey, registry).executionPolicy ?? {};
 }
 
 export function determineProcessingPolicy(binaryRow, registry = BUILTIN_PROCESSORS) {

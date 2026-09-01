@@ -500,6 +500,134 @@ dbTest("claimNextJob allows only one concurrent claimant for the same queued job
   });
 });
 
+dbTest("claimNextJob prioritizes cheap evidence ahead of heavy work", async () => {
+  await withClient("phase-c3-test-claim-priority", async (client) => {
+    await assertProcessingSchema(client);
+    const binary = (await client.query(
+      `
+        SELECT id
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+    )).rows[0];
+    const heavyVersion = `${DOCLING_PROCESSOR_VERSION}-claim-priority-test`;
+    const fastVersion = "poppler-layout-v1-c5.3.1-claim-priority-test";
+    const heavy = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "docling",
+      processorVersion: heavyVersion,
+      status: "queued",
+      attemptCount: 0,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    const fast = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "pdf_literal_text",
+      processorVersion: fastVersion,
+      status: "queued",
+      attemptCount: 0,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    try {
+      const claimed = await claimNextJob(client);
+      assert.equal(claimed?.id, fast.id);
+      assert.notEqual(claimed?.id, heavy.id);
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_version IN ($1, $2)
+        `,
+        [heavyVersion, fastVersion],
+      );
+    }
+  });
+});
+
+dbTest("claimNextJob enforces shared heavy concurrency between docling and pdf_ocr_text", async () => {
+  await withClient("phase-c3-test-shared-heavy", async (client) => {
+    await assertProcessingSchema(client);
+    const binary = (await client.query(
+      `
+        SELECT id
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+    )).rows[0];
+    const runningDoclingVersion = `${DOCLING_PROCESSOR_VERSION}-shared-heavy-running-test`;
+    const blockedOcrVersion = "docling-force-ocr-v1-c5.3.1-shared-heavy-test";
+    const fastVersion = "qpdf-signature-v1-c5.3.1-shared-heavy-test";
+    await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "docling",
+      processorVersion: runningDoclingVersion,
+      status: "running",
+      attemptCount: 1,
+      startedAtExpr: "NOW()",
+      completedAtExpr: "NULL",
+    });
+    const blockedHeavy = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "pdf_ocr_text",
+      processorVersion: blockedOcrVersion,
+      status: "queued",
+      attemptCount: 0,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    const fast = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "pdf_signature_metadata",
+      processorVersion: fastVersion,
+      status: "queued",
+      attemptCount: 0,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    try {
+      const claimedFast = await claimNextJob(client);
+      assert.equal(claimedFast?.id, fast.id);
+
+      await client.query(
+        `
+          UPDATE casework.processing_job
+          SET status = 'completed', completed_at = NOW()
+          WHERE id = $1
+        `,
+        [fast.id],
+      );
+
+      const noHeavyClaim = await claimNextJob(client);
+      assert.equal(noHeavyClaim, null);
+
+      await client.query(
+        `
+          UPDATE casework.processing_job
+          SET status = 'completed', completed_at = NOW()
+          WHERE processor_key = 'docling'
+            AND processor_version = $1
+        `,
+        [runningDoclingVersion],
+      );
+
+      const claimedHeavy = await claimNextJob(client);
+      assert.equal(claimedHeavy?.id, blockedHeavy.id);
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_version IN ($1, $2, $3)
+        `,
+        [runningDoclingVersion, blockedOcrVersion, fastVersion],
+      );
+    }
+  });
+});
+
 dbTest("processOneJob obtains the binary through BinaryStore and passes a local path to the processor", async () => {
   await withClient("phase-c3-test-binary-store-success", async (client) => {
     await assertProcessingSchema(client);
@@ -976,6 +1104,68 @@ dbTest("processOneJob persists explicit binary-store failure without invoking th
   });
 });
 
+dbTest("processOneJob persists processor timeouts distinctly", async () => {
+  await withClient("phase-c3-test-process-timeout", async (client) => {
+    await assertProcessingSchema(client);
+    const binary = (await client.query(
+      `
+        SELECT id
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+    )).rows[0];
+    await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "mock_timeout_case",
+      processorVersion: "v1",
+      status: "queued",
+      attemptCount: 0,
+      maxAttempts: 1,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    const timeoutRegistry = [
+      {
+        key: "mock_timeout_case",
+        version: "v1",
+        representationKind: "extracted_document_bundle",
+        executionPolicy: { claimPriority: 1 },
+        supportsBinary() {
+          return true;
+        },
+        async execute() {
+          const error = new Error("timed out");
+          error.code = "processor_timeout";
+          throw error;
+        },
+      },
+    ];
+    try {
+      const failure = await processOneJob(client, { registry: timeoutRegistry });
+      assert.equal(failure.status, "failed");
+      const failedRow = (await client.query(
+        `
+          SELECT status, attempt_count, error_code
+          FROM casework.processing_job
+          WHERE id = $1
+        `,
+        [failure.job.id],
+      )).rows[0];
+      assert.equal(failedRow.status, "failed");
+      assert.equal(failedRow.attempt_count, 1);
+      assert.equal(failedRow.error_code, "processor_timeout");
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_key = 'mock_timeout_case'
+        `,
+      );
+    }
+  });
+});
+
 dbTest("processOneJob persists failure and recoverRunningJobs requeues abandoned jobs", async () => {
   await withClient("phase-c3-test-process-failure", async (client) => {
     await assertProcessingSchema(client);
@@ -1060,9 +1250,31 @@ dbTest("processOneJob persists failure and recoverRunningJobs requeues abandoned
 
 dbTest("enqueueJobsForBinary avoids duplicate active work and completed-output duplication", async () => {
   await withRollbackDb(async (client, binary) => {
-    const first = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id));
+    const doclingVersion = `${DOCLING_PROCESSOR_VERSION}-enqueue-test`;
+    const xbergVersion = `${XBERG_PROCESSOR_VERSION}-enqueue-test`;
+    const registry = [
+      {
+        key: "docling",
+        version: doclingVersion,
+        representationKind: "extracted_document_bundle",
+        executionPolicy: { claimPriority: 200, maxAttempts: 1 },
+        supportsBinary() {
+          return true;
+        },
+      },
+      {
+        key: "xberg",
+        version: xbergVersion,
+        representationKind: "extracted_document_bundle",
+        executionPolicy: { claimPriority: 300, maxAttempts: 1 },
+        supportsBinary() {
+          return true;
+        },
+      },
+    ];
+    const first = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id), { registry });
     assert.ok(first.some((item) => item.action === "enqueued"));
-    const second = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id));
+    const second = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id), { registry });
     assert.ok(second.every((item) => item.action === "already_active"));
 
     await client.query(
@@ -1079,19 +1291,147 @@ dbTest("enqueueJobsForBinary avoids duplicate active work and completed-output d
         FROM casework.processing_job
         WHERE file_binary_id = $1
           AND processor_key = 'docling'
+          AND processor_version = $2
         ORDER BY id ASC
         LIMIT 1
       `,
-      [binary.id],
+      [binary.id, doclingVersion],
     )).rows[0];
       await insertRepresentation(client, {
         fileBinaryId: binary.id,
         producedByJobId: doclingJob.id,
         processorKey: "docling",
-        processorVersion: DOCLING_PROCESSOR_VERSION,
+        processorVersion: doclingVersion,
       });
-      const third = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id));
+      const third = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id), { registry });
       assert.ok(third.some((item) => item.processor_key === "docling" && item.action === "already_satisfied"));
-      assert.ok(third.some((item) => item.processor_key === "xberg" && item.processor_version === XBERG_PROCESSOR_VERSION));
-    });
+      assert.ok(third.some((item) => item.processor_key === "xberg" && item.processor_version === xbergVersion));
   });
+});
+
+dbTest("enqueueJobsForBinary preserves failed history by creating a new heavy retry job row", async () => {
+  await withRollbackDb(async (client, binary) => {
+    const doclingVersion = `${DOCLING_PROCESSOR_VERSION}-retry-history-test`;
+    const registry = [
+      {
+        key: "docling",
+        version: doclingVersion,
+        representationKind: "extracted_document_bundle",
+        executionPolicy: { claimPriority: 200, maxAttempts: 1 },
+        supportsBinary() {
+          return true;
+        },
+      },
+    ];
+    const historicalFailure = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "docling",
+      processorVersion: doclingVersion,
+      status: "failed",
+      attemptCount: 1,
+      maxAttempts: 1,
+    });
+    const results = await enqueueJobsForBinary(client, await getBinaryRowById(client, binary.id), {
+      processorKeys: ["docling"],
+      requestedBy: "phase-c3-test-retry",
+      registry,
+    });
+    assert.equal(results.length, 1);
+    assert.equal(results[0].action, "enqueued");
+    const queued = await client.query(
+      `
+        SELECT id, status, max_attempts
+        FROM casework.processing_job
+        WHERE file_binary_id = $1
+          AND processor_key = 'docling'
+          AND processor_version = $2
+        ORDER BY id ASC
+      `,
+      [binary.id, doclingVersion],
+    );
+    assert.equal(queued.rowCount, 2);
+    assert.equal(queued.rows[0].id, historicalFailure.id);
+    assert.equal(queued.rows[0].status, "failed");
+    assert.equal(queued.rows[1].status, "queued");
+    assert.equal(queued.rows[1].max_attempts, 1);
+  });
+});
+
+dbTest("processOneJob reuses an existing same-identity representation without duplicating it on retry", async () => {
+  await withRollbackDb(async (client, binary) => {
+    const doclingVersion = `${DOCLING_PROCESSOR_VERSION}-retry-success-test`;
+    const originalJob = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "docling",
+      processorVersion: doclingVersion,
+      status: "completed",
+      attemptCount: 1,
+      maxAttempts: 1,
+    });
+    const representation = await insertRepresentation(client, {
+      fileBinaryId: binary.id,
+      producedByJobId: originalJob.id,
+      processorKey: "docling",
+      processorVersion: doclingVersion,
+    });
+    await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "docling",
+      processorVersion: doclingVersion,
+      status: "queued",
+      attemptCount: 0,
+      maxAttempts: 1,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+    const registry = [
+      {
+        key: "docling",
+        version: doclingVersion,
+        representationKind: "extracted_document_bundle",
+        executionPolicy: { claimPriority: 1 },
+        supportsBinary() {
+          return true;
+        },
+        async execute() {
+          return {
+            processorKey: "docling",
+            processorVersion: doclingVersion,
+            representationKind: "extracted_document_bundle",
+            formatFamily: "pdf",
+            artifactRelPath: "data/exports/processing/docling/retry-test",
+            metadataJson: { retry: true },
+            contentJson: { text_length: 4 },
+            segments: [
+              {
+                segment_kind: "document_text",
+                sequence_no: 1,
+                text_content: "mock",
+                structural_path: null,
+                page_no: null,
+                char_start: 0,
+                char_end: 4,
+                metadata_json: { source: "mock" },
+              },
+            ],
+          };
+        },
+      },
+    ];
+    const result = await processOneJob(client, { registry });
+    assert.equal(result.status, "completed");
+    assert.equal(result.representation.id, representation.id);
+    const representationCount = await client.query(
+      `
+        SELECT COUNT(*)::int AS count
+        FROM casework.document_representation
+        WHERE file_binary_id = $1
+          AND representation_kind = 'extracted_document_bundle'
+          AND processor_key = 'docling'
+          AND processor_version = $2
+      `,
+      [binary.id, doclingVersion],
+    );
+    assert.equal(representationCount.rows[0].count, 1);
+  });
+});

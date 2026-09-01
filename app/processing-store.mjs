@@ -26,14 +26,52 @@ import {
   EXTRACT_STAGE_KEY,
   HUMAN_STAGE_KEY,
   determineProcessingPolicy,
+  getProcessorExecutionPolicy,
   getProcessingOutputRoot,
   getProcessor,
+  listBuiltinProcessors,
 } from "./processing-registry.mjs";
 
 export const HUMAN_PROCESSOR_KEY = "human";
 export const HUMAN_PROCESSOR_VERSION = "manual-v1";
 export const ACTIVE_JOB_STATUSES = ["queued", "running"];
 export const TERMINAL_JOB_STATUSES = ["completed", "failed", "cancelled", "blocked"];
+const CLAIM_SCAN_LIMIT = 64;
+
+function safeGetExecutionPolicy(processorKey, registry) {
+  try {
+    return getProcessorExecutionPolicy(processorKey, registry);
+  } catch {
+    return {};
+  }
+}
+
+function buildClaimOrderValue(jobRow, registry) {
+  const policy = safeGetExecutionPolicy(jobRow.processor_key, registry);
+  return policy.claimPriority ?? 0;
+}
+
+function listConcurrencyGroups(registry) {
+  const resolvedRegistry = registry ?? listBuiltinProcessors();
+  const groups = new Map();
+  for (const processor of resolvedRegistry) {
+    const groupKey = processor.executionPolicy?.concurrencyGroup ?? null;
+    if (!groupKey) {
+      continue;
+    }
+    const existing = groups.get(groupKey) ?? {
+      processorKeys: [],
+      maxConcurrentInGroup: processor.executionPolicy?.maxConcurrentInGroup ?? 1,
+    };
+    existing.processorKeys.push(processor.key);
+    existing.maxConcurrentInGroup = Math.min(
+      existing.maxConcurrentInGroup,
+      processor.executionPolicy?.maxConcurrentInGroup ?? existing.maxConcurrentInGroup,
+    );
+    groups.set(groupKey, existing);
+  }
+  return groups;
+}
 
 function notFound(message) {
   const error = new Error(message);
@@ -522,12 +560,20 @@ export async function enqueueJobsForBinary(client, binaryRow, options = {}) {
           file_binary_id,
           processor_key,
           processor_version,
-          requested_by
+          requested_by,
+          max_attempts
         )
-        VALUES ($1, 'queued', $2, $3, $4, $5)
+        VALUES ($1, 'queued', $2, $3, $4, $5, $6)
         RETURNING id
       `,
-      [EXTRACT_STAGE_KEY, binaryRow.id, processor.key, processor.version, requestedBy],
+      [
+        EXTRACT_STAGE_KEY,
+        binaryRow.id,
+        processor.key,
+        processor.version,
+        requestedBy,
+        processor.executionPolicy?.maxAttempts ?? 1,
+      ],
     );
     results.push({
       processor_key: processor.key,
@@ -539,37 +585,80 @@ export async function enqueueJobsForBinary(client, binaryRow, options = {}) {
   return results;
 }
 
-export async function claimNextJob(client) {
+export async function claimNextJob(client, { registry = undefined } = {}) {
   return withTransaction(client, async () => {
-    const result = await client.query(
+    const queued = await client.query(
       `
-        WITH candidate AS (
-          SELECT pj.id
-          FROM casework.processing_job AS pj
-          LEFT JOIN casework.processing_job AS parent
-            ON parent.id = pj.depends_on_job_id
-          WHERE pj.status = 'queued'
-            AND (
-              pj.depends_on_job_id IS NULL
-              OR parent.status = 'completed'
-            )
-          ORDER BY pj.requested_at ASC, pj.id ASC
-          FOR UPDATE OF pj SKIP LOCKED
-          LIMIT 1
-        )
-        UPDATE casework.processing_job AS pj
-        SET
-          status = 'running',
-          started_at = NOW(),
-          attempt_count = pj.attempt_count + 1,
-          error_code = NULL,
-          error_text = NULL
-        FROM candidate
-        WHERE pj.id = candidate.id
-        RETURNING pj.*
+        SELECT pj.*
+        FROM casework.processing_job AS pj
+        LEFT JOIN casework.processing_job AS parent
+          ON parent.id = pj.depends_on_job_id
+        WHERE pj.status = 'queued'
+          AND (
+            pj.depends_on_job_id IS NULL
+            OR parent.status = 'completed'
+          )
+        ORDER BY pj.requested_at ASC, pj.id ASC
+        FOR UPDATE OF pj SKIP LOCKED
+        LIMIT ${CLAIM_SCAN_LIMIT}
       `,
     );
-    return result.rows[0] ?? null;
+    const ordered = [...queued.rows].sort((left, right) => {
+      const priorityDelta = buildClaimOrderValue(right, registry) - buildClaimOrderValue(left, registry);
+      if (priorityDelta !== 0) {
+        return priorityDelta;
+      }
+      const requestedAtDelta = new Date(left.requested_at).getTime() - new Date(right.requested_at).getTime();
+      if (requestedAtDelta !== 0) {
+        return requestedAtDelta;
+      }
+      return Number(left.id) - Number(right.id);
+    });
+    const concurrencyGroups = listConcurrencyGroups(registry);
+    for (const candidate of ordered) {
+      const policy = safeGetExecutionPolicy(candidate.processor_key, registry);
+      const concurrencyGroup = policy.concurrencyGroup ?? null;
+      if (concurrencyGroup) {
+        const lockAttempt = await client.query(
+          "SELECT pg_try_advisory_xact_lock(hashtextextended($1, 0)) AS locked",
+          [concurrencyGroup],
+        );
+        if (!lockAttempt.rows[0]?.locked) {
+          continue;
+        }
+        const groupConfig = concurrencyGroups.get(concurrencyGroup);
+        const runningCount = await client.query(
+          `
+            SELECT COUNT(*)::int AS running_count
+            FROM casework.processing_job
+            WHERE status = 'running'
+              AND processor_key = ANY($1::text[])
+          `,
+          [groupConfig?.processorKeys ?? [candidate.processor_key]],
+        );
+        if ((runningCount.rows[0]?.running_count ?? 0) >= (groupConfig?.maxConcurrentInGroup ?? 1)) {
+          continue;
+        }
+      }
+      const claimed = await client.query(
+        `
+          UPDATE casework.processing_job
+          SET
+            status = 'running',
+            started_at = NOW(),
+            attempt_count = attempt_count + 1,
+            error_code = NULL,
+            error_text = NULL
+          WHERE id = $1
+          RETURNING *
+        `,
+        [candidate.id],
+      );
+      if (claimed.rowCount === 1) {
+        return claimed.rows[0];
+      }
+    }
+    return null;
   });
 }
 
@@ -871,7 +960,7 @@ export async function processOneJob(client, {
   beforePersist = null,
 }) {
   await markBlockedDependents(client);
-  const jobRow = await claimNextJob(client);
+  const jobRow = await claimNextJob(client, { registry });
   if (!jobRow) {
     return null;
   }
@@ -914,7 +1003,9 @@ export async function processOneJob(client, {
     }
   } catch (error) {
     await markJobFailure(client, jobRow, {
-      errorCode: isBinaryStoreError(error) ? "binary_store_failed" : "processor_failed",
+      errorCode: isBinaryStoreError(error)
+        ? "binary_store_failed"
+        : (error?.code === "processor_timeout" ? "processor_timeout" : "processor_failed"),
       errorText: error instanceof Error ? error.stack ?? error.message : String(error),
     });
     return {
