@@ -9,6 +9,7 @@ import {
   getProcessingLabel,
   getRepresentationLabel,
   isPdfBinary,
+  prefersNativePdfViewer,
   sameStableId,
 } from "./consultation";
 
@@ -101,4 +102,16 @@ test("formatFileType prefers extension labels and falls back to mime type", () =
   expect(formatFileType("text/plain", ".txt")).toBe("TXT");
   expect(formatFileType("text/plain", null)).toBe("TXT");
   expect(formatFileType("application/octet-stream", null)).toBe("application/octet-stream");
+});
+
+test("prefersNativePdfViewer falls back for scanned pdf classes only", () => {
+  expect(prefersNativePdfViewer({
+    binary: { machine_readability_status: "image_only_pdf", mime_type: "application/pdf", file_extension: ".pdf" },
+  } as BinaryDetailResponse)).toBe(true);
+  expect(prefersNativePdfViewer({
+    binary: { machine_readability_status: "mostly_image_pdf", mime_type: "application/pdf", file_extension: ".pdf" },
+  } as BinaryDetailResponse)).toBe(true);
+  expect(prefersNativePdfViewer({
+    binary: { machine_readability_status: "text_pdf", mime_type: "application/pdf", file_extension: ".pdf" },
+  } as BinaryDetailResponse)).toBe(false);
 });

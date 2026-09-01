@@ -139,3 +139,8 @@ export function isPdfBinary(detail: BinaryDetailResponse): boolean {
   return detail.binary.mime_type === "application/pdf"
     || detail.binary.file_extension === ".pdf";
 }
+
+export function prefersNativePdfViewer(detail: BinaryDetailResponse): boolean {
+  return detail.binary.machine_readability_status === "image_only_pdf"
+    || detail.binary.machine_readability_status === "mostly_image_pdf";
+}

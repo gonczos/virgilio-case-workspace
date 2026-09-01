@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -16,9 +15,10 @@ GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 interface PdfViewerProps {
   url: string;
+  preferNativeViewer?: boolean;
 }
 
-export function PdfViewer({ url }: PdfViewerProps) {
+export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [documentProxy, setDocumentProxy] = useState<PDFDocumentProxy | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
@@ -27,6 +27,13 @@ export function PdfViewer({ url }: PdfViewerProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (preferNativeViewer) {
+      setLoading(false);
+      setError(null);
+      setDocumentProxy(null);
+      setPageNumber(1);
+      return;
+    }
     let active = true;
     let loadingTask: ReturnType<typeof getDocument> | null = null;
     setLoading(true);
@@ -59,9 +66,12 @@ export function PdfViewer({ url }: PdfViewerProps) {
       active = false;
       void loadingTask?.destroy();
     };
-  }, [url]);
+  }, [preferNativeViewer, url]);
 
   useEffect(() => {
+    if (preferNativeViewer) {
+      return;
+    }
     if (!documentProxy || !canvasRef.current) {
       return;
     }
@@ -84,7 +94,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
     return () => {
       active = false;
     };
-  }, [documentProxy, pageNumber, zoom]);
+  }, [documentProxy, pageNumber, preferNativeViewer, zoom]);
 
   return (
     <Paper
@@ -137,7 +147,21 @@ export function PdfViewer({ url }: PdfViewerProps) {
           bgcolor: "#ebe4d7",
         }}
       >
-        {loading ? (
+        {preferNativeViewer ? (
+          <Stack spacing={1.5} sx={{ width: "100%" }}>
+            <Box
+              component="iframe"
+              src={url}
+              title="Original PDF"
+              sx={{
+                width: "100%",
+                minHeight: 680,
+                border: 0,
+                bgcolor: "#ffffff",
+              }}
+            />
+          </Stack>
+        ) : loading ? (
           <Stack spacing={2} alignItems="center">
             <CircularProgress />
             <Typography color="text.secondary">Loading PDF...</Typography>

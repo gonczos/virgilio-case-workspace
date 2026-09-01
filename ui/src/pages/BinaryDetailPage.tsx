@@ -32,6 +32,7 @@ import {
   getRepresentationLabel,
   getShortSha,
   isPdfBinary,
+  prefersNativePdfViewer,
   normalizeStableId,
   sameStableId,
 } from "../utils/consultation";
@@ -55,7 +56,7 @@ export function BinaryDetailPage() {
       const initialRepresentation = chooseInitialRepresentation(nextDetail);
       setViewRepresentationId(normalizeStableId(initialRepresentation?.representation_id) ?? "");
       setViewFormat(chooseInitialFormat(initialRepresentation) ?? "");
-      const initialEvidence = nextDetail.evidence.items[0] ?? null;
+      const initialEvidence = nextDetail.evidence?.items?.[0] ?? null;
       setViewEvidenceId(normalizeStableId(initialEvidence?.representation_id) ?? "");
       setViewEvidenceFormat(chooseInitialFormat(initialEvidence) ?? "");
     } catch (loadError) {
@@ -154,7 +155,10 @@ export function BinaryDetailPage() {
       <Grid container spacing={2.5}>
         <Grid size={{ xs: 12, xl: 6 }}>
           {isPdfBinary(detail) ? (
-            <PdfViewer url={detail.binary.original_binary_url} />
+            <PdfViewer
+              url={detail.binary.original_binary_url}
+              preferNativeViewer={prefersNativePdfViewer(detail)}
+            />
           ) : (
             <Paper elevation={0} sx={{ p: 3, border: "1px solid rgba(31,79,95,0.12)", minHeight: 520 }}>
               <Stack spacing={2}>
@@ -191,11 +195,11 @@ export function BinaryDetailPage() {
               onViewFormatChange={setViewFormat}
             />
             <EvidenceViewer
-              evidence={detail.evidence.items}
+              evidence={detail.evidence?.items ?? []}
               viewRepresentationId={viewEvidenceId}
               onViewRepresentationChange={(representationId) => {
                 setViewEvidenceId(representationId);
-                const representation = detail.evidence.items.find(
+                const representation = (detail.evidence?.items ?? []).find(
                   (item) => sameStableId(item.representation_id, representationId),
                 ) ?? null;
                 setViewEvidenceFormat(chooseInitialFormat(representation) ?? "");
