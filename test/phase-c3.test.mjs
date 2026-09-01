@@ -172,6 +172,17 @@ async function insertRepresentation(client, {
   return representation;
 }
 
+function buildClaimRegistry(processors) {
+  return processors.map((processor) => ({
+    representationKind: "extracted_document_bundle",
+    supportsBinary() {
+      return true;
+    },
+    executionPolicy: {},
+    ...processor,
+  }));
+}
+
 test("determineProcessingPolicy selects PDF evidence plus interpretation processors and plain-text passthrough only for text files", async () => {
   const pdf = determineProcessingPolicy({
     mime_type: "application/pdf",
@@ -483,9 +494,16 @@ dbTest("claimNextJob allows only one concurrent claimant for the same queued job
       requestedBy: "phase-c3-test-claim",
     });
     try {
+      const registry = buildClaimRegistry([
+        {
+          key: "claim_test_processor",
+          version: "v1",
+          executionPolicy: { claimPriority: 1000 },
+        },
+      ]);
       const claimed = await Promise.all([
-        withClient("phase-c3-test-claim-a", async (claimClient) => claimNextJob(claimClient)),
-        withClient("phase-c3-test-claim-b", async (claimClient) => claimNextJob(claimClient)),
+        withClient("phase-c3-test-claim-a", async (claimClient) => claimNextJob(claimClient, { registry })),
+        withClient("phase-c3-test-claim-b", async (claimClient) => claimNextJob(claimClient, { registry })),
       ]);
       const matchingClaims = claimed.filter((row) => row?.id === created.id);
       assert.equal(matchingClaims.length, 1);
@@ -532,7 +550,20 @@ dbTest("claimNextJob prioritizes cheap evidence ahead of heavy work", async () =
       completedAtExpr: "NULL",
     });
     try {
-      const claimed = await claimNextJob(client);
+      const registry = buildClaimRegistry([
+        {
+          key: "docling",
+          version: heavyVersion,
+          executionPolicy: { claimPriority: 200 },
+        },
+        {
+          key: "pdf_literal_text",
+          version: fastVersion,
+          representationKind: "pdf_literal_text",
+          executionPolicy: { claimPriority: 400 },
+        },
+      ]);
+      const claimed = await claimNextJob(client, { registry });
       assert.equal(claimed?.id, fast.id);
       assert.notEqual(claimed?.id, heavy.id);
     } finally {
@@ -561,6 +592,7 @@ dbTest("claimNextJob enforces shared heavy concurrency between docling and pdf_o
     const runningDoclingVersion = `${DOCLING_PROCESSOR_VERSION}-shared-heavy-running-test`;
     const blockedOcrVersion = "docling-force-ocr-v1-c5.3.1-shared-heavy-test";
     const fastVersion = "qpdf-signature-v1-c5.3.1-shared-heavy-test";
+    const testConcurrencyGroup = "phase-c3-test-shared-heavy-group";
     await insertJob(client, {
       fileBinaryId: binary.id,
       processorKey: "docling",
@@ -589,7 +621,34 @@ dbTest("claimNextJob enforces shared heavy concurrency between docling and pdf_o
       completedAtExpr: "NULL",
     });
     try {
-      const claimedFast = await claimNextJob(client);
+      const registry = buildClaimRegistry([
+        {
+          key: "docling",
+          version: runningDoclingVersion,
+          executionPolicy: {
+            claimPriority: 200,
+            concurrencyGroup: testConcurrencyGroup,
+            maxConcurrentInGroup: 1,
+          },
+        },
+        {
+          key: "pdf_ocr_text",
+          version: blockedOcrVersion,
+          representationKind: "pdf_ocr_text",
+          executionPolicy: {
+            claimPriority: 100,
+            concurrencyGroup: testConcurrencyGroup,
+            maxConcurrentInGroup: 1,
+          },
+        },
+        {
+          key: "pdf_signature_metadata",
+          version: fastVersion,
+          representationKind: "pdf_signature_metadata",
+          executionPolicy: { claimPriority: 390 },
+        },
+      ]);
+      const claimedFast = await claimNextJob(client, { registry });
       assert.equal(claimedFast?.id, fast.id);
 
       await client.query(
@@ -601,7 +660,7 @@ dbTest("claimNextJob enforces shared heavy concurrency between docling and pdf_o
         [fast.id],
       );
 
-      const noHeavyClaim = await claimNextJob(client);
+      const noHeavyClaim = await claimNextJob(client, { registry });
       assert.equal(noHeavyClaim, null);
 
       await client.query(
@@ -614,8 +673,103 @@ dbTest("claimNextJob enforces shared heavy concurrency between docling and pdf_o
         [runningDoclingVersion],
       );
 
-      const claimedHeavy = await claimNextJob(client);
+      const claimedHeavy = await claimNextJob(client, { registry });
       assert.equal(claimedHeavy?.id, blockedHeavy.id);
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_version IN ($1, $2, $3)
+        `,
+        [runningDoclingVersion, blockedOcrVersion, fastVersion],
+      );
+    }
+  });
+});
+
+dbTest("claimNextJob can claim a later cheap job when earlier heavy rows are not claimable", async () => {
+  await withClient("phase-c3-test-claim-window", async (client) => {
+    await assertProcessingSchema(client);
+    const binaryIds = (await client.query(
+      `
+        SELECT id
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 80
+      `,
+    )).rows.map((row) => row.id);
+    assert.equal(binaryIds.length >= 65, true);
+
+    const runningDoclingVersion = `${DOCLING_PROCESSOR_VERSION}-claim-window-running-test`;
+    const blockedOcrVersion = "docling-force-ocr-v1-c5.3.1-claim-window-test";
+    const fastVersion = "qpdf-signature-v1-c5.3.1-claim-window-fast-test";
+    const testConcurrencyGroup = "phase-c3-test-claim-window-group";
+
+    await insertJob(client, {
+      fileBinaryId: binaryIds[0],
+      processorKey: "docling",
+      processorVersion: runningDoclingVersion,
+      status: "running",
+      attemptCount: 1,
+      startedAtExpr: "NOW()",
+      completedAtExpr: "NULL",
+    });
+
+    const blockedHeavyIds = [];
+    for (let index = 0; index < 64; index += 1) {
+      const blocked = await insertJob(client, {
+        fileBinaryId: binaryIds[index],
+        processorKey: "pdf_ocr_text",
+        processorVersion: blockedOcrVersion,
+        status: "queued",
+        attemptCount: 0,
+        startedAtExpr: "NULL",
+        completedAtExpr: "NULL",
+      });
+      blockedHeavyIds.push(blocked.id);
+    }
+
+    const lateFast = await insertJob(client, {
+      fileBinaryId: binaryIds[64],
+      processorKey: "pdf_signature_metadata",
+      processorVersion: fastVersion,
+      status: "queued",
+      attemptCount: 0,
+      startedAtExpr: "NULL",
+      completedAtExpr: "NULL",
+    });
+
+    try {
+      const registry = buildClaimRegistry([
+        {
+          key: "docling",
+          version: runningDoclingVersion,
+          executionPolicy: {
+            claimPriority: 200,
+            concurrencyGroup: testConcurrencyGroup,
+            maxConcurrentInGroup: 1,
+          },
+        },
+        {
+          key: "pdf_ocr_text",
+          version: blockedOcrVersion,
+          representationKind: "pdf_ocr_text",
+          executionPolicy: {
+            claimPriority: 100,
+            concurrencyGroup: testConcurrencyGroup,
+            maxConcurrentInGroup: 1,
+          },
+        },
+        {
+          key: "pdf_signature_metadata",
+          version: fastVersion,
+          representationKind: "pdf_signature_metadata",
+          executionPolicy: { claimPriority: 390 },
+        },
+      ]);
+      const claimed = await claimNextJob(client, { registry });
+      assert.equal(claimed?.id, lateFast.id);
+      assert.equal(blockedHeavyIds.includes(claimed?.id), false);
     } finally {
       await client.query(
         `

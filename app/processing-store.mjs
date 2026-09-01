@@ -36,7 +36,6 @@ export const HUMAN_PROCESSOR_KEY = "human";
 export const HUMAN_PROCESSOR_VERSION = "manual-v1";
 export const ACTIVE_JOB_STATUSES = ["queued", "running"];
 export const TERMINAL_JOB_STATUSES = ["completed", "failed", "cancelled", "blocked"];
-const CLAIM_SCAN_LIMIT = 64;
 
 function safeGetExecutionPolicy(processorKey, registry) {
   try {
@@ -600,10 +599,15 @@ export async function claimNextJob(client, { registry = undefined } = {}) {
           )
         ORDER BY pj.requested_at ASC, pj.id ASC
         FOR UPDATE OF pj SKIP LOCKED
-        LIMIT ${CLAIM_SCAN_LIMIT}
       `,
     );
-    const ordered = [...queued.rows].sort((left, right) => {
+    const registryIdentities = registry
+      ? new Set(registry.map((processor) => `${processor.key}\u0000${processor.version}`))
+      : null;
+    const candidates = registryIdentities
+      ? queued.rows.filter((row) => registryIdentities.has(`${row.processor_key}\u0000${row.processor_version}`))
+      : queued.rows;
+    const ordered = [...candidates].sort((left, right) => {
       const priorityDelta = buildClaimOrderValue(right, registry) - buildClaimOrderValue(left, registry);
       if (priorityDelta !== 0) {
         return priorityDelta;
