@@ -77,6 +77,10 @@ function triState(status, detail = null) {
   return detail === null ? { status } : { status, detail };
 }
 
+export function measureMeaningfulLiteralText(text) {
+  return String(text ?? "").trim().length;
+}
+
 function mergeQpdfObjectEntries(entries) {
   const merged = {};
   for (const entry of entries ?? []) {
@@ -279,6 +283,7 @@ export function buildInventoryPayload({ pdfInfo, qpdfJson, literalText }) {
   const pagesWithImages = (qpdfJson?.pages ?? []).filter((page) => (page.images ?? []).length > 0).map((page) => page.pageposfrom1);
   const attachments = qpdfJson?.attachments ?? {};
   const trailer = normalizeQpdfValue(objectMap.trailer?.value ?? null);
+  const meaningfulLiteralTextLength = measureMeaningfulLiteralText(literalText);
   return {
     artifact_kind: "pdf-structure-inventory",
     pdf_metadata: {
@@ -296,9 +301,15 @@ export function buildInventoryPayload({ pdfInfo, qpdfJson, literalText }) {
       modification_date: pdfInfo.moddate ?? null,
     },
     channels: {
-      native_text: literalText.length > 0
-        ? triState("present", { literal_text_length: literalText.length })
-        : triState("absent", { literal_text_length: 0 }),
+      native_text: meaningfulLiteralTextLength > 0
+        ? triState("present", {
+          literal_text_length: literalText.length,
+          meaningful_literal_text_length: meaningfulLiteralTextLength,
+        })
+        : triState("absent", {
+          literal_text_length: literalText.length,
+          meaningful_literal_text_length: 0,
+        }),
       page_raster_content: pagesWithImages.length > 0
         ? triState("present", { pages_with_images: pagesWithImages })
         : triState("absent", { pages_with_images: [] }),
@@ -331,6 +342,7 @@ export async function extractPdfLiteralTextArtifact({
   timeoutMs = DEFAULT_TIMEOUT_MS,
 }) {
   const { toolVersion, text, args } = await runPdftotext(inputPath, workspaceRoot, { timeoutMs });
+  const meaningfulTextLength = measureMeaningfulLiteralText(text);
   await writeText(path.join(artifactDir, "text.txt"), text);
   await writeJson(path.join(artifactDir, "native.json"), {
     artifact_kind: "pdf-literal-text",
@@ -345,7 +357,8 @@ export async function extractPdfLiteralTextArtifact({
       args,
     },
     text_length: text.length,
-    empty_result: text.length === 0,
+    meaningful_text_length: meaningfulTextLength,
+    empty_result: meaningfulTextLength === 0,
   });
   return {
     toolVersion,

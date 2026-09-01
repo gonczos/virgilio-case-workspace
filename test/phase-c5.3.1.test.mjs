@@ -10,6 +10,7 @@ import {
 import {
   buildInventoryPayload,
   extractSignatureRecords,
+  measureMeaningfulLiteralText,
 } from "../app/pdf-evidence.mjs";
 import {
   assertProcessingSchema,
@@ -238,29 +239,57 @@ test("structure inventory preserves present absent and unknown semantics distinc
   assert.equal(payload.structural_diagnostics.has_trailer_prev, true);
 });
 
+test("whitespace-only literal PDF output does not count as native text presence", () => {
+  assert.equal(measureMeaningfulLiteralText("\f\f\f"), 0);
+  const payload = buildInventoryPayload({
+    pdfInfo: {
+      pages: "3",
+      encrypted: "no",
+      tagged: "no",
+    },
+    qpdfJson: {
+      pages: [
+        { object: "1 0 R", pageposfrom1: 1, images: [] },
+        { object: "2 0 R", pageposfrom1: 2, images: [] },
+        { object: "3 0 R", pageposfrom1: 3, images: [] },
+      ],
+      attachments: {},
+      qpdf: [{ maxobjectid: 3 }, {}],
+    },
+    literalText: "\f\f\f",
+  });
+  assert.equal(payload.channels.native_text.status, "absent");
+  assert.deepEqual(payload.channels.native_text.detail, {
+    literal_text_length: 3,
+    meaningful_literal_text_length: 0,
+  });
+});
+
 dbTest("effective consultation selection ignores non-default evidence representation kinds", async () => {
   await withRollbackDb(async (client, binary) => {
+    const testDoclingVersion = `${DOCLING_PROCESSOR_VERSION}-selection-test`;
+    const testLiteralVersion = "poppler-layout-v2-c5.3.2-selection-test";
     const doclingJob = await insertJob(client, {
       fileBinaryId: binary.id,
       processorKey: "docling",
-      processorVersion: DOCLING_PROCESSOR_VERSION,
+      processorVersion: testDoclingVersion,
     });
     const doclingRepresentation = await insertRepresentation(client, {
       fileBinaryId: binary.id,
       producedByJobId: doclingJob.id,
       processorKey: "docling",
-      processorVersion: DOCLING_PROCESSOR_VERSION,
+      processorVersion: testDoclingVersion,
     });
     const evidenceJob = await insertJob(client, {
       fileBinaryId: binary.id,
       processorKey: "pdf_literal_text",
-      processorVersion: "poppler-layout-v1-c5.3.1",
+      processorVersion: testLiteralVersion,
     });
     await insertRepresentation(client, {
       fileBinaryId: binary.id,
       producedByJobId: evidenceJob.id,
       processorKey: "pdf_literal_text",
-      processorVersion: "poppler-layout-v1-c5.3.1",
+      processorVersion: testLiteralVersion,
       representationKind: PDF_LITERAL_TEXT_REPRESENTATION_KIND,
     });
 
