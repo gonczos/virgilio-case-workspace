@@ -685,6 +685,27 @@ export async function recoverRunningJobs(client, { olderThanMinutes = 30, reques
   return result.rows.map((row) => row.id);
 }
 
+export async function recoverClaimedJobIfRunning(client, jobId, {
+  requestedBy = "processing-worker-recover",
+} = {}) {
+  const result = await client.query(
+    `
+      UPDATE casework.processing_job
+      SET
+        status = 'queued',
+        error_code = 'worker_recovery',
+        error_text = 'Recovered after worker connection loss',
+        requested_by = $2,
+        completed_at = NULL
+      WHERE id = $1
+        AND status = 'running'
+      RETURNING id
+    `,
+    [jobId, requestedBy],
+  );
+  return result.rows[0]?.id ?? null;
+}
+
 export async function markBlockedDependents(client) {
   const result = await client.query(
     `

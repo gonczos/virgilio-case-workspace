@@ -33,6 +33,7 @@ import {
   enqueueJobsForBinary,
   getBinaryRowById,
   processOneJob,
+  recoverClaimedJobIfRunning,
   recoverRunningJobs,
   resolveEffectiveRepresentation,
   upsertSelectionOverride,
@@ -1396,6 +1397,68 @@ dbTest("processOneJob persists failure and recoverRunningJobs requeues abandoned
           DELETE FROM casework.processing_job
           WHERE processor_key IN ('mock_fail_case', 'recovery_test_processor')
             AND requested_by IN ('phase-c3-test', 'processing-admin-recover')
+        `,
+      );
+    }
+  });
+});
+
+dbTest("recoverClaimedJobIfRunning requeues only a still-running claimed job", async () => {
+  await withClient("phase-c3-test-claim-recover", async (client) => {
+    await assertProcessingSchema(client);
+    const binary = (await client.query(
+      `
+        SELECT id
+        FROM casework.file_binary
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+    )).rows[0];
+    const runningJob = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "claim_recover_test_processor",
+      processorVersion: "v1",
+      status: "running",
+      attemptCount: 1,
+      startedAtExpr: "NOW() - INTERVAL '1 minute'",
+      completedAtExpr: "NULL",
+    });
+    const completedJob = await insertJob(client, {
+      fileBinaryId: binary.id,
+      processorKey: "claim_recover_test_processor",
+      processorVersion: "v1-completed",
+      status: "completed",
+      attemptCount: 1,
+    });
+    try {
+      const recoveredRunning = await recoverClaimedJobIfRunning(client, runningJob.id, {
+        requestedBy: "phase-c3-test-claim-recover",
+      });
+      const recoveredCompleted = await recoverClaimedJobIfRunning(client, completedJob.id, {
+        requestedBy: "phase-c3-test-claim-recover",
+      });
+      assert.equal(recoveredRunning, runningJob.id);
+      assert.equal(recoveredCompleted, null);
+      const rows = (await client.query(
+        `
+          SELECT id, status, error_code
+          FROM casework.processing_job
+          WHERE id IN ($1, $2)
+          ORDER BY id ASC
+        `,
+        [runningJob.id, completedJob.id],
+      )).rows;
+      const runningRow = rows.find((row) => row.id === runningJob.id);
+      const completedRow = rows.find((row) => row.id === completedJob.id);
+      assert.equal(runningRow.status, "queued");
+      assert.equal(runningRow.error_code, "worker_recovery");
+      assert.equal(completedRow.status, "completed");
+      assert.equal(completedRow.error_code, null);
+    } finally {
+      await client.query(
+        `
+          DELETE FROM casework.processing_job
+          WHERE processor_key = 'claim_recover_test_processor'
         `,
       );
     }

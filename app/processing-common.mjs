@@ -59,14 +59,47 @@ export function createDbClient(applicationName) {
   });
 }
 
-export async function withClient(applicationName, work) {
+export function attachClientLifecycleLogging(client, {
+  logPrefix = "[db-client]",
+  logger = console,
+} = {}) {
+  let closingExpected = false;
+  const logClientError = (error) => {
+    logger.error(`${logPrefix} PostgreSQL client error`);
+    logger.error(error);
+  };
+  const logUnexpectedEnd = () => {
+    if (closingExpected) {
+      return;
+    }
+    logger.error(`${logPrefix} PostgreSQL client connection ended unexpectedly`);
+  };
+  client.on("error", logClientError);
+  client.on("end", logUnexpectedEnd);
+  return {
+    dispose() {
+      closingExpected = true;
+      client.off("error", logClientError);
+      client.off("end", logUnexpectedEnd);
+    },
+  };
+}
+
+export async function withClient(applicationName, work, options = {}) {
   const workspaceRoot = getWorkspaceRoot();
   loadDotEnv(path.join(workspaceRoot, ".env"));
   const client = createDbClient(applicationName);
+  const lifecycleLogging = options.logClientLifecycle
+    ? attachClientLifecycleLogging(client, {
+      logPrefix: options.logPrefix ?? `[${applicationName}]`,
+      logger: options.logger ?? console,
+    })
+    : null;
   await client.connect();
   try {
     return await work(client, workspaceRoot);
   } finally {
+    lifecycleLogging?.dispose();
     await client.end();
   }
 }
