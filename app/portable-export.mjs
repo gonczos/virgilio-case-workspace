@@ -3,6 +3,10 @@ import path from "node:path";
 
 import { LocalBinaryStore } from "./binary-store.mjs";
 import {
+  PORTABLE_EXPORT_PACKAGE_FORMAT,
+  PORTABLE_EXPORT_PACKAGE_VERSION,
+} from "./portable-export-contract.mjs";
+import {
   DEFAULT_SELECTION_PURPOSE,
   getWorkspaceRoot,
   sha256File,
@@ -17,8 +21,10 @@ import {
   resolveRepresentationArtifactDir,
 } from "./representation-artifacts.mjs";
 
-export const PORTABLE_EXPORT_PACKAGE_FORMAT = "virgilio-portable-evidence";
-export const PORTABLE_EXPORT_PACKAGE_VERSION = 1;
+export {
+  PORTABLE_EXPORT_PACKAGE_FORMAT,
+  PORTABLE_EXPORT_PACKAGE_VERSION,
+} from "./portable-export-contract.mjs";
 
 async function getExportBinaryRowBySha(client, sha256) {
   const result = await client.query(

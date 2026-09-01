@@ -7,6 +7,7 @@ import {
   assertProcessingSchema,
   withClient,
 } from "./processing-common.mjs";
+import { inspectPortableBinaryExportPackage } from "./portable-export-inspect.mjs";
 import { exportPortableBinaryPackage } from "./portable-export.mjs";
 import {
   clearSelectionOverride,
@@ -149,10 +150,20 @@ async function handleExportBinary(client, flags) {
   }, null, 2));
 }
 
+async function handleInspectExport(flags) {
+  const packageDir = requireFlag(flags, "package");
+  const result = await inspectPortableBinaryExportPackage({ packageDir });
+  console.log(JSON.stringify(result.report, null, 2));
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   if (!command) {
     throw new Error("Usage: node app/processing-admin.mjs <command> [--flags]");
+  }
+  if (command === "inspect-export") {
+    await handleInspectExport(flags);
+    return;
   }
   await withClient("processing-admin", async (client) => {
     await assertProcessingSchema(client);
