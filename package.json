@@ -15,6 +15,7 @@
     "test:c2": "node --test ./test/phase-c2.test.mjs",
     "process:c3:worker": "node ./app/processing-worker.mjs",
     "process:c3:admin": "node ./app/processing-admin.mjs",
+    "rollout:c5.3.2": "node ./app/phase-c5.3.2-rollout.mjs",
     "test:c3": "node --test --test-concurrency=1 ./test/phase-c3.test.mjs",
     "test:c3.2": "node --test ./test/file-gateway.test.mjs",
     "test:c4.1": "node --test --test-concurrency=1 ./test/consultation-api.test.mjs",
