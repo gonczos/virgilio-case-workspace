@@ -86,6 +86,10 @@ test("getProcessingLabel distinguishes processed, partial, failed, and idle stat
 test("representation label and pdf detection stay presentation-only", () => {
   expect(getRepresentationLabel({ processor_key: "docling", representation_source_kind: "machine_generated" })).toBe("Docling");
   expect(getRepresentationLabel({ processor_key: "xberg", representation_source_kind: "machine_generated" })).toBe("Xberg");
+  expect(getRepresentationLabel({ processor_key: "pdf_literal_text", representation_source_kind: "machine_generated" })).toBe("PDF literal text");
+  expect(getRepresentationLabel({ processor_key: "pdf_signature_metadata", representation_source_kind: "machine_generated" })).toBe("PDF signature metadata");
+  expect(getRepresentationLabel({ processor_key: "pdf_structure_inventory", representation_source_kind: "machine_generated" })).toBe("PDF structure inventory");
+  expect(getRepresentationLabel({ processor_key: "pdf_ocr_text", representation_source_kind: "machine_generated" })).toBe("PDF OCR text");
   expect(getRepresentationLabel({ processor_key: "human", representation_source_kind: "human_authored" })).toBe("Human");
   expect(isPdfBinary({
     binary: { mime_type: "application/pdf", file_extension: ".pdf" },

@@ -97,6 +97,14 @@ export function getRepresentationLabel(representation: {
       return "Xberg";
     case "plain_text_passthrough":
       return "Plain text";
+    case "pdf_literal_text":
+      return "PDF literal text";
+    case "pdf_signature_metadata":
+      return "PDF signature metadata";
+    case "pdf_structure_inventory":
+      return "PDF structure inventory";
+    case "pdf_ocr_text":
+      return "PDF OCR text";
     case "human":
       return "Human";
     default:

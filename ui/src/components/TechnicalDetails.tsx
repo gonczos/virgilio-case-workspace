@@ -17,6 +17,8 @@ export function TechnicalDetails({ detail, viewedRepresentation }: TechnicalDeta
   const payload = {
     binary_id: detail.technical_details.binary_id,
     sha256: detail.binary.sha256,
+    interpretation_representation_ids: detail.technical_details.interpretation_representation_ids,
+    evidence_representation_ids: detail.technical_details.evidence_representation_ids,
     representation_ids: detail.technical_details.representation_ids,
     comparison_ids: detail.technical_details.comparison_ids,
     viewed_representation_id: viewedRepresentation?.representation_id ?? null,

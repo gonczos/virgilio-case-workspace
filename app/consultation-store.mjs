@@ -15,6 +15,10 @@ import {
 } from "./processing-store.mjs";
 import {
   DEFAULT_REPRESENTATION_KIND,
+  PDF_LITERAL_TEXT_REPRESENTATION_KIND,
+  PDF_OCR_TEXT_REPRESENTATION_KIND,
+  PDF_SIGNATURE_METADATA_REPRESENTATION_KIND,
+  PDF_STRUCTURE_INVENTORY_REPRESENTATION_KIND,
 } from "./processing-registry.mjs";
 import {
   hasRepresentationArtifactFormat,
@@ -92,6 +96,17 @@ export function buildBinaryDisplayName({
 
 function buildReasonCodes(attention) {
   return attention.reasons.map((reason) => reason.reason_code);
+}
+
+const EVIDENCE_REPRESENTATION_KINDS = new Set([
+  PDF_LITERAL_TEXT_REPRESENTATION_KIND,
+  PDF_SIGNATURE_METADATA_REPRESENTATION_KIND,
+  PDF_STRUCTURE_INVENTORY_REPRESENTATION_KIND,
+  PDF_OCR_TEXT_REPRESENTATION_KIND,
+]);
+
+function isEvidenceRepresentation(representation) {
+  return EVIDENCE_REPRESENTATION_KINDS.has(representation.representation_kind);
 }
 
 async function determineRepresentationAvailableFormats(workspaceRoot, representation) {
@@ -619,6 +634,9 @@ export async function getConsultationBinaryDetail(client, sha256, {
       explicit_selection: state.selection.explicit_selection,
       effective_selection_reason: state.selection.selection_source,
     },
+    evidence: {
+      items: state.evidenceItems,
+    },
     comparisons: state.comparisonItems,
     attention: {
       review_needed: state.attention.review_needed,
@@ -632,21 +650,28 @@ export async function getConsultationBinaryDetail(client, sha256, {
     },
     technical_details: {
       binary_id: binaryRow.id,
-      representation_ids: state.representationItems.map((item) => item.representation_id),
+      interpretation_representation_ids: state.representationItems.map((item) => item.representation_id),
+      evidence_representation_ids: state.evidenceItems.map((item) => item.representation_id),
+      representation_ids: state.rawRepresentations.map((item) => item.id),
       comparison_ids: state.comparisonItems.map((item) => item.comparison_id),
     },
   };
 }
 
 async function inspectDetailState(client, fileBinaryId, workspaceRoot) {
-  const representations = await listRepresentationsForBinary(client, fileBinaryId, {
-    representationKinds: [DEFAULT_REPRESENTATION_KIND],
-  });
+  const representations = await listRepresentationsForBinary(client, fileBinaryId);
+  const interpretationRepresentations = representations.filter(
+    (representation) => representation.representation_kind === DEFAULT_REPRESENTATION_KIND,
+  );
+  const evidenceRepresentations = representations.filter(isEvidenceRepresentation);
   const selection = await resolveEffectiveRepresentation(client, { fileBinaryId });
   const comparisons = await listComparisonsForBinary(client, fileBinaryId);
   const attention = await deriveRepresentationAttention(client, fileBinaryId);
   const representationItems = await Promise.all(
-    representations.map((representation) => buildRepresentationViewModel(workspaceRoot, representation, selection)),
+    interpretationRepresentations.map((representation) => buildRepresentationViewModel(workspaceRoot, representation, selection)),
+  );
+  const evidenceItems = await Promise.all(
+    evidenceRepresentations.map((representation) => buildRepresentationViewModel(workspaceRoot, representation)),
   );
   return {
     rawRepresentations: representations,
@@ -654,6 +679,7 @@ async function inspectDetailState(client, fileBinaryId, workspaceRoot) {
     attention,
     comparisonItems: comparisons.map(buildComparisonViewModel),
     representationItems,
+    evidenceItems,
   };
 }
 

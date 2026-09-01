@@ -165,6 +165,9 @@ export interface BinaryDetailResponse {
     } | null;
     effective_selection_reason: SelectionReason;
   };
+  evidence: {
+    items: RepresentationListItem[];
+  };
   comparisons: ComparisonItem[];
   attention: {
     review_needed: boolean;
@@ -178,6 +181,8 @@ export interface BinaryDetailResponse {
   };
   technical_details: {
     binary_id: number;
+    interpretation_representation_ids: number[];
+    evidence_representation_ids: number[];
     representation_ids: number[];
     comparison_ids: number[];
   };

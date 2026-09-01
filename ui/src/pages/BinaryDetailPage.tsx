@@ -16,6 +16,7 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 
 import { getBinaryDetail } from "../api/consultation";
 import { ContextSummary } from "../components/ContextSummary";
+import { EvidenceViewer } from "../components/EvidenceViewer";
 import { PdfViewer } from "../components/PdfViewer";
 import { ProcessingSummary } from "../components/ProcessingSummary";
 import { ProvenanceSummary } from "../components/ProvenanceSummary";
@@ -42,6 +43,8 @@ export function BinaryDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [viewRepresentationId, setViewRepresentationId] = useState<string | "">("");
   const [viewFormat, setViewFormat] = useState<string | "">("");
+  const [viewEvidenceId, setViewEvidenceId] = useState<string | "">("");
+  const [viewEvidenceFormat, setViewEvidenceFormat] = useState<string | "">("");
 
   async function load() {
     setLoading(true);
@@ -52,6 +55,9 @@ export function BinaryDetailPage() {
       const initialRepresentation = chooseInitialRepresentation(nextDetail);
       setViewRepresentationId(normalizeStableId(initialRepresentation?.representation_id) ?? "");
       setViewFormat(chooseInitialFormat(initialRepresentation) ?? "");
+      const initialEvidence = nextDetail.evidence.items[0] ?? null;
+      setViewEvidenceId(normalizeStableId(initialEvidence?.representation_id) ?? "");
+      setViewEvidenceFormat(chooseInitialFormat(initialEvidence) ?? "");
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : String(loadError));
     } finally {
@@ -169,20 +175,35 @@ export function BinaryDetailPage() {
           )}
         </Grid>
         <Grid size={{ xs: 12, xl: 6 }}>
-          <RepresentationViewer
-            representations={detail.representations.items}
-            effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id) ?? null}
-            viewRepresentationId={viewRepresentationId}
-            onViewRepresentationChange={(representationId) => {
-              setViewRepresentationId(representationId);
-              const representation = detail.representations.items.find(
-                (item) => sameStableId(item.representation_id, representationId),
-              ) ?? null;
-              setViewFormat(chooseInitialFormat(representation) ?? "");
-            }}
-            viewFormat={viewFormat}
-            onViewFormatChange={setViewFormat}
-          />
+          <Stack spacing={2.5}>
+            <RepresentationViewer
+              representations={detail.representations.items}
+              effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id) ?? null}
+              viewRepresentationId={viewRepresentationId}
+              onViewRepresentationChange={(representationId) => {
+                setViewRepresentationId(representationId);
+                const representation = detail.representations.items.find(
+                  (item) => sameStableId(item.representation_id, representationId),
+                ) ?? null;
+                setViewFormat(chooseInitialFormat(representation) ?? "");
+              }}
+              viewFormat={viewFormat}
+              onViewFormatChange={setViewFormat}
+            />
+            <EvidenceViewer
+              evidence={detail.evidence.items}
+              viewRepresentationId={viewEvidenceId}
+              onViewRepresentationChange={(representationId) => {
+                setViewEvidenceId(representationId);
+                const representation = detail.evidence.items.find(
+                  (item) => sameStableId(item.representation_id, representationId),
+                ) ?? null;
+                setViewEvidenceFormat(chooseInitialFormat(representation) ?? "");
+              }}
+              viewFormat={viewEvidenceFormat}
+              onViewFormatChange={setViewEvidenceFormat}
+            />
+          </Stack>
         </Grid>
       </Grid>
 

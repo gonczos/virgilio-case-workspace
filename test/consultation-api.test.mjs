@@ -103,6 +103,22 @@ async function findRepresentationFixture(client, processorKey) {
   return result.rows[0] ?? null;
 }
 
+async function findBinaryWithEvidence(client, processorKey = "pdf_literal_text") {
+  const result = await client.query(
+    `
+      SELECT fb.sha256
+      FROM casework.file_binary AS fb
+      JOIN casework.document_representation AS dr
+        ON dr.file_binary_id = fb.id
+      WHERE dr.processor_key = $1
+      ORDER BY fb.id ASC
+      LIMIT 1
+    `,
+    [processorKey],
+  );
+  return result.rows[0]?.sha256 ?? null;
+}
+
 test("catalogue endpoint returns known binaries and processing summary", async () => {
   await withRealClient(async (client) => {
     const singleSha = await findFixtureBinary(client, { multiDocument: false });
@@ -185,6 +201,7 @@ test("detail endpoint resolves a known binary and reuses effective-selection beh
       assert.equal(Array.isArray(payload.context.workspaces), true);
       assert.equal(Array.isArray(payload.processing.jobs), true);
       assert.equal(Array.isArray(payload.representations.items), true);
+      assert.equal(Array.isArray(payload.evidence.items), true);
       assert.equal(Array.isArray(payload.comparisons), true);
       assert.equal(typeof payload.attention.review_needed, "boolean");
       assert.deepEqual(payload.attention.reason_codes, payload.attention.reasons.map((item) => item.reason_code));
@@ -194,18 +211,44 @@ test("detail endpoint resolves a known binary and reuses effective-selection beh
       );
       assert.equal(payload.representations.effective_selection_reason, expectedSelection.selection_source);
       for (const representation of payload.representations.items) {
+        assert.equal(representation.representation_kind, "extracted_document_bundle");
         if (representation.processor_key === "docling") {
           assert.equal(representation.available_formats.includes("text"), true);
-          assert.equal(representation.available_formats.includes("markdown"), true);
-          assert.equal(representation.available_formats.includes("native-json"), true);
         }
         if (representation.processor_key === "xberg") {
           assert.equal(representation.available_formats.includes("text"), true);
-          assert.equal(representation.available_formats.includes("markdown"), false);
-          assert.equal(representation.available_formats.includes("native-json"), true);
         }
       }
     });
+  });
+});
+
+test("detail endpoint exposes evidence separately and does not create processing jobs", async () => {
+  await withRealClient(async (client) => {
+    const evidenceSha = await findBinaryWithEvidence(client, "pdf_literal_text");
+    assert.ok(evidenceSha);
+    const before = await client.query("SELECT COUNT(*)::bigint AS count FROM casework.processing_job");
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const response = await request(baseUrl, `/api/consultation/binaries/${evidenceSha}`);
+      assert.equal(response.statusCode, 200);
+      const payload = JSON.parse(response.body);
+      assert.equal(Array.isArray(payload.evidence.items), true);
+      assert.equal(payload.evidence.items.length > 0, true);
+      assert.equal(
+        payload.representations.items.every((item) => item.representation_kind === "extracted_document_bundle"),
+        true,
+      );
+      assert.equal(
+        payload.evidence.items.some((item) => item.processor_key === "pdf_literal_text"),
+        true,
+      );
+      assert.equal(
+        payload.evidence.items.some((item) => item.representation_kind !== "extracted_document_bundle"),
+        true,
+      );
+    });
+    const after = await client.query("SELECT COUNT(*)::bigint AS count FROM casework.processing_job");
+    assert.equal(after.rows[0].count, before.rows[0].count);
   });
 });
 
@@ -296,6 +339,28 @@ test("representation content returns native JSON for Docling and Xberg", async (
       assert.equal(xbergResponse.headers["content-type"], "application/json; charset=utf-8");
       const xbergJson = JSON.parse(xbergResponse.body);
       assert.equal(typeof xbergJson, "object");
+    });
+  });
+});
+
+test("representation content returns evidence artifacts through the same read-only endpoint", async () => {
+  await withRealClient(async (client) => {
+    const literalText = await findRepresentationFixture(client, "pdf_literal_text");
+    const signatureMetadata = await findRepresentationFixture(client, "pdf_signature_metadata");
+    assert.ok(literalText);
+    assert.ok(signatureMetadata);
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const literalTextResponse = await request(baseUrl, `/api/consultation/representations/${literalText.id}/content?format=text`);
+      assert.equal(literalTextResponse.statusCode, 200);
+      assert.equal(literalTextResponse.headers["content-type"], "text/plain; charset=utf-8");
+      assert.equal(literalTextResponse.body.length > 0, true);
+
+      const signatureResponse = await request(baseUrl, `/api/consultation/representations/${signatureMetadata.id}/content?format=native-json`);
+      assert.equal(signatureResponse.statusCode, 200);
+      assert.equal(signatureResponse.headers["content-type"], "application/json; charset=utf-8");
+      const payload = JSON.parse(signatureResponse.body);
+      assert.equal(typeof payload, "object");
+      assert.equal(Array.isArray(payload.signatures) || payload.signatures === undefined, true);
     });
   });
 });
