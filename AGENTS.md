@@ -35,6 +35,16 @@
 * Explicit human representation selection overrides automatic consultation policy.
 * Merely creating a human representation does not make it preferred.
 
+## Task History
+
+* Recorded runs are opt-in only: use them when the user explicitly requests a recorded run or the task prompt explicitly requires one.
+* Prompts are normally developed under `docs/discussions/` and frozen only when agreed and ready for execution.
+* For a recorded run, preserve the initiating prompt under `docs/agent-runs/<task-id>/prompt.md`.
+* For a recorded run, `docs/agent-runs/<task-id>/report.md` is required before that recorded run is complete.
+* For a recorded run, the frozen `prompt.md` is the execution source and must not be silently replaced by chat text or a later discussion revision.
+* Recorded prompts and reports are historical/audit material. They are not architecture, setup, roadmap, requirements, or implementation authority merely because they exist in the repository.
+* If a conclusion from a recorded run should become authoritative, deliberately promote it into the appropriate authoritative documentation.
+
 ## Storage And Processing Boundaries
 
 * Access original binaries in application/runtime code through `BinaryStore` or the applicable storage abstraction.
