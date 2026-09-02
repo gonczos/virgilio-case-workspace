@@ -1,6 +1,7 @@
 # WIP — Google Drive Factual Export
 
-Status: discussion draft; not an authoritative architecture or implementation contract.
+Status: discussion draft with a bounded local implementation slice; not an
+authoritative architecture or Google Drive integration contract.
 
 Last updated: 2026-09-02
 
@@ -230,6 +231,32 @@ appropriate:
 
 This WIP does not yet decide whether the Google Drive factual export extends the
 existing package format or defines a related, separately versioned format.
+
+## Implemented targeted local slice
+
+Implemented on 2026-09-02 as a bounded validation step before Google Drive
+authentication or upload:
+
+* one multi-binary package root with format `virgilio-factual-export`, version 1;
+* explicit SHA-256 selection through `processing-admin export-factual-slice`;
+* one verified portable evidence package under `binaries/<sha256>/` for each
+  selected binary, reusing the existing original/artifact/provenance exporter;
+* package-level `binary-index.csv`, `document-context-index.csv`, and
+  `processing-index.csv`;
+* a package-level manifest containing scope, counts, generated-file hashes, and
+  the identity/hash of every nested portable manifest;
+* standalone recursive inspection through
+  `processing-admin inspect-factual-export`;
+* immutable destination behavior: an existing output directory is rejected.
+
+The first real validation package contains five binaries from the existing
+adversarial sample: ordinary text, signed/literal-versus-interpretation evidence,
+image-only, known interpretation disagreement, and historical heavy-processing
+recovery. It is stored locally under
+`data/exports/factual-slices/2026-09-02-targeted-five` and is not committed.
+
+This slice does not implement Google credentials, Drive permissions, upload,
+synchronization, incremental replacement, or public sharing.
 
 ## Google Drive boundary
 

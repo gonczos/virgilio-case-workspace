@@ -3134,3 +3134,22 @@ Core questions for that next step:
 7. Which deferred evidence channel, if any, is now the next highest-value implementation target?
 
 Minimal CLI/inspection support is reasonable in that step, but it should remain validation tooling rather than consultation UX or search consumption.
+
+## Targeted Multi-Binary Factual Export Result
+
+Implemented on 2026-09-02 as a bounded local export slice:
+
+- package format `virgilio-factual-export`, version 1, groups an explicit set of
+  binaries under one immutable export root
+- each `binaries/<sha256>/` directory reuses the verified one-binary portable
+  evidence package rather than duplicating original/artifact copying semantics
+- package-level CSV indexes expose binary, factual context, representation, and
+  failed-job records for file-based consultation
+- the package manifest records explicit selection scope, generated index hashes,
+  nested manifest hashes, and per-binary counts
+- standalone inspection verifies package-level files and recursively verifies
+  every nested original and representation artifact
+- the exporter is read-only with respect to PostgreSQL and retrieves originals
+  through the existing `BinaryStore` boundary
+- no Google Drive authentication, upload, permission, synchronization, or remote
+  storage behavior is included in this slice

@@ -9,6 +9,8 @@ import {
 } from "./processing-common.mjs";
 import { inspectPortableBinaryExportPackage } from "./portable-export-inspect.mjs";
 import { exportPortableBinaryPackage } from "./portable-export.mjs";
+import { inspectFactualExport } from "./factual-export-inspect.mjs";
+import { exportFactualSlice } from "./factual-export.mjs";
 import {
   clearSelectionOverride,
   countProcessingState,
@@ -156,6 +158,24 @@ async function handleInspectExport(flags) {
   console.log(JSON.stringify(result.report, null, 2));
 }
 
+async function handleExportFactualSlice(client, flags) {
+  const sha256s = requireFlag(flags, "shas").split(",").map((value) => value.trim()).filter(Boolean);
+  const outputDir = requireFlag(flags, "output");
+  const result = await exportFactualSlice(client, { sha256s, outputDir });
+  console.log(JSON.stringify({
+    output_dir: result.outputDir,
+    package_format: result.manifest.package_format,
+    package_version: result.manifest.package_version,
+    binary_count: result.manifest.counts.binaries,
+  }, null, 2));
+}
+
+async function handleInspectFactualExport(flags) {
+  const packageDir = requireFlag(flags, "package");
+  const result = await inspectFactualExport({ packageDir });
+  console.log(JSON.stringify(result.report, null, 2));
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   if (!command) {
@@ -163,6 +183,10 @@ async function main() {
   }
   if (command === "inspect-export") {
     await handleInspectExport(flags);
+    return;
+  }
+  if (command === "inspect-factual-export") {
+    await handleInspectFactualExport(flags);
     return;
   }
   await withClient("processing-admin", async (client) => {
@@ -194,6 +218,9 @@ async function main() {
         break;
       case "export-binary":
         await handleExportBinary(client, flags);
+        break;
+      case "export-factual-slice":
+        await handleExportFactualSlice(client, flags);
         break;
       case "list-purposes":
         console.log(JSON.stringify({
