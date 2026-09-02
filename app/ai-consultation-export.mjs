@@ -349,7 +349,9 @@ export function buildIdentifierPreservationInventory({
         processor,
         set ? (set.has(candidate.normalized_value) ? "present" : "absent") : "unknown",
       ])),
-    })).sort((left, right) => left.normalized_value.localeCompare(right.normalized_value)),
+    })).sort((left, right) => (
+      left.normalized_value < right.normalized_value ? -1 : left.normalized_value > right.normalized_value ? 1 : 0
+    )),
   };
 }
 

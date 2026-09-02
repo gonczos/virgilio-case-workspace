@@ -285,7 +285,7 @@ test("identifier inventory reports attributed textual coverage without correctne
       source_artifact_sha256: "b".repeat(64),
       pages: [{
         pdf_page_number: 2,
-        items: [{ native_item_reference: "#/texts/1", text: "Case 13608/14.8T2SNT ref 134937241" }],
+        items: [{ native_item_reference: "#/texts/1", text: "Case 13608/14.8T2SNT ref 134937241 and É12345/9" }],
       }],
     },
     readableOutputs: {
@@ -299,5 +299,9 @@ test("identifier inventory reports attributed textual coverage without correctne
   assert.equal(caseNumber.output_presence.xberg, "unknown");
   assert.equal(reference.output_presence.docling, "absent");
   assert.deepEqual(reference.pdf_pages, [2]);
+  assert.deepEqual(
+    inventory.identifiers.map((item) => item.normalized_value),
+    [...inventory.identifiers.map((item) => item.normalized_value)].sort(),
+  );
   assert.match(inventory.method.limitations[1], /not correctness/u);
 });
