@@ -7,6 +7,7 @@ import test from "node:test";
 import { inspectFactualExport } from "../app/factual-export-inspect.mjs";
 import { exportFactualSlice } from "../app/factual-export.mjs";
 import {
+  buildDoclingPageProjection,
   classifyUnavailableProcessor,
   compareProcessorTexts,
   prepareAiConsultationPackage,
@@ -102,6 +103,16 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(limited.source_binary.page_count, 1);
       assert.equal(limited.source_binary.pdf_characteristics.raster_page_content, "present");
       assert.equal(limited.linked_source_documents[0].document_date, "2020-09-01");
+      const limitedPages = JSON.parse(await fs.readFile(path.join(
+        consultationDir,
+        "documents",
+        REPRESENTATIVE_SHAS[0],
+        "page-traceability.json",
+      ), "utf8"));
+      assert.equal(limitedPages.channels.pdf_literal_text.pages[0].text_presence, "present");
+      assert.equal(limitedPages.channels.pdf_literal_text.pages[0].alphanumeric_character_count, 6);
+      assert.equal(limitedPages.channels.pdf_literal_text.pages[0].extraction_volume_assessment, "nearly_empty");
+      assert.equal("has_meaningful_text" in limitedPages.channels.pdf_literal_text.pages[0], false);
 
       for (const sha256 of [REPRESENTATIVE_SHAS[1], REPRESENTATIVE_SHAS[2], REPRESENTATIVE_SHAS[4]]) {
         const metadata = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", sha256, "metadata.json"), "utf8"));
@@ -119,7 +130,9 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(bornDigitalPages.source_native_text_assessment.length, 5);
       assert.equal(bornDigitalPages.channels.pdf_literal_text.page_mapping_status, "available");
       assert.equal(bornDigitalPages.channels.pdf_literal_text.pages.length, 5);
-      assert.equal(bornDigitalPages.channels.docling.page_mapping_status, "unavailable");
+      assert.equal(bornDigitalPages.channels.docling.page_mapping_status, "available");
+      assert.equal(bornDigitalPages.channels.docling.pages.length, 5);
+      assert.equal(bornDigitalPages.channels.docling.markdown_offset_mapping_status, "unavailable");
       assert.equal(bornDigitalPages.channels.xberg.page_mapping_status, "unavailable");
       const signed = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[3], "metadata.json"), "utf8"));
       assert.equal(signed.source_binary.pdf_characteristics.signature_field_or_dictionary_presence, "present");
@@ -129,6 +142,14 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       const scannedLong = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[4], "metadata.json"), "utf8"));
       assert.equal(scannedLong.source_binary.page_count, 88);
       assert.equal(scannedLong.diagnostics.some((item) => item.code === "SOURCE_PDF_NO_NATIVE_TEXT"), true);
+      const scannedLongPages = JSON.parse(await fs.readFile(path.join(
+        consultationDir,
+        "documents",
+        REPRESENTATIVE_SHAS[4],
+        "page-traceability.json",
+      ), "utf8"));
+      assert.equal(scannedLongPages.channels.docling.pages.length, 88);
+      assert.equal(scannedLongPages.channels.docling.unmapped_item_count, 0);
       const multiProcess = JSON.parse(await fs.readFile(path.join(
         consultationDir,
         "documents",
@@ -205,4 +226,37 @@ test("AI consultation preserves Portuguese source calendar dates", () => {
   assert.equal(sourceCalendarDate("2020-08-31T23:00:00.000Z"), "2020-09-01");
   assert.equal(sourceCalendarDate("2022-01-13"), "2022-01-13");
   assert.equal(sourceCalendarDate(null), null);
+});
+
+test("Docling native page projection retains attributed page provenance", () => {
+  const projection = buildDoclingPageProjection({
+    body: { children: [{ $ref: "#/groups/0" }] },
+    furniture: { children: [{ $ref: "#/texts/1" }] },
+    groups: [{ self_ref: "#/groups/0", children: [{ $ref: "#/texts/0" }] }],
+    texts: [
+      {
+        self_ref: "#/texts/0",
+        label: "text",
+        content_layer: "body",
+        text: "Page two",
+        prov: [{ page_no: 2, bbox: { l: 1, t: 2, r: 3, b: 4 }, charspan: [0, 8] }],
+      },
+      {
+        self_ref: "#/texts/1",
+        label: "page_header",
+        content_layer: "furniture",
+        text: "Header",
+        prov: [{ page_no: 1, bbox: { l: 5, t: 6, r: 7, b: 8 }, charspan: [0, 6] }],
+      },
+    ],
+    tables: [],
+    pictures: [],
+    key_value_items: [],
+    form_items: [],
+  });
+  assert.equal(projection.mapped_item_count, 2);
+  assert.equal(projection.unmapped_item_count, 0);
+  assert.deepEqual(projection.pages.map((page) => page.pdf_page_number), [1, 2]);
+  assert.equal(projection.pages[1].items[0].native_item_reference, "#/texts/0");
+  assert.equal(projection.pages[1].items[0].text, "Page two");
 });

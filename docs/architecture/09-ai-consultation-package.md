@@ -47,8 +47,14 @@ binary's `metadata.json` for every source document, process number, and
 procedural occurrence.
 
 `occurrences.csv` is the complete package-level chronology projection. Source
-calendar dates use `YYYY-MM-DD` and are not converted into UTC instants. Actual
-generation and processing instants remain timestamps. `display_label` and the
+calendar dates use `YYYY-MM-DD` and are not converted into UTC instants. They
+preserve dates attributed to source records and do not assert a time of day,
+timezone, or that document, occurrence, filing, signing, receipt, and decision
+dates are interchangeable. `document_date` is attributed to the source document
+record; `bucket_date` / occurrence date is attributed to the source-recorded
+procedural occurrence; `data_autuacao` and `data_decisao`, where exported, are
+the source-recorded case registration and decision dates. Actual generation and
+processing instants remain timestamps. `display_label` and the
 `navigation_label` object are generated, non-authoritative navigation aids;
 neither changes document identity or source metadata.
 
@@ -71,10 +77,19 @@ comparison.
 
 Page traceability is independently described for each processor. Literal PDF
 text uses extractor-emitted form-feed boundaries as PDF page indexes. Printed
-page labels remain `not_observed`. Docling and Xberg consultation artifacts are
-marked with unavailable page mapping unless their included artifact contract
-provides a reliable boundary; reported page counts are not silently treated as
-passage-to-page lineage. Per-page OCR use is `unknown` when not provided.
+page labels remain `not_observed`. Docling page items are projected from page
+provenance retained in its immutable `native.json`, including native item
+reference, native document order, label, content layer, text where present,
+bounding box, and character span. This is lineage to native Docling items; it
+does not claim exact offsets into rendered Markdown. Xberg page mapping remains
+unavailable when its included artifact contract has no reliable boundary;
+reported page counts are not silently treated as passage-to-page lineage.
+Per-page OCR use is `unknown` when not provided.
+
+Text presence and extraction-volume assessment are separate. Page records use
+raw extracted and Unicode letter/digit counts, `present` / `absent` presence,
+and an explicitly described volume threshold. Passing that threshold does not
+assess correctness, completeness, relevance, or semantic meaning.
 
 ## Diagnostics
 
@@ -95,7 +110,7 @@ diagnostics intentionally have no severity. Current stable codes are:
 | `INCOMPLETE_PAGE_COVERAGE` | Representation reports fewer pages than the source PDF. | Yes |
 | `DECLARED_ARTIFACT_MISSING` | Representation declares a selected file that is absent. | Yes |
 | `PROCESSOR_OUTPUTS_TEXTUALLY_NON_IDENTICAL` | Eligible Docling and Xberg text differ after conservative whitespace normalization. Substantive disagreement was not assessed. | No |
-| `LARGE_TEXT_COVERAGE_DIFFERENCE` | Smaller interpretation has less than 65% of the meaningful characters of the larger. | Yes |
+| `LARGE_TEXT_COVERAGE_DIFFERENCE` | Smaller interpretation has less than 65% of the Unicode letters and digits of the larger; this is a volume comparison. | Yes |
 
 Textual non-identity is not substantive disagreement. Initial-line differences,
 layout, typography, accents, and ordinary OCR variation do not create a warning
@@ -123,7 +138,7 @@ Version 2 implements the agreed packaging improvements in this order:
 | 1 | Correct date semantics. | Preserve source calendar dates as calendar dates. Do not serialize them as shifted UTC timestamps; retain timezone information only for actual instants. |
 | 2 | Add a chronological `occurrences.csv`. | One row per source-recorded procedural occurrence, linked to the full binary SHA-256 and source document reference. This is a navigation projection, not a new identity model. |
 | 3 | Add a package coverage report. | Report selection scope, included binaries, source documents without binaries, unavailable outputs, failed jobs, and unknown states. Do not infer completeness that the source data cannot prove. |
-| 4 | Add page-level traceability and coverage where supported. | Preserve processor-specific page boundaries, distinguish PDF page index from printed page label, record meaningful-text counts and OCR method per page when available, and use `unknown` when the processor does not provide reliable page lineage. |
+| 4 | Add page-level traceability and coverage where supported. | Preserve processor-specific page boundaries, distinguish PDF page index from printed page label, record factual text-presence/count observations and OCR method per page when available, and use `unknown` when the processor does not provide reliable page lineage. |
 | 5 | Clarify warning and signature semantics. | State that “no actionable warnings” means only that no configured diagnostic fired. Keep signature fields, cryptographic signature observations/validation, and visible handwritten signature images as distinct concepts. |
 | 6 | Add readable document labels. | Labels are navigation aids only. Full SHA-256 remains the binary identity, and labels must not overwrite or reinterpret source metadata. |
 

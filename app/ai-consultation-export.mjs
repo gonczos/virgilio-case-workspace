@@ -29,12 +29,14 @@ Start with \`documents.csv\`. It has one row per binary, identified by the full 
 8. Cite conclusions using the full SHA-256, source document metadata, and PDF page where reliable page mapping is available.
 9. Distinguish factual extraction from legal, semantic, or narrative interpretation.
 
+Dates such as document and occurrence dates preserve source-recorded calendar dates in \`YYYY-MM-DD\` form. They are not timestamps and do not imply a time of day or timezone. Document, occurrence, filing, signing, receipt, and decision dates must not be treated as interchangeable unless the source establishes that relationship.
+
 ## Folder contents
 
 - \`original.*\`: the original document.
 - \`evidence/\`: literal text and narrow PDF observations such as signatures or structure.
 - \`interpretations/\`: readable content produced by document extraction tools.
-- \`page-traceability.json\`: supported page-level coverage and explicit unavailable mappings.
+- \`page-traceability.json\`: literal-text page boundaries, processor-attributed Docling native page items where available, and explicit unavailable mappings. Docling page items do not claim exact offsets into the rendered Markdown.
 - \`warnings.md\`: actionable extraction cautions rendered from \`metadata.json\`, when present.
 - \`coverage.json\`: package scope, inclusion, and extraction-state coverage.
 - \`manifest.json\`: package identity and file-integrity inventory.
@@ -171,8 +173,14 @@ export function classifyUnavailableProcessor(processor, jobs) {
   });
 }
 
-function meaningfulCharacterCount(text) {
+function alphanumericCharacterCount(text) {
   return (text.match(/[\p{L}\p{N}]/gu) ?? []).length;
+}
+
+function extractionVolumeAssessment(count, threshold = 100) {
+  if (count === 0) return "empty";
+  if (count < threshold) return "nearly_empty";
+  return "above_threshold";
 }
 
 function literalPageRecords(text, sourcePageCount) {
@@ -180,18 +188,87 @@ function literalPageRecords(text, sourcePageCount) {
   if (parts.length === sourcePageCount + 1 && parts.at(-1) === "") parts.pop();
   return Array.from({ length: sourcePageCount }, (_, index) => {
     const pageText = parts[index] ?? "";
+    const alphanumericCount = alphanumericCharacterCount(pageText);
     return {
       pdf_page_number: index + 1,
       printed_page_label: null,
       printed_page_label_status: "not_observed",
-      character_count: pageText.length,
-      meaningful_character_count: meaningfulCharacterCount(pageText),
-      has_meaningful_text: meaningfulCharacterCount(pageText) > 0,
+      extracted_character_count: pageText.length,
+      alphanumeric_character_count: alphanumericCount,
+      text_presence: alphanumericCount > 0 ? "present" : "absent",
+      extraction_volume_assessment: extractionVolumeAssessment(alphanumericCount),
     };
   });
 }
 
-function buildPageTraceability(manifest, representations, comparableText, diagnostics) {
+function resolveDoclingReference(nativeDocument, reference) {
+  if (typeof reference !== "string" || !reference.startsWith("#/")) return null;
+  return reference.slice(2).split("/").reduce((value, key) => value?.[key], nativeDocument);
+}
+
+export function buildDoclingPageProjection(nativeDocument) {
+  const orderedReferences = [];
+  const visited = new Set();
+  function visit(reference) {
+    if (visited.has(reference)) return;
+    visited.add(reference);
+    const item = resolveDoclingReference(nativeDocument, reference);
+    if (!item) return;
+    if (reference.startsWith("#/groups/")) {
+      for (const child of item.children ?? []) visit(child.$ref);
+      return;
+    }
+    orderedReferences.push(reference);
+  }
+  for (const root of [nativeDocument.body, nativeDocument.furniture]) {
+    for (const child of root?.children ?? []) visit(child.$ref);
+  }
+  for (const collection of ["texts", "tables", "pictures", "key_value_items", "form_items"]) {
+    for (const item of nativeDocument[collection] ?? []) visit(item.self_ref);
+  }
+
+  const pages = new Map(Object.keys(nativeDocument.pages ?? {})
+    .map((pageNumber) => [Number(pageNumber), []])
+    .filter(([pageNumber]) => Number.isInteger(pageNumber) && pageNumber > 0));
+  let mappedItemCount = 0;
+  let unmappedItemCount = 0;
+  for (const [documentOrder, reference] of orderedReferences.entries()) {
+    const item = resolveDoclingReference(nativeDocument, reference);
+    const provenance = Array.isArray(item?.prov) ? item.prov : [];
+    if (provenance.length === 0) {
+      unmappedItemCount += 1;
+      continue;
+    }
+    mappedItemCount += 1;
+    for (const observation of provenance) {
+      const pageNumber = Number(observation.page_no);
+      if (!Number.isInteger(pageNumber) || pageNumber < 1) continue;
+      const page = pages.get(pageNumber) ?? [];
+      page.push({
+        native_item_reference: reference,
+        item_kind: reference.split("/")[1] ?? null,
+        native_document_order: documentOrder,
+        label: item.label ?? null,
+        content_layer: item.content_layer ?? null,
+        text: typeof item.text === "string" ? item.text : null,
+        bounding_box: observation.bbox ?? null,
+        character_span: observation.charspan ?? null,
+      });
+      pages.set(pageNumber, page);
+    }
+  }
+  return {
+    mapped_item_count: mappedItemCount,
+    unmapped_item_count: unmappedItemCount,
+    pages: [...pages.entries()].sort(([left], [right]) => left - right).map(([pdfPageNumber, items]) => ({
+      pdf_page_number: pdfPageNumber,
+      item_count: items.length,
+      items,
+    })),
+  };
+}
+
+function buildPageTraceability(manifest, representations, comparableText, diagnostics, doclingProjection) {
   const pageCount = Number(manifest.persisted.file_binary.page_count ?? 0);
   const sourcePages = (manifest.persisted.file_binary.page_text_report_json ?? [])
     .map((page) => ({
@@ -213,8 +290,30 @@ function buildPageTraceability(manifest, representations, comparableText, diagno
         page_mapping_status: "available",
         mapping_basis: "Form-feed page boundaries emitted by the literal PDF text extractor.",
         pdf_page_count: pageCount,
-        pages_with_meaningful_text: pages.filter((page) => page.has_meaningful_text).length,
+        pages_with_text_present: pages.filter((page) => page.text_presence === "present").length,
+        extraction_volume_assessment_basis: {
+          metric: "unicode_letter_or_digit_count",
+          nearly_empty_threshold_exclusive: 100,
+          limitation: "Volume does not assess correctness, completeness, relevance, or semantic meaning.",
+        },
         pages,
+      };
+    } else if (processor === "docling" && representation && doclingProjection?.pages.length > 0) {
+      channels[processor] = {
+        output_availability: availability,
+        page_mapping_status: "available",
+        mapping_basis: "Page provenance retained on items in the processor's native.json artifact.",
+        processor: representation.processor_key,
+        processor_version: representation.processor_version,
+        processor_profile: representation.profile_key ?? null,
+        source_artifact: "native.json",
+        source_artifact_sha256: doclingProjection.source_artifact_sha256,
+        projection_kind: "processor_attributed_page_items",
+        ordering_basis: "Docling body/furniture tree traversal followed by unreferenced native collection order.",
+        markdown_offset_mapping_status: "unavailable",
+        pdf_page_count: pageCount,
+        ...doclingProjection,
+        per_page_ocr_usage: "unknown",
       };
     } else {
       channels[processor] = {
@@ -229,7 +328,7 @@ function buildPageTraceability(manifest, representations, comparableText, diagno
     }
   }
   return {
-    schema_version: 1,
+    schema_version: 2,
     source_binary_sha256: manifest.persisted.file_binary.sha256,
     pdf_page_count: pageCount,
     printed_page_labels: "not_observed",
@@ -249,8 +348,8 @@ function navigationLabel(contexts, sha256) {
 export function compareProcessorTexts(doclingText, xbergText) {
   const doclingNormalized = normalizeComparisonText(doclingText);
   const xbergNormalized = normalizeComparisonText(xbergText);
-  const doclingMeaningful = meaningfulCharacterCount(doclingText);
-  const xbergMeaningful = meaningfulCharacterCount(xbergText);
+  const doclingAlphanumeric = alphanumericCharacterCount(doclingText);
+  const xbergAlphanumeric = alphanumericCharacterCount(xbergText);
   const results = [];
   if (doclingNormalized !== xbergNormalized) {
     results.push(diagnostic("PROCESSOR_OUTPUTS_TEXTUALLY_NON_IDENTICAL", "content_comparison", {
@@ -265,14 +364,14 @@ export function compareProcessorTexts(doclingText, xbergText) {
       },
     }));
   }
-  const coverageRatio = Math.min(doclingMeaningful, xbergMeaningful) / Math.max(doclingMeaningful, xbergMeaningful);
+  const coverageRatio = Math.min(doclingAlphanumeric, xbergAlphanumeric) / Math.max(doclingAlphanumeric, xbergAlphanumeric);
   if (Number.isFinite(coverageRatio) && coverageRatio < 0.65) {
     results.push(diagnostic("LARGE_TEXT_COVERAGE_DIFFERENCE", "content_comparison", {
       actionable: true,
       severity: "warning",
       processors: ["docling", "xberg"],
-      factual_basis: "The smaller interpretation contains less than 65% of the meaningful characters in the larger interpretation.",
-      counts: { docling_meaningful_characters: doclingMeaningful, xberg_meaningful_characters: xbergMeaningful, coverage_ratio: coverageRatio, threshold: 0.65 },
+      factual_basis: "The smaller interpretation contains less than 65% of the Unicode letters and digits in the larger interpretation. This is a volume comparison, not a semantic quality assessment.",
+      counts: { docling_alphanumeric_characters: doclingAlphanumeric, xberg_alphanumeric_characters: xbergAlphanumeric, coverage_ratio: coverageRatio, threshold: 0.65 },
       recommended_action: "Consult both independent interpretations and verify potentially omitted material against the original binary.",
     }));
   }
@@ -405,18 +504,18 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
           continue;
         }
         let textValue = null;
-        let meaningful = null;
+        let alphanumericCount = null;
         if (output.text) {
           textValue = await fs.readFile(sourceArtifact, "utf8");
-          meaningful = meaningfulCharacterCount(textValue);
-          if (meaningful === 0) {
+          alphanumericCount = alphanumericCharacterCount(textValue);
+          if (alphanumericCount === 0) {
             diagnostics.push(diagnostic("PROCESSOR_OUTPUT_EMPTY", "extraction_quality", {
               actionable: true,
               severity: "warning",
               processor,
               state: "empty",
               factual_basis: "The selected text artifact contains no letters or digits.",
-              counts: { size_bytes: Number(sourceStats.size), meaningful_character_count: 0 },
+              counts: { size_bytes: Number(sourceStats.size), alphanumeric_character_count: 0 },
               recommended_action: "Use an image-derived interpretation and inspect the original binary.",
             }));
             continue;
@@ -441,8 +540,8 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
           counts: { size_bytes: Number(sourceStats.size) },
         }));
         if (output.text) {
-          comparableText.set(processor, { text: textValue, meaningful, artifact: artifactRecord });
-          if (meaningful < 100) {
+          comparableText.set(processor, { text: textValue, alphanumericCount, artifact: artifactRecord });
+          if (alphanumericCount < 100) {
             diagnostics.push(diagnostic("PROCESSOR_OUTPUT_NEARLY_EMPTY", "extraction_quality", {
               actionable: true,
               severity: "warning",
@@ -450,7 +549,11 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
               artifact_path: output.target,
               state: "nearly_empty",
               factual_basis: "The included text contains fewer than 100 letters or digits.",
-              counts: { meaningful_character_count: meaningful, threshold: 100 },
+              counts: {
+                alphanumeric_character_count: alphanumericCount,
+                threshold: 100,
+                assessment: extractionVolumeAssessment(alphanumericCount),
+              },
               recommended_action: "Do not treat this as complete document text; inspect the original and another extraction channel.",
             }));
           }
@@ -477,7 +580,25 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
 
       const contexts = sourceContext(manifest);
       const signature = representations.get("pdf_signature_metadata");
-      const pageTraceability = buildPageTraceability(manifest, representations, comparableText, diagnostics);
+      let doclingProjection = null;
+      const doclingRepresentation = representations.get("docling");
+      const doclingArtifact = doclingRepresentation ? artifacts.get(doclingRepresentation.id) : null;
+      if (doclingArtifact) {
+        const doclingNativePath = path.join(sourceRoot, doclingArtifact.package_dir, "native.json");
+        try {
+          doclingProjection = buildDoclingPageProjection(JSON.parse(await fs.readFile(doclingNativePath, "utf8")));
+          doclingProjection.source_artifact_sha256 = await sha256File(doclingNativePath);
+        } catch (error) {
+          if (error?.code !== "ENOENT") throw error;
+        }
+      }
+      const pageTraceability = buildPageTraceability(
+        manifest,
+        representations,
+        comparableText,
+        diagnostics,
+        doclingProjection,
+      );
       const pageTraceabilityTarget = path.join(targetRoot, "page-traceability.json");
       await fs.writeFile(pageTraceabilityTarget, `${JSON.stringify(pageTraceability, null, 2)}\n`, "utf8");
       const displayLabel = navigationLabel(contexts, sha256);

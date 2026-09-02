@@ -77,6 +77,29 @@ export async function inspectAiConsultationPackage({ packageDir }) {
       if (pageTraceability.source_binary_sha256 !== document.sha256) {
         throw new Error(`Page traceability lineage mismatch: ${document.sha256}`);
       }
+      if (pageTraceability.schema_version >= 2) {
+        for (const [processor, channel] of Object.entries(pageTraceability.channels ?? {})) {
+          if (channel.page_mapping_status !== "available") continue;
+          const pageNumbers = (channel.pages ?? []).map((page) => page.pdf_page_number);
+          if (pageNumbers.some((pageNumber) => !Number.isInteger(pageNumber)
+            || pageNumber < 1
+            || pageNumber > pageTraceability.pdf_page_count)) {
+            throw new Error(`Invalid ${processor} page number: ${document.sha256}`);
+          }
+          if (JSON.stringify(pageNumbers) !== JSON.stringify([...pageNumbers].sort((left, right) => left - right))) {
+            throw new Error(`Non-deterministic ${processor} page ordering: ${document.sha256}`);
+          }
+          if (processor === "docling") {
+            if (channel.projection_kind !== "processor_attributed_page_items"
+              || channel.processor !== "docling"
+              || !channel.processor_version
+              || channel.source_artifact !== "native.json"
+              || !/^[a-f0-9]{64}$/u.test(channel.source_artifact_sha256 ?? "")) {
+              throw new Error(`Incomplete Docling page lineage: ${document.sha256}`);
+            }
+          }
+        }
+      }
     }
     const actionable = (metadata.diagnostics ?? []).filter((item) => item.actionable);
     actionableWarningCount += actionable.length;
