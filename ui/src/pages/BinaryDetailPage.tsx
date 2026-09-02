@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
   Breadcrumbs,
@@ -12,21 +16,19 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
 
 import { getBinaryDetail } from "../api/consultation";
 import { ContextSummary } from "../components/ContextSummary";
-import { EvidenceViewer } from "../components/EvidenceViewer";
+import { InspectionViewer } from "../components/InspectionViewer";
+import type { InspectionCategory } from "../components/InspectionViewer";
 import { PdfViewer } from "../components/PdfViewer";
 import { ProcessingSummary } from "../components/ProcessingSummary";
 import { ProvenanceSummary } from "../components/ProvenanceSummary";
 import { QualitySummary } from "../components/QualitySummary";
-import { RepresentationViewer } from "../components/RepresentationViewer";
 import { TechnicalDetails } from "../components/TechnicalDetails";
 import type { BinaryDetailResponse } from "../types/consultation";
 import {
-  chooseInitialFormat,
-  chooseInitialRepresentation,
   formatBytes,
   formatFileType,
   getRepresentationLabel,
@@ -34,18 +36,26 @@ import {
   isPdfBinary,
   prefersNativePdfViewer,
   normalizeStableId,
-  sameStableId,
 } from "../utils/consultation";
+
+const INSPECTION_HEIGHT = { xs: "70vh", xl: "clamp(560px, calc(100vh - 260px), 860px)" };
+
+function DetailAccordion({ title, children }: { title: string; children: ReactNode }) {
+  return <Accordion disableGutters elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", "&:before": { display: "none" } }}>
+    <AccordionSummary expandIcon={<Typography aria-hidden="true">⌄</Typography>}>
+      <Typography variant="h6">{title}</Typography>
+    </AccordionSummary>
+    <AccordionDetails sx={{ p: 0, "& > .MuiPaper-root": { border: 0 } }}>{children}</AccordionDetails>
+  </Accordion>;
+}
 
 export function BinaryDetailPage() {
   const { sha256 = "" } = useParams();
+  const location = useLocation();
   const [detail, setDetail] = useState<BinaryDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewRepresentationId, setViewRepresentationId] = useState<string | "">("");
-  const [viewFormat, setViewFormat] = useState<string | "">("");
-  const [viewEvidenceId, setViewEvidenceId] = useState<string | "">("");
-  const [viewEvidenceFormat, setViewEvidenceFormat] = useState<string | "">("");
+  const [viewedRepresentationId, setViewedRepresentationId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -53,12 +63,7 @@ export function BinaryDetailPage() {
     try {
       const nextDetail = await getBinaryDetail(sha256);
       setDetail(nextDetail);
-      const initialRepresentation = chooseInitialRepresentation(nextDetail);
-      setViewRepresentationId(normalizeStableId(initialRepresentation?.representation_id) ?? "");
-      setViewFormat(chooseInitialFormat(initialRepresentation) ?? "");
-      const initialEvidence = nextDetail.evidence?.items?.[0] ?? null;
-      setViewEvidenceId(normalizeStableId(initialEvidence?.representation_id) ?? "");
-      setViewEvidenceFormat(chooseInitialFormat(initialEvidence) ?? "");
+      setViewedRepresentationId(null);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : String(loadError));
     } finally {
@@ -74,10 +79,16 @@ export function BinaryDetailPage() {
     if (!detail) {
       return null;
     }
-    return detail.representations.items.find(
-      (item) => sameStableId(item.representation_id, viewRepresentationId),
+    return [...detail.representations.items, ...(detail.evidence?.items ?? [])].find(
+      (item) => normalizeStableId(item.representation_id) === viewedRepresentationId,
     ) ?? null;
-  }, [detail, viewRepresentationId]);
+  }, [detail, viewedRepresentationId]);
+
+  const initialInspectionCategory: InspectionCategory = (
+    (location.state as { inspectionCategory?: string } | null)?.inspectionCategory === "evidence"
+      ? "evidence"
+      : "interpretation"
+  );
 
   if (loading) {
     return (
@@ -153,7 +164,7 @@ export function BinaryDetailPage() {
       </Paper>
 
       <Grid container spacing={2.5}>
-        <Grid size={{ xs: 12, xl: 6 }}>
+        <Grid size={{ xs: 12, xl: 6 }} sx={{ "& > .MuiPaper-root": { height: INSPECTION_HEIGHT } }}>
           {isPdfBinary(detail) ? (
             <PdfViewer
               url={detail.binary.original_binary_url}
@@ -179,58 +190,28 @@ export function BinaryDetailPage() {
           )}
         </Grid>
         <Grid size={{ xs: 12, xl: 6 }}>
-          <Stack spacing={2.5}>
-            <RepresentationViewer
-              representations={detail.representations.items}
-              effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id) ?? null}
-              viewRepresentationId={viewRepresentationId}
-              onViewRepresentationChange={(representationId) => {
-                setViewRepresentationId(representationId);
-                const representation = detail.representations.items.find(
-                  (item) => sameStableId(item.representation_id, representationId),
-                ) ?? null;
-                setViewFormat(chooseInitialFormat(representation) ?? "");
-              }}
-              viewFormat={viewFormat}
-              onViewFormatChange={setViewFormat}
-            />
-            <EvidenceViewer
-              evidence={detail.evidence?.items ?? []}
-              viewRepresentationId={viewEvidenceId}
-              onViewRepresentationChange={(representationId) => {
-                setViewEvidenceId(representationId);
-                const representation = (detail.evidence?.items ?? []).find(
-                  (item) => sameStableId(item.representation_id, representationId),
-                ) ?? null;
-                setViewEvidenceFormat(chooseInitialFormat(representation) ?? "");
-              }}
-              viewFormat={viewEvidenceFormat}
-              onViewFormatChange={setViewEvidenceFormat}
-            />
-          </Stack>
+          <InspectionViewer
+            interpretations={detail.representations.items}
+            evidence={detail.evidence?.items ?? []}
+            effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id) ?? null}
+            initialCategory={initialInspectionCategory}
+            height={INSPECTION_HEIGHT}
+            onViewedRepresentationChange={(representation) => {
+              setViewedRepresentationId(normalizeStableId(representation?.representation_id) ?? null);
+            }}
+          />
         </Grid>
       </Grid>
 
-      <Grid container spacing={2.5}>
-        <Grid size={{ xs: 12, lg: 12 }}>
-          <ContextSummary detail={detail} />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <ProcessingSummary detail={detail} />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <QualitySummary detail={detail} />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <ProvenanceSummary
-            representation={viewedRepresentation}
-            selectionReason={detail.representations.effective_selection_reason}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <TechnicalDetails detail={detail} viewedRepresentation={viewedRepresentation} />
-        </Grid>
-      </Grid>
+      <Stack spacing={1}>
+        <DetailAccordion title="Context"><ContextSummary detail={detail} /></DetailAccordion>
+        <DetailAccordion title="Processing"><ProcessingSummary detail={detail} /></DetailAccordion>
+        <DetailAccordion title="Comparison & review"><QualitySummary detail={detail} /></DetailAccordion>
+        <DetailAccordion title="Viewed representation provenance">
+          <ProvenanceSummary representation={viewedRepresentation} selectionReason={detail.representations.effective_selection_reason} />
+        </DetailAccordion>
+        <TechnicalDetails detail={detail} viewedRepresentation={viewedRepresentation} />
+      </Stack>
     </Stack>
   );
 }

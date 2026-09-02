@@ -70,7 +70,7 @@ export function ExtractionCoveragePage() {
     {
       field: "sha256", headerName: "Binary", flex: 2, minWidth: 280, maxWidth: 650,
       renderCell: ({ row }) => <Stack spacing={0.1} sx={{ minWidth: 0, py: 0.5 }}>
-        <MuiLink component={RouterLink} to={`/binaries/${row.sha256}`} title={row.sha256} sx={{ fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <MuiLink component={RouterLink} to={`/binaries/${row.sha256}`} state={{ inspectionCategory: "evidence" }} title={row.sha256} sx={{ fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {row.sha256}
         </MuiLink>
         <Typography variant="caption" color="text.secondary">Binary #{row.file_binary_id}</Typography>
