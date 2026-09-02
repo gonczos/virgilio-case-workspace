@@ -249,3 +249,39 @@ After regeneration and validation of the full 1,238-binary package, exporter
 expansion stops. Richer questions about the remaining metadata should return to
 the original direct, constrained metadata-consultation goal rather than adding
 more duplicated projections to the portable package.
+
+## Completion and transition
+
+Completed on 2026-09-03.
+
+The final full factual and AI-consultation packages were regenerated for all
+1,238 available binaries. The consultation package contains five distinct
+source case records, 36 distinct source documents without binaries, and 39
+missing-document occurrence rows. Three `AUD` documents occur in both the main
+proceeding and `-E`, explaining why occurrence rows exceed distinct missing
+documents. The missing-document breakdown is 6 `AUD`, 11 `IMG`, and 19 `VID`.
+
+The final consultation package inspection reported:
+
+- package format `virgilio-ai-consultation`, version 2;
+- 1,238 binary identities;
+- 11,247 manifest-inventoried files with valid declared hashes and sizes;
+- 487 actionable extraction diagnostics, preserved as diagnostics rather than
+  claims that the affected documents are substantively unusable.
+
+The implementation checkpoints were:
+
+- `4606696` — document the page-traceability export plan;
+- `c41cd54` — add Docling page traceability;
+- `606af45` — document the consultation-projection provenance decision;
+- `4e7bab1` — add identifier coverage;
+- `60b897d` — stabilize identifier ordering for full exports;
+- `78a87a3` — document the final packaging boundary;
+- `3d5a976` — add case and missing-document indexes.
+
+The package exporter is now considered complete for the agreed portable
+consultation use case. Further attempts to mirror all relational metadata into
+flat package indexes are deliberately deferred. The next phase should provide a
+read-only, constrained AI consultation interface to authoritative metadata,
+while continuing to use original binaries as canonical evidence and retaining
+processor-specific derivation lineage.
