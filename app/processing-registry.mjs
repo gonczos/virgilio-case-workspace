@@ -209,6 +209,22 @@ function buildSingleSegment(textContent, extraction) {
   ];
 }
 
+export function sanitizePostgresText(textContent) {
+  const nulCount = textContent.split("\u0000").length - 1;
+  return {
+    text: nulCount === 0 ? textContent : textContent.replaceAll("\u0000", ""),
+    nulCount,
+    warning: nulCount > 0
+      ? {
+          warning_code: "nul_characters_removed_for_postgres",
+          removed_character_count: nulCount,
+          affected_field: "document_segment.text_content",
+          source_artifact_preserved: true,
+        }
+      : null,
+  };
+}
+
 function createPythonProcessor({
   key,
   version,
@@ -246,6 +262,20 @@ function createPythonProcessor({
       const textContent = selectedTextArtifact
         ? await fs.readFile(path.join(tempArtifactDir, selectedTextArtifact), "utf8")
         : "";
+      const sanitizedText = key === "xberg"
+        ? sanitizePostgresText(textContent)
+        : { text: textContent, nulCount: 0, warning: null };
+      const persistenceWarnings = sanitizedText.warning ? [sanitizedText.warning] : [];
+      const extractionForPersistence = persistenceWarnings.length > 0
+        ? {
+            ...extraction,
+            summary: {
+              ...extraction.summary,
+              warning_count: Number(extraction.summary.warning_count ?? 0) + persistenceWarnings.length,
+            },
+            persistence_warnings: persistenceWarnings,
+          }
+        : extraction;
       const markdownContent = extraction.markdown_artifact
         ? await fs.readFile(path.join(tempArtifactDir, extraction.markdown_artifact), "utf8")
         : "";
@@ -263,13 +293,16 @@ function createPythonProcessor({
         representationKind,
         formatFamily,
         artifactRelPath: path.relative(workspaceRootResolved, outputDir).replace(/\\/gu, "/"),
-        metadataJson: buildMachineMetadata(binaryRow, extraction),
-        contentJson: buildMachineContent(textContent, markdownContent, extraction),
-        segments: selectedTextArtifact ? buildSingleSegment(textContent, {
-          ...extraction,
+        metadataJson: {
+          ...buildMachineMetadata(binaryRow, extractionForPersistence),
+          persistence_warnings: persistenceWarnings,
+        },
+        contentJson: buildMachineContent(sanitizedText.text, markdownContent, extractionForPersistence),
+        segments: selectedTextArtifact ? buildSingleSegment(sanitizedText.text, {
+          ...extractionForPersistence,
           text_artifact: selectedTextArtifact,
         }) : [],
-        summary: extraction.summary,
+        summary: extractionForPersistence.summary,
       };
     },
   };

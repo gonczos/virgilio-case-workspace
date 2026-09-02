@@ -3033,6 +3033,7 @@ Extractor behavior implemented:
   - `strip_repeating_text = false`
   - `include_watermarks = false`
 - current Xberg C5.2 output writes both `text.txt` and `complete-text.txt` with the same preserved text content; this preserves the explicit complete-text artifact contract without inventing Docling-style layer semantics that Xberg does not expose
+- when Xberg output contains PostgreSQL-incompatible `U+0000` characters, the original derived artifact remains unchanged while only the `document_segment.text_content` projection removes those characters; representation metadata records an explicit persistence warning, the removed-character count, and that the source artifact was preserved
 
 Validation outcome:
 

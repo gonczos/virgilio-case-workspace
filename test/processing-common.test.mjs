@@ -3,6 +3,27 @@ import { EventEmitter } from "node:events";
 import test from "node:test";
 
 import { attachClientLifecycleLogging } from "../app/processing-common.mjs";
+import { sanitizePostgresText } from "../app/processing-registry.mjs";
+
+test("sanitizePostgresText removes only NUL characters and reports their count", () => {
+  const input = "before\u0000middle\r\nAção 😀\u0000after";
+
+  assert.deepEqual(sanitizePostgresText(input), {
+    text: "beforemiddle\r\nAção 😀after",
+    nulCount: 2,
+    warning: {
+      warning_code: "nul_characters_removed_for_postgres",
+      removed_character_count: 2,
+      affected_field: "document_segment.text_content",
+      source_artifact_preserved: true,
+    },
+  });
+  assert.deepEqual(sanitizePostgresText(input.replaceAll("\u0000", "")), {
+    text: "beforemiddle\r\nAção 😀after",
+    nulCount: 0,
+    warning: null,
+  });
+});
 
 test("attachClientLifecycleLogging logs client errors and unexpected end", () => {
   const client = new EventEmitter();
