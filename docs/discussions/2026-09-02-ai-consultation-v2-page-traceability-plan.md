@@ -181,3 +181,33 @@ The implementation stops after the targeted-five v2 package is regenerated,
 inspected, and manually checked for the agreed fields and page projection. It
 does not begin Xberg processor changes, Xberg reruns, contents-inventory
 generation, reconciliation, relation discovery, or other AI enrichment.
+
+## Follow-up decision: consultation projection versus native artifact
+
+Review of the regenerated package confirmed that Docling page items preserve
+some identifiers omitted by its readable Markdown, including page furniture.
+For the AI-consultation use case, accessible page-linked identifiers have more
+value than including the full technical native artifact by default.
+
+The agreed contract is:
+
+- the page projection states that it derives from Docling `native.json` and
+  records the native artifact hash, processor version, and profile;
+- the exporter confirms that the native artifact exists in the verified factual
+  source package before producing the projection;
+- the generated README states that the native artifact is retained in the
+  source system/factual package but omitted from the consultation export;
+- omission means the projection cannot be independently reconstructed from the
+  consultation package alone;
+- the original PDF remains included as canonical evidence for checking the
+  document itself;
+- including native artifacts may later become an explicit audit-export option,
+  but is not part of the standard consultation package.
+
+The next bounded implementation adds this explanation and a conservative,
+machine-readable identifier-preservation inventory. The inventory may report
+identifier-like strings present in the attributed Docling page projection but
+absent from a readable processor output. It is a textual coverage comparison,
+not a correctness, legal-significance, or substantive-disagreement assessment.
+It must retain page and processor lineage, avoid synthetic merging, and leave
+all original and processor artifacts unchanged.
