@@ -31,12 +31,15 @@ Start with \`documents.csv\`. It has one row per binary, identified by the full 
 
 Dates such as document and occurrence dates preserve source-recorded calendar dates in \`YYYY-MM-DD\` form. They are not timestamps and do not imply a time of day or timezone. Document, occurrence, filing, signing, receipt, and decision dates must not be treated as interchangeable unless the source establishes that relationship.
 
+Readable interpretations may omit headers, footers, references, and other identifiers. Consult \`page-traceability.json\` and \`identifier-preservation.json\` when looking for identifiers, then verify important findings against the original PDF.
+
 ## Folder contents
 
 - \`original.*\`: the original document.
 - \`evidence/\`: literal text and narrow PDF observations such as signatures or structure.
 - \`interpretations/\`: readable content produced by document extraction tools.
 - \`page-traceability.json\`: literal-text page boundaries, processor-attributed Docling native page items where available, and explicit unavailable mappings. Docling page items do not claim exact offsets into the rendered Markdown.
+- \`identifier-preservation.json\`: when Docling page provenance is available, conservative identifier-like token coverage across attributed outputs; this is not a correctness or legal-significance assessment.
 - \`warnings.md\`: actionable extraction cautions rendered from \`metadata.json\`, when present.
 - \`coverage.json\`: package scope, inclusion, and extraction-state coverage.
 - \`manifest.json\`: package identity and file-integrity inventory.
@@ -44,6 +47,8 @@ Dates such as document and occurrence dates preserve source-recorded calendar da
 Machine extraction and AI answers can be incomplete or wrong. Check important conclusions against the original document. This package may contain sensitive personal and court-case information; keep it private.
 
 If a document has no \`warnings.md\`, that means only that no configured actionable diagnostic fired. Signature fields, cryptographic signature validation, and visible handwritten signatures are separate observations; consult the signature evidence for the exact claim available.
+
+Docling page items are derived from a retained \`native.json\`, identified in the projection by hash, processor version, and profile. The exporter confirms that source artifact in the verified factual package, but omits it from this consultation package. The projection therefore cannot be independently reconstructed from this package alone. The included original PDF remains canonical evidence for checking the document itself.
 `;
 
 function csvValue(value) {
@@ -268,6 +273,86 @@ export function buildDoclingPageProjection(nativeDocument) {
   };
 }
 
+const IDENTIFIER_CANDIDATE_PATTERN = /[\p{L}\p{N}]*\p{N}[\p{L}\p{N}]*(?:[./-][\p{L}\p{N}]+)+|\p{N}{6,}/gu;
+
+function normalizedIdentifier(value) {
+  return value.normalize("NFKC").toLocaleUpperCase("und").replace(/[^\p{L}\p{N}]/gu, "");
+}
+
+function identifierCandidates(text) {
+  return [...text.matchAll(IDENTIFIER_CANDIDATE_PATTERN)]
+    .map((match) => ({ observed: match[0], normalized: normalizedIdentifier(match[0]) }))
+    .filter((candidate) => candidate.normalized.length >= 6);
+}
+
+export function buildIdentifierPreservationInventory({
+  sourceBinarySha256,
+  doclingChannel,
+  readableOutputs,
+}) {
+  const candidates = new Map();
+  for (const page of doclingChannel.pages ?? []) {
+    for (const item of page.items ?? []) {
+      if (typeof item.text !== "string") continue;
+      for (const candidate of identifierCandidates(item.text)) {
+        const record = candidates.get(candidate.normalized) ?? {
+          normalized_value: candidate.normalized,
+          observed_values: new Set(),
+          pdf_pages: new Set(),
+          native_item_references: new Set(),
+        };
+        record.observed_values.add(candidate.observed);
+        record.pdf_pages.add(page.pdf_page_number);
+        record.native_item_references.add(item.native_item_reference);
+        candidates.set(candidate.normalized, record);
+      }
+    }
+  }
+  const outputCandidateSets = new Map(Object.entries(readableOutputs).map(([processor, output]) => [
+    processor,
+    output?.available
+      ? new Set(identifierCandidates(output.text ?? "").map((candidate) => candidate.normalized))
+      : null,
+  ]));
+  return {
+    schema_version: 1,
+    source_binary_sha256: sourceBinarySha256,
+    inventory_kind: "processor_attributed_identifier_coverage",
+    candidate_source: {
+      processor: doclingChannel.processor,
+      processor_version: doclingChannel.processor_version,
+      processor_profile: doclingChannel.processor_profile,
+      projection_kind: doclingChannel.projection_kind,
+      native_artifact_name: doclingChannel.source_artifact,
+      native_artifact_sha256: doclingChannel.source_artifact_sha256,
+    },
+    method: {
+      candidate_rule: "Unicode tokens of at least six letters/digits containing either six consecutive digits or a digit plus a structured separator (period, slash, or hyphen).",
+      comparison_rule: "NFKC-normalized, case-insensitive exact candidate-token comparison after removing separators.",
+      limitations: [
+        "Candidates are processor-observed strings, not verified identifiers.",
+        "Presence and absence are textual coverage observations, not correctness or legal-significance assessments.",
+        "The heuristic may include dates or other numeric strings and may miss identifiers split into unusual layouts.",
+      ],
+    },
+    compared_outputs: Object.fromEntries([...outputCandidateSets].map(([processor, set]) => [processor, {
+      availability: set ? "available" : "unavailable",
+      processor_version: readableOutputs[processor]?.processorVersion ?? null,
+      relative_path: readableOutputs[processor]?.relativePath ?? null,
+    }])),
+    identifiers: [...candidates.values()].map((candidate) => ({
+      normalized_value: candidate.normalized_value,
+      observed_values: [...candidate.observed_values].sort(),
+      pdf_pages: [...candidate.pdf_pages].sort((left, right) => left - right),
+      native_item_references: [...candidate.native_item_references].sort(),
+      output_presence: Object.fromEntries([...outputCandidateSets].map(([processor, set]) => [
+        processor,
+        set ? (set.has(candidate.normalized_value) ? "present" : "absent") : "unknown",
+      ])),
+    })).sort((left, right) => left.normalized_value.localeCompare(right.normalized_value)),
+  };
+}
+
 function buildPageTraceability(manifest, representations, comparableText, diagnostics, doclingProjection) {
   const pageCount = Number(manifest.persisted.file_binary.page_count ?? 0);
   const sourcePages = (manifest.persisted.file_binary.page_text_report_json ?? [])
@@ -308,6 +393,8 @@ function buildPageTraceability(manifest, representations, comparableText, diagno
         processor_profile: representation.profile_key ?? null,
         source_artifact: "native.json",
         source_artifact_sha256: doclingProjection.source_artifact_sha256,
+        source_artifact_included: false,
+        source_artifact_retention: "verified_in_factual_source_package",
         projection_kind: "processor_attributed_page_items",
         ordering_basis: "Docling body/furniture tree traversal followed by unreferenced native collection order.",
         markdown_offset_mapping_status: "unavailable",
@@ -601,6 +688,28 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
       );
       const pageTraceabilityTarget = path.join(targetRoot, "page-traceability.json");
       await fs.writeFile(pageTraceabilityTarget, `${JSON.stringify(pageTraceability, null, 2)}\n`, "utf8");
+      let identifierPreservationPath = null;
+      if (pageTraceability.channels.docling.page_mapping_status === "available") {
+        identifierPreservationPath = "identifier-preservation.json";
+        const identifierInventory = buildIdentifierPreservationInventory({
+          sourceBinarySha256: sha256,
+          doclingChannel: pageTraceability.channels.docling,
+          readableOutputs: Object.fromEntries(["docling", "xberg"].map((processor) => {
+            const output = comparableText.get(processor);
+            return [processor, {
+              available: Boolean(output),
+              text: output?.text ?? "",
+              processorVersion: representations.get(processor)?.processor_version ?? null,
+              relativePath: output?.artifact.relative_path ?? null,
+            }];
+          })),
+        });
+        await fs.writeFile(
+          path.join(targetRoot, identifierPreservationPath),
+          `${JSON.stringify(identifierInventory, null, 2)}\n`,
+          "utf8",
+        );
+      }
       const displayLabel = navigationLabel(contexts, sha256);
       const metadata = {
         schema_version: 2,
@@ -627,6 +736,7 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
         linked_source_documents: contexts,
         extracted_artifacts: available,
         page_traceability_path: "page-traceability.json",
+        identifier_preservation_path: identifierPreservationPath,
         diagnostics,
       };
       const metadataTarget = path.join(targetRoot, "metadata.json");
@@ -758,6 +868,7 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
         "Extracted content is derived and processor-attributed; original binaries remain canonical.",
         "Textual non-identity is recorded without assessing substantive disagreement.",
         "The top-level index contains representative display fields; metadata.json contains complete linked context.",
+        "Docling page projections identify a native artifact retained in the factual source package, but that artifact is omitted here; the projection cannot be independently reconstructed from this package alone.",
       ],
       documents: packageDocuments,
       files,

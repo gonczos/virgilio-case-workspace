@@ -94,10 +94,32 @@ export async function inspectAiConsultationPackage({ packageDir }) {
               || channel.processor !== "docling"
               || !channel.processor_version
               || channel.source_artifact !== "native.json"
-              || !/^[a-f0-9]{64}$/u.test(channel.source_artifact_sha256 ?? "")) {
+              || !/^[a-f0-9]{64}$/u.test(channel.source_artifact_sha256 ?? "")
+              || channel.source_artifact_included !== false
+              || channel.source_artifact_retention !== "verified_in_factual_source_package") {
               throw new Error(`Incomplete Docling page lineage: ${document.sha256}`);
             }
           }
+        }
+      }
+      if (metadata.identifier_preservation_path) {
+        const identifierPath = path.posix.join(
+          path.posix.dirname(document.metadata_path),
+          metadata.identifier_preservation_path,
+        );
+        if (!paths.has(identifierPath)) throw new Error(`Identifier inventory missing: ${document.sha256}`);
+        const identifiers = await readJson(resolvePackagePath(root, identifierPath));
+        if (identifiers.source_binary_sha256 !== document.sha256) {
+          throw new Error(`Identifier inventory lineage mismatch: ${document.sha256}`);
+        }
+        const doclingChannel = pageTraceability.channels?.docling;
+        if (identifiers.candidate_source?.processor !== "docling"
+          || identifiers.candidate_source?.native_artifact_sha256 !== doclingChannel?.source_artifact_sha256) {
+          throw new Error(`Identifier inventory source mismatch: ${document.sha256}`);
+        }
+        const normalizedValues = (identifiers.identifiers ?? []).map((item) => item.normalized_value);
+        if (JSON.stringify(normalizedValues) !== JSON.stringify([...normalizedValues].sort())) {
+          throw new Error(`Non-deterministic identifier ordering: ${document.sha256}`);
         }
       }
     }

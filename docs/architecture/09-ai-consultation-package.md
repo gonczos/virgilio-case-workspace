@@ -27,6 +27,9 @@ silently merged.
 - `documents/<sha256>/interpretations/`: independent Docling and Xberg outputs.
 - `documents/<sha256>/page-traceability.json`: source page observations and
   processor-specific page-mapping availability.
+- `documents/<sha256>/identifier-preservation.json`: optional conservative
+  coverage inventory for identifier-like tokens found in attributed Docling
+  page items.
 - `documents/<sha256>/warnings.md`: optional human rendering of actionable
   diagnostics from `metadata.json`.
 
@@ -86,10 +89,29 @@ unavailable when its included artifact contract has no reliable boundary;
 reported page counts are not silently treated as passage-to-page lineage.
 Per-page OCR use is `unknown` when not provided.
 
+The Docling native artifact is verified in and retained by the factual source
+package, and the page projection records its SHA-256, processor version, and
+profile. Standard consultation exports omit that technical artifact. The
+projection therefore cannot be independently reconstructed from the
+consultation package alone. This is a reproducibility limitation, not a claim
+about the included original PDF, which remains canonical evidence. A future
+audit-oriented export may optionally include native artifacts without changing
+the default consultation format.
+
 Text presence and extraction-volume assessment are separate. Page records use
 raw extracted and Unicode letter/digit counts, `present` / `absent` presence,
 and an explicitly described volume threshold. Passing that threshold does not
 assess correctness, completeness, relevance, or semantic meaning.
+
+Readable processor projections can omit page furniture and identifiers retained
+by native page items. When Docling page provenance is available,
+`identifier-preservation.json` inventories conservative numeric or structured
+identifier-like tokens from those items and reports their textual presence in
+the included Docling and Xberg readable outputs. Candidate values retain PDF
+page and native-item lineage. This inventory is not a warning, does not establish
+correctness or legal significance, and does not assess substantive disagreement.
+It may include dates or other numeric strings and may miss identifiers disrupted
+by unusual layouts.
 
 ## Diagnostics
 

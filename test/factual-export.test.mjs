@@ -8,6 +8,7 @@ import { inspectFactualExport } from "../app/factual-export-inspect.mjs";
 import { exportFactualSlice } from "../app/factual-export.mjs";
 import {
   buildDoclingPageProjection,
+  buildIdentifierPreservationInventory,
   classifyUnavailableProcessor,
   compareProcessorTexts,
   prepareAiConsultationPackage,
@@ -79,6 +80,7 @@ test("factual slice exports and verifies multiple binaries without mutating proc
         assert.equal(metadata.source_binary.sha256, sha256);
         assert.equal(metadata.schema_version, 2);
         await fs.access(path.join(documentDir, metadata.page_traceability_path));
+        await fs.access(path.join(documentDir, metadata.identifier_preservation_path));
         assert.equal("processing_jobs" in metadata, false);
         assert.equal(metadata.diagnostics.some((item) => "first_different_line" in item), false);
       }
@@ -133,12 +135,22 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(bornDigitalPages.channels.docling.page_mapping_status, "available");
       assert.equal(bornDigitalPages.channels.docling.pages.length, 5);
       assert.equal(bornDigitalPages.channels.docling.markdown_offset_mapping_status, "unavailable");
+      assert.equal(bornDigitalPages.channels.docling.source_artifact_included, false);
+      assert.equal(bornDigitalPages.channels.docling.source_artifact_retention, "verified_in_factual_source_package");
       assert.equal(bornDigitalPages.channels.xberg.page_mapping_status, "unavailable");
       const signed = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[3], "metadata.json"), "utf8"));
       assert.equal(signed.source_binary.pdf_characteristics.signature_field_or_dictionary_presence, "present");
       assert.equal(signed.source_binary.pdf_characteristics.populated_signature_field_count, 1);
       assert.equal(signed.source_binary.pdf_characteristics.cryptographic_signature_validation_status, "not_performed");
       assert.equal(signed.extracted_artifacts.some((item) => item.artifact_kind === "pdf_signature_metadata"), true);
+      const signedIdentifiers = JSON.parse(await fs.readFile(path.join(
+        consultationDir,
+        "documents",
+        REPRESENTATIVE_SHAS[3],
+        "identifier-preservation.json",
+      ), "utf8"));
+      const signedReference = signedIdentifiers.identifiers.find((item) => item.normalized_value === "134937241");
+      assert.deepEqual(signedReference.pdf_pages, [1, 2, 3, 4, 5]);
       const scannedLong = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[4], "metadata.json"), "utf8"));
       assert.equal(scannedLong.source_binary.page_count, 88);
       assert.equal(scannedLong.diagnostics.some((item) => item.code === "SOURCE_PDF_NO_NATIVE_TEXT"), true);
@@ -259,4 +271,33 @@ test("Docling native page projection retains attributed page provenance", () => 
   assert.deepEqual(projection.pages.map((page) => page.pdf_page_number), [1, 2]);
   assert.equal(projection.pages[1].items[0].native_item_reference, "#/texts/0");
   assert.equal(projection.pages[1].items[0].text, "Page two");
+});
+
+test("identifier inventory reports attributed textual coverage without correctness claims", () => {
+  const inventory = buildIdentifierPreservationInventory({
+    sourceBinarySha256: "a".repeat(64),
+    doclingChannel: {
+      processor: "docling",
+      processor_version: "test-version",
+      processor_profile: "test-profile",
+      projection_kind: "processor_attributed_page_items",
+      source_artifact: "native.json",
+      source_artifact_sha256: "b".repeat(64),
+      pages: [{
+        pdf_page_number: 2,
+        items: [{ native_item_reference: "#/texts/1", text: "Case 13608/14.8T2SNT ref 134937241" }],
+      }],
+    },
+    readableOutputs: {
+      docling: { available: true, text: "Case 13608-14.8T2SNT", processorVersion: "test-version", relativePath: "interpretations/docling.md" },
+      xberg: { available: false, text: "", processorVersion: null, relativePath: null },
+    },
+  });
+  const caseNumber = inventory.identifiers.find((item) => item.normalized_value === "13608148T2SNT");
+  const reference = inventory.identifiers.find((item) => item.normalized_value === "134937241");
+  assert.equal(caseNumber.output_presence.docling, "present");
+  assert.equal(caseNumber.output_presence.xberg, "unknown");
+  assert.equal(reference.output_presence.docling, "absent");
+  assert.deepEqual(reference.pdf_pages, [2]);
+  assert.match(inventory.method.limitations[1], /not correctness/u);
 });
