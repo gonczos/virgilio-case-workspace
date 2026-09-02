@@ -286,15 +286,15 @@ document named Xberg even though no Xberg artifact was included. The source
 factual package and processor artifacts themselves were not changed by this
 finding.
 
-### Agreed follow-up before full-corpus generation
+### Implemented follow-up before full-corpus generation
 
-The next work remains packaging-focused: correct source calendar-date handling,
-add a chronological occurrence index, add an explicit export-coverage report,
-and add processor-attributed page traceability and page coverage where the source
-artifacts support it. Warning wording must clarify the limited meaning of “no
-actionable warnings”; signature fields, cryptographic signature evidence, and
-visible handwritten signatures must remain distinct. Human-readable labels may
-be added only as non-authoritative navigation aids.
+Version 2 corrects source calendar-date handling, adds a chronological occurrence
+index and explicit selected-scope coverage report, and adds processor-attributed
+page traceability where the included artifact provides reliable boundaries.
+Unavailable page mapping and per-page OCR use remain explicit unknowns. Warning
+wording now clarifies the limited meaning of “no actionable warnings”; signature
+fields, cryptographic signature validation, and visible handwritten signatures
+remain distinct. Human-readable labels are non-authoritative navigation aids.
 
 Compound-document contents inventories and semantic document relationships are
 deferred. They are interpretive derivations requiring page-level lineage and

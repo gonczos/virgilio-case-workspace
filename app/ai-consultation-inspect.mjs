@@ -3,7 +3,7 @@ import path from "node:path";
 
 import {
   AI_CONSULTATION_PACKAGE_FORMAT,
-  AI_CONSULTATION_PACKAGE_VERSION,
+  AI_CONSULTATION_SUPPORTED_VERSIONS,
 } from "./ai-consultation-contract.mjs";
 import { readJson, sha256File } from "./processing-common.mjs";
 
@@ -25,7 +25,7 @@ export async function inspectAiConsultationPackage({ packageDir }) {
   if (manifest.package_format !== AI_CONSULTATION_PACKAGE_FORMAT) {
     throw new Error(`Unsupported AI consultation package format: ${String(manifest.package_format)}`);
   }
-  if (manifest.package_version !== AI_CONSULTATION_PACKAGE_VERSION) {
+  if (!AI_CONSULTATION_SUPPORTED_VERSIONS.includes(manifest.package_version)) {
     throw new Error(`Unsupported AI consultation package version: ${String(manifest.package_version)}`);
   }
   if (manifest.hash_algorithm !== "sha256") throw new Error("Unsupported package hash algorithm");
@@ -70,6 +70,14 @@ export async function inspectAiConsultationPackage({ packageDir }) {
       resolvePackagePath(root, artifactPath);
       if (artifact.source_binary_sha256 !== document.sha256) throw new Error(`Artifact lineage mismatch: ${artifactPath}`);
     }
+    if (manifest.package_version >= 2) {
+      const pageTraceabilityPath = path.posix.join(path.posix.dirname(document.metadata_path), metadata.page_traceability_path);
+      if (!paths.has(pageTraceabilityPath)) throw new Error(`Page traceability missing from inventory: ${document.sha256}`);
+      const pageTraceability = await readJson(resolvePackagePath(root, pageTraceabilityPath));
+      if (pageTraceability.source_binary_sha256 !== document.sha256) {
+        throw new Error(`Page traceability lineage mismatch: ${document.sha256}`);
+      }
+    }
     const actionable = (metadata.diagnostics ?? []).filter((item) => item.actionable);
     actionableWarningCount += actionable.length;
     const warningPath = path.posix.join(path.posix.dirname(document.metadata_path), "warnings.md");
@@ -79,6 +87,12 @@ export async function inspectAiConsultationPackage({ packageDir }) {
   }
   if (!paths.has(manifest.index_path)) throw new Error("Package index is missing from inventory");
   resolvePackagePath(root, manifest.index_path);
+  if (manifest.package_version >= 2) {
+    for (const requiredPath of [manifest.occurrences_index_path, manifest.coverage_report_path]) {
+      if (!paths.has(requiredPath)) throw new Error(`Required package report missing from inventory: ${requiredPath}`);
+      resolvePackagePath(root, requiredPath);
+    }
+  }
   resolvePackagePath(root, manifest.documents_root_path);
   return {
     manifest,

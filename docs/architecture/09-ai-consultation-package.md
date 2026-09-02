@@ -12,24 +12,30 @@ SHA-256 identity. Every extracted artifact is derived content attributed to its
 processor and version. Independent outputs remain separate and must not be
 silently merged.
 
-## Version 1 layout
+## Version 2 layout and compatibility
 
 - `manifest.json`: package identity and integrity inventory.
 - `documents.csv`: one navigation row per binary SHA-256.
+- `occurrences.csv`: one chronological row per source-recorded procedural
+  occurrence.
+- `coverage.json`: selected-scope inclusion and processor-state coverage.
 - `documents/<sha256>/original.*`: canonical original binary.
 - `documents/<sha256>/metadata.json`: complete linked source context, artifact
   provenance, source characteristics, and structured diagnostics.
 - `documents/<sha256>/evidence/`: literal PDF text, structure inventory, and
   signature metadata.
 - `documents/<sha256>/interpretations/`: independent Docling and Xberg outputs.
+- `documents/<sha256>/page-traceability.json`: source page observations and
+  processor-specific page-mapping availability.
 - `documents/<sha256>/warnings.md`: optional human rendering of actionable
   diagnostics from `metadata.json`.
 
 The top-level manifest uses `package_format = "virgilio-ai-consultation"` and
-`package_version = 1`. It records generation time, exporter identity, binary
+`package_version = 2`. It records generation time, exporter identity, binary
 count, index and document-root paths, `sha256` as the hash algorithm, original
 inclusion, limitations, stable document identities, and hashes/sizes for every
 other package file. All paths are relative and must remain within the package.
+The inspector continues to accept version 1 packages; new exports use version 2.
 
 ## Index semantics
 
@@ -39,6 +45,12 @@ are aggregates. Fields prefixed with `representative_` are display values from
 the first deterministically ordered linked context. Consumers must read the
 binary's `metadata.json` for every source document, process number, and
 procedural occurrence.
+
+`occurrences.csv` is the complete package-level chronology projection. Source
+calendar dates use `YYYY-MM-DD` and are not converted into UTC instants. Actual
+generation and processing instants remain timestamps. `display_label` and the
+`navigation_label` object are generated, non-authoritative navigation aids;
+neither changes document identity or source metadata.
 
 ## Artifact provenance and channels
 
@@ -56,6 +68,13 @@ extraction/OCR method information. The format keeps these channels distinct:
 No channel is universally preferred. Outputs are copied unchanged from the
 verified factual package; normalization is used transiently only for diagnostic
 comparison.
+
+Page traceability is independently described for each processor. Literal PDF
+text uses extractor-emitted form-feed boundaries as PDF page indexes. Printed
+page labels remain `not_observed`. Docling and Xberg consultation artifacts are
+marked with unavailable page mapping unless their included artifact contract
+provides a reliable boundary; reported page counts are not silently treated as
+passage-to-page lineage. Per-page OCR use is `unknown` when not provided.
 
 ## Diagnostics
 
@@ -95,13 +114,11 @@ binary identity, artifact inventory membership, and artifact-to-binary lineage.
 An integrity failure invalidates the package for consultation until it is
 regenerated or repaired from immutable source artifacts.
 
-## Agreed work before full-corpus export
+## Implemented pre-full-export improvements
 
-The targeted-five result is a reliable bounded package, but it is not yet the
-approval point for exporting the full corpus. The following packaging work is
-agreed, in priority order:
+Version 2 implements the agreed packaging improvements in this order:
 
-| Priority | Improvement | Required boundary |
+| Priority | Improvement | Implemented boundary |
 |---|---|---|
 | 1 | Correct date semantics. | Preserve source calendar dates as calendar dates. Do not serialize them as shifted UTC timestamps; retain timezone information only for actual instants. |
 | 2 | Add a chronological `occurrences.csv`. | One row per source-recorded procedural occurrence, linked to the full binary SHA-256 and source document reference. This is a navigation projection, not a new identity model. |
@@ -120,8 +137,8 @@ Page diagnostics must remain observational. Low text count, OCR use, or an
 unavailable page mapping may flag verification work, but does not establish that
 a page was understood correctly or that its contents are unimportant.
 
-Before full-corpus generation, the targeted-five sample should be rerun after
-each of these packaging changes. A further bounded sample should cover conditions
+Before full-corpus generation, the targeted-five sample is regenerated and
+inspected with version 2. A further bounded sample should cover conditions
 not represented by those five, including non-PDF formats, failed-only processors,
 mixed native/raster pages, a binary linked to multiple source documents, and
 unresolved source documents without binaries.

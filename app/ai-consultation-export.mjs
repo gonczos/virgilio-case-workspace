@@ -15,18 +15,18 @@ const README = `# Court case document package
 
 This folder contains original court-case documents and machine-readable versions that can help an AI locate, summarize, compare, and cite information.
 
-Start with \`documents.csv\`. It has one row per binary, identified by the full SHA-256. Its scalar metadata fields are representative display values only; use each document's \`metadata.json\` for every linked source document, process number, and procedural occurrence.
+Start with \`documents.csv\`. It has one row per binary, identified by the full SHA-256. Its scalar metadata fields are representative display values only. Use \`occurrences.csv\` for chronology and each document's \`metadata.json\` for every linked source document and procedural occurrence.
 
 ## Guidance for consulting this package with AI
 
 1. Start with \`documents.csv\`.
 2. Use each document's \`metadata.json\` for the complete linked source-document and procedural-occurrence context.
-3. Treat the original binary as the canonical evidence object.
-4. Treat extracted content as processor-attributed derived evidence, not as the original.
-5. Do not silently merge, reconcile, or select between processor outputs.
-6. When outputs disagree, report the disagreement and consult the original binary.
-7. Cite conclusions using the full SHA-256, source document metadata, and PDF page where available.
-8. Do not infer that repeated procedural occurrences represent distinct documents.
+3. Use \`occurrences.csv\` for the complete package chronology; repeated occurrences do not necessarily represent distinct documents.
+4. Treat the original binary as the canonical evidence object.
+5. Treat extracted content as processor-attributed derived evidence, not as the original.
+6. Do not silently merge, reconcile, or select between processor outputs.
+7. When outputs disagree, report the difference and consult the original binary.
+8. Cite conclusions using the full SHA-256, source document metadata, and PDF page where reliable page mapping is available.
 9. Distinguish factual extraction from legal, semantic, or narrative interpretation.
 
 ## Folder contents
@@ -34,10 +34,14 @@ Start with \`documents.csv\`. It has one row per binary, identified by the full 
 - \`original.*\`: the original document.
 - \`evidence/\`: literal text and narrow PDF observations such as signatures or structure.
 - \`interpretations/\`: readable content produced by document extraction tools.
+- \`page-traceability.json\`: supported page-level coverage and explicit unavailable mappings.
 - \`warnings.md\`: actionable extraction cautions rendered from \`metadata.json\`, when present.
+- \`coverage.json\`: package scope, inclusion, and extraction-state coverage.
 - \`manifest.json\`: package identity and file-integrity inventory.
 
 Machine extraction and AI answers can be incomplete or wrong. Check important conclusions against the original document. This package may contain sensitive personal and court-case information; keep it private.
+
+If a document has no \`warnings.md\`, that means only that no configured actionable diagnostic fired. Signature fields, cryptographic signature validation, and visible handwritten signatures are separate observations; consult the signature evidence for the exact claim available.
 `;
 
 function csvValue(value) {
@@ -48,6 +52,22 @@ function csvValue(value) {
 
 export function toCsv(columns, rows) {
   return `${[columns.join(","), ...rows.map((row) => columns.map((key) => csvValue(row[key])).join(","))].join("\n")}\n`;
+}
+
+const PORTUGAL_CALENDAR_DATE = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Lisbon",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+export function sourceCalendarDate(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const text = String(value);
+  if (/^\d{4}-\d{2}-\d{2}$/u.test(text)) return text;
+  const parsed = new Date(text);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return PORTUGAL_CALENDAR_DATE.format(parsed);
 }
 
 async function assertNewDirectory(outputDir) {
@@ -102,7 +122,7 @@ function sourceContext(manifest) {
         process_number: caseFile.processo ?? null,
         source_bucket_id: bucket.bucket_id ?? null,
         reference_number: bucket.reference_number ?? null,
-        bucket_date: bucket.bucket_date ?? null,
+        bucket_date: sourceCalendarDate(bucket.bucket_date),
         designation: bucket.designation ?? null,
         presenter: bucket.presenter ?? null,
       };
@@ -111,7 +131,7 @@ function sourceContext(manifest) {
       source_system: document.source_system ?? null,
       document_reference: document.document_procinfo ?? null,
       document_name: document.document_name ?? null,
-      document_date: document.document_date ?? null,
+      document_date: sourceCalendarDate(document.document_date),
       document_type: document.document_type ?? null,
       claimed_size_bytes: document.claimed_size_bytes ?? null,
       is_primary_binary: Boolean(link.is_primary),
@@ -153,6 +173,77 @@ export function classifyUnavailableProcessor(processor, jobs) {
 
 function meaningfulCharacterCount(text) {
   return (text.match(/[\p{L}\p{N}]/gu) ?? []).length;
+}
+
+function literalPageRecords(text, sourcePageCount) {
+  const parts = text.replace(/\r\n?/gu, "\n").split("\f");
+  if (parts.length === sourcePageCount + 1 && parts.at(-1) === "") parts.pop();
+  return Array.from({ length: sourcePageCount }, (_, index) => {
+    const pageText = parts[index] ?? "";
+    return {
+      pdf_page_number: index + 1,
+      printed_page_label: null,
+      printed_page_label_status: "not_observed",
+      character_count: pageText.length,
+      meaningful_character_count: meaningfulCharacterCount(pageText),
+      has_meaningful_text: meaningfulCharacterCount(pageText) > 0,
+    };
+  });
+}
+
+function buildPageTraceability(manifest, representations, comparableText, diagnostics) {
+  const pageCount = Number(manifest.persisted.file_binary.page_count ?? 0);
+  const sourcePages = (manifest.persisted.file_binary.page_text_report_json ?? [])
+    .map((page) => ({
+      pdf_page_number: Number(page.page_number),
+      native_text_character_count: Number(page.character_count ?? 0),
+      native_text_present: Boolean(page.has_text),
+    }))
+    .sort((left, right) => left.pdf_page_number - right.pdf_page_number);
+  const channels = {};
+  for (const processor of ["pdf_literal_text", "docling", "xberg"]) {
+    const representation = representations.get(processor);
+    const availability = diagnostics.find((item) => item.processor === processor && item.category === "availability")?.state
+      ?? diagnostics.find((item) => item.processor === processor && item.state === "empty")?.state
+      ?? "unknown";
+    if (processor === "pdf_literal_text" && comparableText.has(processor)) {
+      const pages = literalPageRecords(comparableText.get(processor).text, pageCount);
+      channels[processor] = {
+        output_availability: "available",
+        page_mapping_status: "available",
+        mapping_basis: "Form-feed page boundaries emitted by the literal PDF text extractor.",
+        pdf_page_count: pageCount,
+        pages_with_meaningful_text: pages.filter((page) => page.has_meaningful_text).length,
+        pages,
+      };
+    } else {
+      channels[processor] = {
+        output_availability: availability,
+        page_mapping_status: "unavailable",
+        mapping_basis: representation
+          ? "The included consultation artifact does not preserve a reliable page-to-text boundary contract."
+          : "No eligible representation is available for page mapping.",
+        processor_reported_page_count: representation?.content_json?.page_count ?? null,
+        per_page_ocr_usage: "unknown",
+      };
+    }
+  }
+  return {
+    schema_version: 1,
+    source_binary_sha256: manifest.persisted.file_binary.sha256,
+    pdf_page_count: pageCount,
+    printed_page_labels: "not_observed",
+    source_native_text_assessment: sourcePages,
+    channels,
+  };
+}
+
+function navigationLabel(contexts, sha256) {
+  const document = contexts[0] ?? {};
+  const occurrence = document.occurrences?.[0] ?? {};
+  return [document.document_date ?? occurrence.bucket_date, document.document_type, document.document_name]
+    .filter(Boolean)
+    .join(" — ") || `Document ${sha256.slice(0, 12)}`;
 }
 
 export function compareProcessorTexts(doclingText, xbergText) {
@@ -226,6 +317,8 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
   await assertNewDirectory(outputDir);
   const factual = JSON.parse(await fs.readFile(path.join(sourcePackageDir, "manifest.json"), "utf8"));
   const indexRows = [];
+  const occurrenceRows = [];
+  const coverageDocuments = [];
   const packageDocuments = [];
   try {
     await fs.mkdir(outputDir, { recursive: true });
@@ -384,8 +477,16 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
 
       const contexts = sourceContext(manifest);
       const signature = representations.get("pdf_signature_metadata");
+      const pageTraceability = buildPageTraceability(manifest, representations, comparableText, diagnostics);
+      const pageTraceabilityTarget = path.join(targetRoot, "page-traceability.json");
+      await fs.writeFile(pageTraceabilityTarget, `${JSON.stringify(pageTraceability, null, 2)}\n`, "utf8");
+      const displayLabel = navigationLabel(contexts, sha256);
       const metadata = {
-        schema_version: 1,
+        schema_version: 2,
+        navigation_label: {
+          value: displayLabel,
+          authority: "generated_non_authoritative",
+        },
         source_binary: {
           sha256,
           mime_type: mimeType,
@@ -396,12 +497,15 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
           pdf_characteristics: mimeType === "application/pdf" ? {
             native_text: structureChannels.native_text ?? "unknown",
             raster_page_content: structureChannels.page_raster_content ?? "unknown",
-            signature_fields_or_dictionaries: structureChannels.signature_fields_or_dictionaries ?? "unknown",
-            signature_count: signature?.content_json?.signature_count ?? null,
+            signature_field_or_dictionary_presence: structureChannels.signature_fields_or_dictionaries ?? "unknown",
+            populated_signature_field_count: signature?.content_json?.signature_count ?? null,
+            cryptographic_signature_validation_status: "not_performed",
+            visible_handwritten_signature_image_status: "not_assessed",
           } : null,
         },
         linked_source_documents: contexts,
         extracted_artifacts: available,
+        page_traceability_path: "page-traceability.json",
         diagnostics,
       };
       const metadataTarget = path.join(targetRoot, "metadata.json");
@@ -412,8 +516,28 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
       const occurrence = first.occurrences?.[0] ?? {};
       const processNumbers = [...new Set(contexts.flatMap((item) => item.occurrences.map((row) => row.process_number)).filter(Boolean))].sort();
       const occurrenceCount = contexts.reduce((sum, item) => sum + item.occurrences.length, 0);
+      for (const document of contexts) {
+        for (const linkedOccurrence of document.occurrences) {
+          occurrenceRows.push({
+            occurrence_date: linkedOccurrence.bucket_date,
+            process_number: linkedOccurrence.process_number,
+            source_system: linkedOccurrence.source_system,
+            source_bucket_id: linkedOccurrence.source_bucket_id,
+            reference_number: linkedOccurrence.reference_number,
+            designation: linkedOccurrence.designation,
+            presenter: linkedOccurrence.presenter,
+            binary_sha256: sha256,
+            source_document_reference: document.document_reference,
+            source_document_name: document.document_name,
+            source_document_date: document.document_date,
+            source_document_type: document.document_type,
+            is_primary_binary: document.is_primary_binary,
+          });
+        }
+      }
       indexRows.push({
         sha256,
+        display_label: displayLabel,
         process_numbers: processNumbers.join(";"),
         source_document_count: contexts.length,
         occurrence_count: occurrenceCount,
@@ -431,14 +555,66 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
         metadata_path: `documents/${sha256}/metadata.json`,
         original_path: originalRelativePath,
       });
+      coverageDocuments.push({
+        sha256,
+        linked_source_document_count: contexts.length,
+        occurrence_count: occurrenceCount,
+        original_included: true,
+        processor_states: Object.fromEntries(Object.keys(OUTPUTS).map((processor) => {
+          const state = diagnostics.find((item) => item.processor === processor && item.state)?.state ?? "unknown";
+          return [processor, state];
+        })),
+        actionable_warning_count: diagnostics.filter((item) => item.actionable).length,
+        historical_failed_job_count: manifest.persisted.processing_jobs.filter((job) => job.status === "failed").length,
+      });
     }
     const indexTarget = path.join(outputDir, "documents.csv");
     await fs.writeFile(indexTarget, toCsv([
-      "sha256", "process_numbers", "source_document_count", "occurrence_count",
+      "sha256", "display_label", "process_numbers", "source_document_count", "occurrence_count",
       "representative_process_number", "representative_document_reference",
       "representative_document_name", "representative_document_date",
       "representative_document_type", "page_count", "actionable_warning_count", "folder",
     ], indexRows), "utf8");
+    occurrenceRows.sort((left, right) => [
+      left.occurrence_date ?? "", left.process_number ?? "", left.source_bucket_id ?? "",
+      left.source_document_reference ?? "", left.binary_sha256,
+    ].join("\u0000").localeCompare([
+      right.occurrence_date ?? "", right.process_number ?? "", right.source_bucket_id ?? "",
+      right.source_document_reference ?? "", right.binary_sha256,
+    ].join("\u0000")));
+    const occurrencesTarget = path.join(outputDir, "occurrences.csv");
+    await fs.writeFile(occurrencesTarget, toCsv([
+      "occurrence_date", "process_number", "source_system", "source_bucket_id", "reference_number",
+      "designation", "presenter", "binary_sha256", "source_document_reference", "source_document_name",
+      "source_document_date", "source_document_type", "is_primary_binary",
+    ], occurrenceRows), "utf8");
+    const processorCoverage = {};
+    for (const processor of Object.keys(OUTPUTS)) {
+      processorCoverage[processor] = {};
+      for (const document of coverageDocuments) {
+        const state = document.processor_states[processor];
+        processorCoverage[processor][state] = (processorCoverage[processor][state] ?? 0) + 1;
+      }
+    }
+    const coverage = {
+      schema_version: 1,
+      selection_scope: factual.scope,
+      selected_binary_count: factual.scope?.sha256s?.length ?? factual.binaries.length,
+      included_binary_count: coverageDocuments.length,
+      linked_source_document_count: coverageDocuments.reduce((sum, row) => sum + row.linked_source_document_count, 0),
+      procedural_occurrence_count: occurrenceRows.length,
+      original_binary_coverage: { included: coverageDocuments.length, missing: 0 },
+      processor_output_states: processorCoverage,
+      historical_failed_job_count: coverageDocuments.reduce((sum, row) => sum + row.historical_failed_job_count, 0),
+      source_documents_without_binaries: "unknown_not_available_in_selected_factual_package",
+      binaries_outside_selection: "not_enumerated",
+      documents: coverageDocuments,
+      limitations: [
+        "Coverage is measured within the explicit factual-package selection, not the whole source corpus.",
+        "Historical failed attempts are counted separately from current output availability.",
+      ],
+    };
+    await fs.writeFile(path.join(outputDir, "coverage.json"), `${JSON.stringify(coverage, null, 2)}\n`, "utf8");
     const files = [];
     for (const file of await fs.readdir(outputDir, { recursive: true, withFileTypes: true })) {
       if (!file.isFile() || file.name === "manifest.json") continue;
@@ -452,6 +628,8 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
       exporter: { name: AI_CONSULTATION_EXPORTER, version: AI_CONSULTATION_EXPORTER_VERSION },
       binary_count: indexRows.length,
       index_path: "documents.csv",
+      occurrences_index_path: "occurrences.csv",
+      coverage_report_path: "coverage.json",
       documents_root_path: "documents",
       hash_algorithm: "sha256",
       original_binaries_included: true,

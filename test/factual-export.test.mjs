@@ -10,6 +10,7 @@ import {
   classifyUnavailableProcessor,
   compareProcessorTexts,
   prepareAiConsultationPackage,
+  sourceCalendarDate,
   toCsv,
 } from "../app/ai-consultation-export.mjs";
 import { inspectAiConsultationPackage } from "../app/ai-consultation-inspect.mjs";
@@ -67,18 +68,25 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(consultation.binaryCount, 5);
       await fs.access(path.join(consultationDir, "README.md"));
       await fs.access(path.join(consultationDir, "documents.csv"));
+      await fs.access(path.join(consultationDir, "occurrences.csv"));
+      await fs.access(path.join(consultationDir, "coverage.json"));
       for (const sha256 of REPRESENTATIVE_SHAS) {
         const documentDir = path.join(consultationDir, "documents", sha256);
         const names = await fs.readdir(documentDir);
         assert.equal(names.some((name) => name.startsWith("original.")), true);
         const metadata = JSON.parse(await fs.readFile(path.join(documentDir, "metadata.json"), "utf8"));
         assert.equal(metadata.source_binary.sha256, sha256);
+        assert.equal(metadata.schema_version, 2);
+        await fs.access(path.join(documentDir, metadata.page_traceability_path));
         assert.equal("processing_jobs" in metadata, false);
         assert.equal(metadata.diagnostics.some((item) => "first_different_line" in item), false);
       }
       const consultationInspection = await inspectAiConsultationPackage({ packageDir: consultationDir });
       assert.equal(consultationInspection.report.binary_count, 5);
       assert.equal(consultationInspection.manifest.index_path, "documents.csv");
+      assert.equal(consultationInspection.manifest.package_version, 2);
+      assert.equal(consultationInspection.manifest.occurrences_index_path, "occurrences.csv");
+      assert.equal(consultationInspection.manifest.coverage_report_path, "coverage.json");
       assert.equal(consultationInspection.manifest.original_binaries_included, true);
 
       const limited = JSON.parse(await fs.readFile(path.join(
@@ -93,6 +101,7 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(limited.diagnostics.some((item) => item.code === "PROCESSOR_OUTPUTS_TEXTUALLY_NON_IDENTICAL"), false);
       assert.equal(limited.source_binary.page_count, 1);
       assert.equal(limited.source_binary.pdf_characteristics.raster_page_content, "present");
+      assert.equal(limited.linked_source_documents[0].document_date, "2020-09-01");
 
       for (const sha256 of [REPRESENTATIVE_SHAS[1], REPRESENTATIVE_SHAS[2], REPRESENTATIVE_SHAS[4]]) {
         const metadata = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", sha256, "metadata.json"), "utf8"));
@@ -105,8 +114,17 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(scannedEleven.diagnostics.some((item) => item.code === "SOURCE_PDF_NO_NATIVE_TEXT"), true);
       const bornDigital = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[2], "metadata.json"), "utf8"));
       assert.equal(bornDigital.source_binary.pdf_characteristics.native_text, "present");
+      assert.equal(bornDigital.navigation_label.authority, "generated_non_authoritative");
+      const bornDigitalPages = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[2], "page-traceability.json"), "utf8"));
+      assert.equal(bornDigitalPages.source_native_text_assessment.length, 5);
+      assert.equal(bornDigitalPages.channels.pdf_literal_text.page_mapping_status, "available");
+      assert.equal(bornDigitalPages.channels.pdf_literal_text.pages.length, 5);
+      assert.equal(bornDigitalPages.channels.docling.page_mapping_status, "unavailable");
+      assert.equal(bornDigitalPages.channels.xberg.page_mapping_status, "unavailable");
       const signed = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[3], "metadata.json"), "utf8"));
-      assert.equal(signed.source_binary.pdf_characteristics.signature_fields_or_dictionaries, "present");
+      assert.equal(signed.source_binary.pdf_characteristics.signature_field_or_dictionary_presence, "present");
+      assert.equal(signed.source_binary.pdf_characteristics.populated_signature_field_count, 1);
+      assert.equal(signed.source_binary.pdf_characteristics.cryptographic_signature_validation_status, "not_performed");
       assert.equal(signed.extracted_artifacts.some((item) => item.artifact_kind === "pdf_signature_metadata"), true);
       const scannedLong = JSON.parse(await fs.readFile(path.join(consultationDir, "documents", REPRESENTATIVE_SHAS[4], "metadata.json"), "utf8"));
       assert.equal(scannedLong.source_binary.page_count, 88);
@@ -118,6 +136,15 @@ test("factual slice exports and verifies multiple binaries without mutating proc
         "metadata.json",
       ), "utf8"));
       assert.equal(new Set(multiProcess.linked_source_documents.flatMap((item) => item.occurrences.map((row) => row.process_number))).size, 2);
+      const occurrences = await fs.readFile(path.join(consultationDir, "occurrences.csv"), "utf8");
+      assert.equal(occurrences.trimEnd().split("\n").length, 12);
+      assert.match(occurrences, /^occurrence_date,process_number,/u);
+      const occurrenceDates = occurrences.trimEnd().split("\n").slice(1).map((line) => line.slice(0, 10));
+      assert.deepEqual(occurrenceDates, [...occurrenceDates].sort());
+      const coverage = JSON.parse(await fs.readFile(path.join(consultationDir, "coverage.json"), "utf8"));
+      assert.equal(coverage.included_binary_count, 5);
+      assert.equal(coverage.procedural_occurrence_count, 11);
+      assert.equal(coverage.source_documents_without_binaries, "unknown_not_available_in_selected_factual_package");
 
       const packageManifestPath = path.join(consultationDir, "manifest.json");
       const validManifestText = await fs.readFile(packageManifestPath, "utf8");
@@ -172,4 +199,10 @@ test("AI consultation CSV serializer quotes commas, quotes, and newlines", () =>
     toCsv(["name", "note"], [{ name: "Doe, Jane", note: "said \"yes\"\nagain" }]),
     "name,note\n\"Doe, Jane\",\"said \"\"yes\"\"\nagain\"\n",
   );
+});
+
+test("AI consultation preserves Portuguese source calendar dates", () => {
+  assert.equal(sourceCalendarDate("2020-08-31T23:00:00.000Z"), "2020-09-01");
+  assert.equal(sourceCalendarDate("2022-01-13"), "2022-01-13");
+  assert.equal(sourceCalendarDate(null), null);
 });
