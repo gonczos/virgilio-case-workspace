@@ -199,6 +199,18 @@ distinct binaries. Five of the failed rows now have a successful replacement;
 the remaining nine binaries without an Xberg success are the image-only
 PDF parse/OCR compatibility cases.
 
+The retained Xberg errors divide cleanly into two parser-specific groups:
+
+| Xberg error | Count | Affected SHA-256 values |
+|---|---:|---|
+| `pdf_oxide` could not obtain a page count because the PDF catalog was missing a `/Pages` entry | 7 | `130cc7b4475151321bf058d96b597e51b2e569599e8d8c065f59d9cbfa800e67`, `36c216b08bde6dc1db446394ea6623244fa407547477b6a65cd6ae68ae358cb8`, `574318251cd1ef8eeec9171126cdcaa2da6f0acd7d81ae7ab98f544274c68a14`, `5d451af6a424bb4da5a330d6f36144fcd76b72f7a4f241e56114ee53bb2aac09`, `5d628b2b3a54f08639804c2a9f6f4198518d73064c981d9da1b8b80472dbfd59`, `64d3844bf7ef3f57e050d398c60cf30892beb5d12672e52d8fad34e980aa5d6b`, `f400eecc769a7341656e5345b91afe18fc443acfeea72586df2ecd5d51371c26` |
+| Both Tesseract and PaddleOCR fallbacks failed to render page 0 because the PDF pages node was missing `Kids` | 2 | `30ee9d6a50db5de7d6db98d4b7bf535a8e7ba245a50d291669d8d913a4239874`, `cd91b2c2eb46983f046fcb2b1d511a708a16c899309ed1c85fd74931d68af55d` |
+
+Docling, literal text, signature metadata, and structure inventory all have a
+successful run for each of these nine binaries. Therefore "invalid PDF" in
+these error strings describes Xberg's parser expectations; it does not mean
+that the binary is unusable by every parser or lacks other usable evidence.
+
 ## Tool-specific lessons
 
 | Tool/channel | Strengths observed | Shortcomings and cautions | Appropriate claim |
