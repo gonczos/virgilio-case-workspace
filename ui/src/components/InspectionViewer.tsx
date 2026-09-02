@@ -7,8 +7,6 @@ import {
   CircularProgress,
   Paper,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   Typography,
   createFilterOptions,
@@ -88,7 +86,6 @@ export function InspectionViewer({
     ...buildInspectionOptions("evidence", evidence),
   ], [evidence, interpretations]);
   const [selectedId, setSelectedId] = useState("");
-  const [activeCategory, setActiveCategory] = useState<InspectionCategory>(initialCategory);
   const [content, setContent] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,7 +100,6 @@ export function InspectionViewer({
       && option.renderMode === "rendered"
     )) ?? categoryOptions[0] ?? options[0] ?? null;
     setSelectedId(preferred?.id ?? "");
-    setActiveCategory(preferred?.category ?? initialCategory);
   }, [effectiveRepresentationId, initialCategory, options, selectedOption]);
 
   useEffect(() => {
@@ -130,21 +126,10 @@ export function InspectionViewer({
   function selectOption(option: InspectionOption | null) {
     if (!option) return;
     setSelectedId(option.id);
-    setActiveCategory(option.category);
-  }
-
-  function selectCategory(category: InspectionCategory) {
-    setActiveCategory(category);
-    const nextOption = options.find((option) => option.category === category);
-    if (nextOption) setSelectedId(nextOption.id);
   }
 
   return <Paper elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", height, minHeight: 520, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-    <Box sx={{ px: 2, pt: 1, borderBottom: "1px solid rgba(31,79,95,0.12)" }}>
-      <Tabs value={activeCategory} onChange={(_event, value: InspectionCategory) => selectCategory(value)}>
-        <Tab value="interpretation" label="Interpretation" disabled={interpretations.length === 0} />
-        <Tab value="evidence" label="PDF evidence" disabled={evidence.length === 0} />
-      </Tabs>
+    <Box sx={{ px: 2, pt: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)" }}>
       <Autocomplete
         fullWidth
         size="small"
