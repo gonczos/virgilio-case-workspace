@@ -41,7 +41,7 @@ import {
 const INSPECTION_HEIGHT = { xs: "70vh", xl: "clamp(560px, calc(100vh - 260px), 860px)" };
 
 function DetailAccordion({ title, children }: { title: string; children: ReactNode }) {
-  return <Accordion disableGutters elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", "&:before": { display: "none" } }}>
+  return <Accordion defaultExpanded disableGutters elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", "&:before": { display: "none" } }}>
     <AccordionSummary expandIcon={<Typography aria-hidden="true">⌄</Typography>}>
       <Typography variant="h6">{title}</Typography>
     </AccordionSummary>
@@ -204,11 +204,11 @@ export function BinaryDetailPage() {
       </Grid>
 
       <Stack spacing={1}>
-        <DetailAccordion title="Context"><ContextSummary detail={detail} /></DetailAccordion>
-        <DetailAccordion title="Processing"><ProcessingSummary detail={detail} /></DetailAccordion>
-        <DetailAccordion title="Comparison & review"><QualitySummary detail={detail} /></DetailAccordion>
+        <DetailAccordion title="Context"><ContextSummary detail={detail} hideHeading /></DetailAccordion>
+        <DetailAccordion title="Processing"><ProcessingSummary detail={detail} hideHeading /></DetailAccordion>
+        <DetailAccordion title="Comparison & review"><QualitySummary detail={detail} hideHeading /></DetailAccordion>
         <DetailAccordion title="Viewed representation provenance">
-          <ProvenanceSummary representation={viewedRepresentation} selectionReason={detail.representations.effective_selection_reason} />
+          <ProvenanceSummary representation={viewedRepresentation} selectionReason={detail.representations.effective_selection_reason} hideHeading />
         </DetailAccordion>
         <TechnicalDetails detail={detail} viewedRepresentation={viewedRepresentation} />
       </Stack>

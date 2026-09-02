@@ -13,14 +13,13 @@ import type { BinaryDetailResponse } from "../types/consultation";
 
 interface ContextSummaryProps {
   detail: BinaryDetailResponse;
+  hideHeading?: boolean;
 }
 
-export function ContextSummary({ detail }: ContextSummaryProps) {
+export function ContextSummary({ detail, hideHeading = false }: ContextSummaryProps) {
   return (
     <Paper elevation={0} sx={{ p: 2.25, border: "1px solid rgba(31,79,95,0.12)" }}>
-      <Typography variant="h6" gutterBottom>
-        Context
-      </Typography>
+      {hideHeading ? null : <Typography variant="h6" gutterBottom>Context</Typography>}
       <Stack direction={{ xs: "column", lg: "row" }} spacing={3} divider={<Divider flexItem orientation="vertical" />}>
         <Stack flex={1}>
           <Typography variant="subtitle2" color="text.secondary">Documents</Typography>

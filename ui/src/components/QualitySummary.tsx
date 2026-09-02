@@ -13,13 +13,14 @@ import { getRepresentationLabel } from "../utils/consultation";
 
 interface QualitySummaryProps {
   detail: BinaryDetailResponse;
+  hideHeading?: boolean;
 }
 
-export function QualitySummary({ detail }: QualitySummaryProps) {
+export function QualitySummary({ detail, hideHeading = false }: QualitySummaryProps) {
   return (
     <Paper elevation={0} sx={{ p: 2.25, border: "1px solid rgba(31,79,95,0.12)" }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
-        <Typography variant="h6">Comparison & review</Typography>
+        {hideHeading ? null : <Typography variant="h6">Comparison & review</Typography>}
         <Chip
           size="small"
           color={detail.attention.review_needed ? "warning" : "success"}

@@ -13,6 +13,7 @@ import { getRepresentationLabel } from "../utils/consultation";
 
 interface ProcessingSummaryProps {
   detail: BinaryDetailResponse;
+  hideHeading?: boolean;
 }
 
 function statusColor(status: string): "success" | "warning" | "error" | "default" {
@@ -31,11 +32,11 @@ function statusColor(status: string): "success" | "warning" | "error" | "default
   }
 }
 
-export function ProcessingSummary({ detail }: ProcessingSummaryProps) {
+export function ProcessingSummary({ detail, hideHeading = false }: ProcessingSummaryProps) {
   return (
     <Paper elevation={0} sx={{ p: 2.25, border: "1px solid rgba(31,79,95,0.12)" }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
-        <Typography variant="h6">Processing</Typography>
+        {hideHeading ? null : <Typography variant="h6">Processing</Typography>}
         {detail.processing.summary.last_processed_at ? (
           <Typography variant="body2" color="text.secondary">
             Last processed {new Date(detail.processing.summary.last_processed_at).toLocaleString()}

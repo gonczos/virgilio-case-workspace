@@ -14,13 +14,14 @@ import { getRepresentationLabel } from "../utils/consultation";
 interface ProvenanceSummaryProps {
   representation: RepresentationListItem | null;
   selectionReason: string;
+  hideHeading?: boolean;
 }
 
-export function ProvenanceSummary({ representation, selectionReason }: ProvenanceSummaryProps) {
+export function ProvenanceSummary({ representation, selectionReason, hideHeading = false }: ProvenanceSummaryProps) {
   return (
     <Paper elevation={0} sx={{ p: 2.25, border: "1px solid rgba(31,79,95,0.12)" }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
-        <Typography variant="h6">Viewed representation provenance</Typography>
+        {hideHeading ? null : <Typography variant="h6">Viewed representation provenance</Typography>}
         <Chip size="small" label={selectionReason === "explicit_human_selection" ? "Explicit selection in effect" : "Automatic policy"} />
       </Stack>
       {!representation ? (

@@ -25,7 +25,7 @@ export function TechnicalDetails({ detail, viewedRepresentation }: TechnicalDeta
     review_reason_codes: detail.attention.reason_codes,
   };
   return (
-    <Accordion disableGutters elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", bgcolor: "background.paper" }}>
+    <Accordion defaultExpanded disableGutters elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", bgcolor: "background.paper" }}>
       <AccordionSummary expandIcon={<Typography aria-hidden="true">+</Typography>}>
         <Typography variant="subtitle1">Technical details</Typography>
       </AccordionSummary>
