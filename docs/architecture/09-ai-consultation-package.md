@@ -16,8 +16,11 @@ silently merged.
 
 - `manifest.json`: package identity and integrity inventory.
 - `documents.csv`: one navigation row per binary SHA-256.
+- `cases.csv`: one orientation row per source-recorded process identifier.
 - `occurrences.csv`: one chronological row per source-recorded procedural
   occurrence.
+- `missing-source-documents.csv`: source-document occurrences with zero claimed
+  size and no observed binary association.
 - `coverage.json`: selected-scope inclusion and processor-state coverage.
 - `documents/<sha256>/original.*`: canonical original binary.
 - `documents/<sha256>/metadata.json`: complete linked source context, artifact
@@ -49,6 +52,16 @@ the first deterministically ordered linked context. Consumers must read the
 binary's `metadata.json` for every source document, process number, and
 procedural occurrence.
 
+`cases.csv` separates source-recorded case and court fields from fields prefixed
+with `derived_`. A distinct-binary count deduplicates by SHA-256 within each
+process; a source-document count deduplicates by source document record ID; an
+occurrence count counts exported rows. A binary shared between proceedings
+counts once within each linked process and once globally. Empty source fields
+mean that the structured source record does not provide the value; the exporter
+does not derive parties, judges, or other case attributes from document text.
+Process suffixes remain distinct identifiers. Absence of an identifier from the
+export is not evidence that the proceeding does not exist.
+
 `occurrences.csv` is the complete package-level chronology projection. Source
 calendar dates use `YYYY-MM-DD` and are not converted into UTC instants. They
 preserve dates attributed to source records and do not assert a time of day,
@@ -60,6 +73,17 @@ the source-recorded case registration and decision dates. Actual generation and
 processing instants remain timestamps. `display_label` and the
 `navigation_label` object are generated, non-authoritative navigation aids;
 neither changes document identity or source metadata.
+
+First and last dates in `cases.csv` are bounds among occurrence records included
+by the package. They are not asserted opening or closing dates. The source
+registration and decision dates retain their separately named source meanings.
+
+`missing-source-documents.csv` retains metadata and procedural occurrences for
+source document records that have no binary association and whose claimed size
+is zero. Its status basis is
+`no_binary_observed_and_claimed_size_zero`. This does not prove why the source
+system supplied no binary and must not be described as an extraction failure,
+an exporter omission, or evidence that the underlying media never existed.
 
 ## Artifact provenance and channels
 
@@ -148,6 +172,9 @@ the persisted evidence supports only `unknown`.
 `inspect-ai-consultation` validates the format/version, deterministic and unique
 SHA-256 document identities, path containment, file hashes and sizes, original
 binary identity, artifact inventory membership, and artifact-to-binary lineage.
+It also requires declared case and missing-source-document indexes to resolve
+inside the package. The factual-package inspector validates the portable source
+records and their declared counts before the consultation projection begins.
 An integrity failure invalidates the package for consultation until it is
 regenerated or repaired from immutable source artifacts.
 

@@ -21,13 +21,14 @@ Start with \`documents.csv\`. It has one row per binary, identified by the full 
 
 1. Start with \`documents.csv\`.
 2. Use each document's \`metadata.json\` for the complete linked source-document and procedural-occurrence context.
-3. Use \`occurrences.csv\` for the complete package chronology; repeated occurrences do not necessarily represent distinct documents.
-4. Treat the original binary as the canonical evidence object.
-5. Treat extracted content as processor-attributed derived evidence, not as the original.
-6. Do not silently merge, reconcile, or select between processor outputs.
-7. When outputs disagree, report the difference and consult the original binary.
-8. Cite conclusions using the full SHA-256, source document metadata, and PDF page where reliable page mapping is available.
-9. Distinguish factual extraction from legal, semantic, or narrative interpretation.
+3. Use \`cases.csv\` for source-recorded case orientation and package-derived counts, and \`occurrences.csv\` for the package chronology; repeated occurrences do not necessarily represent distinct documents.
+4. Use \`missing-source-documents.csv\` for source records whose claimed size is zero and for which no binary was observed. These are unavailable source records, not extraction failures.
+5. Treat the original binary as the canonical evidence object.
+6. Treat extracted content as processor-attributed derived evidence, not as the original.
+7. Do not silently merge, reconcile, or select between processor outputs.
+8. When outputs disagree, report the difference and consult the original binary.
+9. Cite conclusions using the full SHA-256, source document metadata, and PDF page where reliable page mapping is available.
+10. Distinguish factual extraction from legal, semantic, or narrative interpretation.
 
 Dates such as document and occurrence dates preserve source-recorded calendar dates in \`YYYY-MM-DD\` form. They are not timestamps and do not imply a time of day or timezone. Document, occurrence, filing, signing, receipt, and decision dates must not be treated as interchangeable unless the source establishes that relationship.
 
@@ -42,6 +43,8 @@ Readable interpretations may omit headers, footers, references, and other identi
 - \`identifier-preservation.json\`: when Docling page provenance is available, conservative identifier-like token coverage across attributed outputs; this is not a correctness or legal-significance assessment.
 - \`warnings.md\`: actionable extraction cautions rendered from \`metadata.json\`, when present.
 - \`coverage.json\`: package scope, inclusion, and extraction-state coverage.
+- \`cases.csv\`: one row per source-recorded process identifier, separating source fields from package-derived counts and occurrence-date bounds.
+- \`missing-source-documents.csv\`: source-document occurrences with no associated binary and zero source-recorded claimed size.
 - \`manifest.json\`: package identity and file-integrity inventory.
 
 Machine extraction and AI answers can be incomplete or wrong. Check important conclusions against the original document. This package may contain sensitive personal and court-case information; keep it private.
@@ -136,6 +139,7 @@ function sourceContext(manifest) {
     });
     return {
       source_system: document.source_system ?? null,
+      source_document_record_id: document.id ?? null,
       document_reference: document.document_procinfo ?? null,
       document_name: document.document_name ?? null,
       document_date: sourceCalendarDate(document.document_date),
@@ -504,6 +508,12 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
   await inspectFactualExport({ packageDir: sourcePackageDir });
   await assertNewDirectory(outputDir);
   const factual = JSON.parse(await fs.readFile(path.join(sourcePackageDir, "manifest.json"), "utf8"));
+  const sourceCaseRecords = factual.source_orientation?.case_records_path
+    ? JSON.parse(await fs.readFile(path.join(sourcePackageDir, factual.source_orientation.case_records_path), "utf8")).cases ?? []
+    : [];
+  const missingSourceOccurrences = factual.source_orientation?.missing_source_documents_path
+    ? JSON.parse(await fs.readFile(path.join(sourcePackageDir, factual.source_orientation.missing_source_documents_path), "utf8")).occurrences ?? []
+    : [];
   const indexRows = [];
   const occurrenceRows = [];
   const coverageDocuments = [];
@@ -761,6 +771,7 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
             presenter: linkedOccurrence.presenter,
             binary_sha256: sha256,
             source_document_reference: document.document_reference,
+            source_document_record_id: document.source_document_record_id,
             source_document_name: document.document_name,
             source_document_date: document.document_date,
             source_document_type: document.document_type,
@@ -819,8 +830,64 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
     await fs.writeFile(occurrencesTarget, toCsv([
       "occurrence_date", "process_number", "source_system", "source_bucket_id", "reference_number",
       "designation", "presenter", "binary_sha256", "source_document_reference", "source_document_name",
-      "source_document_date", "source_document_type", "is_primary_binary",
+      "source_document_record_id", "source_document_date", "source_document_type", "is_primary_binary",
     ], occurrenceRows), "utf8");
+    const missingDocumentsTarget = path.join(outputDir, "missing-source-documents.csv");
+    await fs.writeFile(missingDocumentsTarget, toCsv([
+      "process_number", "source_case_record_id", "occurrence_date", "source_bucket_record_id",
+      "source_bucket_id", "reference_number", "designation", "presenter", "source_system",
+      "source_document_record_id", "source_document_reference", "document_name", "document_anchor_title",
+      "document_date", "document_type", "document_type_from_attr", "claimed_size_bytes",
+      "binary_status", "binary_status_basis", "canonical_confidence",
+    ], missingSourceOccurrences), "utf8");
+
+    const caseRows = sourceCaseRecords.map((caseRecord) => {
+      const availableOccurrences = occurrenceRows.filter((row) => row.process_number === caseRecord.process_number);
+      const missingOccurrences = missingSourceOccurrences.filter((row) => row.process_number === caseRecord.process_number);
+      const dates = [...availableOccurrences.map((row) => row.occurrence_date), ...missingOccurrences.map((row) => row.occurrence_date)]
+        .filter(Boolean).sort();
+      return {
+        source_system: caseRecord.source_system,
+        process_number: caseRecord.process_number,
+        source_case_record_id: caseRecord.source_case_record_id,
+        source_process_id: caseRecord.source_process_id,
+        source_classification: caseRecord.classification,
+        source_status: caseRecord.status,
+        source_registration_date: caseRecord.registration_date,
+        source_decision_date: caseRecord.decision_date,
+        parent_source_case_record_id: caseRecord.parent_source_case_record_id,
+        parent_process_number: caseRecord.parent_process_number,
+        is_base_case: caseRecord.is_base_case,
+        case_scope_status: caseRecord.case_scope_status,
+        canonical_confidence: caseRecord.canonical_confidence,
+        source_court_record_id: caseRecord.source_court_record_id,
+        court_name: caseRecord.court_name,
+        court_unit: caseRecord.court_unit,
+        source_court_id: caseRecord.source_court_id,
+        source_unit_id: caseRecord.source_unit_id,
+        source_client_id: caseRecord.source_client_id,
+        derived_distinct_binary_count: new Set(availableOccurrences.map((row) => row.binary_sha256)).size,
+        derived_distinct_source_document_count: new Set([
+          ...availableOccurrences.map((row) => row.source_document_record_id),
+          ...missingOccurrences.map((row) => row.source_document_record_id),
+        ].filter(Boolean)).size,
+        derived_occurrence_count: availableOccurrences.length + missingOccurrences.length,
+        derived_missing_binary_document_count: new Set(missingOccurrences.map((row) => row.source_document_record_id)).size,
+        first_exported_occurrence_date: dates[0] ?? null,
+        last_exported_occurrence_date: dates.at(-1) ?? null,
+      };
+    });
+    const casesTarget = path.join(outputDir, "cases.csv");
+    await fs.writeFile(casesTarget, toCsv([
+      "source_system", "process_number", "source_case_record_id", "source_process_id",
+      "source_classification", "source_status", "source_registration_date", "source_decision_date",
+      "parent_source_case_record_id", "parent_process_number", "is_base_case", "case_scope_status",
+      "canonical_confidence", "source_court_record_id", "court_name", "court_unit", "source_court_id",
+      "source_unit_id", "source_client_id", "derived_distinct_binary_count",
+      "derived_distinct_source_document_count", "derived_occurrence_count",
+      "derived_missing_binary_document_count", "first_exported_occurrence_date",
+      "last_exported_occurrence_date",
+    ], caseRows), "utf8");
     const processorCoverage = {};
     for (const processor of Object.keys(OUTPUTS)) {
       processorCoverage[processor] = {};
@@ -839,7 +906,8 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
       original_binary_coverage: { included: coverageDocuments.length, missing: 0 },
       processor_output_states: processorCoverage,
       historical_failed_job_count: coverageDocuments.reduce((sum, row) => sum + row.historical_failed_job_count, 0),
-      source_documents_without_binaries: "unknown_not_available_in_selected_factual_package",
+      source_documents_without_binaries: new Set(missingSourceOccurrences.map((row) => row.source_document_record_id)).size,
+      source_document_occurrences_without_binaries: missingSourceOccurrences.length,
       binaries_outside_selection: "not_enumerated",
       documents: coverageDocuments,
       limitations: [
@@ -861,7 +929,9 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
       exporter: { name: AI_CONSULTATION_EXPORTER, version: AI_CONSULTATION_EXPORTER_VERSION },
       binary_count: indexRows.length,
       index_path: "documents.csv",
+      cases_index_path: "cases.csv",
       occurrences_index_path: "occurrences.csv",
+      missing_source_documents_index_path: "missing-source-documents.csv",
       coverage_report_path: "coverage.json",
       documents_root_path: "documents",
       hash_algorithm: "sha256",
@@ -871,7 +941,16 @@ export async function prepareAiConsultationPackage({ sourcePackageDir, outputDir
         "Textual non-identity is recorded without assessing substantive disagreement.",
         "The top-level index contains representative display fields; metadata.json contains complete linked context.",
         "Docling page projections identify a native artifact retained in the factual source package, but that artifact is omitted here; the projection cannot be independently reconstructed from this package alone.",
+        "All available selected originals are included; missing-source-documents.csv lists source records with zero claimed size and no observed binary, without asserting a more specific cause.",
       ],
+      case_index_semantics: {
+        source_fields: "Fields not prefixed with derived_ preserve source-recorded case/court values; empty CSV fields represent unavailable source values.",
+        binary_count: "Distinct SHA-256 identities linked to the process within this package.",
+        source_document_count: "Distinct source document record identifiers linked to the process, including listed records without binaries.",
+        occurrence_count: "Available-binary and missing-source-document occurrence rows represented by this package.",
+        occurrence_date_bounds: "Bounds of exported occurrence records only; not proceeding opening or closing dates.",
+        shared_binary_rule: "A shared binary counts once in each linked process and once globally.",
+      },
       documents: packageDocuments,
       files,
     };

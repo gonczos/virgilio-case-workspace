@@ -132,7 +132,76 @@ This is an immutable, local, multi-binary factual snapshot prepared for file-bas
 Start with \`binary-index.csv\`, then use \`document-context-index.csv\` and
 \`processing-index.csv\`. The complete persisted records and raw artifacts are
 inside \`binaries/<sha256>/\`.
+
+\`case-records.json\` preserves source-recorded case metadata for cases linked to
+the selected binaries. \`missing-source-documents.json\` preserves source-document
+occurrences in those cases when no binary is associated with the document. A
+missing binary is not an extraction failure and no unavailable content is
+inferred.
 `;
+
+async function loadSourceOrientation(client, sha256s) {
+  const cases = await client.query(`
+    WITH selected_cases AS (
+      SELECT DISTINCT b.case_file_id
+      FROM casework.file_binary AS fb
+      JOIN casework.document_binary AS db ON db.file_binary_id = fb.id
+      JOIN casework.bucket_document AS bd ON bd.document_id = db.document_id
+      JOIN casework.bucket AS b ON b.id = bd.bucket_id
+      WHERE fb.sha256 = ANY($1::text[])
+    )
+    SELECT cf.id AS source_case_record_id, cf.source_system,
+           cf.processo AS process_number, cf.idprocesso AS source_process_id,
+           cf.especie AS classification, cf.estado AS status,
+           TO_CHAR(cf.data_autuacao, 'YYYY-MM-DD') AS registration_date,
+           TO_CHAR(cf.data_decisao, 'YYYY-MM-DD') AS decision_date,
+           cf.parent_case_file_id AS parent_source_case_record_id,
+           parent.processo AS parent_process_number, cf.is_base_case,
+           cf.case_scope_status, cf.canonical_confidence,
+           court.id AS source_court_record_id, court.source_system AS court_source_system,
+           court.tribunal_name AS court_name, court.unit_name AS court_unit,
+           court.idtribref AS source_court_id, court.idunorgref AS source_unit_id,
+           court.idcliente AS source_client_id
+    FROM selected_cases AS selected
+    JOIN casework.case_file AS cf ON cf.id = selected.case_file_id
+    JOIN casework.court AS court ON court.id = cf.court_id
+    LEFT JOIN casework.case_file AS parent ON parent.id = cf.parent_case_file_id
+    ORDER BY cf.source_system, cf.processo, cf.id
+  `, [sha256s]);
+  const missing = await client.query(`
+    WITH selected_cases AS (
+      SELECT DISTINCT b.case_file_id
+      FROM casework.file_binary AS fb
+      JOIN casework.document_binary AS db ON db.file_binary_id = fb.id
+      JOIN casework.bucket_document AS bd ON bd.document_id = db.document_id
+      JOIN casework.bucket AS b ON b.id = bd.bucket_id
+      WHERE fb.sha256 = ANY($1::text[])
+    )
+    SELECT d.id AS source_document_record_id, d.source_system,
+           d.document_procinfo AS source_document_reference,
+           d.document_name, d.document_anchor_title,
+           TO_CHAR(d.document_date, 'YYYY-MM-DD') AS document_date,
+           d.document_type, d.document_type_from_attr,
+           d.claimed_size_bytes, d.canonical_confidence,
+           cf.id AS source_case_record_id, cf.processo AS process_number,
+           b.id AS source_bucket_record_id, b.bucket_id AS source_bucket_id,
+           b.reference_number, TO_CHAR(b.bucket_date, 'YYYY-MM-DD') AS occurrence_date,
+           b.designation, b.presenter,
+           'unavailable'::text AS binary_status,
+           'no_binary_observed_and_claimed_size_zero'::text AS binary_status_basis
+    FROM selected_cases AS selected
+    JOIN casework.case_file AS cf ON cf.id = selected.case_file_id
+    JOIN casework.bucket AS b ON b.case_file_id = cf.id
+    JOIN casework.bucket_document AS bd ON bd.bucket_id = b.id
+    JOIN casework.document AS d ON d.id = bd.document_id
+    WHERE NOT EXISTS (
+      SELECT 1 FROM casework.document_binary AS db WHERE db.document_id = d.id
+    )
+      AND d.claimed_size_bytes = 0
+    ORDER BY cf.processo, b.bucket_date NULLS LAST, b.id, d.id
+  `, [sha256s]);
+  return { cases: cases.rows, missingSourceDocumentOccurrences: missing.rows };
+}
 
 export async function exportFactualSlice(client, {
   sha256s,
@@ -147,6 +216,7 @@ export async function exportFactualSlice(client, {
   await assertNewDirectory(outputDir);
   await fs.mkdir(outputDir, { recursive: true });
   try {
+    const sourceOrientation = await loadSourceOrientation(client, normalizedShas);
     const binaryRows = [];
     const contextRows = [];
     const processingRows = [];
@@ -202,6 +272,23 @@ export async function exportFactualSlice(client, {
       "sha256", "row_kind", "processor_key", "processor_version", "representation_id",
       "representation_kind", "producing_job_id", "job_status", "error_code", "artifact_directory",
     ], processingRows)));
+    generatedFiles.push(await writeText(
+      outputDir,
+      "case-records.json",
+      `${JSON.stringify({ schema_version: 1, cases: sourceOrientation.cases }, null, 2)}\n`,
+    ));
+    generatedFiles.push(await writeText(
+      outputDir,
+      "missing-source-documents.json",
+      `${JSON.stringify({
+        schema_version: 1,
+        status_semantics: {
+          unavailable: "A source document record was observed but no binary is associated with it.",
+          no_binary_observed_and_claimed_size_zero: "No binary association exists and the source-recorded claimed size is zero; no more specific cause is persisted.",
+        },
+        occurrences: sourceOrientation.missingSourceDocumentOccurrences,
+      }, null, 2)}\n`,
+    ));
 
     const manifest = {
       package_format: FACTUAL_EXPORT_PACKAGE_FORMAT,
@@ -215,6 +302,14 @@ export async function exportFactualSlice(client, {
         binaries: binaries.length,
         document_context_rows: contextRows.length,
         processing_index_rows: processingRows.length,
+        case_records: sourceOrientation.cases.length,
+        missing_source_document_records: new Set(sourceOrientation.missingSourceDocumentOccurrences
+          .map((row) => row.source_document_record_id)).size,
+        missing_source_document_occurrences: sourceOrientation.missingSourceDocumentOccurrences.length,
+      },
+      source_orientation: {
+        case_records_path: "case-records.json",
+        missing_source_documents_path: "missing-source-documents.json",
       },
       generated_files: generatedFiles,
       binaries,

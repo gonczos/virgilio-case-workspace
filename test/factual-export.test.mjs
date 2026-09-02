@@ -53,13 +53,17 @@ test("factual slice exports and verifies multiple binaries without mutating proc
           true,
         );
       }
-      for (const name of ["README.md", "binary-index.csv", "document-context-index.csv", "processing-index.csv"]) {
+      for (const name of [
+        "README.md", "binary-index.csv", "document-context-index.csv", "processing-index.csv",
+        "case-records.json", "missing-source-documents.json",
+      ]) {
         await fs.access(path.join(outputDir, name));
       }
 
       const inspected = await inspectFactualExport({ packageDir: outputDir });
       assert.equal(inspected.report.binary_count, 5);
-      assert.equal(inspected.report.generated_file_count, 4);
+      assert.equal(inspected.report.generated_file_count, 6);
+      assert.equal(inspected.report.missing_source_document_count, 36);
       assert.deepEqual(inspected.report.binaries.map((row) => row.sha256), [...REPRESENTATIVE_SHAS].sort());
 
       const consultationDir = path.join(tempRoot, "consultation");
@@ -72,6 +76,8 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       await fs.access(path.join(consultationDir, "documents.csv"));
       await fs.access(path.join(consultationDir, "occurrences.csv"));
       await fs.access(path.join(consultationDir, "coverage.json"));
+      await fs.access(path.join(consultationDir, "cases.csv"));
+      await fs.access(path.join(consultationDir, "missing-source-documents.csv"));
       for (const sha256 of REPRESENTATIVE_SHAS) {
         const documentDir = path.join(consultationDir, "documents", sha256);
         const names = await fs.readdir(documentDir);
@@ -89,6 +95,8 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(consultationInspection.manifest.index_path, "documents.csv");
       assert.equal(consultationInspection.manifest.package_version, 2);
       assert.equal(consultationInspection.manifest.occurrences_index_path, "occurrences.csv");
+      assert.equal(consultationInspection.manifest.cases_index_path, "cases.csv");
+      assert.equal(consultationInspection.manifest.missing_source_documents_index_path, "missing-source-documents.csv");
       assert.equal(consultationInspection.manifest.coverage_report_path, "coverage.json");
       assert.equal(consultationInspection.manifest.original_binaries_included, true);
 
@@ -177,7 +185,16 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       const coverage = JSON.parse(await fs.readFile(path.join(consultationDir, "coverage.json"), "utf8"));
       assert.equal(coverage.included_binary_count, 5);
       assert.equal(coverage.procedural_occurrence_count, 11);
-      assert.equal(coverage.source_documents_without_binaries, "unknown_not_available_in_selected_factual_package");
+      assert.equal(coverage.source_documents_without_binaries, 36);
+      const cases = await fs.readFile(path.join(consultationDir, "cases.csv"), "utf8");
+      assert.match(cases, /^source_system,process_number,/u);
+      assert.match(cases, /first_exported_occurrence_date,last_exported_occurrence_date/u);
+      const missingDocuments = await fs.readFile(path.join(consultationDir, "missing-source-documents.csv"), "utf8");
+      assert.equal(
+        missingDocuments.trimEnd().split("\n").length,
+        coverage.source_document_occurrences_without_binaries + 1,
+      );
+      assert.match(missingDocuments, /no_binary_observed_and_claimed_size_zero/u);
 
       const packageManifestPath = path.join(consultationDir, "manifest.json");
       const validManifestText = await fs.readFile(packageManifestPath, "utf8");

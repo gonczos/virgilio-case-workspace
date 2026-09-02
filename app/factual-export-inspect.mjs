@@ -40,6 +40,22 @@ export async function inspectFactualExport({ packageDir }) {
       throw new Error(`Generated file integrity mismatch: ${file.path}`);
     }
   }
+  if (manifest.source_orientation) {
+    const caseRecords = await readJson(resolveRelative(root, manifest.source_orientation.case_records_path));
+    const missingDocuments = await readJson(resolveRelative(root, manifest.source_orientation.missing_source_documents_path));
+    if (caseRecords.schema_version !== 1 || !Array.isArray(caseRecords.cases)) {
+      throw new Error("Invalid factual case records");
+    }
+    if (missingDocuments.schema_version !== 1 || !Array.isArray(missingDocuments.occurrences)) {
+      throw new Error("Invalid factual missing-source-document records");
+    }
+    if (caseRecords.cases.length !== manifest.counts.case_records
+      || missingDocuments.occurrences.length !== manifest.counts.missing_source_document_occurrences
+      || new Set(missingDocuments.occurrences.map((row) => row.source_document_record_id)).size
+        !== manifest.counts.missing_source_document_records) {
+      throw new Error("Factual source-orientation count mismatch");
+    }
+  }
   const binaryReports = [];
   for (const binary of manifest.binaries ?? []) {
     const childManifest = resolveRelative(root, binary.portable_manifest_path);
@@ -60,6 +76,8 @@ export async function inspectFactualExport({ packageDir }) {
       package_version: manifest.package_version,
       binary_count: binaryReports.length,
       generated_file_count: manifest.generated_files.length,
+      case_record_count: manifest.counts.case_records ?? 0,
+      missing_source_document_count: manifest.counts.missing_source_document_records ?? 0,
       binaries: binaryReports.map((report) => ({
         sha256: report.file_binary.sha256,
         representation_count: report.representation_count,

@@ -133,7 +133,12 @@ export async function inspectAiConsultationPackage({ packageDir }) {
   if (!paths.has(manifest.index_path)) throw new Error("Package index is missing from inventory");
   resolvePackagePath(root, manifest.index_path);
   if (manifest.package_version >= 2) {
-    for (const requiredPath of [manifest.occurrences_index_path, manifest.coverage_report_path]) {
+    for (const requiredPath of [
+      manifest.occurrences_index_path,
+      manifest.coverage_report_path,
+      manifest.cases_index_path,
+      manifest.missing_source_documents_index_path,
+    ].filter(Boolean)) {
       if (!paths.has(requiredPath)) throw new Error(`Required package report missing from inventory: ${requiredPath}`);
       resolvePackagePath(root, requiredPath);
     }
