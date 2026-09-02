@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+from contextlib import redirect_stdout
 import json
 import os
 import sys
@@ -49,6 +50,9 @@ def to_jsonable(value, depth=0):
 
 def build_docling_converter(ocr_mode: str):
     pipeline_options = PdfPipelineOptions()
+    artifacts_path = os.environ.get("DOCLING_ARTIFACTS_PATH")
+    if artifacts_path:
+        pipeline_options.artifacts_path = Path(artifacts_path)
     if ocr_mode == "never":
         pipeline_options.do_ocr = False
         pipeline_options.do_table_structure = False
@@ -298,14 +302,18 @@ def main():
 
     started = time.time()
     try:
-        if args.engine == "docling":
-            payload = run_docling(input_path, artifact_dir, args.profile_key, args.ocr_mode)
-        elif args.engine == "docling_ocr_evidence":
-            payload = run_docling_ocr_evidence(input_path, artifact_dir, args.profile_key)
-        elif args.engine == "xberg":
-            payload = run_xberg(input_path, artifact_dir, args.profile_key, args.ocr_mode)
-        else:
-            payload = run_plain_text(input_path, artifact_dir, args.profile_key)
+        # Stdout is the machine-readable protocol consumed by the Node worker.
+        # Third-party processors may emit diagnostics through stdout, so route
+        # all engine output to stderr and reserve stdout for the final JSON.
+        with redirect_stdout(sys.stderr):
+            if args.engine == "docling":
+                payload = run_docling(input_path, artifact_dir, args.profile_key, args.ocr_mode)
+            elif args.engine == "docling_ocr_evidence":
+                payload = run_docling_ocr_evidence(input_path, artifact_dir, args.profile_key)
+            elif args.engine == "xberg":
+                payload = run_xberg(input_path, artifact_dir, args.profile_key, args.ocr_mode)
+            else:
+                payload = run_plain_text(input_path, artifact_dir, args.profile_key)
         payload["duration_ms"] = round((time.time() - started) * 1000)
         write_json(artifact_dir / "summary.json", payload)
         print(ensure_ascii_json(payload))

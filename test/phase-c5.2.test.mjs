@@ -89,6 +89,17 @@ print(json.dumps(module.build_docling_projections(FakeDocument())))
   });
 });
 
+test("Docling helper uses the configured offline artifacts directory", async () => {
+  const payload = await runExtractorModuleSnippet(`
+import os
+os.environ["DOCLING_ARTIFACTS_PATH"] = r"C:\\\\prepared-docling-models"
+converter = module.build_docling_converter("force")
+options = converter.format_to_options[module.InputFormat.PDF].pipeline_options
+print(json.dumps({"artifacts_path": str(options.artifacts_path)}))
+`);
+  assert.equal(payload.artifacts_path, "C:\\prepared-docling-models");
+});
+
 test("Xberg helper uses explicit preservation-oriented content filter", async () => {
   const payload = await runExtractorModuleSnippet(`
 config = module.build_xberg_config("never")

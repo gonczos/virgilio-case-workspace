@@ -348,6 +348,14 @@ by setting:
 * `HF_HUB_OFFLINE=1`
 * `TRANSFORMERS_OFFLINE=1`
 
+The runtime also sets `DOCLING_ARTIFACTS_PATH` to the repository-local
+model directory by default:
+
+* `data/processing-runtime/cache/docling/models`
+
+Set `DOCLING_ARTIFACTS_PATH` explicitly only when the prepared Docling
+model directory is stored elsewhere.
+
 through the runtime environment builder unless those variables are
 already set.
 

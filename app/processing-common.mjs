@@ -170,6 +170,7 @@ export function buildProcessingRuntimeEnv(workspaceRoot) {
   const localAppDataRoot = fsSync.existsSync(legacyLocalAppDataRoot)
     ? legacyLocalAppDataRoot
     : path.join(runtimeRoot, "localappdata");
+  const doclingArtifactsRoot = path.join(cacheRoot, "docling", "models");
   fsSync.mkdirSync(cacheRoot, { recursive: true });
   fsSync.mkdirSync(hfRoot, { recursive: true });
   fsSync.mkdirSync(tempRoot, { recursive: true });
@@ -181,6 +182,7 @@ export function buildProcessingRuntimeEnv(workspaceRoot) {
     HUGGINGFACE_HUB_CACHE: path.join(hfRoot, "hub"),
     HF_HUB_OFFLINE: process.env.HF_HUB_OFFLINE ?? "1",
     TRANSFORMERS_OFFLINE: process.env.TRANSFORMERS_OFFLINE ?? "1",
+    DOCLING_ARTIFACTS_PATH: process.env.DOCLING_ARTIFACTS_PATH ?? doclingArtifactsRoot,
     TEMP: tempRoot,
     TMP: tempRoot,
     TMPDIR: tempRoot,
