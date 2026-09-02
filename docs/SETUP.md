@@ -194,6 +194,10 @@ The current Docker Compose file defines:
 * PostgreSQL service `virgilio-case-db`
 * bootstrap SQL mounted from `db/init/`
 
+Directus uses the PostgreSQL search path `casework,public`. This exposes the
+application schema to Directus while retaining access to Directus system tables
+in `public`.
+
 Current behavior:
 
 * on first PostgreSQL initialization against an empty
