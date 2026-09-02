@@ -50,6 +50,92 @@ export function parsePositiveInteger(value, fallback, { min = 0, max = Number.MA
   return parsed;
 }
 
+export const EXTRACTION_COVERAGE_PROCESSORS = [
+  "pdf_literal_text",
+  "pdf_signature_metadata",
+  "pdf_structure_inventory",
+  "xberg",
+  "docling",
+];
+
+export async function getExtractionCoverageReport(client) {
+  const result = await client.query(
+    `
+      SELECT
+        fb.id AS file_binary_id,
+        fb.sha256,
+        fb.machine_readability_status,
+        fb.page_count,
+        COALESCE(
+          ARRAY_AGG(DISTINCT dr.processor_key)
+            FILTER (WHERE dr.processor_key IS NOT NULL),
+          ARRAY[]::text[]
+        ) AS successful_processor_keys,
+        COALESCE(
+          ARRAY_AGG(DISTINCT dr.processor_key)
+            FILTER (
+              WHERE dr.processor_key IS NOT NULL
+                AND COALESCE(dr.metadata_json #>> '{summary,warning_count}', '0') ~ '^[0-9]+$'
+                AND (dr.metadata_json #>> '{summary,warning_count}')::int > 0
+            ),
+          ARRAY[]::text[]
+        ) AS warning_processor_keys
+      FROM casework.file_binary AS fb
+      LEFT JOIN casework.document_representation AS dr
+        ON dr.file_binary_id = fb.id
+       AND dr.processor_key = ANY($1::text[])
+       AND EXISTS (
+         SELECT 1
+         FROM casework.processing_job AS produced_job
+         WHERE produced_job.id = dr.produced_by_job_id
+           AND produced_job.status = 'completed'
+       )
+      WHERE fb.mime_type = 'application/pdf'
+      GROUP BY fb.id
+      ORDER BY fb.id ASC
+    `,
+    [EXTRACTION_COVERAGE_PROCESSORS],
+  );
+
+  const items = result.rows.map((row) => {
+    const successful = new Set(row.successful_processor_keys ?? []);
+    const coverage = Object.fromEntries(
+      EXTRACTION_COVERAGE_PROCESSORS.map((processorKey) => [processorKey, successful.has(processorKey)]),
+    );
+    return {
+      file_binary_id: Number(row.file_binary_id),
+      sha256: row.sha256,
+      machine_readability_status: row.machine_readability_status,
+      page_count: row.page_count === null ? null : Number(row.page_count),
+      coverage,
+      all_successful: EXTRACTION_COVERAGE_PROCESSORS.every((processorKey) => successful.has(processorKey)),
+      has_missing_extraction: !EXTRACTION_COVERAGE_PROCESSORS.every(
+        (processorKey) => successful.has(processorKey),
+      ),
+      has_warnings: (row.warning_processor_keys ?? []).length > 0,
+      warning_processor_keys: row.warning_processor_keys ?? [],
+    };
+  });
+
+  return {
+    generated_at: new Date().toISOString(),
+    processor_keys: EXTRACTION_COVERAGE_PROCESSORS,
+    summary: {
+      total_binaries: items.length,
+      successful_binaries: items.filter((item) => item.all_successful).length,
+      binaries_with_missing_extractions: items.filter((item) => item.has_missing_extraction).length,
+      binaries_with_warnings: items.filter((item) => item.has_warnings).length,
+      successful_by_processor: Object.fromEntries(
+        EXTRACTION_COVERAGE_PROCESSORS.map((processorKey) => [
+          processorKey,
+          items.filter((item) => item.coverage[processorKey]).length,
+        ]),
+      ),
+    },
+    items,
+  };
+}
+
 export function sanitizeErrorText(errorText) {
   if (!errorText) {
     return null;

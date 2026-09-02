@@ -9,6 +9,7 @@ import {
   loadDotEnv,
 } from "./processing-common.mjs";
 import {
+  getExtractionCoverageReport,
   getConsultationBinaryDetail,
   getRepresentationContent,
   isValidSha256,
@@ -86,6 +87,12 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
           limit,
           offset,
         });
+        sendJson(response, 200, payload);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/consultation/reports/extraction-coverage") {
+        const payload = await getExtractionCoverageReport(client);
         sendJson(response, 200, payload);
         return;
       }

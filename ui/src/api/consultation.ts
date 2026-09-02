@@ -1,6 +1,7 @@
 import type {
   BinaryCatalogueResponse,
   BinaryDetailResponse,
+  ExtractionCoverageReport,
   RepresentationListItem,
   RepresentationContentResult,
 } from "../types/consultation";
@@ -56,6 +57,11 @@ export function normalizeBinaryDetailResponse(detail: BinaryDetailResponse): Bin
 export async function listBinaries(limit = 100, offset = 0): Promise<BinaryCatalogueResponse> {
   const response = await fetch(`/api/consultation/binaries?limit=${limit}&offset=${offset}`);
   return expectJson<BinaryCatalogueResponse>(response);
+}
+
+export async function getExtractionCoverageReport(): Promise<ExtractionCoverageReport> {
+  const response = await fetch("/api/consultation/reports/extraction-coverage");
+  return expectJson<ExtractionCoverageReport>(response);
 }
 
 export async function getBinaryDetail(sha256: string): Promise<BinaryDetailResponse> {

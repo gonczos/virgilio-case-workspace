@@ -11,7 +11,10 @@ import {
   getWorkspaceRoot,
   withClient,
 } from "../app/processing-common.mjs";
-import { listConsultationBinaries } from "../app/consultation-store.mjs";
+import {
+  EXTRACTION_COVERAGE_PROCESSORS,
+  listConsultationBinaries,
+} from "../app/consultation-store.mjs";
 import {
   getBinaryRowBySha,
   resolveEffectiveRepresentation,
@@ -140,6 +143,33 @@ test("catalogue endpoint returns known binaries and processing summary", async (
       assert.equal(Array.isArray(item.available_representations), true);
       assert.equal(typeof item.review_needed, "boolean");
       assert.equal(Array.isArray(item.review_reason_codes), true);
+    });
+  });
+});
+
+test("extraction coverage report classifies usable representations rather than job attempts", async () => {
+  await withRealClient(async (client) => {
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const response = await request(baseUrl, "/api/consultation/reports/extraction-coverage");
+      assert.equal(response.statusCode, 200);
+      const payload = JSON.parse(response.body);
+      assert.deepEqual(payload.processor_keys, EXTRACTION_COVERAGE_PROCESSORS);
+      assert.equal(payload.summary.total_binaries, payload.items.length);
+      assert.equal(
+        payload.summary.successful_binaries,
+        payload.items.filter((item) => item.all_successful).length,
+      );
+      assert.equal(
+        payload.summary.binaries_with_missing_extractions,
+        payload.items.filter((item) => item.has_missing_extraction).length,
+      );
+      for (const item of payload.items) {
+        assert.equal(item.has_missing_extraction, !item.all_successful);
+        assert.equal(item.sha256.length, 64);
+        for (const processorKey of EXTRACTION_COVERAGE_PROCESSORS) {
+          assert.equal(typeof item.coverage[processorKey], "boolean");
+        }
+      }
     });
   });
 });

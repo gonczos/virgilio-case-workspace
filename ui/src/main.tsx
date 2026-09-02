@@ -15,6 +15,7 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 
 import { BinariesPage } from "./pages/BinariesPage";
 import { BinaryDetailPage } from "./pages/BinaryDetailPage";
+import { ExtractionCoveragePage } from "./pages/ExtractionCoveragePage";
 
 const theme = createTheme({
   palette: {
@@ -96,6 +97,9 @@ function App() {
               <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
                 Corpus consultation MVP
               </Typography>
+              <MuiLink component={Link} to="/reports/extraction-coverage" underline="hover" color="text.secondary">
+                Extraction coverage
+              </MuiLink>
               <MuiLink
                 href="http://localhost:8055"
                 target="_blank"
@@ -112,6 +116,7 @@ function App() {
               <Route path="/" element={<Navigate to="/binaries" replace />} />
               <Route path="/binaries" element={<BinariesPage />} />
               <Route path="/binaries/:sha256" element={<BinaryDetailPage />} />
+              <Route path="/reports/extraction-coverage" element={<ExtractionCoveragePage />} />
             </Routes>
           </Container>
         </Box>

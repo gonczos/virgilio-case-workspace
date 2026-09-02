@@ -55,6 +55,38 @@ export interface BinaryCatalogueResponse {
   items: BinaryCatalogueItem[];
 }
 
+export type ExtractionProcessorKey =
+  | "pdf_literal_text"
+  | "pdf_signature_metadata"
+  | "pdf_structure_inventory"
+  | "xberg"
+  | "docling";
+
+export interface ExtractionCoverageItem {
+  file_binary_id: number;
+  sha256: string;
+  machine_readability_status: string | null;
+  page_count: number | null;
+  coverage: Record<ExtractionProcessorKey, boolean>;
+  all_successful: boolean;
+  has_missing_extraction: boolean;
+  has_warnings: boolean;
+  warning_processor_keys: ExtractionProcessorKey[];
+}
+
+export interface ExtractionCoverageReport {
+  generated_at: string;
+  processor_keys: ExtractionProcessorKey[];
+  summary: {
+    total_binaries: number;
+    successful_binaries: number;
+    binaries_with_missing_extractions: number;
+    binaries_with_warnings: number;
+    successful_by_processor: Record<ExtractionProcessorKey, number>;
+  };
+  items: ExtractionCoverageItem[];
+}
+
 export interface BinaryContextDocument {
   document_id: number;
   document_name: string | null;
