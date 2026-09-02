@@ -211,3 +211,41 @@ absent from a readable processor output. It is a textual coverage comparison,
 not a correctness, legal-significance, or substantive-disagreement assessment.
 It must retain page and processor lineage, avoid synthetic merging, and leave
 all original and processor artifacts unchanged.
+
+## Final packaging slice: case orientation and unavailable binaries
+
+The full source state contains 1,238 retained binaries, but it also contains 36
+source-document records without an associated binary: 6 `AUD`, 11 `IMG`, and
+19 `VID`. Each has a court-system document reference, source metadata, document
+and occurrence dates, bucket context, and process linkage. Each has a claimed
+size of zero. The database does not contain a dedicated field proving why the
+binary is absent, so the export must use the factual status and basis
+`no_binary_observed_and_claimed_size_zero`, not silently elevate collection
+experience into a source-recorded reason.
+
+The final bounded packaging change will add:
+
+- `cases.csv`, one row per source-recorded case/process identifier represented
+  by the selected binaries or unavailable source documents;
+- `missing-source-documents.csv`, one row per source-document occurrence whose
+  source document has no binary;
+- matching manifest, coverage, README, inspector, and test support.
+
+Case rows separate source-recorded fields from package-derived fields. Derived
+binary counts use distinct SHA-256 identities; source-document counts use
+distinct source document records; occurrence counts count exported occurrence
+rows. First and last occurrence dates are bounds within the exported records,
+not opening or closing dates of a proceeding. Shared binaries may count once in
+each linked case while remaining one binary globally. Process suffixes remain
+distinct identifiers. Absence of a suffix or process number from the exported
+records does not establish nonexistence outside the export.
+
+The factual package must carry the package-level case and missing-document
+records so the consultation exporter remains a portable projection and does
+not query PostgreSQL. No unavailable binary placeholder, inferred content, or
+processor job will be created.
+
+After regeneration and validation of the full 1,238-binary package, exporter
+expansion stops. Richer questions about the remaining metadata should return to
+the original direct, constrained metadata-consultation goal rather than adding
+more duplicated projections to the portable package.
