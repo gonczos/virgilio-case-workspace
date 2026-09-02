@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import {
   Alert, Box, Button, Chip, CircularProgress, FormControl, InputLabel,
   Link as MuiLink, MenuItem, Paper, Select, Stack, Table, TableBody,
@@ -18,6 +19,49 @@ const PROCESSOR_LABELS: Record<ExtractionProcessorKey, string> = {
   docling: "Docling",
 };
 type CoverageFilter = "all" | "successful" | "failed" | "warnings";
+type ColumnKey = "binary" | "readability" | "pages" | ExtractionProcessorKey | "warnings";
+
+const INITIAL_COLUMN_WIDTHS: Record<ColumnKey, number> = {
+  binary: 390,
+  readability: 180,
+  pages: 80,
+  pdf_literal_text: 105,
+  pdf_signature_metadata: 115,
+  pdf_structure_inventory: 110,
+  xberg: 100,
+  docling: 100,
+  warnings: 150,
+};
+
+function ResizableHeader({
+  columnKey,
+  width,
+  align = "left",
+  children,
+  onResizeStart,
+}: {
+  columnKey: ColumnKey;
+  width: number;
+  align?: "left" | "center";
+  children: ReactNode;
+  onResizeStart: (columnKey: ColumnKey, event: ReactMouseEvent<HTMLDivElement>) => void;
+}) {
+  return (
+    <TableCell align={align} sx={{ position: "relative", width, minWidth: width, maxWidth: width }}>
+      {children}
+      <Box
+        role="separator"
+        aria-label={`Resize ${String(children)} column`}
+        onMouseDown={(event) => onResizeStart(columnKey, event)}
+        sx={{
+          position: "absolute", right: 0, top: 0, width: 8, height: "100%",
+          cursor: "col-resize", userSelect: "none", borderRight: "2px solid transparent",
+          "&:hover": { borderRightColor: "primary.main" },
+        }}
+      />
+    </TableCell>
+  );
+}
 
 function matchesCoverage(item: ExtractionCoverageItem, filter: CoverageFilter) {
   if (filter === "successful") return item.all_successful;
@@ -32,6 +76,7 @@ export function ExtractionCoveragePage() {
   const [processorFilter, setProcessorFilter] = useState<ExtractionProcessorKey | "all">("all");
   const [readabilityFilter, setReadabilityFilter] = useState("all");
   const [shaFilter, setShaFilter] = useState("");
+  const [columnWidths, setColumnWidths] = useState(INITIAL_COLUMN_WIDTHS);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +108,25 @@ export function ExtractionCoveragePage() {
   }, [coverageFilter, processorFilter, readabilityFilter, report, shaFilter]);
   useEffect(() => { setPage(0); }, [coverageFilter, processorFilter, readabilityFilter, shaFilter]);
   const pageItems = filteredItems.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const tableWidth = Object.values(columnWidths).reduce((total, width) => total + width, 0);
+
+  function startResize(columnKey: ColumnKey, event: ReactMouseEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = columnWidths[columnKey];
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      setColumnWidths((current) => ({
+        ...current,
+        [columnKey]: Math.max(70, startWidth + moveEvent.clientX - startX),
+      }));
+    };
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
 
   return (
     <Stack spacing={2.5}>
@@ -115,16 +179,18 @@ export function ExtractionCoveragePage() {
           <Stack alignItems="center" spacing={2} sx={{ py: 12 }}><CircularProgress /><Typography>Loading report...</Typography></Stack>
         ) : (
           <>
-            <TableContainer sx={{ maxHeight: "calc(100vh - 330px)" }}><Table stickyHeader size="small">
+            <TableContainer sx={{ maxHeight: "calc(100vh - 330px)" }}><Table stickyHeader size="small" sx={{ tableLayout: "fixed", width: tableWidth }}>
               <TableHead><TableRow>
-                <TableCell>Binary</TableCell><TableCell>Readability</TableCell><TableCell>Pages</TableCell>
-                {(report?.processor_keys ?? []).map((key) => <TableCell key={key} align="center">{PROCESSOR_LABELS[key]}</TableCell>)}
-                <TableCell>Warnings</TableCell>
+                <ResizableHeader columnKey="binary" width={columnWidths.binary} onResizeStart={startResize}>Binary</ResizableHeader>
+                <ResizableHeader columnKey="readability" width={columnWidths.readability} onResizeStart={startResize}>Readability</ResizableHeader>
+                <ResizableHeader columnKey="pages" width={columnWidths.pages} onResizeStart={startResize}>Pages</ResizableHeader>
+                {(report?.processor_keys ?? []).map((key) => <ResizableHeader key={key} columnKey={key} width={columnWidths[key]} align="center" onResizeStart={startResize}>{PROCESSOR_LABELS[key]}</ResizableHeader>)}
+                <ResizableHeader columnKey="warnings" width={columnWidths.warnings} onResizeStart={startResize}>Warnings</ResizableHeader>
               </TableRow></TableHead>
               <TableBody>
                 {pageItems.map((item) => <TableRow key={item.sha256} hover>
-                  <TableCell sx={{ minWidth: 570 }}><Stack spacing={0.25}>
-                    <MuiLink component={RouterLink} to={`/binaries/${item.sha256}`} sx={{ fontFamily: "monospace" }}>{item.sha256}</MuiLink>
+                  <TableCell><Stack spacing={0.25}>
+                    <MuiLink component={RouterLink} to={`/binaries/${item.sha256}`} sx={{ fontFamily: "monospace", overflowWrap: "anywhere" }}>{item.sha256}</MuiLink>
                     <Typography variant="caption" color="text.secondary">Binary #{item.file_binary_id}</Typography>
                   </Stack></TableCell>
                   <TableCell>{item.machine_readability_status ?? "unknown"}</TableCell>
