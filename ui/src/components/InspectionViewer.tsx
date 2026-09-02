@@ -4,7 +4,6 @@ import {
   Alert,
   Autocomplete,
   Box,
-  Chip,
   CircularProgress,
   Paper,
   Stack,
@@ -168,7 +167,6 @@ export function InspectionViewer({
         sx={{ my: 1.5 }}
       />
       {selectedOption ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pb: 1.5 }}>
-        {sameStableId(selectedOption.representation.representation_id, effectiveRepresentationId) ? <Chip size="small" color="primary" label="Effective" /> : null}
         <Typography variant="caption" color="text.secondary">
           Created {new Date(selectedOption.representation.created_at).toLocaleString()}
         </Typography>

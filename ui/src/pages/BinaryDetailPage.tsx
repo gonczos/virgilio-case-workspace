@@ -31,7 +31,6 @@ import type { BinaryDetailResponse } from "../types/consultation";
 import {
   formatBytes,
   formatFileType,
-  getRepresentationLabel,
   getShortSha,
   isPdfBinary,
   prefersNativePdfViewer,
@@ -146,10 +145,6 @@ export function BinaryDetailPage() {
             </Typography>
           </Stack>
           <Stack spacing={1} alignItems={{ xs: "flex-start", md: "flex-end" }}>
-            <Chip
-              color={detail.representations.effective_selection_reason === "explicit_human_selection" ? "secondary" : "primary"}
-              label={`Effective: ${getRepresentationLabel(detail.representations.effective)}`}
-            />
             <Button
               component="a"
               href={detail.binary.original_binary_url}
@@ -163,45 +158,49 @@ export function BinaryDetailPage() {
         </Stack>
       </Paper>
 
-      <Grid container spacing={2.5}>
-        <Grid size={{ xs: 12, xl: 6 }} sx={{ "& > .MuiPaper-root": { height: INSPECTION_HEIGHT } }}>
-          {isPdfBinary(detail) ? (
-            <PdfViewer
-              url={detail.binary.original_binary_url}
-              preferNativeViewer={prefersNativePdfViewer(detail)}
-            />
-          ) : (
-            <Paper elevation={0} sx={{ p: 3, border: "1px solid rgba(31,79,95,0.12)", minHeight: 520 }}>
-              <Stack spacing={2}>
-                <Typography variant="h6">Original file</Typography>
-                <Alert severity="info">Preview not available for this file type.</Alert>
-                <Button
-                  component="a"
-                  href={detail.binary.original_binary_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  variant="outlined"
-                  sx={{ alignSelf: "flex-start" }}
-                >
-                  Open original
-                </Button>
-              </Stack>
-            </Paper>
-          )}
-        </Grid>
-        <Grid size={{ xs: 12, xl: 6 }}>
-          <InspectionViewer
-            interpretations={detail.representations.items}
-            evidence={detail.evidence?.items ?? []}
-            effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id) ?? null}
-            initialCategory={initialInspectionCategory}
-            height={INSPECTION_HEIGHT}
-            onViewedRepresentationChange={(representation) => {
-              setViewedRepresentationId(normalizeStableId(representation?.representation_id) ?? null);
-            }}
-          />
-        </Grid>
-      </Grid>
+      <DetailAccordion title="Document inspection">
+        <Box sx={{ p: 2 }}>
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, xl: 6 }} sx={{ "& > .MuiPaper-root": { height: INSPECTION_HEIGHT } }}>
+              {isPdfBinary(detail) ? (
+                <PdfViewer
+                  url={detail.binary.original_binary_url}
+                  preferNativeViewer={prefersNativePdfViewer(detail)}
+                />
+              ) : (
+                <Paper elevation={0} sx={{ p: 3, border: "1px solid rgba(31,79,95,0.12)", minHeight: 520 }}>
+                  <Stack spacing={2}>
+                    <Typography variant="h6">Original file</Typography>
+                    <Alert severity="info">Preview not available for this file type.</Alert>
+                    <Button
+                      component="a"
+                      href={detail.binary.original_binary_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      variant="outlined"
+                      sx={{ alignSelf: "flex-start" }}
+                    >
+                      Open original
+                    </Button>
+                  </Stack>
+                </Paper>
+              )}
+            </Grid>
+            <Grid size={{ xs: 12, xl: 6 }}>
+              <InspectionViewer
+                interpretations={detail.representations.items}
+                evidence={detail.evidence?.items ?? []}
+                effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id) ?? null}
+                initialCategory={initialInspectionCategory}
+                height={INSPECTION_HEIGHT}
+                onViewedRepresentationChange={(representation) => {
+                  setViewedRepresentationId(normalizeStableId(representation?.representation_id) ?? null);
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
+      </DetailAccordion>
 
       <Stack spacing={1}>
         <DetailAccordion title="Context"><ContextSummary detail={detail} hideHeading /></DetailAccordion>
