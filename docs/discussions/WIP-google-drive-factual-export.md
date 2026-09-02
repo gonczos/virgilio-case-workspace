@@ -268,7 +268,7 @@ For human handoff and AI consultation, the preservation-oriented package can be
 reduced with `prepare-ai-consultation --source <factual-package> --output
 <new-directory>`. This separate view contains a concise `documents.csv`, original
 binaries, source-facing metadata, useful evidence and interpretation files, and
-material extraction disagreements. It excludes internal database identifiers,
+structured extraction diagnostics. It excludes internal database identifiers,
 job history, retries, nested manifests, and raw diagnostic artifacts.
 
 ### AI-consultation projection baseline (reviewed 2026-09-02)
@@ -285,6 +285,22 @@ five targeted documents received such a warning; the one-page `00445e...`
 document named Xberg even though no Xberg artifact was included. The source
 factual package and processor artifacts themselves were not changed by this
 finding.
+
+### Agreed follow-up before full-corpus generation
+
+The next work remains packaging-focused: correct source calendar-date handling,
+add a chronological occurrence index, add an explicit export-coverage report,
+and add processor-attributed page traceability and page coverage where the source
+artifacts support it. Warning wording must clarify the limited meaning of “no
+actionable warnings”; signature fields, cryptographic signature evidence, and
+visible handwritten signatures must remain distinct. Human-readable labels may
+be added only as non-authoritative navigation aids.
+
+Compound-document contents inventories and semantic document relationships are
+deferred. They are interpretive derivations requiring page-level lineage and
+explicit attribution, not prerequisites to the factual packaging work. The
+authoritative scope and ordering are recorded in
+`docs/architecture/09-ai-consultation-package.md`.
 
 ## Google Drive boundary
 

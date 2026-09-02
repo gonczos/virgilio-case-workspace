@@ -94,3 +94,49 @@ SHA-256 document identities, path containment, file hashes and sizes, original
 binary identity, artifact inventory membership, and artifact-to-binary lineage.
 An integrity failure invalidates the package for consultation until it is
 regenerated or repaired from immutable source artifacts.
+
+## Agreed work before full-corpus export
+
+The targeted-five result is a reliable bounded package, but it is not yet the
+approval point for exporting the full corpus. The following packaging work is
+agreed, in priority order:
+
+| Priority | Improvement | Required boundary |
+|---|---|---|
+| 1 | Correct date semantics. | Preserve source calendar dates as calendar dates. Do not serialize them as shifted UTC timestamps; retain timezone information only for actual instants. |
+| 2 | Add a chronological `occurrences.csv`. | One row per source-recorded procedural occurrence, linked to the full binary SHA-256 and source document reference. This is a navigation projection, not a new identity model. |
+| 3 | Add a package coverage report. | Report selection scope, included binaries, source documents without binaries, unavailable outputs, failed jobs, and unknown states. Do not infer completeness that the source data cannot prove. |
+| 4 | Add page-level traceability and coverage where supported. | Preserve processor-specific page boundaries, distinguish PDF page index from printed page label, record meaningful-text counts and OCR method per page when available, and use `unknown` when the processor does not provide reliable page lineage. |
+| 5 | Clarify warning and signature semantics. | State that “no actionable warnings” means only that no configured diagnostic fired. Keep signature fields, cryptographic signature observations/validation, and visible handwritten signature images as distinct concepts. |
+| 6 | Add readable document labels. | Labels are navigation aids only. Full SHA-256 remains the binary identity, and labels must not overwrite or reinterpret source metadata. |
+
+Page-linked extraction is the highest-value consultation improvement because it
+enables verification and citation against an original PDF. Date semantics are
+the first implementation priority because the current projection can render a
+source calendar date as the previous day's UTC timestamp, directly misleading a
+chronology.
+
+Page diagnostics must remain observational. Low text count, OCR use, or an
+unavailable page mapping may flag verification work, but does not establish that
+a page was understood correctly or that its contents are unimportant.
+
+Before full-corpus generation, the targeted-five sample should be rerun after
+each of these packaging changes. A further bounded sample should cover conditions
+not represented by those five, including non-PDF formats, failed-only processors,
+mixed native/raster pages, a binary linked to multiple source documents, and
+unresolved source documents without binaries.
+
+## Deliberately deferred interpretation work
+
+The following ideas may be valuable later but are outside the pre-export
+packaging phase:
+
+- a contents inventory that subdivides a compound filing;
+- semantic relationships such as “attached to”, “translation of”, “appeals”, or
+  “responds to”.
+
+These are derived interpretations unless explicitly recorded by the source.
+They require separate producer attribution, exact page-level lineage, uncertainty
+handling, and must not be written back as canonical document metadata. No LLM,
+semantic-enrichment, reconciliation, or relation-discovery implementation is
+authorized by recording them here.
