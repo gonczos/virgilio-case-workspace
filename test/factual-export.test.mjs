@@ -28,6 +28,18 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       });
       assert.equal(exported.manifest.counts.binaries, 2);
       assert.deepEqual(exported.manifest.scope.sha256s, [...REPRESENTATIVE_SHAS].sort());
+      for (const binary of exported.manifest.binaries) {
+        const childManifest = JSON.parse(await fs.readFile(
+          path.join(outputDir, binary.portable_manifest_path),
+          "utf8",
+        ));
+        assert.equal(
+          childManifest.persisted.buckets.every(
+            (bucket) => !("displayed_bucket_size_bytes" in bucket),
+          ),
+          true,
+        );
+      }
       for (const name of ["README.md", "binary-index.csv", "document-context-index.csv", "processing-index.csv"]) {
         await fs.access(path.join(outputDir, name));
       }

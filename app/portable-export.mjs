@@ -205,7 +205,6 @@ async function listBucketRows(client, fileBinaryId) {
         b.presenter,
         b.modal_title,
         b.document_count,
-        b.displayed_bucket_size_bytes,
         b.canonical_confidence,
         b.created_at,
         b.updated_at
@@ -675,7 +674,7 @@ export async function writePortableBinaryExportPackage(state, {
         ),
         buckets: sanitizeRows(
           stableSortRows(state.context.buckets, ["id"]),
-          ["id", "case_file_id", "document_count", "displayed_bucket_size_bytes"],
+          ["id", "case_file_id", "document_count"],
         ),
         case_files: sanitizeRows(
           stableSortRows(state.context.cases, ["id"]),

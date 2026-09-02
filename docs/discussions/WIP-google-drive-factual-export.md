@@ -258,6 +258,12 @@ recovery. It is stored locally under
 This slice does not implement Google credentials, Drive permissions, upload,
 synchronization, incremental replacement, or public sharing.
 
+`displayed_bucket_size_bytes` is deliberately omitted from exported bucket
+records for now. The import package contains `null` for every bucket even though
+the upstream observation data contains non-null values for most buckets, so
+exposing the incomplete imported field would be misleading. The source import
+and database values remain unchanged.
+
 ## Google Drive boundary
 
 The initial implementation should produce a verified local directory suitable for

@@ -3153,3 +3153,7 @@ Implemented on 2026-09-02 as a bounded local export slice:
   through the existing `BinaryStore` boundary
 - no Google Drive authentication, upload, permission, synchronization, or remote
   storage behavior is included in this slice
+- portable factual exports omit `bucket.displayed_bucket_size_bytes`; the
+  imported corpus has this field uniformly null despite upstream observations
+  containing values for most buckets, so the incomplete field is not presented
+  as factual absence and canonical imported state remains unchanged
