@@ -6,6 +6,7 @@ import test from "node:test";
 
 import { inspectFactualExport } from "../app/factual-export-inspect.mjs";
 import { exportFactualSlice } from "../app/factual-export.mjs";
+import { prepareAiConsultationPackage } from "../app/ai-consultation-export.mjs";
 import { assertProcessingSchema, getWorkspaceRoot, withClient } from "../app/processing-common.mjs";
 import { countProcessingState } from "../app/processing-store.mjs";
 
@@ -48,6 +49,23 @@ test("factual slice exports and verifies multiple binaries without mutating proc
       assert.equal(inspected.report.binary_count, 2);
       assert.equal(inspected.report.generated_file_count, 4);
       assert.deepEqual(inspected.report.binaries.map((row) => row.sha256), [...REPRESENTATIVE_SHAS].sort());
+
+      const consultationDir = path.join(tempRoot, "consultation");
+      const consultation = await prepareAiConsultationPackage({
+        sourcePackageDir: outputDir,
+        outputDir: consultationDir,
+      });
+      assert.equal(consultation.binaryCount, 2);
+      await fs.access(path.join(consultationDir, "README.md"));
+      await fs.access(path.join(consultationDir, "documents.csv"));
+      for (const sha256 of REPRESENTATIVE_SHAS) {
+        const documentDir = path.join(consultationDir, "documents", sha256);
+        const names = await fs.readdir(documentDir);
+        assert.equal(names.some((name) => name.startsWith("original.")), true);
+        const metadata = JSON.parse(await fs.readFile(path.join(documentDir, "metadata.json"), "utf8"));
+        assert.equal(metadata.sha256, sha256);
+        assert.equal("processing_jobs" in metadata, false);
+      }
     } finally {
       await fs.rm(tempRoot, { recursive: true, force: true });
     }

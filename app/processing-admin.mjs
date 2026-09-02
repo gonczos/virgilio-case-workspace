@@ -11,6 +11,7 @@ import { inspectPortableBinaryExportPackage } from "./portable-export-inspect.mj
 import { exportPortableBinaryPackage } from "./portable-export.mjs";
 import { inspectFactualExport } from "./factual-export-inspect.mjs";
 import { exportFactualSlice } from "./factual-export.mjs";
+import { prepareAiConsultationPackage } from "./ai-consultation-export.mjs";
 import {
   clearSelectionOverride,
   countProcessingState,
@@ -176,6 +177,17 @@ async function handleInspectFactualExport(flags) {
   console.log(JSON.stringify(result.report, null, 2));
 }
 
+async function handlePrepareAiConsultation(flags) {
+  const result = await prepareAiConsultationPackage({
+    sourcePackageDir: requireFlag(flags, "source"),
+    outputDir: requireFlag(flags, "output"),
+  });
+  console.log(JSON.stringify({
+    output_dir: result.outputDir,
+    binary_count: result.binaryCount,
+  }, null, 2));
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   if (!command) {
@@ -187,6 +199,10 @@ async function main() {
   }
   if (command === "inspect-factual-export") {
     await handleInspectFactualExport(flags);
+    return;
+  }
+  if (command === "prepare-ai-consultation") {
+    await handlePrepareAiConsultation(flags);
     return;
   }
   await withClient("processing-admin", async (client) => {

@@ -3157,3 +3157,7 @@ Implemented on 2026-09-02 as a bounded local export slice:
   imported corpus has this field uniformly null despite upstream observations
   containing values for most buckets, so the incomplete field is not presented
   as factual absence and canonical imported state remains unchanged
+- a separate AI-consultation projection may be generated from a verified factual
+  package; it exposes originals, concise source-facing context, useful extracted
+  representations, and disagreement warnings while excluding internal IDs,
+  processing history, nested manifests, and diagnostic artifacts

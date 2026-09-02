@@ -264,6 +264,13 @@ the upstream observation data contains non-null values for most buckets, so
 exposing the incomplete imported field would be misleading. The source import
 and database values remain unchanged.
 
+For human handoff and AI consultation, the preservation-oriented package can be
+reduced with `prepare-ai-consultation --source <factual-package> --output
+<new-directory>`. This separate view contains a concise `documents.csv`, original
+binaries, source-facing metadata, useful evidence and interpretation files, and
+material extraction disagreements. It excludes internal database identifiers,
+job history, retries, nested manifests, and raw diagnostic artifacts.
+
 ## Google Drive boundary
 
 The initial implementation should produce a verified local directory suitable for
