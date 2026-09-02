@@ -271,6 +271,21 @@ binaries, source-facing metadata, useful evidence and interpretation files, and
 material extraction disagreements. It excludes internal database identifiers,
 job history, retries, nested manifests, and raw diagnostic artifacts.
 
+### AI-consultation projection baseline (reviewed 2026-09-02)
+
+Before the consultation-format reliability correction, the projection had no
+top-level schema manifest or dedicated inspector. `documents.csv` exposed only
+the first linked document and occurrence without labelling those fields as
+representative. Artifact selection used the largest available output per
+processor, but structured metadata did not model unavailable, failed, empty,
+nearly empty, or not-applicable states separately. `warnings.md` copied the
+persisted comparison severity and first differing line, making ordinary layout,
+accent, and OCR differences appear to be substantive `high` disagreements. All
+five targeted documents received such a warning; the one-page `00445e...`
+document named Xberg even though no Xberg artifact was included. The source
+factual package and processor artifacts themselves were not changed by this
+finding.
+
 ## Google Drive boundary
 
 The initial implementation should produce a verified local directory suitable for

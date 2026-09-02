@@ -12,6 +12,7 @@ import { exportPortableBinaryPackage } from "./portable-export.mjs";
 import { inspectFactualExport } from "./factual-export-inspect.mjs";
 import { exportFactualSlice } from "./factual-export.mjs";
 import { prepareAiConsultationPackage } from "./ai-consultation-export.mjs";
+import { inspectAiConsultationPackage } from "./ai-consultation-inspect.mjs";
 import {
   clearSelectionOverride,
   countProcessingState,
@@ -188,6 +189,11 @@ async function handlePrepareAiConsultation(flags) {
   }, null, 2));
 }
 
+async function handleInspectAiConsultation(flags) {
+  const result = await inspectAiConsultationPackage({ packageDir: requireFlag(flags, "package") });
+  console.log(JSON.stringify(result.report, null, 2));
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   if (!command) {
@@ -203,6 +209,10 @@ async function main() {
   }
   if (command === "prepare-ai-consultation") {
     await handlePrepareAiConsultation(flags);
+    return;
+  }
+  if (command === "inspect-ai-consultation") {
+    await handleInspectAiConsultation(flags);
     return;
   }
   await withClient("processing-admin", async (client) => {
