@@ -67,6 +67,26 @@ export function buildInspectionOptions(category: InspectionCategory, representat
   }));
 }
 
+export function chooseInitialInspectionOption(
+  options: InspectionOption[],
+  initialCategory: InspectionCategory,
+  effectiveRepresentationId: string | null,
+) {
+  const categoryOptions = options.filter((option) => option.category === initialCategory);
+  return (
+    initialCategory === "evidence"
+      ? categoryOptions.find((option) => (
+          option.representation.processor_key === "pdf_literal_text"
+          && option.format === "text"
+        ))
+      : categoryOptions.find((option) => (
+          sameStableId(option.representation.representation_id, effectiveRepresentationId)
+          && option.format === "markdown"
+          && option.renderMode === "rendered"
+        ))
+  ) ?? categoryOptions[0] ?? options[0] ?? null;
+}
+
 function JsonView({ value }: { value: unknown }) {
   return <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 13, lineHeight: 1.5 }}>
     {JSON.stringify(value, null, 2)}
@@ -77,13 +97,13 @@ export function InspectionViewer({
   interpretations,
   evidence,
   effectiveRepresentationId,
-  initialCategory = "interpretation",
+  initialCategory = "evidence",
   height,
   onViewedRepresentationChange,
 }: InspectionViewerProps) {
   const options = useMemo(() => [
-    ...buildInspectionOptions("interpretation", interpretations),
     ...buildInspectionOptions("evidence", evidence),
+    ...buildInspectionOptions("interpretation", interpretations),
   ], [evidence, interpretations]);
   const [selectedId, setSelectedId] = useState("");
   const [content, setContent] = useState<unknown>(null);
@@ -93,12 +113,7 @@ export function InspectionViewer({
 
   useEffect(() => {
     if (selectedOption) return;
-    const categoryOptions = options.filter((option) => option.category === initialCategory);
-    const preferred = categoryOptions.find((option) => (
-      sameStableId(option.representation.representation_id, effectiveRepresentationId)
-      && option.format === "markdown"
-      && option.renderMode === "rendered"
-    )) ?? categoryOptions[0] ?? options[0] ?? null;
+    const preferred = chooseInitialInspectionOption(options, initialCategory, effectiveRepresentationId);
     setSelectedId(preferred?.id ?? "");
   }, [effectiveRepresentationId, initialCategory, options, selectedOption]);
 
@@ -139,7 +154,7 @@ export function InspectionViewer({
         value={selectedOption ?? undefined}
         onChange={(_event, option) => selectOption(option)}
         filterOptions={filterOptions}
-        groupBy={(option) => option.category === "interpretation" ? "Interpretation" : "PDF evidence"}
+        groupBy={(option) => option.category === "evidence" ? "Evidence" : "Interpretations"}
         getOptionLabel={(option) => option.label}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         renderInput={(params) => <TextField {...params} label="Inspect extracted data" placeholder="Type to filter" />}

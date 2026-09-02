@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { buildInspectionOptions } from "./InspectionViewer";
+import { buildInspectionOptions, chooseInitialInspectionOption } from "./InspectionViewer";
 import type { RepresentationListItem } from "../types/consultation";
 
 function representation(formats: string[]): RepresentationListItem {
@@ -22,6 +22,10 @@ function representation(formats: string[]): RepresentationListItem {
   };
 }
 
+function processorRepresentation(processorKey: string, id: number, formats: string[]): RepresentationListItem {
+  return { ...representation(formats), processor_key: processorKey, representation_id: id };
+}
+
 test("inspection options flatten representation formats and markdown display modes", () => {
   const options = buildInspectionOptions("interpretation", [representation(["text", "markdown", "native-json"])]);
 
@@ -33,4 +37,16 @@ test("inspection options flatten representation formats and markdown display mod
   ]);
   expect(options.every((option) => option.category === "interpretation")).toBe(true);
   expect(options[1].searchText).toContain("2.123.1");
+});
+
+test("evidence is ordered first and PDF literal text is the default evidence source", () => {
+  const evidence = [
+    ...buildInspectionOptions("evidence", [processorRepresentation("pdf_signature_metadata", 1, ["native-json"])]),
+    ...buildInspectionOptions("evidence", [processorRepresentation("pdf_literal_text", 2, ["text"])]),
+  ];
+  const interpretations = buildInspectionOptions("interpretation", [processorRepresentation("docling", 3, ["markdown"])]);
+  const options = [...evidence, ...interpretations];
+
+  expect(options.map((option) => option.category)).toEqual(["evidence", "evidence", "interpretation", "interpretation"]);
+  expect(chooseInitialInspectionOption(options, "evidence", null)?.representation.processor_key).toBe("pdf_literal_text");
 });

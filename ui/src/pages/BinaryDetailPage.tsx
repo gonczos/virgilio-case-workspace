@@ -84,9 +84,9 @@ export function BinaryDetailPage() {
   }, [detail, viewedRepresentationId]);
 
   const initialInspectionCategory: InspectionCategory = (
-    (location.state as { inspectionCategory?: string } | null)?.inspectionCategory === "evidence"
-      ? "evidence"
-      : "interpretation"
+    (location.state as { inspectionCategory?: string } | null)?.inspectionCategory === "interpretation"
+      ? "interpretation"
+      : "evidence"
   );
 
   if (loading) {
