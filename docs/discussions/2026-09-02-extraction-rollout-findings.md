@@ -211,6 +211,40 @@ successful run for each of these nine binaries. Therefore "invalid PDF" in
 these error strings describes Xberg's parser expectations; it does not mean
 that the binary is unusable by every parser or lacks other usable evidence.
 
+### Deferred private-corpus upstream investigation
+
+The affected corpus documents cannot be shared with Xberg or `pdf_oxide`
+maintainers. Any future upstream report must exclude the original PDFs,
+filenames, case metadata, extracted text, screenshots, copied PDF objects, and
+SHA-256 values. Hashes are identifiers and are not suitable for a public issue.
+
+A privacy-safe report may include only the tool/runtime versions, operating
+system, exact generic exception messages, affected-document and page counts,
+and the observation that other named parsers could traverse the inputs. A
+reproducer should be shared only if the same failure can be recreated in a new
+synthetic PDF containing no source content or copied source objects. Until then,
+record this as an internal compatibility class and reconsider upstream
+reporting later.
+
+### Related known Xberg and `pdf_oxide` issues
+
+The installed Xberg version is `1.0.14`, exposed in Virgilio through profile
+`xberg-preserve-furniture-v2` and representation version `1.0.14-c5.2`.
+Xberg uses `pdf_oxide` as its PDF backend. The official Xberg tracker explicitly
+distinguishes defects owned by Xberg from defects in this underlying library.
+
+| Public issue | Confirmed scope | Relevance to our finding |
+|---|---|---|
+| [Xberg #1213](https://github.com/xberg-io/xberg/issues/1213) | Bordered tables were missed because `pdf_oxide` path bounding boxes ignored stroke width. Xberg deliberately avoided maintaining a duplicate internal workaround and tracked the fix in the upstream library. | Confirms that PDF extraction failures or losses visible through Xberg can originate in `pdf_oxide`, and that upstream dependency fixes are the intended boundary. It is not the same missing-page-tree error observed here. |
+| [`pdf_oxide` #814](https://github.com/yfedoseev/pdf_oxide/pull/814) | Upstream change referenced by Xberg #1213 for the stroke-width/path-bounding-box defect. | Demonstrates the dependency path from an Xberg-visible defect to an upstream parser correction. It does not establish a fix for missing `/Pages` or `Kids`. |
+| [Xberg #1223](https://github.com/xberg-io/xberg/issues/1223) | A broader extraction-engine audit separated Xberg-owned defects from `pdf_oxide`-owned PDF defects and documented correctness, encoding, OCR, and silent-loss risks. | Supports cautious treatment of Xberg output and the need for runtime evidence. It does not mention our two exact page-tree exception strings. |
+
+As of the 2026-09-02 check, no public Xberg or `pdf_oxide` issue was found for
+the exact `Catalog missing /Pages entry` or `Pages node missing Kids` errors.
+The relationship to `pdf_oxide` is a strong architectural lead because the
+errors arise in Xberg's `pdf_oxide` extraction/rendering path, but it remains an
+inference rather than a confirmed upstream diagnosis for these nine files.
+
 ## Tool-specific lessons
 
 | Tool/channel | Strengths observed | Shortcomings and cautions | Appropriate claim |
