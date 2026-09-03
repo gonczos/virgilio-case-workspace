@@ -111,13 +111,14 @@ export async function upsertReferenceReview(client, review) {
   const result = await client.query(`
     INSERT INTO casework.reference_observation_review (
       reference_observation_id, namespace_hint, role_hint,
-      target_candidates_json, confidence, review_state, review_note,
-      reviewer_key, metadata_json
-    ) VALUES ($1,$2,$3,$4::jsonb,$5,$6,$7,$8,$9::jsonb)
+      target_candidates_json, resolution_state, confidence, review_state,
+      review_note, reviewer_key, metadata_json
+    ) VALUES ($1,$2,$3,$4::jsonb,$5,$6,$7,$8,$9,$10::jsonb)
     ON CONFLICT (reference_observation_id) DO UPDATE SET
       namespace_hint = EXCLUDED.namespace_hint,
       role_hint = EXCLUDED.role_hint,
       target_candidates_json = EXCLUDED.target_candidates_json,
+      resolution_state = EXCLUDED.resolution_state,
       confidence = EXCLUDED.confidence,
       review_state = EXCLUDED.review_state,
       review_note = EXCLUDED.review_note,
@@ -128,15 +129,18 @@ export async function upsertReferenceReview(client, review) {
   `, [
     review.reference_observation_id, review.namespace_hint ?? null,
     review.role_hint ?? null, JSON.stringify(review.target_candidates ?? []),
-    review.confidence ?? null, review.review_state, review.review_note ?? null,
-    review.reviewer_key, JSON.stringify(review.metadata ?? {}),
+    review.resolution_state ?? "unresolved", review.confidence ?? null,
+    review.review_state, review.review_note ?? null, review.reviewer_key,
+    JSON.stringify(review.metadata ?? {}),
   ]);
   return result.rows[0];
 }
 
-export async function lookupReference(client, value) {
+export async function lookupReference(client, value, { fixtureName = null } = {}) {
   const result = await client.query(`
     SELECT ro.*, fb.sha256, d.document_procinfo,
+           source_dr.processor_key AS source_processor_key,
+           source_dr.processor_version AS source_processor_version,
            b.reference_number AS occurrence_reference,
            cf.processo AS process_number,
            CASE WHEN review.reference_observation_id IS NULL THEN NULL
@@ -144,6 +148,7 @@ export async function lookupReference(client, value) {
                'namespace_hint', review.namespace_hint,
                'role_hint', review.role_hint,
                'target_candidates', review.target_candidates_json,
+               'resolution_state', review.resolution_state,
                'confidence', review.confidence,
                'review_state', review.review_state,
                'review_note', review.review_note,
@@ -157,6 +162,8 @@ export async function lookupReference(client, value) {
     LEFT JOIN casework.reference_observation_review review
       ON review.reference_observation_id = ro.id
     LEFT JOIN casework.file_binary fb ON fb.id = ro.file_binary_id
+    LEFT JOIN casework.document_representation source_dr
+      ON source_dr.id = ro.document_representation_id
     LEFT JOIN casework.document d ON d.id = ro.document_id
     LEFT JOIN casework.bucket_document bd ON bd.id = ro.bucket_document_id
     LEFT JOIN casework.bucket b ON b.id = bd.bucket_id
@@ -176,8 +183,9 @@ export async function lookupReference(client, value) {
       WHERE db2.file_binary_id = ro.file_binary_id
     ) ctx ON true
     WHERE ro.normalized_value = $1
+      AND ($2::text IS NULL OR ro.metadata_json->>'fixture_name' = $2)
     ORDER BY ro.observed_in_kind, ro.id
-  `, [normalizeReferenceValue(value)]);
+  `, [normalizeReferenceValue(value), fixtureName]);
   return result.rows;
 }
 
@@ -188,6 +196,12 @@ export async function searchPassages(client, query, { limit = 20, sha256s = null
            dr.file_binary_id, fb.sha256, dr.representation_kind,
            dr.processor_key, dr.processor_version, ds.segment_kind,
            ds.sequence_no, ds.page_no, ds.char_start, ds.char_end,
+           CASE
+             WHEN ds.page_no IS NULL THEN 'document_level'
+             WHEN ds.metadata_json->>'pdf_page_verified' = 'true'
+               THEN 'verified_pdf_page'
+             ELSE 'processor_page_unverified'
+           END AS location_kind,
            ts_rank_cd(ds.search_vector, websearch_to_tsquery('portuguese', $1)) AS rank,
            ts_headline('portuguese', ds.text_content,
              websearch_to_tsquery('portuguese', $1),
@@ -215,11 +229,14 @@ export async function searchPassages(client, query, { limit = 20, sha256s = null
     LEFT JOIN LATERAL (
       SELECT jsonb_agg(jsonb_build_object(
         'id', ro.id, 'observation_key', ro.observation_key,
-        'raw_value', ro.raw_value, 'raw_label', ro.raw_label,
+        'raw_value', ro.raw_value, 'normalized_value', ro.normalized_value,
+        'raw_label', ro.raw_label,
         'observed_in_kind', ro.observed_in_kind, 'role_hint', ro.role_hint,
         'namespace_hint', ro.namespace_hint, 'page_no', ro.page_no,
+        'target_candidates', ro.target_candidates_json,
         'char_start', ro.char_start, 'char_end', ro.char_end,
         'context_text', ro.context_text,
+        'metadata', ro.metadata_json,
         'bucket_document_id', ro.bucket_document_id,
         'document_id', ro.document_id, 'file_binary_id', ro.file_binary_id,
         'document_representation_id', ro.document_representation_id,
@@ -234,6 +251,7 @@ export async function searchPassages(client, query, { limit = 20, sha256s = null
           ELSE jsonb_build_object(
             'namespace_hint', review.namespace_hint, 'role_hint', review.role_hint,
             'target_candidates', review.target_candidates_json,
+            'resolution_state', review.resolution_state,
             'confidence', review.confidence, 'review_state', review.review_state,
             'review_note', review.review_note, 'reviewer_key', review.reviewer_key,
             'metadata', review.metadata_json,
@@ -253,11 +271,14 @@ export async function searchPassages(client, query, { limit = 20, sha256s = null
     LEFT JOIN LATERAL (
       SELECT jsonb_agg(jsonb_build_object(
         'id', ro.id, 'observation_key', ro.observation_key,
-        'raw_value', ro.raw_value, 'raw_label', ro.raw_label,
+        'raw_value', ro.raw_value, 'normalized_value', ro.normalized_value,
+        'raw_label', ro.raw_label,
         'observed_in_kind', ro.observed_in_kind, 'role_hint', ro.role_hint,
         'namespace_hint', ro.namespace_hint, 'page_no', ro.page_no,
+        'target_candidates', ro.target_candidates_json,
         'char_start', ro.char_start, 'char_end', ro.char_end,
         'context_text', ro.context_text,
+        'metadata', ro.metadata_json,
         'bucket_document_id', ro.bucket_document_id,
         'document_id', ro.document_id, 'file_binary_id', ro.file_binary_id,
         'document_representation_id', ro.document_representation_id,
@@ -272,6 +293,7 @@ export async function searchPassages(client, query, { limit = 20, sha256s = null
           ELSE jsonb_build_object(
             'namespace_hint', review.namespace_hint, 'role_hint', review.role_hint,
             'target_candidates', review.target_candidates_json,
+            'resolution_state', review.resolution_state,
             'confidence', review.confidence, 'review_state', review.review_state,
             'review_note', review.review_note, 'reviewer_key', review.reviewer_key,
             'metadata', review.metadata_json,

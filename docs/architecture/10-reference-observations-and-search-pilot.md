@@ -13,7 +13,7 @@ Stable binary, document, occurrence, representation, and segment identity is the
 shared prerequisite. Resolving every reference, reconstructing every package, or
 classifying document contents is not a prerequisite for indexing text.
 
-This pilot deliberately excludes full-corpus rollout, UI/API work, inferred
+This pilot deliberately excludes full-corpus rollout, UI work, inferred
 relationships, component entities, semantic classification, summaries,
 embeddings, and merged processor output.
 
@@ -131,6 +131,31 @@ npm run search:pilot -- --query "despacho 105398957"
 The seed is transactional and idempotent. The pilot search is restricted to the
 fixture SHA-256 values; it is not a full-corpus search endpoint.
 
+## Read-only consultation API
+
+The consultation service exposes the bounded pilot through two GET endpoints:
+
+```text
+/api/consultation/reference-pilot/references/<exact-value>
+/api/consultation/reference-pilot/search?q=<terms>&limit=<1-100>
+```
+
+Exact lookup is restricted to observations attributed to the named fixture,
+including source records whose binaries are unavailable. Text search is
+restricted to the fixture's 15 SHA-256 values.
+
+API reference items keep the observed value and provenance under `observation`.
+Any reviewed target decision is returned separately under `target_resolution`;
+an observation is never itself presented as a resolved target. Extractor records
+also state whether they are current, older, or an older record retained because
+it has a review.
+
+Search hits expose `passage_reference_observations` and
+`contextual_reference_observations` separately. Locations use one of three
+explicit states: `document_level`, `processor_page_unverified`, or
+`verified_pdf_page`. A numeric processor page is not promoted to a verified PDF
+page without explicit verification metadata.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
@@ -155,5 +180,5 @@ later review action, not an ingestion-side overwrite.
 - Extracted labelled references are observations, not resolved identities.
 - The database does not yet enforce cross-column consistency among every nullable
   provenance anchor; writers must use anchors from the same lineage.
-- Search has no consultation API or UI in this slice.
+- Search has no UI in this slice.
 - The fixture validates the contract but is not evidence of corpus-wide recall.

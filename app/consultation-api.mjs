@@ -19,6 +19,10 @@ import {
 import {
   isRepresentationArtifactError,
 } from "./representation-artifacts.mjs";
+import {
+  lookupReferencePilot,
+  searchReferencePilot,
+} from "./reference-index-pilot.mjs";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -94,6 +98,38 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
       if (requestUrl.pathname === "/api/consultation/reports/extraction-coverage") {
         const payload = await getExtractionCoverageReport(client);
         sendJson(response, 200, payload);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/consultation/reference-pilot/search") {
+        const query = requestUrl.searchParams.get("q")?.trim() ?? "";
+        const limit = parsePositiveInteger(requestUrl.searchParams.get("limit"), 20, { min: 1, max: 100 });
+        if (!query) {
+          sendJson(response, 400, { error: "search_query_required" });
+          return;
+        }
+        if (limit === null) {
+          sendJson(response, 400, { error: "invalid_pagination" });
+          return;
+        }
+        sendJson(response, 200, await searchReferencePilot(client, query, { limit }));
+        return;
+      }
+
+      const referenceMatch = requestUrl.pathname.match(/^\/api\/consultation\/reference-pilot\/references\/(.+)$/u);
+      if (referenceMatch) {
+        let value;
+        try {
+          value = decodeURIComponent(referenceMatch[1]).trim();
+        } catch {
+          sendJson(response, 400, { error: "invalid_reference_value" });
+          return;
+        }
+        if (!value) {
+          sendJson(response, 400, { error: "reference_value_required" });
+          return;
+        }
+        sendJson(response, 200, await lookupReferencePilot(client, value));
         return;
       }
 

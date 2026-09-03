@@ -332,6 +332,7 @@ CREATE TABLE IF NOT EXISTS casework.reference_observation (
   namespace_hint TEXT NULL,
   role_hint TEXT NULL,
   target_candidates_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  resolution_state TEXT NOT NULL DEFAULT 'unresolved',
   confidence TEXT NULL,
   review_state TEXT NOT NULL DEFAULT 'unreviewed',
   metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -380,6 +381,8 @@ CREATE TABLE IF NOT EXISTS casework.reference_observation_review (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CHECK (BTRIM(reviewer_key) <> ''),
+  CHECK (resolution_state IN ('unresolved', 'ambiguous', 'resolved')),
+  CHECK (resolution_state <> 'resolved' OR jsonb_array_length(target_candidates_json) = 1),
   CHECK (confidence IS NULL OR confidence IN ('high', 'medium', 'low')),
   CHECK (review_state IN ('needs_review', 'reviewed')),
   CHECK (jsonb_typeof(target_candidates_json) = 'array')

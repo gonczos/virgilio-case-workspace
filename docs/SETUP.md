@@ -158,6 +158,8 @@ Useful endpoints:
 * gateway health: `http://localhost:8090/health`
 * gateway binary route: `http://localhost:8090/binary/<sha256>`
 * consultation API health: `http://127.0.0.1:8091/health`
+* fixture reference lookup: `http://127.0.0.1:8091/api/consultation/reference-pilot/references/<value>`
+* fixture text search: `http://127.0.0.1:8091/api/consultation/reference-pilot/search?q=<terms>`
 * UI dev server: `http://127.0.0.1:5173`
 
 The UI dev server currently proxies:

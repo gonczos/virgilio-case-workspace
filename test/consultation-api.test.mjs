@@ -19,6 +19,12 @@ import {
   getBinaryRowBySha,
   resolveEffectiveRepresentation,
 } from "../app/processing-store.mjs";
+import {
+  REFERENCE_EXTRACTOR_KEY,
+  upsertReferenceObservation,
+  upsertReferenceReview,
+} from "../app/reference-search-store.mjs";
+import { seedReferencePilot } from "../app/reference-index-pilot.mjs";
 
 async function withServer({ client, workspaceRoot }, fn) {
   const server = createConsultationServer({ client, workspaceRoot });
@@ -171,6 +177,175 @@ test("extraction coverage report classifies usable representations rather than j
         }
       }
     });
+  });
+});
+
+test("reference pilot API separates observations from targets and includes missing binaries", async () => {
+  await withRealClient(async (client) => {
+    await seedReferencePilot(client);
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const observed = await request(baseUrl, "/api/consultation/reference-pilot/references/105398957");
+      assert.equal(observed.statusCode, 200);
+      const payload = JSON.parse(observed.body);
+      assert.equal(payload.fixture.distinct_binary_count, 15);
+      assert.equal(payload.semantics.observations_are_not_resolved_targets, true);
+      const citation = payload.items.find((item) => item.observation.role_hint === "cited_reference");
+      assert.ok(citation);
+      assert.equal(citation.observation.raw_value, "105398957");
+      assert.equal(citation.extractor_observation_state, "current");
+      assert.equal(citation.target_resolution.state, "unresolved");
+      assert.equal(citation.target_resolution.resolved_target, null);
+
+      const missingValue = "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9";
+      const missing = await request(
+        baseUrl,
+        `/api/consultation/reference-pilot/references/${encodeURIComponent(missingValue)}`,
+      );
+      assert.equal(missing.statusCode, 200);
+      const missingPayload = JSON.parse(missing.body);
+      const missingObservation = missingPayload.items.find(
+        (item) => item.observation.raw_value === missingValue,
+      );
+      assert.ok(missingObservation);
+      assert.equal(missingObservation.observation.provenance.file_binary_id, null);
+      assert.equal(missingObservation.observation.provenance.occurrence_reference, "165718265");
+    });
+  });
+});
+
+test("reference pilot search distinguishes passage references, contextual provenance, and reuse", async () => {
+  await withRealClient(async (client) => {
+    await seedReferencePilot(client);
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const referenceSearch = await request(
+        baseUrl,
+        "/api/consultation/reference-pilot/search?q=17964927&limit=20",
+      );
+      assert.equal(referenceSearch.statusCode, 200);
+      const referencePayload = JSON.parse(referenceSearch.body);
+      const doclingHit = referencePayload.items.find((item) => item.processor_key === "docling");
+      assert.ok(doclingHit);
+      assert.equal(doclingHit.location.kind, "document_level");
+      assert.equal(doclingHit.location.pdf_page, null);
+      assert.equal(doclingHit.passage_reference_observations.length, 0);
+      const literalContext = doclingHit.contextual_reference_observations.find(
+        (item) => item.observation.raw_value === "17964927",
+      );
+      assert.ok(literalContext);
+      assert.equal(literalContext.observation.provenance.processor_key, "pdf_literal_text");
+      assert.notEqual(
+        literalContext.observation.provenance.document_representation_id,
+        doclingHit.document_representation_id,
+      );
+
+      const reuseSearch = await request(
+        baseUrl,
+        `/api/consultation/reference-pilot/search?q=${encodeURIComponent("Marianne intérprete")}&limit=20`,
+      );
+      assert.equal(reuseSearch.statusCode, 200);
+      const reusePayload = JSON.parse(reuseSearch.body);
+      const reused = reusePayload.items.find(
+        (item) => item.sha256 === "15d91f9a80102a179fe61238ab4aa56f86c4995363b306f96cbda488a38121f9",
+      );
+      assert.ok(reused);
+      assert.equal(reused.source_contexts.length >= 3, true);
+    });
+  });
+});
+
+test("reference pilot API retains an older reviewed extractor observation across reseeding", async () => {
+  await withRealClient(async (client) => {
+    await seedReferencePilot(client);
+    const binary = await client.query(`
+      SELECT id FROM casework.file_binary
+      WHERE sha256 = 'edf500891dea2023e07b754e23883086b4edac9de8b6400dff4623565df251d4'
+    `);
+    const observation = await upsertReferenceObservation(client, {
+      observation_key: "api-acceptance-retained-older-extractor-observation",
+      raw_value: "VERIFY-API-OLD",
+      observed_in_kind: "representation",
+      file_binary_id: binary.rows[0].id,
+      observer_key: REFERENCE_EXTRACTOR_KEY,
+      observer_version: "acceptance-obsolete-version",
+      confidence: "low",
+      metadata: { fixture_name: "citius-reference-index-pilot" },
+    });
+    await upsertReferenceReview(client, {
+      reference_observation_id: observation.id,
+      namespace_hint: "acceptance_namespace",
+      role_hint: "resolved_occurrence",
+      target_candidates: [{ kind: "occurrence", reference: "105398957" }],
+      resolution_state: "resolved",
+      confidence: "high",
+      review_state: "reviewed",
+      review_note: "API acceptance review",
+      reviewer_key: "api-acceptance-test",
+    });
+    try {
+      await seedReferencePilot(client);
+      await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+        const response = await request(
+          baseUrl,
+          "/api/consultation/reference-pilot/references/VERIFY-API-OLD",
+        );
+        assert.equal(response.statusCode, 200);
+        const payload = JSON.parse(response.body);
+        assert.equal(payload.items.length, 1);
+        assert.equal(payload.items[0].extractor_observation_state, "retained_older_reviewed");
+        assert.equal(payload.items[0].target_resolution.state, "resolved");
+        assert.deepEqual(payload.items[0].target_resolution.resolved_target, {
+          kind: "occurrence",
+          reference: "105398957",
+        });
+        assert.equal(payload.items[0].target_resolution.review.reviewer_key, "api-acceptance-test");
+      });
+    } finally {
+      await client.query(
+        "DELETE FROM casework.reference_observation_review WHERE reference_observation_id = $1",
+        [observation.id],
+      );
+      await client.query(
+        "DELETE FROM casework.reference_observation WHERE id = $1",
+        [observation.id],
+      );
+    }
+  });
+});
+
+test("reference pilot API labels a verified PDF page distinctly", async () => {
+  const client = {
+    async query(sql) {
+      assert.match(String(sql), /ds\.search_vector @@/u);
+      return {
+        rows: [{
+          segment_id: 10,
+          document_representation_id: 20,
+          file_binary_id: 30,
+          sha256: "a".repeat(64),
+          representation_kind: "extracted_document_bundle",
+          processor_key: "docling",
+          processor_version: "test",
+          segment_kind: "page",
+          sequence_no: 3,
+          page_no: 3,
+          char_start: null,
+          char_end: null,
+          location_kind: "verified_pdf_page",
+          rank: 1,
+          headline: "matched text",
+          source_contexts: [],
+          passage_reference_observations: [],
+          contextual_reference_observations: [],
+        }],
+      };
+    },
+  };
+  await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+    const response = await request(baseUrl, "/api/consultation/reference-pilot/search?q=matched");
+    assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
+    assert.deepEqual(payload.items[0].location, { kind: "verified_pdf_page", pdf_page: 3 });
+    assert.equal(payload.semantics.location_kinds.includes("document_level"), true);
   });
 });
 

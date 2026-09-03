@@ -66,7 +66,7 @@ test("exact lookup normalizes the value without guessing a namespace", async () 
   const calls = [];
   const client = { query: async (sql, params) => { calls.push({ sql, params }); return { rows: [] }; } };
   await lookupReference(client, "  ref-123 ");
-  assert.deepEqual(calls[0].params, ["REF-123"]);
+  assert.deepEqual(calls[0].params, ["REF-123", null]);
   assert.match(calls[0].sql, /ro\.normalized_value = \$1/u);
   assert.match(calls[0].sql, /reference_observation_review/u);
   assert.match(calls[0].sql, /AS review/u);
@@ -97,6 +97,7 @@ test("human review is written through a separate review-owned upsert", async () 
     reference_observation_id: 42,
     namespace_hint: "citius_occurrence_reference",
     target_candidates: [{ kind: "occurrence", bucket_document_id: 7 }],
+    resolution_state: "resolved",
     confidence: "high",
     review_state: "reviewed",
     review_note: "Checked against the source record",
@@ -105,4 +106,5 @@ test("human review is written through a separate review-owned upsert", async () 
   assert.match(calls[0].sql, /INSERT INTO casework\.reference_observation_review/u);
   assert.match(calls[0].sql, /ON CONFLICT \(reference_observation_id\)/u);
   assert.deepEqual(calls[0].params.slice(0, 2), [42, "citius_occurrence_reference"]);
+  assert.equal(calls[0].params[4], "resolved");
 });

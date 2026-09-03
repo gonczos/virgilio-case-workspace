@@ -7,6 +7,7 @@ import { getWorkspaceRoot, withClient } from "./processing-common.mjs";
 const MIGRATIONS = [
   "2026-09-03-010-reference-observations-and-text-search.sql",
   "2026-09-03-011-reference-observation-reviews.sql",
+  "2026-09-03-012-reference-resolution-state.sql",
 ];
 
 async function main() {
