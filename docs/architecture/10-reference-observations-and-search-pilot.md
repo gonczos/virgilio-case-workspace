@@ -170,6 +170,48 @@ other metadata assertions use `metadata_record`; an observation anchored only to
 a binary uses `binary_level`. Metadata-only observations must never be presented
 as locations within document content.
 
+## Fixture-scoped consultation UI slice
+
+The next consultation slice is a small read-only surface over the existing pilot
+API. The fixture boundary must remain visible throughout the interface. This
+slice does not add classification editing, reference resolution, curation, or
+full-corpus retrieval.
+
+The search control uses one input with an explicit mode selected by the user:
+`Exact reference` or `Text`. The application must not infer the mode from the
+shape of a number or query.
+
+Exact-reference results lead with human-facing source document and occurrence
+context. Observed values remain separate from reviewed target resolutions.
+Missing-file source records remain visible and must not be described as missing
+documents or failed searches.
+
+Text results are grouped by full binary SHA-256. Processor-specific hits are
+expandable beneath that binary so independent extractions are not presented as
+separate documents. Grouping must not hide the source document and occurrence
+context attached to each reference observation. Document name, recorded date,
+process, and occurrence reference are primary; full hashes and extraction
+provenance remain available in expandable technical details.
+
+The acceptance gate consists of five user tasks:
+
+1. find a known exact reference;
+2. follow a citation without treating it as a resolved target;
+3. distinguish the occurrences of a reused binary;
+4. inspect a missing-file source record; and
+5. open the original binary from a text-search hit.
+
+Success requires completing these tasks without mistaking an observed reference
+for a resolved target or a document-level location for a verified PDF page.
+
+Read-only global coverage measurements may run alongside UI implementation. They
+must report text-search coverage and reference-lookup coverage separately. The
+stored text-search projection already spans the existing segment table, whereas
+reference observations are currently fixture-scoped. A failed reference lookup
+therefore must not imply that the document or searchable text is absent. These
+measurements inform a later scope-widening decision; they do not block this UI
+slice and do not themselves authorize wider retrieval.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
@@ -194,5 +236,5 @@ later review action, not an ingestion-side overwrite.
 - Extracted labelled references are observations, not resolved identities.
 - The database does not yet enforce cross-column consistency among every nullable
   provenance anchor; writers must use anchors from the same lineage.
-- Search has no UI in this slice.
+- The consultation UI is intentionally fixture-scoped.
 - The fixture validates the contract but is not evidence of corpus-wide recall.
