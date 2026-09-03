@@ -44,6 +44,12 @@ Automated browser control was not available in this session. The production
 build and live API behavior are validated, but the documented live visual and
 interaction walkthrough remains a narrow manual review item.
 
+Follow-up correction: every matching processor/page hit now renders its own
+passage and contextual reference observations. Binary grouping no longer hides
+a citation merely because it belongs to a secondary Docling, Xberg, literal-
+text, or later-page hit. The observation retains its processor, segment, and
+location provenance.
+
 ## Boundaries
 
 No ingestion, database schema, API semantics, classification, review editing,
