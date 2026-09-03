@@ -21,6 +21,21 @@ test("inventory separates validity, normalization changes, and contextual collis
   assert.deepEqual(collision.source_fields, ["bucket.reference_number", "case_workspace_reference.reference_value"]);
   assert.deepEqual(collision.process_contexts, ["A", "B"]);
   assert.deepEqual(collision.identifier_types, ["external_reference", "occurrence_reference"]);
+  assert.deepEqual(collision.source_associations.map((item) => [item.raw_value, item.source_field, item.source_record_id]), [
+    [" ref 1 ", "bucket.reference_number", "1"],
+    ["REF 1", "bucket.reference_number", "2"],
+    ["ref 1", "case_workspace_reference.reference_value", "8"],
+  ]);
+});
+
+test("inventory reports reuse by separate records within the same field and proceeding", () => {
+  const report = summarizeReferenceMetadataRows([
+    { source_field: "document.document_procinfo", source_record_id: "4", raw_value: "DOC-4", process_context: "A", anchored_occurrence_date: "2020-01-01" },
+    { source_field: "document.document_procinfo", source_record_id: "5", raw_value: "DOC-4", process_context: "A", anchored_occurrence_date: "2020-02-01" },
+  ]);
+  const overlap = report.contextual_overlap_summary.groups[0];
+  assert.equal(overlap.source_record_count, 2);
+  assert.deepEqual(overlap.source_associations.map((item) => item.source_record_id), ["4", "5"]);
 });
 
 test("same raw identifier reused across fields is overlap, not a normalization collision", () => {

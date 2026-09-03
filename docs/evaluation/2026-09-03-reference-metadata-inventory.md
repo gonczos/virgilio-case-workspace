@@ -35,6 +35,11 @@ collapse, and uppercase conversion while retaining every raw value.
   collisions: 897 are the same value appearing in both `bucket_id` and
   `reference_number`, and 238 are source document references associated with
   more than one process context.
+- Detailed groups retain each raw value together with its source field,
+  identifier type, source record, process context, directly anchored date, and
+  binary state. The detector also includes reuse across separate source records
+  within one field and proceeding; the current corpus contains no additional
+  groups of that form.
 - The current pilot contains 57 observations over 47 normalized values.
   Metadata source-record overlaps are reported per field in the table above;
   the same value can overlap more than one field and is not a resolved identity.

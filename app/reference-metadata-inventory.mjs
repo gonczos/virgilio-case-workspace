@@ -149,19 +149,34 @@ export function summarizeReferenceMetadataRows(rows, pilotObservations = []) {
       origin: row.origin,
       process_context: row.process_context,
       source_record_id: row.source_record_id,
+      anchored_occurrence_date: row.anchored_occurrence_date,
+      binary_state: row.binary_state,
     });
     collisionMap.set(row.normalized_value, entries);
   }
   const overlaps = [...collisionMap.entries()]
-    .map(([normalizedValue, entries]) => ({
+    .map(([normalizedValue, entries]) => {
+      const sourceAssociations = [...new Map(entries.map((entry) => [
+        [entry.source_field, entry.source_record_id, entry.process_context ?? "", entry.anchored_occurrence_date ?? ""].join("\u001f"),
+        entry,
+      ])).values()].sort((left, right) => (
+        left.source_field.localeCompare(right.source_field)
+        || String(left.source_record_id).localeCompare(String(right.source_record_id))
+        || String(left.process_context ?? "").localeCompare(String(right.process_context ?? ""))
+        || String(left.anchored_occurrence_date ?? "").localeCompare(String(right.anchored_occurrence_date ?? ""))
+      ));
+      return {
       normalized_value: normalizedValue,
       distinct_raw_values: [...new Set(entries.map((entry) => entry.raw_value))].sort(),
       source_fields: [...new Set(entries.map((entry) => entry.source_field))].sort(),
       identifier_types: [...new Set(entries.map((entry) => entry.identifier_type))].sort(),
       process_contexts: [...new Set(entries.map((entry) => entry.process_context).filter(Boolean))].sort(),
       observation_context_count: entries.length,
-    }))
-    .filter((item) => item.distinct_raw_values.length > 1 || item.source_fields.length > 1 || item.process_contexts.length > 1)
+      source_record_count: new Set(entries.map((entry) => `${entry.source_field}\u001f${entry.source_record_id}`)).size,
+      source_associations: sourceAssociations,
+    };
+    })
+    .filter((item) => item.distinct_raw_values.length > 1 || item.source_fields.length > 1 || item.process_contexts.length > 1 || item.source_record_count > 1)
     .sort((left, right) => left.normalized_value.localeCompare(right.normalized_value));
   const normalizationCollisions = overlaps.filter((item) => item.distinct_raw_values.length > 1);
 

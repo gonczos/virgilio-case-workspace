@@ -568,7 +568,9 @@ subsequent ingestion and UI work remain unimplemented.
 Implementation status (2026-09-03): the read-only inventory is implemented and
 recorded in `docs/evaluation/2026-09-03-reference-metadata-inventory.md`.
 Metadata ingestion, corpus-wide lookup, and the multi-method UI remain
-unimplemented.
+unimplemented. Detailed overlap groups preserve raw-value-to-source
+associations and include same-field, same-proceeding reuse across separate
+source records.
 
 ## Review ownership and reseeding
 
