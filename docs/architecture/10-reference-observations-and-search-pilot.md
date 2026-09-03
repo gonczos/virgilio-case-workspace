@@ -311,6 +311,51 @@ truncation warning material even though the expected binary remained present.
 Expected binaries, rank thresholds, query text, and exploratory/counting status
 were not changed.
 
+### Planned passage-pagination slice
+
+The next approved implementation slice is `Load more` for Text search. It comes
+before ranking experiments because the current UI can identify truncation but
+cannot retrieve passages after its first 50-row page. Raising the limit would
+only move that boundary.
+
+The bounded implementation uses passage-based pagination. Distinct-PDF
+pagination is deferred because it first requires a deliberate document-ranking
+contract and a consistent way to retrieve all processor passages for each
+ranked binary. Passage pagination preserves the current relevance semantics and
+must satisfy this contract:
+
+- the API accepts an offset and continues to order by rank descending and
+  segment ID ascending, so tied ranks have a deterministic order;
+- API counts and pagination metadata describe only the returned server page,
+  including its requested offset, number of rows returned, and whether another
+  page is available;
+- the UI keeps an immutable submitted-search identity containing the query and
+  scope that produced the displayed results; editing the controls does not
+  change what `Load more` continues;
+- the next offset advances by server rows returned before client-side
+  deduplication, preventing a repeated segment from stalling pagination;
+- accumulated passages are deduplicated by segment ID, appended without
+  discarding earlier results, and regrouped by full binary SHA-256 so later
+  processor hits extend an existing PDF group;
+- accumulated UI counts separately report loaded passages and distinct PDFs;
+- `Load more` is disabled while its request is pending and disappears or becomes
+  unavailable when the server reports no later page;
+- a page failure preserves loaded results and the previous offset so the user
+  can retry; and
+- starting a new search invalidates any older initial or page request, so stale
+  responses cannot alter the new search.
+
+Acceptance coverage must retrieve beyond the initial 50 rows, merge a later
+processor passage into an existing binary group, calculate accumulated counts,
+reach the final page, retry after a failed page without data loss, and ignore an
+old page response after a new search begins.
+
+Offset pagination assumes the searchable projection remains unchanged during a
+browsing session. Deterministic tie-breaking does not prevent concurrent
+reindexing from shifting page boundaries. That limitation is accepted for this
+experiment and must be visible in its documentation; snapshot or cursor
+pagination is outside this slice.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
@@ -335,5 +380,6 @@ later review action, not an ingestion-side overwrite.
 - Extracted labelled references are observations, not resolved identities.
 - The database does not yet enforce cross-column consistency among every nullable
   provenance anchor; writers must use anchors from the same lineage.
-- The consultation UI is intentionally fixture-scoped.
+- Exact-reference consultation remains fixture-scoped; full-corpus Text search
+  is an explicit experimental scope.
 - The fixture validates the contract but is not evidence of corpus-wide recall.
