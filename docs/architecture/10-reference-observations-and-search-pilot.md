@@ -71,9 +71,23 @@ what was indexed.
 
 The pilot search contract returns the exact segment and representation identity,
 processor/version, full binary SHA-256, available segment location, every linked
-source context, and matching reference observations attached at query time.
+source context, and reference observations attached at query time.
 Changing a reference interpretation therefore does not require rebuilding text
 chunks.
+
+Search responses must separate two scopes:
+
+- `passage_reference_observations` contains only observations anchored to the
+  matching segment; and
+- `contextual_reference_observations` contains observations elsewhere on the
+  same binary or in its source context.
+
+An observation shown beside a Docling or Xberg hit must not appear to have been
+produced by that processor merely because it was found on the same binary. Every
+returned observation retains its own occurrence/document, representation,
+segment, observer/version, processor/version, and location anchors. The scope
+name describes its relationship to the search hit; it does not change its
+provenance.
 
 Existing corpus segments are currently document-level: their `page_no` is null.
 Pilot results must consequently report an honest document-level location. The
@@ -116,6 +130,24 @@ npm run search:pilot -- --query "despacho 105398957"
 
 The seed is transactional and idempotent. The pilot search is restricted to the
 fixture SHA-256 values; it is not a full-corpus search endpoint.
+
+## Review ownership and reseeding
+
+Ingestion and human review have different ownership. Routine ingestion may
+refresh observation-owned facts such as the exact value, source anchors,
+extractor context, and ingestion hints. It must not reset a human decision about
+namespace, role, target candidates, confidence, review state, or reviewer notes.
+
+Human decisions are therefore stored in a separate one-to-one
+`reference_observation_review` record. Consultation reads the review as an
+overlay while retaining the original observation. This also makes the reviewer,
+review timestamp, and notes independently attributable.
+
+When an extractor version is superseded, unreviewed observations from the older
+version may be removed from the bounded fixture. An observation with a review
+must be retained; the new extractor output is recorded separately under its new
+stable observation identity. Reconciliation between those observations is a
+later review action, not an ingestion-side overwrite.
 
 ## Known limitations
 
