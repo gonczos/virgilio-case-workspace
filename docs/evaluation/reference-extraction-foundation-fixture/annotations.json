@@ -1,0 +1,978 @@
+{
+  "schema_version": 1,
+  "fixture_kind": "two_document_foundation",
+  "status": "draft_foundation_pending_review",
+  "offset_contract": {
+    "unit": "unicode_code_point",
+    "base": 0,
+    "range": "half_open",
+    "encoding": "UTF-8"
+  },
+  "representations": [
+    {
+      "representation_id": 6038,
+      "binary_sha256": "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691",
+      "format": "text",
+      "representation_kind": "extracted_document_bundle",
+      "processor_key": "docling",
+      "processor_version": "2.123.1-c5.2",
+      "processor_configuration_identity": null,
+      "representation_content_sha256": "a0799b74106cc7c9d60a648d48ea342952a1489e33b1cc4c878173487cb16bb4",
+      "location_kind": "document_level",
+      "processing_request_identity": "requested_by:native-docling-2026-09-02;processing_job_id:6059",
+      "configuration_limitation": "The read-only consultation API did not expose a processor profile or configuration hash; exact regeneration cannot be claimed from this snapshot.",
+      "review_scope": {
+        "kind": "selected_annotation_context_windows",
+        "ranges": [
+          {
+            "char_start": 242,
+            "char_end": 570,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 1581,
+            "char_end": 1916,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 367,
+            "char_end": 707,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 2787,
+            "char_end": 3135,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 2866,
+            "char_end": 3229,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 3022,
+            "char_end": 3349,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 6263,
+            "char_end": 6599,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 6774,
+            "char_end": 7103,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 6893,
+            "char_end": 7223,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 6972,
+            "char_end": 7301,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 6986,
+            "char_end": 7315,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7179,
+            "char_end": 7507,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7335,
+            "char_end": 7664,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7464,
+            "char_end": 7793,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7539,
+            "char_end": 7868,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7613,
+            "char_end": 7942,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7649,
+            "char_end": 7978,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7764,
+            "char_end": 8092,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7804,
+            "char_end": 8132,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 7833,
+            "char_end": 8173,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 8004,
+            "char_end": 8333,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 8203,
+            "char_end": 8532,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 8368,
+            "char_end": 8696,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          }
+        ],
+        "completeness": "non_exhaustive",
+        "all_positive_observations_annotated": false,
+        "all_negative_observations_annotated": false,
+        "all_ambiguous_observations_annotated": false,
+        "limitation": "The representation was not exhaustively reviewed. Unannotated references may exist inside or outside these selected context windows."
+      }
+    },
+    {
+      "representation_id": 4950,
+      "binary_sha256": "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e",
+      "format": "text",
+      "representation_kind": "extracted_document_bundle",
+      "processor_key": "docling",
+      "processor_version": "2.123.1-c5.2",
+      "processor_configuration_identity": null,
+      "representation_content_sha256": "aaa0468b9b4a16e168cf4a0d4cfdf7b920da756c7826fec172eded8de9a37046",
+      "location_kind": "document_level",
+      "processing_request_identity": "requested_by:selective-docling-2026-09-02;processing_job_id:4961",
+      "configuration_limitation": "The read-only consultation API did not expose a processor profile or configuration hash; exact regeneration cannot be claimed from this snapshot.",
+      "review_scope": {
+        "kind": "selected_annotation_context_windows",
+        "ranges": [
+          {
+            "char_start": 57,
+            "char_end": 400,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 134,
+            "char_end": 470,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 187,
+            "char_end": 541,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 1108,
+            "char_end": 1438,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 2374,
+            "char_end": 2707,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 4322,
+            "char_end": 4655,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 4425,
+            "char_end": 4754,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 10664,
+            "char_end": 11008,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 18792,
+            "char_end": 19118,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          },
+          {
+            "char_start": 19028,
+            "char_end": 19369,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content"
+          }
+        ],
+        "completeness": "non_exhaustive",
+        "all_positive_observations_annotated": false,
+        "all_negative_observations_annotated": false,
+        "all_ambiguous_observations_annotated": false,
+        "limitation": "The representation was not exhaustively reviewed. Unannotated references may exist inside or outside these selected context windows."
+      }
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a001",
+      "representation_id": 6038,
+      "char_start": 402,
+      "char_end": 410,
+      "raw_span": "39176427",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "39176427",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm whether this is specifically a Citius filing reference.",
+      "bounded_context": {
+        "char_start": 242,
+        "char_end": 570,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a002",
+      "representation_id": 6038,
+      "char_start": 1741,
+      "char_end": 1756,
+      "raw_span": "13608/14.8T2SNT",
+      "label": "court_process",
+      "polarity": "positive",
+      "normalized_candidate": "13608/14.8T2SNT",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 1581,
+        "char_end": 1916,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a003",
+      "representation_id": 6038,
+      "char_start": 527,
+      "char_end": 547,
+      "raw_span": "artº  32  nº3  RGPTC",
+      "label": "legislation",
+      "polarity": "positive",
+      "normalized_candidate": "RGPTC artigo 32.º, n.º 3",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 367,
+        "char_end": 707,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a004",
+      "representation_id": 6038,
+      "char_start": 2947,
+      "char_end": 2975,
+      "raw_span": "Regulamento (CE) nº2201/2003",
+      "label": "legislation",
+      "polarity": "positive",
+      "normalized_candidate": "Regulamento (CE) n.º 2201/2003",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 2787,
+        "char_end": 3135,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a005",
+      "representation_id": 6038,
+      "char_start": 3026,
+      "char_end": 3069,
+      "raw_span": "Convenção de Haia, de 25 de Outubro de 1980",
+      "label": "international_instrument",
+      "polarity": "positive",
+      "normalized_candidate": "Convenção da Haia de 25 de outubro de 1980",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 2866,
+        "char_end": 3229,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a006",
+      "representation_id": 6038,
+      "char_start": 3182,
+      "char_end": 3189,
+      "raw_span": "Doc nº1",
+      "label": "local_attachment",
+      "polarity": "ambiguous",
+      "normalized_candidate": "documento 1",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm the filing or bundle that scopes document 1.",
+      "bounded_context": {
+        "char_start": 3022,
+        "char_end": 3349,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a007",
+      "representation_id": 6038,
+      "char_start": 6423,
+      "char_end": 6439,
+      "raw_span": "artº 646 nº3 CPC",
+      "label": "legislation",
+      "polarity": "positive",
+      "normalized_candidate": "CPC artigo 646.º, n.º 3",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 6263,
+        "char_end": 6599,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a008",
+      "representation_id": 6038,
+      "char_start": 6934,
+      "char_end": 6943,
+      "raw_span": "131089062",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "131089062",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 6774,
+        "char_end": 7103,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a009",
+      "representation_id": 6038,
+      "char_start": 7053,
+      "char_end": 7063,
+      "raw_span": "1606407299",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "1606407299",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Verify the unusually long value against the original page.",
+      "bounded_context": {
+        "char_start": 6893,
+        "char_end": 7223,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a010",
+      "representation_id": 6038,
+      "char_start": 7132,
+      "char_end": 7141,
+      "raw_span": "122170551",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "122170551",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 6972,
+        "char_end": 7301,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a011",
+      "representation_id": 6038,
+      "char_start": 7146,
+      "char_end": 7155,
+      "raw_span": "122178618",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "122178618",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 6986,
+        "char_end": 7315,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a012",
+      "representation_id": 6038,
+      "char_start": 7339,
+      "char_end": 7347,
+      "raw_span": "93528486",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "93528486",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 7179,
+        "char_end": 7507,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a013",
+      "representation_id": 6038,
+      "char_start": 7495,
+      "char_end": 7504,
+      "raw_span": "106904705",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "106904705",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 7335,
+        "char_end": 7664,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a014",
+      "representation_id": 6038,
+      "char_start": 7624,
+      "char_end": 7633,
+      "raw_span": "122397168",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "122397168",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 7464,
+        "char_end": 7793,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a015",
+      "representation_id": 6038,
+      "char_start": 7699,
+      "char_end": 7708,
+      "raw_span": "116864518",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "116864518",
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 7539,
+        "char_end": 7868,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a016",
+      "representation_id": 6038,
+      "char_start": 7773,
+      "char_end": 7782,
+      "raw_span": "126078740",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "126078740",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm whether broader context supports a Citius classification.",
+      "bounded_context": {
+        "char_start": 7613,
+        "char_end": 7942,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a017",
+      "representation_id": 6038,
+      "char_start": 7809,
+      "char_end": 7818,
+      "raw_span": "126015835",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "126015835",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm narrower target kind and cross-document relationship.",
+      "bounded_context": {
+        "char_start": 7649,
+        "char_end": 7978,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a018",
+      "representation_id": 6038,
+      "char_start": 7924,
+      "char_end": 7932,
+      "raw_span": "30033264",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "30033264",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm whether generic Referencia inherits Citius from the list context.",
+      "bounded_context": {
+        "char_start": 7764,
+        "char_end": 8092,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a019",
+      "representation_id": 6038,
+      "char_start": 7964,
+      "char_end": 7972,
+      "raw_span": "30310349",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "30310349",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm whether generic referencia inherits Citius from the list context.",
+      "bounded_context": {
+        "char_start": 7804,
+        "char_end": 8132,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a020",
+      "representation_id": 6038,
+      "char_start": 7993,
+      "char_end": 8013,
+      "raw_span": "Doc nº Doc 25 e 25 A",
+      "label": "local_attachment",
+      "polarity": "ambiguous",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Verify OCR and whether this denotes two attachments, 25 and 25 A.",
+      "bounded_context": {
+        "char_start": 7833,
+        "char_end": 8173,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a021",
+      "representation_id": 6038,
+      "char_start": 8164,
+      "char_end": 8173,
+      "raw_span": "129613997",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "129613997",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm whether generic referencia inherits Citius from the list context.",
+      "bounded_context": {
+        "char_start": 8004,
+        "char_end": 8333,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a022",
+      "representation_id": 6038,
+      "char_start": 8363,
+      "char_end": 8372,
+      "raw_span": "123575384",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "123575384",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm whether generic Referência inherits Citius from the list context.",
+      "bounded_context": {
+        "char_start": 8203,
+        "char_end": 8532,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a023",
+      "representation_id": 6038,
+      "char_start": 8528,
+      "char_end": 8536,
+      "raw_span": "34820097",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "ambiguous",
+      "normalized_candidate": "34820097",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm whether generic Referência inherits Citius from the list context.",
+      "bounded_context": {
+        "char_start": 8368,
+        "char_end": 8696,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n001",
+      "representation_id": 4950,
+      "char_start": 217,
+      "char_end": 240,
+      "raw_span": "passaporte n° 094620901",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "passport",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 57,
+        "char_end": 400,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n002",
+      "representation_id": 4950,
+      "char_start": 294,
+      "char_end": 310,
+      "raw_span": "NIF n° 267392834",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "tax_identifier",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 134,
+        "char_end": 470,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n003",
+      "representation_id": 4950,
+      "char_start": 347,
+      "char_end": 381,
+      "raw_span": "contacto telefonico n° 965 222 111",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "telephone",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 187,
+        "char_end": 541,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n004",
+      "representation_id": 4950,
+      "char_start": 1268,
+      "char_end": 1278,
+      "raw_span": "BAT 720185",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "birth_register_document",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 1108,
+        "char_end": 1438,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n005",
+      "representation_id": 4950,
+      "char_start": 2534,
+      "char_end": 2547,
+      "raw_span": "Entry No. 169",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "birth_register_entry",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 2374,
+        "char_end": 2707,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n006",
+      "representation_id": 4950,
+      "char_start": 4482,
+      "char_end": 4495,
+      "raw_span": "3549000256646",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "fiscal_document_number",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 4322,
+        "char_end": 4655,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n007",
+      "representation_id": 4950,
+      "char_start": 4585,
+      "char_end": 4594,
+      "raw_span": "278681590",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "tax_identifier",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 4425,
+        "char_end": 4754,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n008",
+      "representation_id": 4950,
+      "char_start": 10824,
+      "char_end": 10848,
+      "raw_span": "Passaporte n.º 465031544",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "passport",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 10664,
+        "char_end": 11008,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "n009",
+      "representation_id": 4950,
+      "char_start": 18952,
+      "char_end": 18958,
+      "raw_span": "116000",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "negative_kind": "service_telephone",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "pending_review",
+      "bounded_context": {
+        "char_start": 18792,
+        "char_end": 19118,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    },
+    {
+      "id": "a024",
+      "representation_id": 4950,
+      "char_start": 19188,
+      "char_end": 19209,
+      "raw_span": "Registo n.º 1086/2014",
+      "label": "external_register",
+      "polarity": "ambiguous",
+      "normalized_candidate": "PSP 1086/2014",
+      "resolved_target": null,
+      "review_state": "case_expert_required",
+      "review_question": "Confirm the preferred narrow namespace for this PSP record.",
+      "bounded_context": {
+        "char_start": 19028,
+        "char_end": 19369,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      }
+    }
+  ],
+  "coverage": {
+    "represented_families": [
+      "court_process",
+      "court_occurrence_or_citius_reference",
+      "local_attachment",
+      "legislation",
+      "international_instrument",
+      "external_register",
+      "reference_like_negative"
+    ],
+    "not_evaluated": [
+      "french_rg",
+      "french_portalis",
+      "french_pourvoi",
+      "administrative_court_identifier",
+      "portuguese_ecli",
+      "french_ecli",
+      "eu_case_number",
+      "missing_media_reference"
+    ]
+  },
+  "annotation_provenance_defaults": {
+    "inheritance": "Every annotation inherits these values unless it explicitly overrides them.",
+    "producer_identity": "codex-task:01a06883-a0fd-7af3-872b-32a660674a9c",
+    "producer_version": "foundation-fixture-annotation-v1",
+    "produced_at": null,
+    "confidence": "provisional_unreviewed",
+    "bounded_context_policy": "Each annotation stores a half-open Unicode code-point context range extending up to 160 code points on each side within its representation.",
+    "initial_file_mtime_observed_at": "2026-09-03T21:02:57.2554885Z",
+    "timestamp_limitation": "No annotation-production timestamp was captured. The initial file modification time is retained only as observed filesystem metadata and does not establish when annotations were produced."
+  },
+  "review_provenance_defaults": {
+    "inheritance": "Every annotation inherits these null values until an attributable review is completed.",
+    "reviewer_identity": null,
+    "reviewed_at": null,
+    "decision": null,
+    "rationale": null
+  }
+}
