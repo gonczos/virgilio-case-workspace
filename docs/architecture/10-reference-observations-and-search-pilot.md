@@ -737,8 +737,8 @@ UI remains a later checkpoint.
 API scope and lifecycle are independent dimensions:
 
 - corpus scope is explicitly `pilot` or `full`;
-- lifecycle scope defaults to `current` and requires an explicit
-  diagnostic/history option to include `superseded` and
+- lifecycle scope is `current` or `include_history`, defaults to `current`, and
+  requires `include_history` to include `superseded` and
   `retired_source_absent` observations.
 
 Selecting history must not widen corpus scope, and selecting full scope must
@@ -746,6 +746,75 @@ not include historical observations implicitly. Superseded legacy pilot
 metadata must appear only when history is explicitly requested and must not be
 returned as a second current observation beside its directly anchored
 replacement.
+
+#### Request and pagination contract
+
+The endpoint is:
+
+```text
+GET /api/consultation/references/lookup
+```
+
+It accepts only these query parameters:
+
+| Parameter | Required | Values and default |
+|---|---:|---|
+| `value` | yes | Non-empty raw reference lookup value; normalized by the existing reference normalizer |
+| `scope` | no | `pilot` or `full`; default `full` |
+| `lifecycle` | no | `current` or `include_history`; default `current` |
+| `limit` | no | Integer from 1 through 100; default 50 |
+| `offset` | no | Observation offset from 0 through 1,000,000; default 0 |
+
+Unknown enum values, out-of-range integers, undecodable values, and an empty
+normalized lookup value return HTTP 400 with a stable error code. The route
+performs normalized exact lookup; it is not literal character matching and
+does not resolve a reference target.
+
+Pagination is observation-based. Because one request looks up one exact
+normalized value, it does not paginate grouped reference values. The response
+envelope is:
+
+```json
+{
+  "query": {
+    "raw_value": "...",
+    "normalized_value": "...",
+    "scope": "full",
+    "lifecycle": "current"
+  },
+  "result_state": "matches",
+  "coverage": {
+    "corpus_scope": "full",
+    "lifecycle_scope": "current",
+    "status": "incomplete",
+    "included_origins": [
+      "court_metadata",
+      "external_register",
+      "document_text"
+    ],
+    "limitations": [
+      {
+        "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
+        "message": "External-register and document-text observations remain pilot-scoped."
+      }
+    ]
+  },
+  "pagination": {
+    "unit": "observations",
+    "limit": 50,
+    "offset": 0,
+    "returned": 12,
+    "has_more": false,
+    "next_offset": null
+  },
+  "observations": []
+}
+```
+
+`next_offset` is the current offset plus the number of observations returned
+when `has_more` is true, and otherwise is `null`. The implementation may fetch
+one extra row to determine `has_more`; that row is not returned or counted in
+`returned`. No total count is promised by this checkpoint.
 
 Recorded-reference results paginate independently from document-text search.
 They use the agreed deterministic order: court-system metadata, then
@@ -766,17 +835,28 @@ Each result keeps these concepts separate:
 - ingestion/observer identity and version;
 - human-review state and reviewed resolution, if present;
 - ingestion target candidates, kept separate from reviewed resolution; and
-- binary-association state.
+- binary-association state;
+- `associated_binaries`, a collection deduplicated by full SHA-256.
 
-An `openable_binary` action is returned only when a usable associated binary
-exists. Missing-file observations remain valid results but do not receive a
-fabricated file action. Multiple associated binaries remain a collection; the
-API does not choose one silently.
+Every `associated_binaries[]` entry contains its full SHA-256 identity,
+availability, optional API-relative open action, and nested document and
+occurrence associations. Associations are accumulated when the same binary is
+linked through several documents or occurrences; deduplication must not discard
+those contexts. The API does not select a preferred binary. Missing-file
+records remain in `associated_contexts`; they do not become binary entries with
+invented identities and never receive an open action.
 
 Every response describes its coverage independently from its matches. At
 minimum it reports the selected corpus and lifecycle scopes, included origins,
-and known coverage limitations. `result_state` distinguishes matches, no
-matches within the declared coverage, and incomplete or unavailable coverage.
+and known coverage limitations. `result_state` is exactly one of `matches`,
+`no_matches_within_coverage`, or `coverage_unavailable_or_incomplete`.
+`coverage.status` is exactly one of `complete_for_declared_sources`,
+`incomplete`, or `unavailable`; `coverage.limitations` is a list of stable-code
+and human-readable-message objects rather than an overloaded result string.
+`matches` takes precedence when observations are returned. With no returned
+observations, complete declared coverage produces `no_matches_within_coverage`,
+while incomplete or unavailable coverage produces
+`coverage_unavailable_or_incomplete`.
 A no-match response must not imply that the referenced document or event is
 absent from the court record.
 
