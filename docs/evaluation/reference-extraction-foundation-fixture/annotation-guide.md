@@ -1,7 +1,7 @@
 # Legal-reference foundation fixture annotation guide
 
-Status: draft bounded foundation fixture pending attributable review. It is not
-a gold set, an extractor contract, or evidence of full-corpus performance.
+Status: draft bounded foundation fixture with one attributable, exhaustively
+reviewed range. It is not evidence of full-corpus performance.
 
 ## Units and provenance
 
@@ -43,19 +43,19 @@ Docling, Xberg, and literal text are separately derived records.
 
 ## Review scope and completeness
 
-Each representation declares `review_scope` as selected bounded context windows
-around the recorded annotations. The scope is explicitly `non_exhaustive`: the
-complete representation and the selected windows were not exhaustively reviewed
-for every positive, negative, and ambiguous observation. An unannotated span
-therefore means only that it is absent from this draft annotation set; it does
-not establish that no reference exists there.
+Each representation declares its review scope. The complete representations
+remain non-exhaustive, and selected context windows outside a declared
+exhaustive range do not support absence or recall claims. Representation 6038
+contains one exhaustively reviewed half-open range, `[6822, 8619)`, covering the
+complete chronological entries a) through n). Every positive reference,
+plausibly confusable negative, and ambiguous candidate under the recorded
+candidate definition in that range has an attributable decision.
 
-Recall, zero-false-positive rates, absence claims, and other completeness-based
-metrics are prohibited for this fixture. They become valid only after the
-relevant representation or precisely declared ranges are exhaustively reviewed
-and all applicable positive, negative, and ambiguous observations within that
-scope are annotated. Precision may be reported only with its reviewed
-prediction denominator and without implying recall.
+Recall, false-positive rates, and absence claims are prohibited outside an
+exhaustive range. They may be reported for `[6822, 8619)` only when predictions
+are evaluated against that exact range and its recorded candidate definition.
+No metric from this range may be presented as representation-wide,
+document-wide, family-wide, or corpus-wide performance.
 
 ## Labels
 
@@ -90,7 +90,8 @@ no retained review question. It describes resolution of the retained
 completed review may confirm a broad classification while leaving namespace,
 transcription, target, relationship, document, or binary identity unresolved.
 Such unresolved fields do not invalidate the review decision and must not be
-silently promoted.
+silently promoted. When a later exhaustive review refines an earlier decision,
+the superseded decision remains attributable in `review_history`.
 
 General review rules established by the guided sessions are:
 
@@ -110,6 +111,20 @@ entity extractors without becoming legal-reference observations.
 
 Repeated textual occurrences remain separate. A later presentation layer may
 deduplicate them without erasing observation provenance.
+
+## Exhaustive range decisions
+
+The exhaustive range in representation 6038 contains 33 independently
+measurable spans: 16 procedural-reference positives, two local-attachment
+positives, and 15 date negatives. Namespace certainty, transcription quality,
+target resolution, document identity, and binary identity do not determine
+reference-observation polarity.
+
+The repeated value `131089062` is therefore represented by two positive spans.
+The coordinated expression `Doc nº Doc 25 e 25 A` is represented by the atomic
+positive spans `Doc nº Doc 25` and `25 A`; the full expression remains available
+through bounded context. The unusual date form `15-072020` remains an exact raw
+negative span and is not repaired.
 
 ## Validation
 

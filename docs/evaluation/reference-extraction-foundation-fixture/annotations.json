@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "fixture_kind": "two_document_foundation",
-  "status": "draft_foundation_selected_annotations_reviewed",
+  "status": "draft_foundation_with_one_exhaustive_reviewed_scope",
   "offset_contract": {
     "unit": "unicode_code_point",
     "base": 0,
@@ -22,7 +22,7 @@
       "processing_request_identity": "requested_by:native-docling-2026-09-02;processing_job_id:6059",
       "configuration_limitation": "The read-only consultation API did not expose a processor profile or configuration hash; exact regeneration cannot be claimed from this snapshot.",
       "review_scope": {
-        "kind": "selected_annotation_context_windows",
+        "kind": "selected_context_windows_with_exhaustive_evaluation_range",
         "ranges": [
           {
             "char_start": 242,
@@ -190,7 +190,29 @@
         "all_positive_observations_annotated": false,
         "all_negative_observations_annotated": false,
         "all_ambiguous_observations_annotated": false,
-        "limitation": "The representation was not exhaustively reviewed. Unannotated references may exist inside or outside these selected context windows."
+        "limitation": "The complete representation remains non-exhaustive. Only the declared exhaustive range supports recall, absence, and false-positive measurements; selected context windows elsewhere do not.",
+        "exhaustive_ranges": [
+          {
+            "scope_id": "representation-6038-chronological-entries-a-through-n-v1",
+            "char_start": 6822,
+            "char_end": 8619,
+            "unit": "unicode_code_point",
+            "range": "half_open",
+            "source": "representation_content",
+            "start_boundary": "aqui identificadas de forma cronológica saber:",
+            "included_structure": "complete entries a) through n)",
+            "end_boundary": "immediately before Nestes termos e nos demais de Direito",
+            "completeness": "exhaustive",
+            "all_positive_observations_annotated": true,
+            "all_negative_candidates_annotated": true,
+            "all_ambiguous_candidates_annotated": true,
+            "candidate_span_count": 33,
+            "positive_span_count": 18,
+            "negative_span_count": 15,
+            "ambiguous_span_count": 0,
+            "review_session_id": "guided-exhaustive-review-attila-test-3"
+          }
+        ]
       }
     },
     {
@@ -605,7 +627,7 @@
       "char_end": 7063,
       "raw_span": "1606407299",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "1606407299",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -618,23 +640,44 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "classification_confirmed_transcription_unverified",
-        "rationale": "The explicit referência citius label supports the classification. The anomalous ten-digit value requires original-PDF verification and must not be silently repaired.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "original_pdf"
+        ],
         "findings": {
           "classification": "citius_reference",
           "normalization": "none",
           "transcription_status": "requires_original_verification",
           "target_resolution": "unresolved",
-          "classification_confidence": "high"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "original_pdf"
-        ]
-      }
+          "classification_confidence": "high",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "classification_confirmed_transcription_unverified",
+          "rationale": "The explicit referência citius label supports the classification. The anomalous ten-digit value requires original-PDF verification and must not be silently repaired.",
+          "findings": {
+            "classification": "citius_reference",
+            "normalization": "none",
+            "transcription_status": "requires_original_verification",
+            "target_resolution": "unresolved",
+            "classification_confidence": "high"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "original_pdf"
+          ]
+        }
+      ]
     },
     {
       "id": "a010",
@@ -856,7 +899,7 @@
       "char_end": 7782,
       "raw_span": "126078740",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "126078740",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -869,24 +912,46 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_with_contextual_namespace",
-        "rationale": "The value directly qualifies a Vista com promoção. Citius is supported only by surrounding list context and is not explicit in this entry.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ],
         "findings": {
           "described_occurrence": "Vista com promoção",
           "classification": "court_procedural_reference",
           "source_stated_date": "2020-07-21",
           "namespace_candidate": "Citius",
           "namespace_evidence": "contextual_not_source_stated",
-          "target_resolution": "unresolved"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "court_source_record_if_citius_namespace_resolution_is_required"
-        ]
-      }
+          "target_resolution": "unresolved",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_with_contextual_namespace",
+          "rationale": "The value directly qualifies a Vista com promoção. Citius is supported only by surrounding list context and is not explicit in this entry.",
+          "findings": {
+            "described_occurrence": "Vista com promoção",
+            "classification": "court_procedural_reference",
+            "source_stated_date": "2020-07-21",
+            "namespace_candidate": "Citius",
+            "namespace_evidence": "contextual_not_source_stated",
+            "target_resolution": "unresolved"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "court_source_record_if_citius_namespace_resolution_is_required"
+          ]
+        }
+      ]
     },
     {
       "id": "a017",
@@ -895,7 +960,7 @@
       "char_end": 7818,
       "raw_span": "126015835",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "126015835",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -908,11 +973,15 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_with_unresolved_relationship",
-        "rationale": "The reference is attached to a Vista dated 15 July 2020. Its precise relationship to reference 126078740 is only co-mention/source association and must not be inferred as a procedural dependency.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "court_source_record_or_metadata_for_relationship_and_target_kind"
+        ],
         "findings": {
           "described_occurrence": "Vista",
           "source_stated_date": "2020-07-15",
@@ -922,13 +991,34 @@
           "namespace_candidate": "Citius",
           "relationship_resolution": "unresolved",
           "namespace_evidence": "contextual_not_source_stated",
-          "relationship": "source_associated_or_co_mentioned"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "court_source_record_or_metadata_for_relationship_and_target_kind"
-        ]
-      }
+          "relationship": "source_associated_or_co_mentioned",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_with_unresolved_relationship",
+          "rationale": "The reference is attached to a Vista dated 15 July 2020. Its precise relationship to reference 126078740 is only co-mention/source association and must not be inferred as a procedural dependency.",
+          "findings": {
+            "described_occurrence": "Vista",
+            "source_stated_date": "2020-07-15",
+            "related_reference": "126078740",
+            "classification": "court_procedural_reference",
+            "target_resolution": "unresolved",
+            "namespace_candidate": "Citius",
+            "relationship_resolution": "unresolved",
+            "namespace_evidence": "contextual_not_source_stated",
+            "relationship": "source_associated_or_co_mentioned"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "court_source_record_or_metadata_for_relationship_and_target_kind"
+          ]
+        }
+      ]
     },
     {
       "id": "a018",
@@ -937,7 +1027,7 @@
       "char_end": 7932,
       "raw_span": "30033264",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "30033264",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -950,11 +1040,15 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_with_contextual_namespace",
-        "rationale": "The reference directly qualifies a Requerimento presented in response to the psychologist report. Namespace, target record, document, and binary linkage remain unresolved.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ],
         "findings": {
           "source_stated_date": "2018-09-10",
           "binary_identity": "unresolved",
@@ -964,13 +1058,34 @@
           "source_context": "Presented em contradita ao relatório do psicólogo",
           "target_resolution": "unresolved",
           "namespace_candidate": "Citius",
-          "namespace_evidence": "contextual_not_source_stated"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "court_source_record_if_citius_namespace_resolution_is_required"
-        ]
-      }
+          "namespace_evidence": "contextual_not_source_stated",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_with_contextual_namespace",
+          "rationale": "The reference directly qualifies a Requerimento presented in response to the psychologist report. Namespace, target record, document, and binary linkage remain unresolved.",
+          "findings": {
+            "source_stated_date": "2018-09-10",
+            "binary_identity": "unresolved",
+            "described_act": "Requerimento",
+            "document_identity": "unresolved",
+            "classification": "court_filing_or_procedural_reference",
+            "source_context": "Presented em contradita ao relatório do psicólogo",
+            "target_resolution": "unresolved",
+            "namespace_candidate": "Citius",
+            "namespace_evidence": "contextual_not_source_stated"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "court_source_record_if_citius_namespace_resolution_is_required"
+          ]
+        }
+      ]
     },
     {
       "id": "a019",
@@ -979,7 +1094,7 @@
       "char_end": 7972,
       "raw_span": "30310349",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "30310349",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -992,11 +1107,16 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_with_candidate_attachment_relation",
-        "rationale": "The reference is grammatically assigned to a Requerimento dated 8 August 2018. The source states that attachments 25 and 25A were submitted with it, but no database parent-child or binary relationship is resolved.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required",
+          "attachment_target_resolution"
+        ],
         "findings": {
           "attachment_relation_resolution": "candidate",
           "source_stated_date": "2018-08-08",
@@ -1011,60 +1131,110 @@
           "target_resolution": "unresolved",
           "namespace_candidate": "Citius",
           "namespace_evidence": "contextual_not_source_stated",
-          "attachment_relation": "source_stated_submitted_with"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "court_source_record_if_citius_namespace_resolution_is_required",
-          "attachment_target_resolution"
-        ]
-      }
+          "attachment_relation": "source_stated_submitted_with",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_with_candidate_attachment_relation",
+          "rationale": "The reference is grammatically assigned to a Requerimento dated 8 August 2018. The source states that attachments 25 and 25A were submitted with it, but no database parent-child or binary relationship is resolved.",
+          "findings": {
+            "attachment_relation_resolution": "candidate",
+            "source_stated_date": "2018-08-08",
+            "binary_identity": "unresolved",
+            "described_act": "Requerimento",
+            "attachment_candidates": [
+              "25",
+              "25A"
+            ],
+            "classification": "court_filing_or_procedural_reference",
+            "document_identity": "unresolved",
+            "target_resolution": "unresolved",
+            "namespace_candidate": "Citius",
+            "namespace_evidence": "contextual_not_source_stated",
+            "attachment_relation": "source_stated_submitted_with"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "court_source_record_if_citius_namespace_resolution_is_required",
+            "attachment_target_resolution"
+          ]
+        }
+      ]
     },
     {
       "id": "a020",
       "representation_id": 6038,
       "char_start": 7993,
-      "char_end": 8013,
-      "raw_span": "Doc nº Doc 25 e 25 A",
+      "char_end": 8006,
+      "raw_span": "Doc nº Doc 25",
       "label": "local_attachment",
-      "polarity": "ambiguous",
-      "normalized_candidate": null,
+      "polarity": "positive",
+      "normalized_candidate": "25",
       "resolved_target": null,
       "review_state": "human_reviewed",
       "review_question": "Verify OCR and whether this denotes two attachments, 25 and 25 A.",
       "bounded_context": {
         "char_start": 7833,
-        "char_end": 8173,
+        "char_end": 8166,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_structured_candidates_without_source_repair",
-        "rationale": "The raw phrase supports attachment candidates 25 and 25A associated with the Requerimento referenced by 30310349. The duplicated Doc wording may be an extraction anomaly and must remain unchanged pending PDF verification.",
-        "findings": {
-          "candidate_parent_reference": "30310349",
-          "parsed_candidates": [
-            "25",
-            "25A"
-          ],
-          "attachment_targets": "unresolved",
-          "binary_identities": "unresolved",
-          "classification": "local_attachment",
-          "transcription_status": "possible_extraction_anomaly_requires_original_verification",
-          "content_attribution": "surrounding_description_only",
-          "association_evidence": "source_stated_com",
-          "database_relationship": "unresolved_candidate"
-        },
-        "review_question_status": "partially_answered",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "split_composite_and_confirmed_positive",
+        "rationale": "The coordinated source expression contains two independently detectable attachment references. This first span is preserved verbatim, including the possible Doc nº Doc extraction anomaly.",
+        "review_question_status": "not_applicable",
         "remaining_verification": [
-          "original_pdf",
-          "filing_structure_or_attachment_list"
-        ]
-      }
+          "original_pdf_for_transcription",
+          "source_record_for_target_resolution"
+        ],
+        "findings": {
+          "classification": "local_attachment_reference",
+          "parsed_attachment_candidate": "25",
+          "candidate_parent_reference": "30310349",
+          "association_evidence": "source_stated_submitted_with",
+          "transcription_status": "possible_extraction_anomaly_requires_original_pdf_verification",
+          "target_resolution": "unresolved",
+          "document_identity": "unresolved",
+          "binary_identity": "unresolved"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_structured_candidates_without_source_repair",
+          "rationale": "The raw phrase supports attachment candidates 25 and 25A associated with the Requerimento referenced by 30310349. The duplicated Doc wording may be an extraction anomaly and must remain unchanged pending PDF verification.",
+          "findings": {
+            "candidate_parent_reference": "30310349",
+            "parsed_candidates": [
+              "25",
+              "25A"
+            ],
+            "attachment_targets": "unresolved",
+            "binary_identities": "unresolved",
+            "classification": "local_attachment",
+            "transcription_status": "possible_extraction_anomaly_requires_original_verification",
+            "content_attribution": "surrounding_description_only",
+            "association_evidence": "source_stated_com",
+            "database_relationship": "unresolved_candidate"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "original_pdf",
+            "filing_structure_or_attachment_list"
+          ]
+        }
+      ]
     },
     {
       "id": "a021",
@@ -1073,7 +1243,7 @@
       "char_end": 8173,
       "raw_span": "129613997",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "129613997",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -1086,11 +1256,15 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_with_contextual_namespace",
-        "rationale": "The reference is explicitly associated with a single source-described Vista com promoção dated 22 March 2021. It must not be decomposed into separate acts without independent metadata.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ],
         "findings": {
           "document_identity": "unresolved",
           "namespace_candidate": "Citius",
@@ -1099,13 +1273,33 @@
           "target_resolution": "unresolved",
           "classification": "court_procedural_reference",
           "source_stated_date": "2021-03-22",
-          "binary_identity": "unresolved"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "court_source_record_if_citius_namespace_resolution_is_required"
-        ]
-      }
+          "binary_identity": "unresolved",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_with_contextual_namespace",
+          "rationale": "The reference is explicitly associated with a single source-described Vista com promoção dated 22 March 2021. It must not be decomposed into separate acts without independent metadata.",
+          "findings": {
+            "document_identity": "unresolved",
+            "namespace_candidate": "Citius",
+            "namespace_evidence": "contextual_not_source_stated",
+            "described_occurrence": "Vista com promoção",
+            "target_resolution": "unresolved",
+            "classification": "court_procedural_reference",
+            "source_stated_date": "2021-03-22",
+            "binary_identity": "unresolved"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "court_source_record_if_citius_namespace_resolution_is_required"
+          ]
+        }
+      ]
     },
     {
       "id": "a022",
@@ -1114,7 +1308,7 @@
       "char_end": 8372,
       "raw_span": "123575384",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "123575384",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -1127,11 +1321,15 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_notification_target_candidate",
-        "rationale": "The grammar attaches the reference to the notification occurrence. The translated report is the notification subject and is not established as the reference target.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ],
         "findings": {
           "described_occurrence": "Notificação",
           "notification_subject": "tradução do relatório da progenitora",
@@ -1143,13 +1341,36 @@
           "direct_target_candidate": "notification_occurrence",
           "namespace_candidate": "Citius",
           "namespace_evidence": "contextual_not_source_stated",
-          "target_resolution": "unresolved"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "court_source_record_if_citius_namespace_resolution_is_required"
-        ]
-      }
+          "target_resolution": "unresolved",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_notification_target_candidate",
+          "rationale": "The grammar attaches the reference to the notification occurrence. The translated report is the notification subject and is not established as the reference target.",
+          "findings": {
+            "described_occurrence": "Notificação",
+            "notification_subject": "tradução do relatório da progenitora",
+            "underlying_report_relationship": "related_context_only",
+            "binary_identity": "unresolved",
+            "document_identity": "unresolved",
+            "classification": "court_procedural_reference",
+            "source_stated_date": "2020-01-29",
+            "direct_target_candidate": "notification_occurrence",
+            "namespace_candidate": "Citius",
+            "namespace_evidence": "contextual_not_source_stated",
+            "target_resolution": "unresolved"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "court_source_record_if_citius_namespace_resolution_is_required"
+          ]
+        }
+      ]
     },
     {
       "id": "a023",
@@ -1158,7 +1379,7 @@
       "char_end": 8536,
       "raw_span": "34820097",
       "label": "court_occurrence_or_citius_reference",
-      "polarity": "ambiguous",
+      "polarity": "positive",
       "normalized_candidate": "34820097",
       "resolved_target": null,
       "review_state": "human_reviewed",
@@ -1171,11 +1392,15 @@
         "source": "representation_content"
       },
       "human_review": {
-        "session_id": "guided-review-attila-test-1",
+        "session_id": "guided-exhaustive-review-attila-test-3",
         "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
-        "decision": "confirmed_strong_direct_target_candidate",
-        "rationale": "The construction a que foi atribuída a Referência grammatically assigns the value to the Requerimento. Reports, requested examinations, and INML are subject matter rather than reference targets.",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_reference_observation",
+        "rationale": "The source explicitly presents this span as a Referência, Ref, or referência Citius. Namespace, transcription, and target uncertainty are represented separately from reference-observation polarity.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ],
         "findings": {
           "direct_target_candidate": "described_Requerimento",
           "source_stated_date": "2020-02-10",
@@ -1187,13 +1412,36 @@
           "filing_party": "Requerente/Recorrido",
           "target_resolution": "unresolved",
           "namespace_candidate": "Citius",
-          "namespace_evidence": "contextual_not_source_stated"
-        },
-        "review_question_status": "partially_answered",
-        "remaining_verification": [
-          "court_source_record_if_citius_namespace_resolution_is_required"
-        ]
-      }
+          "namespace_evidence": "contextual_not_source_stated",
+          "reference_observation_polarity": "positive"
+        }
+      },
+      "review_history": [
+        {
+          "session_id": "guided-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+          "decision": "confirmed_strong_direct_target_candidate",
+          "rationale": "The construction a que foi atribuída a Referência grammatically assigns the value to the Requerimento. Reports, requested examinations, and INML are subject matter rather than reference targets.",
+          "findings": {
+            "direct_target_candidate": "described_Requerimento",
+            "source_stated_date": "2020-02-10",
+            "binary_identity": "unresolved",
+            "described_act": "Requerimento",
+            "direct_target_evidence": "strong_source_support",
+            "classification": "court_filing_or_procedural_reference",
+            "document_identity": "unresolved",
+            "filing_party": "Requerente/Recorrido",
+            "target_resolution": "unresolved",
+            "namespace_candidate": "Citius",
+            "namespace_evidence": "contextual_not_source_stated"
+          },
+          "review_question_status": "partially_answered",
+          "remaining_verification": [
+            "court_source_record_if_citius_namespace_resolution_is_required"
+          ]
+        }
+      ]
     },
     {
       "id": "n001",
@@ -1543,6 +1791,609 @@
           "police_source_record_for_organizational_unit_and_target_resolution"
         ]
       }
+    },
+    {
+      "id": "a025",
+      "representation_id": 6038,
+      "char_start": 8009,
+      "char_end": 8013,
+      "raw_span": "25 A",
+      "label": "local_attachment",
+      "polarity": "positive",
+      "normalized_candidate": "25A",
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7849,
+        "char_end": 8173,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_positive_coordinated_attachment_reference",
+        "rationale": "Attachment semantics are inherited from the coordinated Doc ... 25 e 25 A construction. The raw span remains separate from its parsed candidate.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [
+          "source_record_for_target_resolution"
+        ],
+        "findings": {
+          "classification": "local_attachment_reference",
+          "parsed_attachment_candidate": "25A",
+          "candidate_parent_reference": "30310349",
+          "association_evidence": "source_stated_submitted_with",
+          "coordination_context": "Doc nº Doc 25 e 25 A",
+          "target_resolution": "unresolved",
+          "document_identity": "unresolved",
+          "binary_identity": "unresolved"
+        }
+      }
+    },
+    {
+      "id": "a026",
+      "representation_id": 6038,
+      "char_start": 6989,
+      "char_end": 6998,
+      "raw_span": "131089062",
+      "label": "court_occurrence_or_citius_reference",
+      "polarity": "positive",
+      "normalized_candidate": "131089062",
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 6829,
+        "char_end": 7158,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_separate_positive_observation",
+        "rationale": "This explicit Referência citius mention is a separate span-based observation from the earlier occurrence of the same value, while remaining associated with the same described Despacho candidate.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "namespace": "citius_explicit",
+          "described_occurrence": "Despacho",
+          "direct_target_candidate": "same_described_order_as_a008",
+          "target_resolution": "unresolved",
+          "document_identity": "unresolved",
+          "binary_identity": "unresolved",
+          "repeated_mention_policy": "separate_observation"
+        }
+      }
+    },
+    {
+      "id": "n010",
+      "representation_id": 6038,
+      "char_start": 6900,
+      "char_end": 6918,
+      "raw_span": "26  maio  de  2021",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 6740,
+        "char_end": 7078,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n011",
+      "representation_id": 6038,
+      "char_start": 7012,
+      "char_end": 7031,
+      "raw_span": "20 de abril de 2017",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 6852,
+        "char_end": 7191,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n012",
+      "representation_id": 6038,
+      "char_start": 7086,
+      "char_end": 7108,
+      "raw_span": "11 de novembro de 2019",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 6926,
+        "char_end": 7268,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n013",
+      "representation_id": 6038,
+      "char_start": 7305,
+      "char_end": 7315,
+      "raw_span": "26.10.2015",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7145,
+        "char_end": 7475,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n014",
+      "representation_id": 6038,
+      "char_start": 7416,
+      "char_end": 7426,
+      "raw_span": "22/05/2017",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7256,
+        "char_end": 7586,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n015",
+      "representation_id": 6038,
+      "char_start": 7533,
+      "char_end": 7544,
+      "raw_span": "15 /07/2017",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7373,
+        "char_end": 7704,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n016",
+      "representation_id": 6038,
+      "char_start": 7563,
+      "char_end": 7572,
+      "raw_span": "4.04.2018",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7403,
+        "char_end": 7732,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n017",
+      "representation_id": 6038,
+      "char_start": 7666,
+      "char_end": 7677,
+      "raw_span": "21/12/ 2018",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7506,
+        "char_end": 7837,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n018",
+      "representation_id": 6038,
+      "char_start": 7747,
+      "char_end": 7758,
+      "raw_span": "21/07/ 2020",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7587,
+        "char_end": 7918,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n019",
+      "representation_id": 6038,
+      "char_start": 7795,
+      "char_end": 7804,
+      "raw_span": "15-072020",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7635,
+        "char_end": 7964,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n020",
+      "representation_id": 6038,
+      "char_start": 7902,
+      "char_end": 7911,
+      "raw_span": "10.9.2018",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7742,
+        "char_end": 8071,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n021",
+      "representation_id": 6038,
+      "char_start": 7976,
+      "char_end": 7984,
+      "raw_span": "8.8.2018",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 7816,
+        "char_end": 8144,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n022",
+      "representation_id": 6038,
+      "char_start": 8178,
+      "char_end": 8188,
+      "raw_span": "22.03.2021",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 8018,
+        "char_end": 8348,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n023",
+      "representation_id": 6038,
+      "char_start": 8338,
+      "char_end": 8348,
+      "raw_span": "29.01.2020",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 8178,
+        "char_end": 8508,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
+    },
+    {
+      "id": "n024",
+      "representation_id": 6038,
+      "char_start": 8483,
+      "char_end": 8493,
+      "raw_span": "10.02.2020",
+      "label": "reference_like_negative",
+      "polarity": "negative",
+      "normalized_candidate": null,
+      "resolved_target": null,
+      "review_state": "human_reviewed",
+      "bounded_context": {
+        "char_start": 8323,
+        "char_end": 8653,
+        "unit": "unicode_code_point",
+        "range": "half_open",
+        "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-exhaustive-review-attila-test-3",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:59:15.225745Z",
+        "decision": "confirmed_date_negative",
+        "rationale": "This span is a temporal expression, not an in-scope legal, procedural, attachment, or external official-record reference. Its exact extracted form is preserved without repair.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "date_or_temporal_expression",
+          "reference_status": "not_in_scope_reference",
+          "raw_source_preserved": true
+        }
+      },
+      "negative_kind": "date_or_temporal_expression"
     }
   ],
   "coverage": {
@@ -1642,6 +2493,114 @@
         "The representation review scope remains non-exhaustive; this session does not authorize recall, absence, or zero-false-positive claims.",
         "Canonical target, document, binary, relationship, instrument-version, and legal-effect resolution remain separate unless expressly recorded."
       ]
+    },
+    {
+      "session_id": "guided-exhaustive-review-attila-test-3",
+      "reviewer_identity": "case_support_reviewer_attila_test_1",
+      "reviewed_at": "2026-09-03T22:59:15.225745Z",
+      "method": "interactive_guided_exhaustive_span_review",
+      "scope": "Representation 6038 Unicode code-point range [6822, 8619), from the stated chronological-list introduction through complete entries a) to n), ending immediately before Nestes termos e nos demais de Direito.",
+      "reviewed_annotation_ids": [
+        "a008",
+        "a026",
+        "a009",
+        "a010",
+        "a011",
+        "a012",
+        "a013",
+        "a014",
+        "a015",
+        "a016",
+        "a017",
+        "a018",
+        "a019",
+        "a020",
+        "a025",
+        "a021",
+        "a022",
+        "a023",
+        "n010",
+        "n011",
+        "n012",
+        "n013",
+        "n014",
+        "n015",
+        "n016",
+        "n017",
+        "n018",
+        "n019",
+        "n020",
+        "n021",
+        "n022",
+        "n023",
+        "n024"
+      ],
+      "decisions": {
+        "candidate_spans": 33,
+        "positive_procedural_references": 16,
+        "positive_attachment_references": 2,
+        "negative_dates": 15,
+        "ambiguous": 0
+      },
+      "limitations": [
+        "Completeness applies only to the exact declared half-open range and candidate definition.",
+        "Reference classification remains separate from namespace certainty, transcription quality, target resolution, document identity, and binary identity.",
+        "Original-PDF and source-record verification requirements remain recorded where applicable."
+      ]
+    }
+  ],
+  "exhaustive_evaluation_scopes": [
+    {
+      "scope_id": "representation-6038-chronological-entries-a-through-n-v1",
+      "representation_id": 6038,
+      "char_start": 6822,
+      "char_end": 8619,
+      "unit": "unicode_code_point",
+      "range": "half_open",
+      "candidate_definition": "Every in-scope reference observation plus every date or unrelated number plausibly confusable with the extractor; coordinated attachment references are atomic spans.",
+      "annotation_ids": [
+        "a008",
+        "a026",
+        "a009",
+        "a010",
+        "a011",
+        "a012",
+        "a013",
+        "a014",
+        "a015",
+        "a016",
+        "a017",
+        "a018",
+        "a019",
+        "a020",
+        "a025",
+        "a021",
+        "a022",
+        "a023",
+        "n010",
+        "n011",
+        "n012",
+        "n013",
+        "n014",
+        "n015",
+        "n016",
+        "n017",
+        "n018",
+        "n019",
+        "n020",
+        "n021",
+        "n022",
+        "n023",
+        "n024"
+      ],
+      "counts": {
+        "total": 33,
+        "positive": 18,
+        "negative": 15,
+        "ambiguous": 0
+      },
+      "review_session_id": "guided-exhaustive-review-attila-test-3",
+      "metric_boundary": "Completeness-based metrics are valid only for predictions wholly evaluated against this exact range and candidate definition."
     }
   ]
 }
