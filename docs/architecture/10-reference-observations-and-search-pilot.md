@@ -367,6 +367,35 @@ on both server pages. A separate retry check preserved 100 loaded passages when
 the API was unavailable and advanced to 150 after the same page was retried.
 Editing the input before loading more continued the immutable submitted query.
 
+### Planned binary ordering slice
+
+Text search will add an explicit binary-group ordering selector with these
+options:
+
+- `Relevance` (`relevance`) — default;
+- `Earliest occurrence` (`earliest_occurrence_asc`) — position each binary by
+  its earliest recorded procedural occurrence, oldest first; and
+- `Latest occurrence` (`latest_occurrence_desc`) — position each binary by its
+  latest recorded procedural occurrence, newest first.
+
+These are source-system procedural-occurrence dates. They are not necessarily
+the dates written in, signed on, or legally effective for a document. The UI
+must name the date used to position each binary and retain all recorded
+occurrences beneath that binary. Binaries without a recorded occurrence date
+sort last in both chronological modes.
+
+Ordering occurs on the server before pagination. The search query collapses
+matching passages to a binary-level ordered result, pages those binaries, and
+returns the processor-specific matching passages for each selected binary.
+This prevents several representations of one PDF from consuming a binary page.
+Changing sort starts a fresh offset-zero search; `Load more` continues the
+immutable submitted query, scope, and sort. Relevance remains the search
+default.
+
+This binary-grouped browsing order is not a procedural timeline. A later
+occurrence-based timeline may repeat the same binary at each recorded event;
+that separate view is outside this slice.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
