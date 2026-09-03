@@ -23,6 +23,12 @@ import {
   lookupReferencePilot,
   searchReferencePilot,
 } from "./reference-index-pilot.mjs";
+import {
+  REFERENCE_LOOKUP_DEFAULT_LIMIT,
+  REFERENCE_LOOKUP_MAX_LIMIT,
+  REFERENCE_LOOKUP_MAX_OFFSET,
+  lookupRecordedReferences,
+} from "./reference-observation-api.mjs";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -34,6 +40,51 @@ function sendText(response, statusCode, contentType, body) {
   response.statusCode = statusCode;
   response.setHeader("Content-Type", contentType);
   response.end(body);
+}
+
+function sendContractError(response, code, message) {
+  sendJson(response, 400, { error: { code, message } });
+}
+
+const REFERENCE_LOOKUP_PARAMETERS = new Set(["value", "scope", "lifecycle", "limit", "offset"]);
+
+export function parseRecordedReferenceLookup(searchParams) {
+  for (const key of searchParams.keys()) {
+    if (!REFERENCE_LOOKUP_PARAMETERS.has(key)) {
+      return { error: ["UNKNOWN_QUERY_PARAMETER", `unknown query parameter: ${key}`] };
+    }
+    if (searchParams.getAll(key).length > 1) {
+      return { error: ["DUPLICATE_QUERY_PARAMETER", `${key} must be supplied at most once`] };
+    }
+  }
+  if (!searchParams.has("value")) {
+    return { error: ["REFERENCE_VALUE_REQUIRED", "value is required"] };
+  }
+  const value = searchParams.get("value") ?? "";
+  if (!value.trim()) {
+    return { error: ["INVALID_REFERENCE_VALUE", "value must contain a reference"] };
+  }
+  const scope = searchParams.get("scope") ?? "full";
+  if (!["pilot", "full"].includes(scope)) {
+    return { error: ["INVALID_REFERENCE_SCOPE", "scope must be pilot or full"] };
+  }
+  const lifecycle = searchParams.get("lifecycle") ?? "current";
+  if (!["current", "include_history"].includes(lifecycle)) {
+    return { error: ["INVALID_REFERENCE_LIFECYCLE", "lifecycle must be current or include_history"] };
+  }
+  const limit = parsePositiveInteger(searchParams.get("limit"), REFERENCE_LOOKUP_DEFAULT_LIMIT, {
+    min: 1, max: REFERENCE_LOOKUP_MAX_LIMIT,
+  });
+  if (limit === null) {
+    return { error: ["INVALID_REFERENCE_LIMIT", `limit must be an integer from 1 through ${REFERENCE_LOOKUP_MAX_LIMIT}`] };
+  }
+  const offset = parsePositiveInteger(searchParams.get("offset"), 0, {
+    min: 0, max: REFERENCE_LOOKUP_MAX_OFFSET,
+  });
+  if (offset === null) {
+    return { error: ["INVALID_REFERENCE_OFFSET", `offset must be an integer from 0 through ${REFERENCE_LOOKUP_MAX_OFFSET}`] };
+  }
+  return { value, scope, lifecycle, limit, offset };
 }
 
 function mapConsultationError(error) {
@@ -98,6 +149,22 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
       if (requestUrl.pathname === "/api/consultation/reports/extraction-coverage") {
         const payload = await getExtractionCoverageReport(client);
         sendJson(response, 200, payload);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/consultation/references/lookup") {
+        try {
+          decodeURIComponent((request.url ?? "").split("?", 2)[1] ?? "");
+        } catch {
+          sendContractError(response, "INVALID_REFERENCE_VALUE", "query parameters must be valid percent-encoded UTF-8");
+          return;
+        }
+        const parsed = parseRecordedReferenceLookup(requestUrl.searchParams);
+        if (parsed.error) {
+          sendContractError(response, parsed.error[0], parsed.error[1]);
+          return;
+        }
+        sendJson(response, 200, await lookupRecordedReferences(client, parsed.value, parsed));
         return;
       }
 

@@ -727,9 +727,9 @@ external-register observations active.
 After ingestion, inspect current and historical rows for a fixed sample before
 starting corpus-wide API lookup or UI changes.
 
-### Planned read-only recorded-reference API checkpoint
+### Read-only recorded-reference API checkpoint
 
-The next checkpoint exposes the persisted reference observations through the
+This checkpoint exposes the persisted reference observations through the
 consultation API. It is read-only: requests must not trigger ingestion,
 reconciliation, lifecycle transitions, or review updates. The combined search
 UI remains a later checkpoint.
@@ -1030,6 +1030,11 @@ ingestion candidates, missing and mixed binary availability, and suppression
 of superseded pilot duplicates. Saved responses and focused API tests must pass
 before the multi-method UI checkpoint begins.
 
+Implementation status (2026-09-03): the endpoint and focused acceptance tests
+are implemented. Live saved-response review is recorded in
+`docs/evaluation/2026-09-03-recorded-reference-api.md`. The multi-method UI
+remains unimplemented.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
@@ -1055,6 +1060,8 @@ applies to source-metadata assertions and their normalization replacements.
 - Extracted labelled references are observations, not resolved identities.
 - The database does not yet enforce cross-column consistency among every nullable
   provenance anchor; writers must use anchors from the same lineage.
-- Exact-reference consultation remains fixture-scoped; full-corpus Text search
-  is an explicit experimental scope.
+- The legacy exact-reference endpoint remains fixture-scoped. The recorded-
+  reference endpoint covers court metadata corpus-wide, while external-register
+  and document-text reference observations remain fixture-scoped. Full-corpus
+  Text search remains an explicit experimental scope.
 - The fixture validates the contract but is not evidence of corpus-wide recall.

@@ -457,6 +457,125 @@ test("text search validates its independently selected corpus scope", async () =
   });
 });
 
+test("recorded-reference endpoint uses the frozen error envelope", async () => {
+  const client = { query: async () => ({ rows: [] }) };
+  await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+    const cases = [
+      ["/api/consultation/references/lookup", "REFERENCE_VALUE_REQUIRED"],
+      ["/api/consultation/references/lookup?value=x&scope=elsewhere", "INVALID_REFERENCE_SCOPE"],
+      ["/api/consultation/references/lookup?value=x&unknown=y", "UNKNOWN_QUERY_PARAMETER"],
+      ["/api/consultation/references/lookup?value=%E0%A4%A", "INVALID_REFERENCE_VALUE"],
+    ];
+    for (const [requestPath, code] of cases) {
+      const response = await request(baseUrl, requestPath);
+      assert.equal(response.statusCode, 400);
+      const payload = JSON.parse(response.body);
+      assert.equal(payload.error.code, code);
+      assert.equal(typeof payload.error.message, "string");
+    }
+  });
+});
+
+test("recorded-reference endpoint exposes coverage on an empty full-scope result", async () => {
+  const client = { query: async () => ({ rows: [] }) };
+  await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+    const response = await request(
+      baseUrl,
+      "/api/consultation/references/lookup?value=NOT-RECORDED&scope=full&lifecycle=current&limit=5&offset=0",
+    );
+    assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
+    assert.equal(payload.result_state, "coverage_unavailable_or_incomplete");
+    assert.equal(payload.coverage.corpus_scope, "full");
+    assert.equal(payload.pagination.unit, "observations");
+    assert.deepEqual(payload.observations, []);
+  });
+});
+
+test("recorded-reference pilot scope returns current replacements and history explicitly", async () => {
+  await withRealClient(async (client) => {
+    await seedReferencePilot(client);
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const currentResponse = await request(
+        baseUrl,
+        "/api/consultation/references/lookup?value=105398957&scope=pilot&lifecycle=current",
+      );
+      assert.equal(currentResponse.statusCode, 200);
+      const current = JSON.parse(currentResponse.body);
+      assert.equal(current.result_state, "matches");
+      assert.equal(current.observations.some((item) => item.lifecycle.state !== "current"), false);
+      const replacement = current.observations.find(
+        (item) => item.reference.identifier_type === "occurrence_reference",
+      );
+      assert.ok(replacement);
+      assert.equal(replacement.direct_anchor.kind, "occurrence");
+      assert.equal(replacement.direct_anchor.occurrence_reference, "105398957");
+
+      const historyResponse = await request(
+        baseUrl,
+        "/api/consultation/references/lookup?value=105398957&scope=pilot&lifecycle=include_history",
+      );
+      assert.equal(historyResponse.statusCode, 200);
+      const history = JSON.parse(historyResponse.body);
+      const historical = history.observations.find((item) => item.lifecycle.state === "superseded");
+      assert.ok(historical);
+      assert.equal(historical.lifecycle.current_observation_key, replacement.observation_key);
+      assert.equal(
+        historical.lifecycle.events.some(
+          (event) => event.related_observation_key === replacement.observation_key,
+        ),
+        true,
+      );
+    });
+  });
+});
+
+test("recorded-reference lookup preserves a missing-file source record without an open action", async () => {
+  await withRealClient(async (client) => {
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const value = encodeURIComponent("2DD25E59-706D-44E7-A6DC-2A55C49EF3F9");
+      const response = await request(
+        baseUrl,
+        `/api/consultation/references/lookup?value=${value}&scope=pilot&lifecycle=current`,
+      );
+      assert.equal(response.statusCode, 200);
+      const payload = JSON.parse(response.body);
+      const observation = payload.observations.find(
+        (item) => item.reference.identifier_type === "source_document_reference",
+      );
+      assert.ok(observation);
+      assert.equal(observation.binary_association_state, "all_associated_files_missing");
+      assert.deepEqual(observation.associated_binaries, []);
+      assert.equal(observation.associated_contexts.length > 0, true);
+      assert.equal(
+        observation.associated_contexts.every((context) => context.file_availability === "missing"),
+        true,
+      );
+    });
+  });
+});
+
+test("recorded-reference full scope includes corpus metadata outside the pilot", async () => {
+  await withRealClient(async (client) => {
+    await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+      const value = encodeURIComponent("13608/14.8T2SNT-E");
+      const pilotResponse = await request(
+        baseUrl, `/api/consultation/references/lookup?value=${value}&scope=pilot`,
+      );
+      const fullResponse = await request(
+        baseUrl, `/api/consultation/references/lookup?value=${value}&scope=full`,
+      );
+      const pilot = JSON.parse(pilotResponse.body);
+      const full = JSON.parse(fullResponse.body);
+      assert.equal(pilot.result_state, "no_matches_within_coverage");
+      assert.equal(full.result_state, "matches");
+      assert.equal(full.observations[0].reference.identifier_type, "process_number");
+      assert.equal(full.observations[0].direct_anchor.kind, "case_file");
+      assert.deepEqual(full.observations[0].associated_binaries, []);
+    });
+  });
+});
+
 test("catalogue endpoint aggregates a multi-document binary without duplicate counts", async () => {
   await withRealClient(async (client) => {
     const multiSha = await findFixtureBinary(client, { multiDocument: true });
