@@ -186,10 +186,19 @@ The search control uses one input with an explicit mode selected by the user:
 `Exact reference` or `Text`. The application must not infer the mode from the
 shape of a number or query.
 
+Displayed results retain the submitted mode and query independently of later
+changes to the input controls. Their heading states either `Exact-reference
+observations for ...` or `Text-search results for ...`; changing the selected
+mode must not silently relabel results already on screen.
+
 Exact-reference results lead with human-facing source document and occurrence
 context. Observed values remain separate from reviewed target resolutions.
 Missing-file source records remain visible and must not be described as missing
 documents or failed searches.
+
+Every reference observed in a text result offers `Find observations of this
+reference`. This performs an exact observation lookup; it does not open or claim
+to resolve the cited target. The containing-file action remains separate.
 
 An empty result is mode-specific: `No reference-observation matches within the
 pilot` or `No text-search matches within the pilot`. It must never say `Document
@@ -201,6 +210,9 @@ separate documents. Grouping must not hide the source document and occurrence
 context attached to each reference observation. Document name, recorded date,
 process, and occurrence reference are primary; full hashes and extraction
 provenance remain available in expandable technical details.
+Technical observation details expose all stored binary, source-document,
+occurrence, representation, segment, processor, observer, page, and character
+anchors. Unavailable anchors are labelled as not recorded rather than omitted.
 
 The acceptance gate consists of five user tasks:
 

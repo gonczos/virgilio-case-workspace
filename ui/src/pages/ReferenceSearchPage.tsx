@@ -28,6 +28,8 @@ import type {
 } from "../types/consultation";
 import {
   getReferenceLocationLabel,
+  getObservationTechnicalAnchors,
+  getReferenceResultHeading,
   getShortSha,
   groupReferenceTextHits,
 } from "../utils/consultation";
@@ -64,9 +66,10 @@ function ContextList({ contexts }: { contexts: ReferenceSourceContext[] }) {
   );
 }
 
-function ObservationSummary({ item, contextual = false }: {
+function ObservationSummary({ item, contextual = false, onLookupReference }: {
   item: ReferenceObservationView;
   contextual?: boolean;
+  onLookupReference?: (value: string) => void;
 }) {
   const location = item.observation.location;
   const unresolved = item.target_resolution.state === "unresolved";
@@ -95,6 +98,16 @@ function ObservationSummary({ item, contextual = false }: {
           </Typography>
         ) : null}
         <ContextList contexts={item.source_contexts} />
+        {onLookupReference ? (
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => onLookupReference(item.observation.raw_value)}
+            sx={{ alignSelf: "flex-start" }}
+          >
+            Find observations of this reference
+          </Button>
+        ) : null}
         {item.binary_identity ? (
           <Button
             component={RouterLink}
@@ -112,18 +125,11 @@ function ObservationSummary({ item, contextual = false }: {
           <AccordionSummary>Technical provenance</AccordionSummary>
           <AccordionDetails>
             <Stack spacing={0.5}>
-              <Typography variant="caption" sx={{ overflowWrap: "anywhere" }}>
-                SHA-256: {item.binary_identity?.sha256 ?? "No binary"}
-              </Typography>
-              <Typography variant="caption">
-                Extractor observation: {item.extractor_observation_state}
-              </Typography>
-              <Typography variant="caption" sx={{ overflowWrap: "anywhere" }}>
-                Observer: {String(item.observation.provenance.observer_key ?? "unknown")} / {String(item.observation.provenance.observer_version ?? "unknown")}
-              </Typography>
-              <Typography variant="caption">
-                Processor: {String(item.observation.provenance.processor_key ?? "not applicable")}
-              </Typography>
+              {getObservationTechnicalAnchors(item).map((anchor) => (
+                <Typography key={anchor.label} variant="caption" sx={{ overflowWrap: "anywhere" }}>
+                  {anchor.label}: {anchor.value}
+                </Typography>
+              ))}
             </Stack>
           </AccordionDetails>
         </Accordion>
@@ -154,30 +160,42 @@ export function ReferenceSearchPage() {
   const [query, setQuery] = useState("105398957");
   const [lookup, setLookup] = useState<ReferenceLookupResponse | null>(null);
   const [search, setSearch] = useState<ReferenceTextSearchResponse | null>(null);
+  const [submittedResult, setSubmittedResult] = useState<{ mode: SearchMode; query: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textGroups = useMemo(() => groupReferenceTextHits(search?.items ?? []), [search]);
   const fixture = lookup?.fixture ?? search?.fixture ?? null;
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    const value = query.trim();
-    if (!value) return;
+  async function runSearch(searchMode: SearchMode, value: string) {
     setLoading(true);
     setError(null);
     try {
-      if (mode === "reference") {
+      if (searchMode === "reference") {
         setLookup(await lookupPilotReference(value));
         setSearch(null);
       } else {
         setSearch(await searchPilotText(value));
         setLookup(null);
       }
+      setSubmittedResult({ mode: searchMode, query: value });
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : String(requestError));
     } finally {
       setLoading(false);
     }
+  }
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const value = query.trim();
+    if (!value) return;
+    await runSearch(mode, value);
+  }
+
+  function findReferenceObservations(value: string) {
+    setMode("reference");
+    setQuery(value);
+    void runSearch("reference", value);
   }
 
   return (
@@ -217,6 +235,11 @@ export function ReferenceSearchPage() {
         </Stack>
       </Paper>
       {error ? <Alert severity="error">Search failed: {error}</Alert> : null}
+      {submittedResult ? (
+        <Typography variant="h5">
+          {getReferenceResultHeading(submittedResult.mode, submittedResult.query)}
+        </Typography>
+      ) : null}
 
       {lookup && lookup.items.length === 0 ? (
         <Alert severity="warning">
@@ -263,7 +286,11 @@ export function ReferenceSearchPage() {
                       <Stack spacing={1}>
                         <Typography variant="subtitle2">References in this passage</Typography>
                         {hit.passage_reference_observations.map((item) => (
-                          <ObservationSummary key={item.observation.observation_key} item={item} />
+                          <ObservationSummary
+                            key={item.observation.observation_key}
+                            item={item}
+                            onLookupReference={findReferenceObservations}
+                          />
                         ))}
                       </Stack>
                     ) : null}
@@ -273,7 +300,12 @@ export function ReferenceSearchPage() {
                         <AccordionDetails>
                           <Stack spacing={1}>
                             {hit.contextual_reference_observations.map((item) => (
-                              <ObservationSummary key={item.observation.observation_key} item={item} contextual />
+                              <ObservationSummary
+                                key={item.observation.observation_key}
+                                item={item}
+                                contextual
+                                onLookupReference={findReferenceObservations}
+                              />
                             ))}
                           </Stack>
                         </AccordionDetails>

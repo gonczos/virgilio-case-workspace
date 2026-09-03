@@ -3,6 +3,7 @@ import type {
   BinaryDetailResponse,
   RepresentationListItem,
   ReferenceLocationKind,
+  ReferenceObservationView,
   ReferenceTextHit,
 } from "../types/consultation";
 
@@ -193,4 +194,41 @@ export function getReferenceLocationLabel(
     case "processor_page_unverified": return `Processor page ${page ?? "?"}; not verified as PDF page`;
     case "verified_pdf_page": return `Verified PDF page ${page ?? "?"}`;
   }
+}
+
+export function getReferenceResultHeading(mode: "reference" | "text", query: string): string {
+  return mode === "reference"
+    ? `Exact-reference observations for “${query}”`
+    : `Text-search results for “${query}”`;
+}
+
+function anchorValue(value: unknown): string {
+  return value === null || value === undefined || value === "" ? "Not recorded" : String(value);
+}
+
+export function getObservationTechnicalAnchors(item: ReferenceObservationView): Array<{
+  label: string;
+  value: string;
+}> {
+  const provenance = item.observation.provenance;
+  return [
+    { label: "Binary SHA-256", value: item.binary_identity?.sha256 ?? "No binary" },
+    { label: "File binary ID", value: anchorValue(provenance.file_binary_id) },
+    { label: "Source document ID", value: anchorValue(provenance.document_id) },
+    { label: "Source document reference", value: item.source_document_identity?.source_document_reference ?? "Not recorded" },
+    { label: "Occurrence link ID", value: anchorValue(provenance.bucket_document_id) },
+    { label: "Occurrence reference", value: anchorValue(provenance.occurrence_reference) },
+    { label: "Process number", value: anchorValue(provenance.process_number) },
+    { label: "Representation ID", value: anchorValue(provenance.document_representation_id) },
+    { label: "Segment ID", value: anchorValue(provenance.document_segment_id) },
+    { label: "Processor", value: anchorValue(provenance.processor_key) },
+    { label: "Processor version", value: anchorValue(provenance.processor_version) },
+    { label: "Observer", value: anchorValue(provenance.observer_key) },
+    { label: "Observer version", value: anchorValue(provenance.observer_version) },
+    { label: "Location kind", value: item.observation.location.kind },
+    { label: "PDF page", value: anchorValue(item.observation.location.pdf_page) },
+    { label: "Character start", value: anchorValue(item.observation.char_start) },
+    { label: "Character end", value: anchorValue(item.observation.char_end) },
+    { label: "Extractor observation state", value: item.extractor_observation_state },
+  ];
 }

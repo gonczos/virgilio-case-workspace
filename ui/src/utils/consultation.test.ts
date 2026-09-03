@@ -9,6 +9,8 @@ import {
   getProcessingLabel,
   getRepresentationLabel,
   getReferenceLocationLabel,
+  getObservationTechnicalAnchors,
+  getReferenceResultHeading,
   groupReferenceTextHits,
   isPdfBinary,
   prefersNativePdfViewer,
@@ -150,4 +152,48 @@ test("reference location labels do not promote document or processor locations t
   expect(getReferenceLocationLabel("processor_page_unverified", 3)).toContain("not verified");
   expect(getReferenceLocationLabel("verified_pdf_page", 3)).toBe("Verified PDF page 3");
   expect(getReferenceLocationLabel("source_record", null)).toBe("Source-system record");
+});
+
+test("submitted result headings retain their producing mode and query", () => {
+  expect(getReferenceResultHeading("reference", "105398957")).toBe(
+    "Exact-reference observations for “105398957”",
+  );
+  expect(getReferenceResultHeading("text", "despacho")).toBe(
+    "Text-search results for “despacho”",
+  );
+});
+
+test("technical reference details expose every stored extraction anchor", () => {
+  const rows = getObservationTechnicalAnchors({
+    binary_identity: { file_binary_id: 3, sha256: "a".repeat(64), detail_api_path: "/binary" },
+    source_document_identity: { document_id: 4, source_document_reference: "source-4" },
+    source_contexts: [],
+    observation: {
+      provenance: {
+        file_binary_id: 3,
+        document_id: 4,
+        bucket_document_id: 5,
+        occurrence_reference: "105492248",
+        process_number: "13608/14.8T2SNT",
+        document_representation_id: 6,
+        document_segment_id: 7,
+        processor_key: "pdf_literal_text",
+        processor_version: "test",
+        observer_key: "extractor",
+        observer_version: "v1",
+      },
+      location: { kind: "document_level", pdf_page: null },
+      char_start: 10,
+      char_end: 19,
+    },
+    extractor_observation_state: "current",
+  } as never);
+  expect(Object.fromEntries(rows.map((row) => [row.label, row.value]))).toMatchObject({
+    "Representation ID": "6",
+    "Segment ID": "7",
+    Processor: "pdf_literal_text",
+    "Observer version": "v1",
+    "Character start": "10",
+    "Character end": "19",
+  });
 });
