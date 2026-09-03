@@ -242,7 +242,7 @@ export function ReferenceSearchPage() {
           </ToggleButtonGroup>
           {mode === "reference" ? (
             <Typography variant="caption" color="text.secondary">
-              Exact-reference lookup remains limited to the reviewed pilot observations.
+              Exact-reference lookup remains limited to the pilot reference observations.
             </Typography>
           ) : (
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>

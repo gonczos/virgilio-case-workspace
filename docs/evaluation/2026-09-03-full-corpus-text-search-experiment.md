@@ -9,10 +9,9 @@ pass rate. A known-target query passes when every expected SHA-256 appears
 within the first ten distinct binaries and its canonical original is readable.
 Processor passages remain independent and can consume the passage limit.
 
-The 9/10 result below was measured with a 100-passage evaluator limit. The UI
-requests 50 passages, so this is not yet the UI-equivalent score. An accepted
-follow-up will rerun this unchanged fixture with a 50-passage override and
-record both configurations separately.
+The detailed table below records the original 100-passage evaluator run. The UI
+requests 50 passages, so the unchanged fixture was also run with a 50-passage
+override. Both configurations are reported separately below.
 
 The evaluator uses PostgreSQL `websearch_to_tsquery('portuguese', ...)` through
 the same search function used by the API. Quoted queries therefore exercise
@@ -48,6 +47,24 @@ completeness, OCR accuracy, or reference-observation coverage.
 
 Result: 9/10 counted queries passed. The result is intentionally retained as
 observed; the fixture was not revised after the rank-24 failure.
+
+## UI-equivalent 50-passage result
+
+| Measure | 100-passage evaluator | 50-passage UI equivalent |
+| --- | ---: | ---: |
+| Counted queries passed | 9/10 | 9/10 |
+| Failed query | `Marianne intérprete` | `Marianne intérprete` |
+| Expected Ata rank | 24 | 24 |
+| Failed-query passages returned | 80 | 50 |
+| Failed-query distinct binaries returned | 30 | 25 |
+| Failed query capped | no | yes |
+| OCR-dependent known-target queries passed | 3/3 | 3/3 |
+
+The UI-equivalent run therefore preserves the same acceptance conclusion. Its
+additional truncation is important: the expected Ata remains visible at rank
+24, but the warning correctly states that further matches may exist. The
+50-passage run used `npm run search:evaluate-full -- --passage-limit 50`; it did
+not modify the frozen fixture.
 
 The two exploratory searches, `alienação parental` and `Segurança Social`, each
 reached the 100-passage cap. They are useful for inspecting breadth and cap

@@ -291,10 +291,9 @@ families were retrievable. This supports retaining full-corpus Text search as an
 explicit experimental scope while treating ranking as the next bounded search
 problem; it does not widen reference-observation coverage.
 
-### Accepted follow-up correction
+### Completed follow-up correction
 
-Before using the first score as representative of the UI experience, make two
-bounded corrections:
+The follow-up made two bounded corrections:
 
 - describe exact-reference coverage as `pilot reference observations`, not
   `reviewed pilot observations`; inclusion in the fixture does not establish a
@@ -303,12 +302,14 @@ bounded corrections:
   as the evaluator's original 100-passage limit, and report the two
   configurations separately.
 
-The 100-passage result remains a valid recorded experiment, but it must not be
-presented as the UI-equivalent score. The follow-up must not revise expected
-binaries, rank thresholds, query text, or exploratory/counting status after
-observing the results. The evaluator should accept an explicit passage-limit
-override so the comparison uses the same code path rather than a copied
-fixture.
+The 100-passage result remains a valid recorded experiment, but is not presented
+as the UI-equivalent score. The unchanged fixture was rerun through the same
+evaluator with an explicit 50-passage override. Both configurations scored
+9/10, and the same `Marianne intérprete` query remained the sole failure at
+distinct-binary rank 24. At 50 passages that result was capped, making the UI's
+truncation warning material even though the expected binary remained present.
+Expected binaries, rank thresholds, query text, and exploratory/counting status
+were not changed.
 
 ## Review ownership and reseeding
 
