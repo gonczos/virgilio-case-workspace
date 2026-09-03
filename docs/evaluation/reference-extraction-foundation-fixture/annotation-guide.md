@@ -77,6 +77,26 @@ received attributable human review. `case_expert_required` identifies an
 explicit question needing case knowledge and also does not imply completed
 review.
 
+Completed reviews are recorded in `review_sessions`, and each reviewed
+annotation contains a `human_review` object that names its session, reviewer,
+review time, decision, rationale, structured findings, `review_question_status`, and
+`remaining_verification`. Question status is `answered`, `partially_answered`, or
+`unanswered`; it describes resolution of the retained `review_question`, independently
+from the fact that a human review occurred. A completed review
+may confirm a broad classification while leaving namespace, transcription,
+target, relationship, document, or binary identity unresolved. Such unresolved
+fields do not invalidate the review decision and must not be silently promoted.
+
+General review rules established by the first guided session are:
+
+* keep explicit source assertions separate from contextual inference;
+* keep classification confidence separate from transcription confidence;
+* do not equate procedural occurrences, target records, documents, and binaries;
+* store source-stated relations as candidates until independently resolved;
+* parse defensible structure without repairing the raw source;
+* attach a reference first to the grammatically described occurrence; and
+* preserve authority, organizational unit, source namespace expression, and
+  identifier as separate evidence fields.
 Repeated textual occurrences remain separate. A later presentation layer may
 deduplicate them without erasing observation provenance.
 

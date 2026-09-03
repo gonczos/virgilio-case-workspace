@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "fixture_kind": "two_document_foundation",
-  "status": "draft_foundation_pending_review",
+  "status": "draft_foundation_partially_reviewed",
   "offset_contract": {
     "unit": "unicode_code_point",
     "base": 0,
@@ -298,7 +298,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "39176427",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm whether this is specifically a Citius filing reference.",
       "bounded_context": {
         "char_start": 242,
@@ -306,6 +306,25 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "uncertain_requires_source_verification",
+        "rationale": "The passage establishes a filing reference but does not explicitly identify Citius; verify the original PDF or court record before assigning that namespace.",
+        "findings": {
+          "classification": "court_filing_reference",
+          "namespace": "unknown",
+          "verification": "original_or_source_record_required",
+          "target_resolution": "unresolved",
+          "classification_confidence": "confirmed_broad_type"
+        },
+        "review_question_status": "unanswered",
+        "remaining_verification": [
+          "original_pdf",
+          "court_source_record"
+        ]
       }
     },
     {
@@ -394,7 +413,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "documento 1",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm the filing or bundle that scopes document 1.",
       "bounded_context": {
         "char_start": 3022,
@@ -402,6 +421,24 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_with_unresolved_scope",
+        "rationale": "Doc nº1 is an evidentiary local attachment reference, but the passage does not establish which filing or bundle owns it.",
+        "findings": {
+          "classification": "local_attachment",
+          "parent_scope": "unknown",
+          "raw_source_preserved": true,
+          "target_resolution": "unresolved"
+        },
+        "review_question_status": "unanswered",
+        "remaining_verification": [
+          "filing_structure_or_attachment_list",
+          "original_pdf_or_source_record"
+        ]
       }
     },
     {
@@ -452,7 +489,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "1606407299",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Verify the unusually long value against the original page.",
       "bounded_context": {
         "char_start": 6893,
@@ -460,6 +497,24 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "classification_confirmed_transcription_unverified",
+        "rationale": "The explicit referência citius label supports the classification. The anomalous ten-digit value requires original-PDF verification and must not be silently repaired.",
+        "findings": {
+          "classification": "citius_reference",
+          "normalization": "none",
+          "transcription_status": "requires_original_verification",
+          "target_resolution": "unresolved",
+          "classification_confidence": "high"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "original_pdf"
+        ]
       }
     },
     {
@@ -586,7 +641,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "126078740",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm whether broader context supports a Citius classification.",
       "bounded_context": {
         "char_start": 7613,
@@ -594,6 +649,25 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_with_contextual_namespace",
+        "rationale": "The value directly qualifies a Vista com promoção. Citius is supported only by surrounding list context and is not explicit in this entry.",
+        "findings": {
+          "described_occurrence": "Vista com promoção",
+          "classification": "court_procedural_reference",
+          "source_stated_date": "2020-07-21",
+          "namespace_candidate": "Citius",
+          "namespace_evidence": "contextual_not_source_stated",
+          "target_resolution": "unresolved"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ]
       }
     },
     {
@@ -606,7 +680,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "126015835",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm narrower target kind and cross-document relationship.",
       "bounded_context": {
         "char_start": 7649,
@@ -614,6 +688,28 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_with_unresolved_relationship",
+        "rationale": "The reference is attached to a Vista dated 15 July 2020. Its precise relationship to reference 126078740 is only co-mention/source association and must not be inferred as a procedural dependency.",
+        "findings": {
+          "described_occurrence": "Vista",
+          "source_stated_date": "2020-07-15",
+          "related_reference": "126078740",
+          "classification": "court_procedural_reference",
+          "target_resolution": "unresolved",
+          "namespace_candidate": "Citius",
+          "relationship_resolution": "unresolved",
+          "namespace_evidence": "contextual_not_source_stated",
+          "relationship": "source_associated_or_co_mentioned"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "court_source_record_or_metadata_for_relationship_and_target_kind"
+        ]
       }
     },
     {
@@ -626,7 +722,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "30033264",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm whether generic Referencia inherits Citius from the list context.",
       "bounded_context": {
         "char_start": 7764,
@@ -634,6 +730,28 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_with_contextual_namespace",
+        "rationale": "The reference directly qualifies a Requerimento presented in response to the psychologist report. Namespace, target record, document, and binary linkage remain unresolved.",
+        "findings": {
+          "source_stated_date": "2018-09-10",
+          "binary_identity": "unresolved",
+          "described_act": "Requerimento",
+          "document_identity": "unresolved",
+          "classification": "court_filing_or_procedural_reference",
+          "source_context": "Presented em contradita ao relatório do psicólogo",
+          "target_resolution": "unresolved",
+          "namespace_candidate": "Citius",
+          "namespace_evidence": "contextual_not_source_stated"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ]
       }
     },
     {
@@ -646,7 +764,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "30310349",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm whether generic referencia inherits Citius from the list context.",
       "bounded_context": {
         "char_start": 7804,
@@ -654,6 +772,34 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_with_candidate_attachment_relation",
+        "rationale": "The reference is grammatically assigned to a Requerimento dated 8 August 2018. The source states that attachments 25 and 25A were submitted with it, but no database parent-child or binary relationship is resolved.",
+        "findings": {
+          "attachment_relation_resolution": "candidate",
+          "source_stated_date": "2018-08-08",
+          "binary_identity": "unresolved",
+          "described_act": "Requerimento",
+          "attachment_candidates": [
+            "25",
+            "25A"
+          ],
+          "classification": "court_filing_or_procedural_reference",
+          "document_identity": "unresolved",
+          "target_resolution": "unresolved",
+          "namespace_candidate": "Citius",
+          "namespace_evidence": "contextual_not_source_stated",
+          "attachment_relation": "source_stated_submitted_with"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required",
+          "attachment_target_resolution"
+        ]
       }
     },
     {
@@ -666,7 +812,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Verify OCR and whether this denotes two attachments, 25 and 25 A.",
       "bounded_context": {
         "char_start": 7833,
@@ -674,6 +820,32 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_structured_candidates_without_source_repair",
+        "rationale": "The raw phrase supports attachment candidates 25 and 25A associated with the Requerimento referenced by 30310349. The duplicated Doc wording may be an extraction anomaly and must remain unchanged pending PDF verification.",
+        "findings": {
+          "candidate_parent_reference": "30310349",
+          "parsed_candidates": [
+            "25",
+            "25A"
+          ],
+          "attachment_targets": "unresolved",
+          "binary_identities": "unresolved",
+          "classification": "local_attachment",
+          "transcription_status": "possible_extraction_anomaly_requires_original_verification",
+          "content_attribution": "surrounding_description_only",
+          "association_evidence": "source_stated_com",
+          "database_relationship": "unresolved_candidate"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "original_pdf",
+          "filing_structure_or_attachment_list"
+        ]
       }
     },
     {
@@ -686,7 +858,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "129613997",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm whether generic referencia inherits Citius from the list context.",
       "bounded_context": {
         "char_start": 8004,
@@ -694,6 +866,27 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_with_contextual_namespace",
+        "rationale": "The reference is explicitly associated with a single source-described Vista com promoção dated 22 March 2021. It must not be decomposed into separate acts without independent metadata.",
+        "findings": {
+          "document_identity": "unresolved",
+          "namespace_candidate": "Citius",
+          "namespace_evidence": "contextual_not_source_stated",
+          "described_occurrence": "Vista com promoção",
+          "target_resolution": "unresolved",
+          "classification": "court_procedural_reference",
+          "source_stated_date": "2021-03-22",
+          "binary_identity": "unresolved"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ]
       }
     },
     {
@@ -706,7 +899,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "123575384",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm whether generic Referência inherits Citius from the list context.",
       "bounded_context": {
         "char_start": 8203,
@@ -714,6 +907,30 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_notification_target_candidate",
+        "rationale": "The grammar attaches the reference to the notification occurrence. The translated report is the notification subject and is not established as the reference target.",
+        "findings": {
+          "described_occurrence": "Notificação",
+          "notification_subject": "tradução do relatório da progenitora",
+          "underlying_report_relationship": "related_context_only",
+          "binary_identity": "unresolved",
+          "document_identity": "unresolved",
+          "classification": "court_procedural_reference",
+          "source_stated_date": "2020-01-29",
+          "direct_target_candidate": "notification_occurrence",
+          "namespace_candidate": "Citius",
+          "namespace_evidence": "contextual_not_source_stated",
+          "target_resolution": "unresolved"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ]
       }
     },
     {
@@ -726,7 +943,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "34820097",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm whether generic Referência inherits Citius from the list context.",
       "bounded_context": {
         "char_start": 8368,
@@ -734,6 +951,30 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_strong_direct_target_candidate",
+        "rationale": "The construction a que foi atribuída a Referência grammatically assigns the value to the Requerimento. Reports, requested examinations, and INML are subject matter rather than reference targets.",
+        "findings": {
+          "direct_target_candidate": "described_Requerimento",
+          "source_stated_date": "2020-02-10",
+          "binary_identity": "unresolved",
+          "described_act": "Requerimento",
+          "direct_target_evidence": "strong_source_support",
+          "classification": "court_filing_or_procedural_reference",
+          "document_identity": "unresolved",
+          "filing_party": "Requerente/Recorrido",
+          "target_resolution": "unresolved",
+          "namespace_candidate": "Citius",
+          "namespace_evidence": "contextual_not_source_stated"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "court_source_record_if_citius_namespace_resolution_is_required"
+        ]
       }
     },
     {
@@ -926,7 +1167,7 @@
       "polarity": "ambiguous",
       "normalized_candidate": "PSP 1086/2014",
       "resolved_target": null,
-      "review_state": "case_expert_required",
+      "review_state": "human_reviewed",
       "review_question": "Confirm the preferred narrow namespace for this PSP record.",
       "bounded_context": {
         "char_start": 19028,
@@ -934,6 +1175,31 @@
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+        "decision": "confirmed_external_police_register_reference",
+        "rationale": "The source explicitly assigns register number 1086/2014 to este expediente and identifies P.S.P. — Mem Martins. Authority, unit, source expression, and identifier remain separate; the number does not automatically identify the containing Participação binary.",
+        "findings": {
+          "direct_target_candidate": "este expediente",
+          "containing_document_context": "Participação",
+          "binary_identity": "unresolved",
+          "unit_or_locality_qualifier": "Mem Martins",
+          "authority": "PSP",
+          "classification": "external_police_register_reference",
+          "document_identity": "unresolved",
+          "source_namespace_expression": "P.S.P. - Mem Martins",
+          "court_or_citius_reference": false,
+          "raw_identifier": "1086/2014",
+          "normalization": "preserve_identifier_unchanged",
+          "target_resolution": "unresolved"
+        },
+        "review_question_status": "partially_answered",
+        "remaining_verification": [
+          "police_source_record_for_organizational_unit_and_target_resolution"
+        ]
       }
     }
   ],
@@ -974,5 +1240,32 @@
     "reviewed_at": null,
     "decision": null,
     "rationale": null
-  }
+  },
+  "review_sessions": [
+    {
+      "session_id": "guided-review-attila-test-1",
+      "reviewer_identity": "case_support_reviewer_attila_test_1",
+      "reviewed_at": "2026-09-03T22:01:03.7216679Z",
+      "method": "interactive_guided_review",
+      "scope": "The 12 annotations previously marked case_expert_required",
+      "reviewed_annotation_ids": [
+        "a001",
+        "a006",
+        "a009",
+        "a016",
+        "a017",
+        "a018",
+        "a019",
+        "a020",
+        "a021",
+        "a022",
+        "a023",
+        "a024"
+      ],
+      "limitations": [
+        "Reviewer decisions are based on the extracted bounded context shown during the session unless a decision explicitly requires original-PDF or source-record verification.",
+        "The fixture review scope remains non-exhaustive; this session does not authorize recall, absence, or zero-false-positive claims."
+      ]
+    }
+  ]
 }
