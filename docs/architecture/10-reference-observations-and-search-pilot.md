@@ -565,13 +565,14 @@ future behavior; the linguistic document-text index does not promise it.
 The inventory is complete; subsequent ingestion, API, and UI work remain
 unimplemented.
 
-Implementation status (2026-09-03): the read-only inventory is implemented and
-recorded in `docs/evaluation/2026-09-03-reference-metadata-inventory.md`.
-Metadata ingestion, corpus-wide lookup, and the multi-method UI remain
-unimplemented. Detailed overlap groups preserve raw-value-to-source
-associations and include same-field, same-proceeding reuse across separate
-source records as well as multiple occurrence links to the same source
-document.
+Implementation status (2026-09-03): the read-only inventory and the first
+metadata-ingestion checkpoint are implemented. The ingestion adds direct case
+and occurrence anchors, immutable lifecycle transitions, a truly read-only
+dry run, transactional writes, and pilot-metadata reconciliation. Corpus-wide
+lookup and the multi-method UI remain unimplemented. Detailed overlap groups
+preserve raw-value-to-source associations and include same-field,
+same-proceeding reuse across separate source records as well as multiple
+occurrence links to the same source document.
 
 ### Consolidated metadata-reference ingestion checkpoint
 

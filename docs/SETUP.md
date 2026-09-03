@@ -254,6 +254,23 @@ This seed is intentionally limited to the fixture under
 full corpus. Exact reference lookup and fixture-only text search are available
 through the commands listed in the Node dependencies section above.
 
+Corpus-wide court-metadata reference ingestion uses a separate command. It is
+read-only by default and prints the proposed lifecycle changes:
+
+```powershell
+npm run reference:index:metadata
+```
+
+After reviewing that output, apply it transactionally with:
+
+```powershell
+npm run reference:index:metadata -- --write
+```
+
+The command covers recorded case, occurrence, and source-document reference
+fields. It does not expand document-text citation extraction or enable the
+later corpus-wide API/UI mode.
+
 ## Verified Current Startup Path
 
 ### 1. Start Docker services
