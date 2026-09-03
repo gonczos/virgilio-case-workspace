@@ -7,6 +7,7 @@ import {
   lookupReference,
   normalizeReferenceValue,
   searchPassages,
+  upsertReferenceReview,
 } from "../app/reference-search-store.mjs";
 
 test("normalizes reference values without discarding punctuation", () => {
@@ -67,6 +68,8 @@ test("exact lookup normalizes the value without guessing a namespace", async () 
   await lookupReference(client, "  ref-123 ");
   assert.deepEqual(calls[0].params, ["REF-123"]);
   assert.match(calls[0].sql, /ro\.normalized_value = \$1/u);
+  assert.match(calls[0].sql, /reference_observation_review/u);
+  assert.match(calls[0].sql, /AS review/u);
 });
 
 test("pilot search keeps its SHA boundary and caps its result limit", async () => {
@@ -76,4 +79,30 @@ test("pilot search keeps its SHA boundary and caps its result limit", async () =
   assert.deepEqual(calls[0].params, ["despacho", 100, ["abc", "def"]]);
   assert.match(calls[0].sql, /ds\.search_vector @@/u);
   assert.match(calls[0].sql, /fb\.sha256 = ANY\(\$3::text\[\]\)/u);
+  assert.match(calls[0].sql, /passage_reference_observations/u);
+  assert.match(calls[0].sql, /contextual_reference_observations/u);
+  assert.match(calls[0].sql, /source_processor_key/u);
+  assert.match(calls[0].sql, /observer_version/u);
+});
+
+test("human review is written through a separate review-owned upsert", async () => {
+  const calls = [];
+  const client = {
+    query: async (sql, params) => {
+      calls.push({ sql, params });
+      return { rows: [{ reference_observation_id: params[0] }] };
+    },
+  };
+  await upsertReferenceReview(client, {
+    reference_observation_id: 42,
+    namespace_hint: "citius_occurrence_reference",
+    target_candidates: [{ kind: "occurrence", bucket_document_id: 7 }],
+    confidence: "high",
+    review_state: "reviewed",
+    review_note: "Checked against the source record",
+    reviewer_key: "test-reviewer",
+  });
+  assert.match(calls[0].sql, /INSERT INTO casework\.reference_observation_review/u);
+  assert.match(calls[0].sql, /ON CONFLICT \(reference_observation_id\)/u);
+  assert.deepEqual(calls[0].params.slice(0, 2), [42, "citius_occurrence_reference"]);
 });

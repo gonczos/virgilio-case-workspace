@@ -136,6 +136,10 @@ export async function seedReferencePilot(client) {
       WHERE observer_key = $1
         AND observer_version <> $2
         AND metadata_json->>'fixture_name' = $3
+        AND NOT EXISTS (
+          SELECT 1 FROM casework.reference_observation_review review
+          WHERE review.reference_observation_id = reference_observation.id
+        )
     `, [REFERENCE_EXTRACTOR_KEY, REFERENCE_EXTRACTOR_VERSION, fixture.fixture_name]);
     for (const item of fixture.selection) {
       const row = await resolveAvailableSelection(client, item);

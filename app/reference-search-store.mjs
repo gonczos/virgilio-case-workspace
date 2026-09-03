@@ -107,13 +107,55 @@ export async function upsertReferenceObservation(client, observation) {
   return result.rows[0];
 }
 
+export async function upsertReferenceReview(client, review) {
+  const result = await client.query(`
+    INSERT INTO casework.reference_observation_review (
+      reference_observation_id, namespace_hint, role_hint,
+      target_candidates_json, confidence, review_state, review_note,
+      reviewer_key, metadata_json
+    ) VALUES ($1,$2,$3,$4::jsonb,$5,$6,$7,$8,$9::jsonb)
+    ON CONFLICT (reference_observation_id) DO UPDATE SET
+      namespace_hint = EXCLUDED.namespace_hint,
+      role_hint = EXCLUDED.role_hint,
+      target_candidates_json = EXCLUDED.target_candidates_json,
+      confidence = EXCLUDED.confidence,
+      review_state = EXCLUDED.review_state,
+      review_note = EXCLUDED.review_note,
+      reviewer_key = EXCLUDED.reviewer_key,
+      metadata_json = EXCLUDED.metadata_json,
+      updated_at = NOW()
+    RETURNING *
+  `, [
+    review.reference_observation_id, review.namespace_hint ?? null,
+    review.role_hint ?? null, JSON.stringify(review.target_candidates ?? []),
+    review.confidence ?? null, review.review_state, review.review_note ?? null,
+    review.reviewer_key, JSON.stringify(review.metadata ?? {}),
+  ]);
+  return result.rows[0];
+}
+
 export async function lookupReference(client, value) {
   const result = await client.query(`
     SELECT ro.*, fb.sha256, d.document_procinfo,
            b.reference_number AS occurrence_reference,
            cf.processo AS process_number,
+           CASE WHEN review.reference_observation_id IS NULL THEN NULL
+             ELSE jsonb_build_object(
+               'namespace_hint', review.namespace_hint,
+               'role_hint', review.role_hint,
+               'target_candidates', review.target_candidates_json,
+               'confidence', review.confidence,
+               'review_state', review.review_state,
+               'review_note', review.review_note,
+               'reviewer_key', review.reviewer_key,
+               'metadata', review.metadata_json,
+               'created_at', review.created_at,
+               'updated_at', review.updated_at
+             ) END AS review,
            COALESCE(ctx.contexts, '[]'::jsonb) AS source_contexts
     FROM casework.reference_observation ro
+    LEFT JOIN casework.reference_observation_review review
+      ON review.reference_observation_id = ro.id
     LEFT JOIN casework.file_binary fb ON fb.id = ro.file_binary_id
     LEFT JOIN casework.document d ON d.id = ro.document_id
     LEFT JOIN casework.bucket_document bd ON bd.id = ro.bucket_document_id
@@ -151,7 +193,8 @@ export async function searchPassages(client, query, { limit = 20, sha256s = null
              websearch_to_tsquery('portuguese', $1),
              'MaxWords=35, MinWords=12, StartSel=[[, StopSel=]]') AS headline,
            COALESCE(ctx.contexts, '[]'::jsonb) AS source_contexts,
-           COALESCE(refs.references, '[]'::jsonb) AS reference_observations
+           COALESCE(passage_refs.references, '[]'::jsonb) AS passage_reference_observations,
+           COALESCE(context_refs.references, '[]'::jsonb) AS contextual_reference_observations
     FROM casework.document_segment ds
     JOIN casework.document_representation dr ON dr.id = ds.document_representation_id
     JOIN casework.file_binary fb ON fb.id = dr.file_binary_id
@@ -171,16 +214,81 @@ export async function searchPassages(client, query, { limit = 20, sha256s = null
     ) ctx ON true
     LEFT JOIN LATERAL (
       SELECT jsonb_agg(jsonb_build_object(
-        'id', ro.id, 'raw_value', ro.raw_value, 'raw_label', ro.raw_label,
+        'id', ro.id, 'observation_key', ro.observation_key,
+        'raw_value', ro.raw_value, 'raw_label', ro.raw_label,
         'observed_in_kind', ro.observed_in_kind, 'role_hint', ro.role_hint,
         'namespace_hint', ro.namespace_hint, 'page_no', ro.page_no,
-        'confidence', ro.confidence, 'review_state', ro.review_state
+        'char_start', ro.char_start, 'char_end', ro.char_end,
+        'context_text', ro.context_text,
+        'bucket_document_id', ro.bucket_document_id,
+        'document_id', ro.document_id, 'file_binary_id', ro.file_binary_id,
+        'document_representation_id', ro.document_representation_id,
+        'document_segment_id', ro.document_segment_id,
+        'observer_key', ro.observer_key, 'observer_version', ro.observer_version,
+        'source_processor_key', source_dr.processor_key,
+        'source_processor_version', source_dr.processor_version,
+        'source_occurrence_reference', source_bucket.reference_number,
+        'source_process_number', source_case.processo,
+        'confidence', ro.confidence, 'review_state', ro.review_state,
+        'review', CASE WHEN review.reference_observation_id IS NULL THEN NULL
+          ELSE jsonb_build_object(
+            'namespace_hint', review.namespace_hint, 'role_hint', review.role_hint,
+            'target_candidates', review.target_candidates_json,
+            'confidence', review.confidence, 'review_state', review.review_state,
+            'review_note', review.review_note, 'reviewer_key', review.reviewer_key,
+            'metadata', review.metadata_json,
+            'created_at', review.created_at, 'updated_at', review.updated_at
+          ) END
       ) ORDER BY ro.id) AS references
       FROM casework.reference_observation ro
+      LEFT JOIN casework.document_representation source_dr
+        ON source_dr.id = ro.document_representation_id
+      LEFT JOIN casework.bucket_document source_bd ON source_bd.id = ro.bucket_document_id
+      LEFT JOIN casework.bucket source_bucket ON source_bucket.id = source_bd.bucket_id
+      LEFT JOIN casework.case_file source_case ON source_case.id = source_bucket.case_file_id
+      LEFT JOIN casework.reference_observation_review review
+        ON review.reference_observation_id = ro.id
+      WHERE ro.document_segment_id = ds.id
+    ) passage_refs ON true
+    LEFT JOIN LATERAL (
+      SELECT jsonb_agg(jsonb_build_object(
+        'id', ro.id, 'observation_key', ro.observation_key,
+        'raw_value', ro.raw_value, 'raw_label', ro.raw_label,
+        'observed_in_kind', ro.observed_in_kind, 'role_hint', ro.role_hint,
+        'namespace_hint', ro.namespace_hint, 'page_no', ro.page_no,
+        'char_start', ro.char_start, 'char_end', ro.char_end,
+        'context_text', ro.context_text,
+        'bucket_document_id', ro.bucket_document_id,
+        'document_id', ro.document_id, 'file_binary_id', ro.file_binary_id,
+        'document_representation_id', ro.document_representation_id,
+        'document_segment_id', ro.document_segment_id,
+        'observer_key', ro.observer_key, 'observer_version', ro.observer_version,
+        'source_processor_key', source_dr.processor_key,
+        'source_processor_version', source_dr.processor_version,
+        'source_occurrence_reference', source_bucket.reference_number,
+        'source_process_number', source_case.processo,
+        'confidence', ro.confidence, 'review_state', ro.review_state,
+        'review', CASE WHEN review.reference_observation_id IS NULL THEN NULL
+          ELSE jsonb_build_object(
+            'namespace_hint', review.namespace_hint, 'role_hint', review.role_hint,
+            'target_candidates', review.target_candidates_json,
+            'confidence', review.confidence, 'review_state', review.review_state,
+            'review_note', review.review_note, 'reviewer_key', review.reviewer_key,
+            'metadata', review.metadata_json,
+            'created_at', review.created_at, 'updated_at', review.updated_at
+          ) END
+      ) ORDER BY ro.id) AS references
+      FROM casework.reference_observation ro
+      LEFT JOIN casework.document_representation source_dr
+        ON source_dr.id = ro.document_representation_id
+      LEFT JOIN casework.bucket_document source_bd ON source_bd.id = ro.bucket_document_id
+      LEFT JOIN casework.bucket source_bucket ON source_bucket.id = source_bd.bucket_id
+      LEFT JOIN casework.case_file source_case ON source_case.id = source_bucket.case_file_id
+      LEFT JOIN casework.reference_observation_review review
+        ON review.reference_observation_id = ro.id
       WHERE ro.file_binary_id = dr.file_binary_id
-         OR ro.document_representation_id = dr.id
-         OR ro.document_segment_id = ds.id
-    ) refs ON true
+        AND ro.document_segment_id IS DISTINCT FROM ds.id
+    ) context_refs ON true
     WHERE ds.search_vector @@ websearch_to_tsquery('portuguese', $1)
       AND ($3::text[] IS NULL OR fb.sha256 = ANY($3::text[]))
     ORDER BY rank DESC, ds.id ASC
