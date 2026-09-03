@@ -13,16 +13,16 @@ verify `representation_content_sha256` before applying offsets.
 
 Every annotation explicitly inherits `annotation_provenance_defaults` unless it
 overrides a field. Those defaults identify the producing task and annotation
-version, record `produced_at` as null because no production event timestamp was captured, retain the initial file modification time only as observed filesystem metadata, mark confidence as
-`provisional_unreviewed`, and define the bounded-context policy. Each annotation
-stores a `bounded_context` half-open range that can be reconstructed from the
-verified representation content.
+version, record `produced_at` as null because no production event timestamp was
+captured, retain the initial file modification time only as observed filesystem
+metadata, mark confidence as `provisional_unreviewed`, and define the bounded-
+context policy. Each annotation stores a `bounded_context` half-open range that
+can be reconstructed from the verified representation content.
 
-Review provenance is independent. Every annotation currently inherits null
+Review provenance is independent. Every annotation initially inherits null
 reviewer identity, review time, decision, and rationale. `pending_review` and
-`case_expert_required` must not be presented as completed review. A later review
-must record an attributable reviewer, timestamp, decision, and rationale before
-an annotation can become reviewed.
+`case_expert_required` must not be presented as completed review. A completed
+review must record an attributable reviewer, timestamp, decision, and rationale.
 
 The original raw span is immutable. A normalized candidate is optional and
 does not replace it. `resolved_target` remains null unless independent evidence
@@ -66,6 +66,9 @@ prediction denominator and without implying recall.
 * `legislation`: a statute, regulation, code, or provision reference.
 * `international_instrument`: a named treaty or convention.
 * `external_register`: a labelled non-court register or occurrence.
+* `external_civil_register`: a labelled entry in an external civil register.
+* `external_document_identifier`: a possible external official-document
+  identifier whose narrower semantics remain ambiguous.
 * `reference_like_negative`: a number that resembles a reference but identifies
   a person, address, telephone, fiscal document, or similar non-target.
 
@@ -79,15 +82,17 @@ review.
 
 Completed reviews are recorded in `review_sessions`, and each reviewed
 annotation contains a `human_review` object that names its session, reviewer,
-review time, decision, rationale, structured findings, `review_question_status`, and
-`remaining_verification`. Question status is `answered`, `partially_answered`, or
-`unanswered`; it describes resolution of the retained `review_question`, independently
-from the fact that a human review occurred. A completed review
-may confirm a broad classification while leaving namespace, transcription,
-target, relationship, document, or binary identity unresolved. Such unresolved
-fields do not invalidate the review decision and must not be silently promoted.
+review time, decision, rationale, structured findings, `review_question_status`,
+and `remaining_verification`. Question status is `answered`,
+`partially_answered`, `unanswered`, or `not_applicable` when the annotation had
+no retained review question. It describes resolution of the retained
+`review_question` independently from the fact that a human review occurred. A
+completed review may confirm a broad classification while leaving namespace,
+transcription, target, relationship, document, or binary identity unresolved.
+Such unresolved fields do not invalidate the review decision and must not be
+silently promoted.
 
-General review rules established by the first guided session are:
+General review rules established by the guided sessions are:
 
 * keep explicit source assertions separate from contextual inference;
 * keep classification confidence separate from transcription confidence;
@@ -97,6 +102,12 @@ General review rules established by the first guided session are:
 * attach a reference first to the grammatically described occurrence; and
 * preserve authority, organizational unit, source namespace expression, and
   identifier as separate evidence fields.
+
+Negative means that a span does not represent a reference in an in-scope
+reference family; it does not merely mean that the span is not a Citius or court
+reference. Identity, tax, and telephone identifiers can remain useful to other
+entity extractors without becoming legal-reference observations.
+
 Repeated textual occurrences remain separate. A later presentation layer may
 deduplicate them without erasing observation provenance.
 

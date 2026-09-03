@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "fixture_kind": "two_document_foundation",
-  "status": "draft_foundation_partially_reviewed",
+  "status": "draft_foundation_selected_annotations_reviewed",
   "offset_contract": {
     "unit": "unicode_code_point",
     "base": 0,
@@ -337,13 +337,30 @@
       "polarity": "positive",
       "normalized_candidate": "13608/14.8T2SNT",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 1581,
         "char_end": 1916,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The explicit Processo label immediately followed by the value confirms a Portuguese court process number. Text recognition supplies a strong candidate but does not itself resolve the canonical case record.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "portuguese_court_process_number",
+          "classification_confidence": "high",
+          "direct_target_candidate": "judicial_proceeding_with_exact_process_number",
+          "target_resolution": "unresolved",
+          "document_identity": "not_implied",
+          "binary_identity": "not_implied"
+        }
       }
     },
     {
@@ -356,13 +373,31 @@
       "polarity": "positive",
       "normalized_candidate": "RGPTC artigo 32.º, n.º 3",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 367,
         "char_end": 707,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The source explicitly cites article 32 number 3 of RGPTC as the asserted basis for presenting the Resposta/Contra-Alegações. Instrument expansion and legal effect remain separate.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "legislation_provision_reference",
+          "instrument_abbreviation": "RGPTC",
+          "article": "32",
+          "paragraph_or_number": "3",
+          "expanded_instrument_candidate": "Regime Geral do Processo Tutelar Cível",
+          "semantic_use": "invoked_as_asserted_basis_for_Resposta_Contra_Alegações",
+          "target_resolution": "unresolved"
+        }
       }
     },
     {
@@ -375,13 +410,38 @@
       "polarity": "positive",
       "normalized_candidate": "Regulamento (CE) n.º 2201/2003",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 2787,
         "char_end": 3135,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The regulation reference and associated provisions are explicit. Concelho is preserved as a possible transcription anomaly; recital 17 is only a normalization or resolution candidate for the source phrase n.º 17 do preâmbulo.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "eu_legislation_reference",
+          "instrument_type": "Regulamento",
+          "marker": "CE",
+          "number": "2201",
+          "year": "2003",
+          "source_institution_date_context": "do Concelho, de 27 de Novembro de 2003",
+          "transcription_status": "possible_Concelho_Conselho_anomaly",
+          "associated_source_provisions": [
+            "n.º 17 do preâmbulo",
+            "n.os 6 e 8 do art. 11.º",
+            "arts. 40.º a 42.º"
+          ],
+          "target_resolution": "unresolved",
+          "legal_effect": "not_interpreted"
+        }
       }
     },
     {
@@ -394,13 +454,31 @@
       "polarity": "positive",
       "normalized_candidate": "Convenção da Haia de 25 de outubro de 1980",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 2866,
         "char_end": 3229,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The text confirms an international instrument designation. The child-return context strongly supports the 25 October 1980 Hague Convention candidate, but canonical treaty identity remains unresolved and Haia stays part of the source designation.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "international_legal_instrument_reference",
+          "source_designation": "Convenção de Haia",
+          "source_stated_date": "25 de Outubro de 1980",
+          "instrument_candidate": "25 October 1980 Hague Convention concerning international child abduction",
+          "target_resolution": "unresolved",
+          "relationship_to_regulation": "source_associated_only",
+          "legal_effect": "not_interpreted"
+        }
       }
     },
     {
@@ -451,13 +529,33 @@
       "polarity": "positive",
       "normalized_candidate": "CPC artigo 646.º, n.º 3",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 6263,
         "char_end": 6599,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The source explicitly invokes article 646 number 3 CPC in connection with electronic availability through Citius. Extraction records the asserted use without validating the legal effect or applicable code version.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "legislation_provision_reference",
+          "instrument_abbreviation": "CPC",
+          "article": "646",
+          "paragraph_or_number": "3",
+          "expanded_instrument_candidate": "Código de Processo Civil",
+          "semantic_use": "invoked_in_connection_with_as_asserted_legal_basis",
+          "target_resolution": "unresolved",
+          "applicable_version": "unresolved",
+          "legal_effect": "not_validated"
+        }
       }
     },
     {
@@ -470,13 +568,34 @@
       "polarity": "positive",
       "normalized_candidate": "131089062",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 6774,
         "char_end": 7103,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The same value is repeated with an explicit Referência citius label, confirming value, namespace, and association with the described appealed order. The second textual occurrence remains a separately annotatable observation.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "classification_confidence": "high",
+          "described_occurrence": "Despacho",
+          "source_stated_date": "2021-05-26",
+          "source_stated_role": "despacho ora recorrido",
+          "direct_target_candidate": "described_order",
+          "target_resolution": "unresolved",
+          "document_identity": "unresolved",
+          "binary_identity": "unresolved",
+          "repeated_mention_policy": "separate_observation"
+        }
       }
     },
     {
@@ -527,13 +646,30 @@
       "polarity": "positive",
       "normalized_candidate": "122170551",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 6972,
         "char_end": 7301,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The first value is explicitly a Citius reference positionally associated through respetivamente with the first of two Atas dated 11 November 2019. Precise Ata and media identity remain unresolved.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "described_occurrence": "first_source_mentioned_Ata",
+          "source_stated_date": "2019-11-11",
+          "positional_association": "respetivamente",
+          "target_resolution": "unresolved",
+          "recording_relationship": "separately_mentioned_only"
+        }
       }
     },
     {
@@ -546,13 +682,30 @@
       "polarity": "positive",
       "normalized_candidate": "122178618",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 6986,
         "char_end": 7315,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The second value is explicitly a Citius reference positionally associated through respetivamente with the second of two Atas dated 11 November 2019. Precise Ata and media identity remain unresolved.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "described_occurrence": "second_source_mentioned_Ata",
+          "source_stated_date": "2019-11-11",
+          "positional_association": "respetivamente",
+          "target_resolution": "unresolved",
+          "recording_relationship": "separately_mentioned_only"
+        }
       }
     },
     {
@@ -565,13 +718,29 @@
       "polarity": "positive",
       "normalized_candidate": "93528486",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 7179,
         "char_end": 7507,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The explicit Citius value refers to the source-described Promoção of 26 October 2015; return of the children is subject matter rather than a target.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "described_occurrence": "Promoção",
+          "source_stated_date": "2015-10-26",
+          "subject": "regresso dos Menores a Portugal",
+          "target_resolution": "unresolved"
+        }
       }
     },
     {
@@ -584,13 +753,29 @@
       "polarity": "positive",
       "normalized_candidate": "106904705",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 7335,
         "char_end": 7664,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The explicit Citius value refers to the source-described Promoção of 22 May 2017; return of the children is subject matter rather than a target.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "described_occurrence": "Promoção",
+          "source_stated_date": "2017-05-22",
+          "subject": "regresso dos Menores a Portugal",
+          "target_resolution": "unresolved"
+        }
       }
     },
     {
@@ -603,13 +788,30 @@
       "polarity": "positive",
       "normalized_candidate": "122397168",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 7464,
         "char_end": 7793,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The explicit Citius value refers to the Promoção of 4 April 2018. Reconfirma a antecedente is retained only as a source-stated relationship candidate and is not resolved to a013 or another earlier act.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "described_occurrence": "Promoção",
+          "source_stated_date": "2018-04-04",
+          "relationship_candidate": "reconfirma a antecedente",
+          "relationship_target": "unresolved",
+          "target_resolution": "unresolved"
+        }
       }
     },
     {
@@ -622,13 +824,29 @@
       "polarity": "positive",
       "normalized_candidate": "116864518",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 7539,
         "char_end": 7868,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed",
+        "rationale": "The explicit Citius value refers to the composite source description Conclusão com despacho dated 21 December 2018. The description is not decomposed into two inferred records.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "citius_court_procedural_reference",
+          "described_occurrence": "Conclusão com despacho",
+          "source_stated_date": "2018-12-21",
+          "decomposition": "not_supported",
+          "target_resolution": "unresolved"
+        }
       }
     },
     {
@@ -988,13 +1206,26 @@
       "negative_kind": "passport",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 57,
         "char_end": 400,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed_out_of_scope_identifier",
+        "rationale": "The explicitly labelled passport number is an identity-document identifier, not an in-scope legal or official-record reference for this extractor.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "passport_identifier"
+        }
       }
     },
     {
@@ -1008,13 +1239,26 @@
       "negative_kind": "tax_identifier",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 134,
         "char_end": 470,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed_out_of_scope_identifier",
+        "rationale": "The explicitly labelled NIF is a tax/person identifier, not an in-scope legal or official-record reference for this extractor.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "tax_identifier"
+        }
       }
     },
     {
@@ -1028,13 +1272,26 @@
       "negative_kind": "telephone",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 187,
         "char_end": 541,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed_out_of_scope_identifier",
+        "rationale": "The explicitly labelled contact number is a telephone identifier, not an in-scope legal or official-record reference for this extractor.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "telephone_number"
+        }
       }
     },
     {
@@ -1043,18 +1300,32 @@
       "char_start": 1268,
       "char_end": 1278,
       "raw_span": "BAT 720185",
-      "label": "reference_like_negative",
-      "polarity": "negative",
-      "negative_kind": "birth_register_document",
+      "label": "external_document_identifier",
+      "polarity": "ambiguous",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 1108,
         "char_end": 1438,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "reclassified_ambiguous",
+        "rationale": "BAT 720185 occurs on a certified birth-register copy and may identify a certificate, form, or administrative document. BAT semantics require inspection of the original before assigning a narrower family.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "ambiguous_external_document_identifier",
+          "transcription": "preserve_verbatim",
+          "target_resolution": "unresolved",
+          "verification": "original_document_required"
+        }
       }
     },
     {
@@ -1063,18 +1334,37 @@
       "char_start": 2534,
       "char_end": 2547,
       "raw_span": "Entry No. 169",
-      "label": "reference_like_negative",
-      "polarity": "negative",
-      "negative_kind": "birth_register_entry",
-      "normalized_candidate": null,
+      "label": "external_civil_register",
+      "polarity": "positive",
+      "normalized_candidate": "169",
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 2374,
         "char_end": 2707,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "reclassified_positive",
+        "rationale": "The explicit Entry No. label supplies reference semantics and the birth-register context establishes the external civil-registration domain. Authority and canonical target remain unresolved.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "external_civil_register_reference",
+          "raw_identifier": "169",
+          "register_domain": "civil_birth_register",
+          "direct_target_candidate": "referenced_birth_register_entry",
+          "authority_or_register_namespace": "unresolved",
+          "target_resolution": "unresolved",
+          "document_identity": "unresolved",
+          "binary_identity": "unresolved",
+          "normalization": "preserve_169_without_global_identifier"
+        }
       }
     },
     {
@@ -1088,13 +1378,26 @@
       "negative_kind": "fiscal_document_number",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 4322,
         "char_end": 4655,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed_out_of_scope_identifier",
+        "rationale": "The value is explicitly a fiscal identification document number, not an in-scope legal or official-record reference for this extractor.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "fiscal_identification_document_number"
+        }
       }
     },
     {
@@ -1108,13 +1411,26 @@
       "negative_kind": "tax_identifier",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 4425,
         "char_end": 4754,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed_out_of_scope_identifier",
+        "rationale": "The number is a tax identifier, not an in-scope legal or official-record reference for this extractor.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "tax_identifier"
+        }
       }
     },
     {
@@ -1128,13 +1444,26 @@
       "negative_kind": "passport",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 10664,
         "char_end": 11008,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed_out_of_scope_identifier",
+        "rationale": "The explicitly labelled passport number is an identity-document identifier, not an in-scope legal or official-record reference for this extractor.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "passport_identifier"
+        }
       }
     },
     {
@@ -1148,13 +1477,26 @@
       "negative_kind": "service_telephone",
       "normalized_candidate": null,
       "resolved_target": null,
-      "review_state": "pending_review",
+      "review_state": "human_reviewed",
       "bounded_context": {
         "char_start": 18792,
         "char_end": 19118,
         "unit": "unicode_code_point",
         "range": "half_open",
         "source": "representation_content"
+      },
+      "human_review": {
+        "session_id": "guided-review-attila-test-2",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+        "decision": "confirmed_out_of_scope_identifier",
+        "rationale": "The value is explicitly a service telephone number, not an in-scope legal or official-record reference for this extractor.",
+        "review_question_status": "not_applicable",
+        "remaining_verification": [],
+        "findings": {
+          "classification": "reference_like_negative",
+          "entity_family": "service_telephone_number"
+        }
       }
     },
     {
@@ -1265,6 +1607,40 @@
       "limitations": [
         "Reviewer decisions are based on the extracted bounded context shown during the session unless a decision explicitly requires original-PDF or source-record verification.",
         "The fixture review scope remains non-exhaustive; this session does not authorize recall, absence, or zero-false-positive claims."
+      ]
+    },
+    {
+      "session_id": "guided-review-attila-test-2",
+      "reviewer_identity": "case_support_reviewer_attila_test_1",
+      "reviewed_at": "2026-09-03T22:40:25.1120630Z",
+      "method": "interactive_guided_review",
+      "scope": "The 21 annotations previously marked pending_review",
+      "reviewed_annotation_ids": [
+        "a002",
+        "a003",
+        "a004",
+        "a005",
+        "a007",
+        "a008",
+        "a010",
+        "a011",
+        "a012",
+        "a013",
+        "a014",
+        "a015",
+        "n001",
+        "n002",
+        "n003",
+        "n004",
+        "n005",
+        "n006",
+        "n007",
+        "n008",
+        "n009"
+      ],
+      "limitations": [
+        "The representation review scope remains non-exhaustive; this session does not authorize recall, absence, or zero-false-positive claims.",
+        "Canonical target, document, binary, relationship, instrument-version, and legal-effect resolution remain separate unless expressly recorded."
       ]
     }
   ]
