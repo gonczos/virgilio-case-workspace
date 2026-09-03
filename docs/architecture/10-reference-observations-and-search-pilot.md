@@ -462,6 +462,33 @@ exact lookup for `105398957` confirmed that document-text mentions retain their
 excerpt while source-system observations are labelled separately without an
 invented document excerpt.
 
+### TODO: URL-addressable searches and result navigation
+
+Define and implement a stable query-string contract so a search can be
+bookmarked, reopened in another tab, or shared as an application URL. Candidate
+state includes search mode, query text, text-search scope, text-result order,
+and an explicit decision about whether loading the URL only populates controls
+or also executes the search. Exact-reference URLs must not imply full-corpus
+reference-observation coverage while that lookup remains pilot-only.
+
+The design must keep draft controls distinct from the submitted result. In
+particular, changing result order must continue the submitted query and scope,
+not unsubmitted edits. Unknown or invalid parameter values require safe
+defaults; mode-specific parameters must not leak into the other mode. Query
+encoding, empty values, browser Back/Forward behavior, reload behavior, and
+stale overlapping requests need explicit acceptance cases. Pagination offsets
+should not be persisted unless a later design can restore the accumulated
+pages reliably.
+
+As part of the same navigation review, define whether `Open original PDF`
+opens the document detail in a new tab by default. The chosen behavior must
+preserve the search context and still produce a normal anchor that supports
+browser new-tab actions. External-window links must use the appropriate
+`noopener`/`noreferrer` protection.
+
+This is a recorded TODO only. The URL schema and navigation behavior are not
+implemented by the current slice.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
