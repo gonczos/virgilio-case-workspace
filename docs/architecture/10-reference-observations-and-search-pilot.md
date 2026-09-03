@@ -404,6 +404,15 @@ occurrences within each group, and labels the recorded occurrence date used by
 either chronological order. A live full-corpus check confirmed oldest-first
 and newest-first ordering through the `localhost` UI.
 
+Sort changes must not revive an older completed query while a newer initial
+search is pending. During an initial search, the UI may update the selected
+sort value but does not submit another request from the previous result. The
+pending search remains authoritative and retains the sort with which it was
+submitted. The selector is disabled while an initial search or a `Load more`
+continuation is pending, and the handler independently guards the
+initial-search race rather than relying only on asynchronously updated React
+state.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may

@@ -39,6 +39,7 @@ import {
 } from "../utils/consultation";
 import { createLatestRequestTracker } from "../utils/latestRequest";
 import { mergeTextSearchHits } from "../utils/textSearchPagination";
+import { shouldRestartTextSearchForSort } from "../utils/textSearchSort";
 
 type SearchMode = "reference" | "text";
 type TextSearchScope = "pilot" | "full";
@@ -174,6 +175,7 @@ function FixtureBoundary({ fixture }: { fixture: ReferencePilotFixtureSummary | 
 
 export function ReferenceSearchPage() {
   const requestTracker = useRef(createLatestRequestTracker());
+  const initialSearchPending = useRef(false);
   const [mode, setMode] = useState<SearchMode>("reference");
   const [textScope, setTextScope] = useState<TextSearchScope>("pilot");
   const [textSort, setTextSort] = useState<TextSearchSort>("relevance");
@@ -201,6 +203,7 @@ export function ReferenceSearchPage() {
     submittedTextSort: TextSearchSort = textSort,
   ) {
     const request = requestTracker.current.begin();
+    initialSearchPending.current = true;
     setLoading(true);
     setLoadingMore(false);
     setError(null);
@@ -240,7 +243,10 @@ export function ReferenceSearchPage() {
       if (!request.isCurrent()) return;
       setError(requestError instanceof Error ? requestError.message : String(requestError));
     } finally {
-      if (request.isCurrent()) setLoading(false);
+      if (request.isCurrent()) {
+        initialSearchPending.current = false;
+        setLoading(false);
+      }
     }
   }
 
@@ -259,7 +265,10 @@ export function ReferenceSearchPage() {
 
   function changeTextSort(nextSort: TextSearchSort) {
     setTextSort(nextSort);
-    if (submittedResult?.mode === "text") {
+    if (shouldRestartTextSearchForSort({
+      initialSearchPending: initialSearchPending.current,
+      submittedMode: submittedResult?.mode ?? null,
+    })) {
       void runSearch(
         "text",
         submittedResult.query,
@@ -345,6 +354,7 @@ export function ReferenceSearchPage() {
                 labelId="text-search-order-label"
                 label="Order"
                 value={textSort}
+                disabled={loading || loadingMore}
                 onChange={(event) => changeTextSort(event.target.value as TextSearchSort)}
               >
                 <MenuItem value="relevance">Relevance</MenuItem>
