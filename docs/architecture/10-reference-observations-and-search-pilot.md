@@ -639,6 +639,22 @@ observation rather than silently overwriting its meaning. Ordinary lookup later
 returns current observations by default; historical observations require an
 explicit history or diagnostic mode.
 
+Lifecycle transitions are immutable, timestamped events; current lifecycle
+state is maintained separately. A single `superseded_by` pointer is not a
+sufficient history because A -> B -> A would otherwise be ambiguous or cyclic.
+If a disappeared value returns, reactivate its historical observation only when
+both the raw value and normalization identity match. For A -> B -> A under the
+same normalization identity, record both transitions and make the original A
+observation current again. If the raw value is unchanged but the normalization
+identity changes its meaning, create a separate derived observation instead of
+reactivating the old one. Exactly one observation may be current for each
+stable source assertion.
+
+An existing review remains attached to a reactivated observation. Reactivation
+must not change its reviewer, review timestamp, review notes, or imply that a
+person reviewed the source again. Lifecycle-event provenance records the
+reactivation independently from human-review provenance.
+
 Routine reseeding must not overwrite `reference_observation_review`. The
 reconciliation plan must classify inserts, unchanged/refreshed current rows,
 supersessions, retirements, retained reviewed rows, and historical pilot
@@ -690,11 +706,19 @@ must cover:
 - preservation of its review and pilot identity;
 - retention of pilot document-text and external-register observations;
 - changed and disappeared source values;
+- disappearance followed by return, including A -> B -> A reactivation under
+  the same raw value and normalization identity;
 - a normalization-version replacement;
 - deterministic reruns without duplicate observations;
 - raw-value preservation and no inferred target resolution;
 - dry run issuing no writes or sequence allocations; and
 - attempted versus committed counts on success and rollback.
+
+The acceptance sequence must also rerun the legacy pilot seeder after
+reconciliation and prove that it cannot reactivate replaced pilot metadata,
+create another current observation, or alter lifecycle transitions. It must
+preserve all reviews and pilot membership while leaving pilot document-text and
+external-register observations active.
 
 After ingestion, inspect current and historical rows for a fixed sample before
 starting corpus-wide API lookup or UI changes.
