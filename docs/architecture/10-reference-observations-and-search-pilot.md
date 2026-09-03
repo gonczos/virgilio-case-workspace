@@ -233,6 +233,51 @@ therefore must not imply that the document or searchable text is absent. These
 measurements inform a later scope-widening decision; they do not block this UI
 slice and do not themselves authorize wider retrieval.
 
+## Controlled full-corpus text-search experiment
+
+The next approved planning direction is a controlled experiment, not an
+automatic production rollout. Implementation must begin by fixing the current
+overlapping-request race in the consultation UI: only the latest submitted
+request may update results, errors, loading state, or the submitted-mode heading.
+This prerequisite must have focused regression coverage.
+
+Scope selection is mode-specific. `Exact reference` remains visibly pilot-only.
+Only `Text` may offer `Pilot` and `Full corpus`; switching modes must not imply
+that reference-observation coverage widened with text-search coverage.
+
+Before widening the query, freeze an evaluation set of 10–15 searches. Each
+entry records:
+
+- query and query category;
+- expected relevant PDF SHA-256 values where known;
+- the factual basis for each expectation;
+- whether useful content depends on OCR;
+- the expected discovery and original-opening outcome; and
+- an explicit unresolved expectation where no ground truth is available.
+
+Query categories remain separate: keyword search, literal reference-number text
+search, and quoted-text search test different behavior. Quotation marks must not
+be described as guaranteeing exact phrase matching unless that behavior is
+deliberately implemented and tested.
+
+Every result set reports the configured passage cap, returned passage count,
+distinct binary count, and whether the result was capped. Processor-specific
+hits remain grouped beneath their binary because several representations of one
+PDF can consume the passage limit. The evaluation includes scanned PDFs whose
+useful content depends on OCR; nonblank-text counts alone are not evidence that
+their content is retrievable.
+
+The experiment has one decision question: can users reliably find known
+material, understand why it matched, and open the correct original? If yes, the
+broader text scope may be retained. If not, observed failures determine whether
+the next bounded improvement concerns ranking, extraction coverage, page
+navigation, or reference ingestion. The experiment must not assume in advance
+that reference ingestion is the next phase.
+
+This section documents the next slice only. It does not authorize implementation
+of the race fix, evaluation fixture, broader API query, or UI scope selector in
+this documentation checkpoint.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
