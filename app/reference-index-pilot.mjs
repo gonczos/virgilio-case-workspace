@@ -138,14 +138,20 @@ export async function lookupReferencePilot(client, value) {
   };
 }
 
-export async function searchReferencePilot(client, query, { limit = 20, scope = "pilot" } = {}) {
+export async function searchReferencePilot(client, query, {
+  limit = 20,
+  offset = 0,
+  scope = "pilot",
+} = {}) {
   const fixture = await loadReferencePilotFixture();
   const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, 100));
+  const boundedOffset = Math.max(0, Number(offset) || 0);
   const sha256s = scope === "full"
     ? null
     : [...new Set(fixture.selection.map((item) => item.sha256))];
   const probedRows = await searchPassages(client, query, {
     limit: boundedLimit + 1,
+    offset: boundedOffset,
     maximumLimit: 101,
     sha256s,
   });
@@ -153,12 +159,15 @@ export async function searchReferencePilot(client, query, { limit = 20, scope = 
   const rows = probedRows.slice(0, boundedLimit);
   return {
     fixture: fixtureSummary(fixture),
-    query: { text: query, limit: boundedLimit, scope },
+    query: { text: query, limit: boundedLimit, offset: boundedOffset, scope },
     result_summary: {
+      requested_offset: boundedOffset,
       passage_limit: boundedLimit,
       returned_passage_count: rows.length,
       distinct_binary_count: new Set(rows.map((row) => row.sha256)).size,
       capped,
+      has_more: capped,
+      next_offset: boundedOffset + rows.length,
     },
     semantics: {
       search_scope: scope,

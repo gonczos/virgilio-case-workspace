@@ -34,9 +34,18 @@ import {
   groupReferenceTextHits,
 } from "../utils/consultation";
 import { createLatestRequestTracker } from "../utils/latestRequest";
+import { mergeTextSearchHits } from "../utils/textSearchPagination";
 
 type SearchMode = "reference" | "text";
 type TextSearchScope = "pilot" | "full";
+const TEXT_PAGE_LIMIT = 50;
+
+interface TextPaginationState {
+  query: string;
+  scope: TextSearchScope;
+  nextOffset: number;
+  hasMore: boolean;
+}
 
 function formatDate(value: string | null): string {
   if (!value) return "Date unavailable";
@@ -170,7 +179,10 @@ export function ReferenceSearchPage() {
     textScope?: TextSearchScope;
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+  const [textPagination, setTextPagination] = useState<TextPaginationState | null>(null);
   const textGroups = useMemo(() => groupReferenceTextHits(search?.items ?? []), [search]);
   const fixture = lookup?.fixture ?? search?.fixture ?? null;
 
@@ -181,18 +193,31 @@ export function ReferenceSearchPage() {
   ) {
     const request = requestTracker.current.begin();
     setLoading(true);
+    setLoadingMore(false);
     setError(null);
+    setLoadMoreError(null);
+    setTextPagination(null);
+    setSearch(null);
+    setLookup(null);
     try {
       if (searchMode === "reference") {
         const result = await lookupPilotReference(value);
         if (!request.isCurrent()) return;
         setLookup(result);
-        setSearch(null);
       } else {
-        const result = await searchText(value, { scope: submittedTextScope });
+        const result = await searchText(value, {
+          limit: TEXT_PAGE_LIMIT,
+          offset: 0,
+          scope: submittedTextScope,
+        });
         if (!request.isCurrent()) return;
         setSearch(result);
-        setLookup(null);
+        setTextPagination({
+          query: value,
+          scope: submittedTextScope,
+          nextOffset: result.result_summary.next_offset,
+          hasMore: result.result_summary.has_more,
+        });
       }
       setSubmittedResult({
         mode: searchMode,
@@ -218,6 +243,36 @@ export function ReferenceSearchPage() {
     setMode("reference");
     setQuery(value);
     void runSearch("reference", value);
+  }
+
+  async function loadMore() {
+    if (!search || !textPagination || !textPagination.hasMore || loadingMore) return;
+    const submittedSearch = textPagination;
+    const request = requestTracker.current.begin();
+    setLoadingMore(true);
+    setLoadMoreError(null);
+    try {
+      const nextPage = await searchText(submittedSearch.query, {
+        limit: TEXT_PAGE_LIMIT,
+        offset: submittedSearch.nextOffset,
+        scope: submittedSearch.scope,
+      });
+      if (!request.isCurrent()) return;
+      setSearch((current) => current ? {
+        ...nextPage,
+        items: mergeTextSearchHits(current.items, nextPage.items),
+      } : nextPage);
+      setTextPagination({
+        ...submittedSearch,
+        nextOffset: nextPage.result_summary.next_offset,
+        hasMore: nextPage.result_summary.has_more,
+      });
+    } catch (requestError) {
+      if (!request.isCurrent()) return;
+      setLoadMoreError(requestError instanceof Error ? requestError.message : String(requestError));
+    } finally {
+      if (request.isCurrent()) setLoadingMore(false);
+    }
   }
 
   return (
@@ -300,13 +355,16 @@ export function ReferenceSearchPage() {
         </Alert>
       ) : null}
       {search ? (
-        <Alert severity={search.result_summary.capped ? "warning" : "info"}>
-          {search.query.scope === "full" ? "Full corpus" : "Pilot"} search returned {search.result_summary.returned_passage_count} passage{search.result_summary.returned_passage_count === 1 ? "" : "s"}
-          {" across "}{search.result_summary.distinct_binary_count} distinct binar{search.result_summary.distinct_binary_count === 1 ? "y" : "ies"}.
-          {" Passage limit: "}{search.result_summary.passage_limit}.
-          {search.result_summary.capped
-            ? " Results reached the configured passage limit; additional matches may exist."
-            : " Results were not capped."}
+        <Alert severity={textPagination?.hasMore ? "warning" : "info"}>
+          {search.items.length} passage{search.items.length === 1 ? "" : "s"} loaded across {textGroups.length} distinct PDF{textGroups.length === 1 ? "" : "s"}.
+          {textPagination?.hasMore
+            ? ` More matches are available; each page loads up to ${TEXT_PAGE_LIMIT} passages.`
+            : " No further matches remain."}
+        </Alert>
+      ) : null}
+      {loadMoreError ? (
+        <Alert severity="error">
+          Loading the next page failed: {loadMoreError}. Existing results were preserved; you can retry.
         </Alert>
       ) : null}
       {textGroups.map((group) => (
@@ -381,6 +439,16 @@ export function ReferenceSearchPage() {
           </Stack>
         </Paper>
       ))}
+      {search && textPagination?.hasMore ? (
+        <Button
+          variant="outlined"
+          disabled={loadingMore || loading}
+          onClick={() => void loadMore()}
+          sx={{ alignSelf: "center", minWidth: 140 }}
+        >
+          {loadingMore ? <CircularProgress size={22} /> : "Load more"}
+        </Button>
+      ) : null}
     </Stack>
   );
 }

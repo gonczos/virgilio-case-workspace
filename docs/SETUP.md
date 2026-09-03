@@ -164,6 +164,10 @@ Useful endpoints:
 The text-search endpoint defaults to `scope=pilot`. `scope=full` searches the
 current indexed segment corpus. Exact-reference lookup remains fixture-scoped;
 full text-search coverage does not imply full reference-observation coverage.
+Text-search continuation uses zero-based `offset=<rows already returned>` with
+the same query, scope, and limit. The response reports `next_offset` and
+`has_more`; offset pagination assumes the search projection is not reindexed
+during the browsing session.
 * UI dev server: `http://127.0.0.1:5173`
 
 The UI dev server currently proxies:

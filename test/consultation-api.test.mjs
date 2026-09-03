@@ -399,11 +399,36 @@ test("reference pilot API labels a verified PDF page distinctly", async () => {
     assert.equal(payload.semantics.location_kinds.includes("document_level"), true);
     assert.equal(payload.query.scope, "pilot");
     assert.deepEqual(payload.result_summary, {
+      requested_offset: 0,
       passage_limit: 20,
       returned_passage_count: 1,
       distinct_binary_count: 1,
       capped: false,
+      has_more: false,
+      next_offset: 1,
     });
+  });
+});
+
+test("text search accepts a zero-based continuation offset", async () => {
+  const calls = [];
+  const client = {
+    async query(_sql, params) {
+      calls.push(params);
+      return { rows: [] };
+    },
+  };
+  await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+    const response = await request(
+      baseUrl,
+      "/api/consultation/reference-pilot/search?q=matched&scope=full&limit=25&offset=50",
+    );
+    assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
+    assert.equal(payload.query.offset, 50);
+    assert.equal(payload.result_summary.requested_offset, 50);
+    assert.equal(payload.result_summary.next_offset, 50);
+    assert.deepEqual(calls[0], ["matched", 26, null, 50]);
   });
 });
 

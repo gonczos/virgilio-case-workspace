@@ -105,11 +105,12 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
         const query = requestUrl.searchParams.get("q")?.trim() ?? "";
         const scope = requestUrl.searchParams.get("scope") ?? "pilot";
         const limit = parsePositiveInteger(requestUrl.searchParams.get("limit"), 20, { min: 1, max: 100 });
+        const offset = parsePositiveInteger(requestUrl.searchParams.get("offset"), 0, { min: 0 });
         if (!query) {
           sendJson(response, 400, { error: "search_query_required" });
           return;
         }
-        if (limit === null) {
+        if (limit === null || offset === null) {
           sendJson(response, 400, { error: "invalid_pagination" });
           return;
         }
@@ -117,7 +118,7 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
           sendJson(response, 400, { error: "invalid_search_scope" });
           return;
         }
-        sendJson(response, 200, await searchReferencePilot(client, query, { limit, scope }));
+        sendJson(response, 200, await searchReferencePilot(client, query, { limit, offset, scope }));
         return;
       }
 

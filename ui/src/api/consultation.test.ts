@@ -77,12 +77,12 @@ test("pilot API clients preserve explicit reference and text modes", async () =>
   vi.stubGlobal("fetch", fetchMock);
 
   await lookupPilotReference("REF / 123");
-  await searchText("despacho 105398957", { limit: 25, scope: "full" });
+  await searchText("despacho 105398957", { limit: 25, offset: 50, scope: "full" });
 
   expect(fetchMock.mock.calls[0][0]).toBe(
     "/api/consultation/reference-pilot/references/REF%20%2F%20123",
   );
   expect(fetchMock.mock.calls[1][0]).toBe(
-    "/api/consultation/reference-pilot/search?q=despacho+105398957&limit=25&scope=full",
+    "/api/consultation/reference-pilot/search?q=despacho+105398957&limit=25&offset=50&scope=full",
   );
 });

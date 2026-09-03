@@ -358,6 +358,15 @@ reindexing from shifting page boundaries. That limitation is accepted for this
 experiment and must be visible in its documentation; snapshot or cursor
 pagination is outside this slice.
 
+Implementation status (2026-09-03): this passage-pagination slice is complete.
+The API returns page-local offset and continuation metadata, and the UI reports
+deduplicated accumulated passage/PDF counts while regrouping later hits under
+their SHA-256 binary. Live validation loaded the `Marianne intérprete` search
+from 50 passages/25 PDFs to its final 80 passages/30 PDFs; 11 binaries had hits
+on both server pages. A separate retry check preserved 100 loaded passages when
+the API was unavailable and advanced to 150 after the same page was retried.
+Editing the input before loading more continued the immutable submitted query.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may

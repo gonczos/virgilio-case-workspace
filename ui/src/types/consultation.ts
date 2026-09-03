@@ -317,12 +317,15 @@ export interface ReferenceTextHit {
 
 export interface ReferenceTextSearchResponse {
   fixture: ReferencePilotFixtureSummary;
-  query: { text: string; limit: number; scope: "pilot" | "full" };
+  query: { text: string; limit: number; offset: number; scope: "pilot" | "full" };
   result_summary: {
+    requested_offset: number;
     passage_limit: number;
     returned_passage_count: number;
     distinct_binary_count: number;
     capped: boolean;
+    has_more: boolean;
+    next_offset: number;
   };
   semantics: Record<string, unknown>;
   items: ReferenceTextHit[];

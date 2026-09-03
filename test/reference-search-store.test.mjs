@@ -77,7 +77,7 @@ test("pilot search keeps its SHA boundary and caps its result limit", async () =
   const calls = [];
   const client = { query: async (sql, params) => { calls.push({ sql, params }); return { rows: [] }; } };
   await searchPassages(client, "despacho", { limit: 900, sha256s: ["abc", "def"] });
-  assert.deepEqual(calls[0].params, ["despacho", 100, ["abc", "def"]]);
+  assert.deepEqual(calls[0].params, ["despacho", 100, ["abc", "def"], 0]);
   assert.match(calls[0].sql, /ds\.search_vector @@/u);
   assert.match(calls[0].sql, /fb\.sha256 = ANY\(\$3::text\[\]\)/u);
   assert.match(calls[0].sql, /passage_reference_observations/u);
@@ -104,14 +104,39 @@ test("full-corpus text search removes the fixture SHA filter and reports a passa
   };
 
   const result = await searchReferencePilot(client, "despacho", { limit: 2, scope: "full" });
-  assert.deepEqual(calls[0].params, ["despacho", 3, null]);
-  assert.deepEqual(result.query, { text: "despacho", limit: 2, scope: "full" });
+  assert.deepEqual(calls[0].params, ["despacho", 3, null, 0]);
+  assert.deepEqual(result.query, { text: "despacho", limit: 2, offset: 0, scope: "full" });
   assert.deepEqual(result.result_summary, {
+    requested_offset: 0,
     passage_limit: 2,
     returned_passage_count: 2,
     distinct_binary_count: 1,
     capped: true,
+    has_more: true,
+    next_offset: 2,
   });
+});
+
+test("text search advances its server offset by returned rows", async () => {
+  const calls = [];
+  const client = {
+    query: async (_sql, params) => {
+      calls.push(params);
+      return { rows: [{
+        sha256: "a".repeat(64),
+        page_no: null,
+        location_kind: "document_level",
+        passage_reference_observations: [],
+        contextual_reference_observations: [],
+      }] };
+    },
+  };
+  const result = await searchReferencePilot(client, "term", { limit: 2, offset: 50, scope: "full" });
+  assert.deepEqual(calls[0], ["term", 3, null, 50]);
+  assert.equal(result.result_summary.requested_offset, 50);
+  assert.equal(result.result_summary.returned_passage_count, 1);
+  assert.equal(result.result_summary.next_offset, 51);
+  assert.equal(result.result_summary.has_more, false);
 });
 
 test("human review is written through a separate review-owned upsert", async () => {

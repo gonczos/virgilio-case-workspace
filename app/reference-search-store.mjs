@@ -210,11 +210,13 @@ export async function lookupReference(client, value, { fixtureName = null } = {}
 
 export async function searchPassages(client, query, {
   limit = 20,
+  offset = 0,
   sha256s = null,
   maximumLimit = 100,
 } = {}) {
   const boundedMaximum = Math.max(1, Number(maximumLimit) || 100);
   const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, boundedMaximum));
+  const boundedOffset = Math.max(0, Number(offset) || 0);
   const result = await client.query(`
     SELECT ds.id AS segment_id, ds.document_representation_id,
            dr.file_binary_id, fb.sha256, dr.representation_kind,
@@ -338,7 +340,7 @@ export async function searchPassages(client, query, {
     WHERE ds.search_vector @@ websearch_to_tsquery('portuguese', $1)
       AND ($3::text[] IS NULL OR fb.sha256 = ANY($3::text[]))
     ORDER BY rank DESC, ds.id ASC
-    LIMIT $2
-  `, [query, boundedLimit, sha256s]);
+    LIMIT $2 OFFSET $4
+  `, [query, boundedLimit, sha256s, boundedOffset]);
   return result.rows;
 }
