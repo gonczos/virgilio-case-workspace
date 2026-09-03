@@ -104,6 +104,18 @@ test("historical items expose their current replacement and lifecycle events", (
   assert.equal(item.lifecycle.events[0].related_observation_key, "current-key");
 });
 
+test("historical items do not describe a merely related retired observation as current", () => {
+  const item = buildRecordedReferenceObservation(row({
+    lifecycle_state: "superseded", current_observation_key: null,
+  }), [], [{
+    transition_kind: "reconcile_legacy_pilot", from_state: "current",
+    to_state: "superseded", occurred_at: "2026-09-03T10:00:00Z",
+    related_observation_key: "retired-related-key",
+  }]);
+  assert.equal(item.lifecycle.current_observation_key, null);
+  assert.equal(item.lifecycle.events[0].related_observation_key, "retired-related-key");
+});
+
 test("lookup uses observation pagination and fetches contexts only for returned rows", async () => {
   const calls = [];
   const client = { query: async (sql, params) => {

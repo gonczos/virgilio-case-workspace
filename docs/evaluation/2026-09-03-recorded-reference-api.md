@@ -48,6 +48,9 @@ timestamps.
   provenance origin, lifecycle, and binary availability are separate fields.
 - History results expose stable current/replacement observation keys and
   lifecycle events.
+- `current_observation_key` is populated only from an observation whose current
+  lifecycle state is actually `current`. A lifecycle event may still expose a
+  related superseded or retired identity without mislabelling it as current.
 - Full-scope responses state that external-register and document-text coverage
   remains pilot-only.
 - Unknown, duplicate, malformed, and invalid query parameters use the frozen

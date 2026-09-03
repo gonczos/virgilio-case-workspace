@@ -50,7 +50,8 @@ const LOOKUP_SQL = `
          d.document_procinfo AS direct_document_reference,
          dr.processor_key AS direct_processor_key,
          dr.processor_version AS direct_processor_version,
-         current_row.observation_key AS current_observation_key
+         COALESCE(current_row.observation_key,
+                  replacement_current.observation_key) AS current_observation_key
   FROM eligible
   LEFT JOIN casework.reference_observation_review review
     ON review.reference_observation_id = eligible.id
@@ -62,6 +63,21 @@ const LOOKUP_SQL = `
   LEFT JOIN casework.reference_observation current_row
     ON current_row.source_assertion_key = eligible.source_assertion_key
    AND current_row.lifecycle_state = 'current'
+  LEFT JOIN LATERAL (
+    SELECT COALESCE(assertion_current.observation_key,
+                    CASE WHEN related.lifecycle_state = 'current'
+                      THEN related.observation_key END) AS observation_key
+    FROM casework.reference_observation_lifecycle_event event
+    JOIN casework.reference_observation related
+      ON related.id = event.related_reference_observation_id
+    LEFT JOIN casework.reference_observation assertion_current
+      ON assertion_current.source_assertion_key = related.source_assertion_key
+     AND assertion_current.lifecycle_state = 'current'
+    WHERE event.reference_observation_id = eligible.id
+      AND (assertion_current.id IS NOT NULL OR related.lifecycle_state = 'current')
+    ORDER BY event.occurred_at DESC, event.id DESC
+    LIMIT 1
+  ) replacement_current ON true
   ORDER BY
     CASE eligible.effective_origin
       WHEN 'court_metadata' THEN 1
@@ -246,9 +262,7 @@ export function buildRecordedReferenceObservation(row, contextRows = [], eventRo
   const associatedBinaries = mapBinaries(contextRows);
   const currentKey = row.lifecycle_state === "current"
     ? row.observation_key
-    : row.current_observation_key
-      ?? [...eventRows].reverse().find((event) => event.related_observation_key)?.related_observation_key
-      ?? null;
+    : row.current_observation_key ?? null;
   return {
     observation_id: Number(row.id),
     observation_key: row.observation_key,
