@@ -1078,6 +1078,14 @@ shared generation and invalidates outstanding initial, retry, sorting, and
 continuation requests from both sections. A response may update the UI only
 when both its generation ID and its section request ID still match.
 
+A new submission resets both prior section states and removes their renderable
+results before starting the selected methods. Participating sections enter
+`loading`; nonparticipating sections remain `idle`, empty, and hidden. Results
+from an excluded method are not retained for possible later display. A
+`Both -> Document text -> Both` sequence therefore performs a fresh recorded-
+reference request in the third generation and cannot reveal results retained
+from the first generation.
+
 `Load more` increments only the relevant section's request identity and keeps
 the shared generation. A recorded-reference continuation reuses the submitted
 value, corpus scope, and lifecycle with its next observation offset. A text
@@ -1089,7 +1097,17 @@ Changing text result order restarts only the text section at offset zero for
 the existing submitted query and scope. It does not submit draft edits, rerun
 recorded-reference lookup, change the shared generation, or clear a successful
 recorded-reference section. The order control is disabled while a replacement
-text request is pending.
+text request is pending. Text state stores `requested_order` separately from
+`displayed_order`. Existing text results remain visible and labelled with
+`displayed_order` while the replacement loads; merely changing the selector
+must not relabel those results.
+
+Only a successful replacement swaps the visible text result set and promotes
+`requested_order` to `displayed_order`. A failed replacement preserves the
+existing results and their existing order label, records the failed requested
+order in the section error/retry state, and offers a retry for that order.
+Retrying or changing text order never clears, refetches, or relabels the
+recorded-reference section.
 
 #### Independent section state
 
@@ -1140,10 +1158,15 @@ Focused state and component tests must cover:
 - `Both` issuing two requests under one generation and rendering either result
   independently;
 - a new submission rejecting stale responses from both sections;
+- `Both -> Document text -> Both` clearing excluded-section state and never
+  resurfacing results from the first generation;
 - retry and continuation affecting only their own section;
 - independent pagination, including merging later text hits into an existing
   binary group;
-- text-order changes restarting only submitted text at offset zero;
+- text-order changes restarting only submitted text at offset zero while old
+  results retain their applied label until success;
+- a failed text-order replacement preserving the previous results and
+  `displayed_order`, with retry bound to the failed `requested_order`;
 - pilot/full scope and current/history parameters continuing from the submitted
   snapshot;
 - current replacement versus explicit history rendering;
