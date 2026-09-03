@@ -1,6 +1,9 @@
 # Architecture Notes
 
-Last updated: 2026-08-30
+Last updated: 2026-09-03
+
+For the bounded reference-observation and text-search foundation, see
+`10-reference-observations-and-search-pilot.md`.
 
 ## Working Assumptions
 

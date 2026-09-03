@@ -1,0 +1,190 @@
+import crypto from "node:crypto";
+
+export const REFERENCE_EXTRACTOR_KEY = "app/reference-search-store.mjs";
+export const REFERENCE_EXTRACTOR_VERSION = "labelled-reference-v3";
+
+export function normalizeReferenceValue(value) {
+  return String(value ?? "").normalize("NFKC").trim().replace(/\s+/gu, " ").toUpperCase();
+}
+
+function compactContext(text, start, end, radius = 90) {
+  return text.slice(Math.max(0, start - radius), Math.min(text.length, end + radius))
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
+export function extractLabelledReferences(text) {
+  const source = String(text ?? "");
+  const patterns = [
+    { role: "cited_reference", regex: /\b(SOB\s+A\s+REF[.ªº]*|COM\s+A\s+REF[.ªº]*|REFER[ÊE]NCIA\s+CITIUS\s*(?:N[.º°O]+)?)(?:\s*[:.]\s*|\s+)([A-Z0-9][A-Z0-9./_-]{4,})/giu },
+    { role: "labelled_reference", regex: /\b(REF(?:ER[ÊE]NCIA)?\s*(?:N[.º°O]+)?|REF[.ªº]*)(?:\s*[:.]\s*|\s+)([A-Z0-9][A-Z0-9./_-]{4,})/giu },
+  ];
+  const observations = [];
+  const seen = new Set();
+  for (const { role, regex } of patterns) {
+    for (const match of source.matchAll(regex)) {
+      const rawLabel = match[1].trim();
+      const rawValue = match[2].replace(/[.,;:)]+$/gu, "");
+      if (/^REFER/iu.test(rawLabel) && /^CITIUS$/iu.test(rawValue)) continue;
+      const normalizedValue = normalizeReferenceValue(rawValue);
+      const charStart = match.index + match[0].lastIndexOf(match[2]);
+      const charEnd = charStart + rawValue.length;
+      const key = `${charStart}:${charEnd}:${normalizedValue}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      observations.push({
+        raw_value: rawValue,
+        normalized_value: normalizedValue,
+        raw_label: rawLabel,
+        role_hint: role,
+        char_start: charStart,
+        char_end: charEnd,
+        context_text: compactContext(source, charStart, charEnd),
+      });
+    }
+  }
+  return observations.sort((a, b) => a.char_start - b.char_start || a.normalized_value.localeCompare(b.normalized_value));
+}
+
+export function buildObservationKey(observation) {
+  const identity = [
+    observation.observer_key,
+    observation.observer_version,
+    observation.observed_in_kind,
+    observation.bucket_document_id ?? "",
+    observation.document_id ?? "",
+    observation.file_binary_id ?? "",
+    observation.document_representation_id ?? "",
+    observation.document_segment_id ?? "",
+    observation.page_no ?? "",
+    observation.char_start ?? "",
+    observation.char_end ?? "",
+    observation.raw_label ?? "",
+    normalizeReferenceValue(observation.raw_value),
+  ].join("\u001f");
+  return crypto.createHash("sha256").update(identity, "utf8").digest("hex");
+}
+
+export async function upsertReferenceObservation(client, observation) {
+  const normalizedValue = normalizeReferenceValue(observation.raw_value);
+  if (!normalizedValue) throw new Error("Reference observation value must not be blank");
+  const row = { ...observation, normalized_value: normalizedValue };
+  row.observation_key ??= buildObservationKey(row);
+  const result = await client.query(`
+    INSERT INTO casework.reference_observation (
+      observation_key, raw_value, normalized_value, raw_label, observed_in_kind,
+      bucket_document_id, document_id, file_binary_id, document_representation_id,
+      document_segment_id, page_no, char_start, char_end, context_text,
+      observer_key, observer_version, namespace_hint, role_hint,
+      target_candidates_json, confidence, review_state, metadata_json
+    ) VALUES (
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,
+      $19::jsonb,$20,$21,$22::jsonb
+    )
+    ON CONFLICT (observation_key) DO UPDATE SET
+      raw_value = EXCLUDED.raw_value,
+      normalized_value = EXCLUDED.normalized_value,
+      raw_label = EXCLUDED.raw_label,
+      context_text = EXCLUDED.context_text,
+      namespace_hint = EXCLUDED.namespace_hint,
+      role_hint = EXCLUDED.role_hint,
+      target_candidates_json = EXCLUDED.target_candidates_json,
+      confidence = EXCLUDED.confidence,
+      review_state = EXCLUDED.review_state,
+      metadata_json = EXCLUDED.metadata_json,
+      updated_at = NOW()
+    RETURNING *
+  `, [
+    row.observation_key, row.raw_value, normalizedValue, row.raw_label ?? null,
+    row.observed_in_kind, row.bucket_document_id ?? null, row.document_id ?? null,
+    row.file_binary_id ?? null, row.document_representation_id ?? null,
+    row.document_segment_id ?? null, row.page_no ?? null, row.char_start ?? null,
+    row.char_end ?? null, row.context_text ?? null, row.observer_key,
+    row.observer_version, row.namespace_hint ?? null, row.role_hint ?? null,
+    JSON.stringify(row.target_candidates ?? []), row.confidence ?? null,
+    row.review_state ?? "unreviewed", JSON.stringify(row.metadata ?? {}),
+  ]);
+  return result.rows[0];
+}
+
+export async function lookupReference(client, value) {
+  const result = await client.query(`
+    SELECT ro.*, fb.sha256, d.document_procinfo,
+           b.reference_number AS occurrence_reference,
+           cf.processo AS process_number,
+           COALESCE(ctx.contexts, '[]'::jsonb) AS source_contexts
+    FROM casework.reference_observation ro
+    LEFT JOIN casework.file_binary fb ON fb.id = ro.file_binary_id
+    LEFT JOIN casework.document d ON d.id = ro.document_id
+    LEFT JOIN casework.bucket_document bd ON bd.id = ro.bucket_document_id
+    LEFT JOIN casework.bucket b ON b.id = bd.bucket_id
+    LEFT JOIN casework.case_file cf ON cf.id = b.case_file_id
+    LEFT JOIN LATERAL (
+      SELECT jsonb_agg(jsonb_build_object(
+        'bucket_document_id', bd2.id, 'document_id', d2.id,
+        'process_number', cf2.processo, 'occurrence_reference', b2.reference_number,
+        'occurrence_date', b2.bucket_date, 'designation', b2.designation,
+        'document_reference', d2.document_procinfo
+      ) ORDER BY b2.bucket_date, b2.reference_number, d2.id) AS contexts
+      FROM casework.document_binary db2
+      JOIN casework.document d2 ON d2.id = db2.document_id
+      JOIN casework.bucket_document bd2 ON bd2.document_id = d2.id
+      JOIN casework.bucket b2 ON b2.id = bd2.bucket_id
+      JOIN casework.case_file cf2 ON cf2.id = b2.case_file_id
+      WHERE db2.file_binary_id = ro.file_binary_id
+    ) ctx ON true
+    WHERE ro.normalized_value = $1
+    ORDER BY ro.observed_in_kind, ro.id
+  `, [normalizeReferenceValue(value)]);
+  return result.rows;
+}
+
+export async function searchPassages(client, query, { limit = 20, sha256s = null } = {}) {
+  const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, 100));
+  const result = await client.query(`
+    SELECT ds.id AS segment_id, ds.document_representation_id,
+           dr.file_binary_id, fb.sha256, dr.representation_kind,
+           dr.processor_key, dr.processor_version, ds.segment_kind,
+           ds.sequence_no, ds.page_no, ds.char_start, ds.char_end,
+           ts_rank_cd(ds.search_vector, websearch_to_tsquery('portuguese', $1)) AS rank,
+           ts_headline('portuguese', ds.text_content,
+             websearch_to_tsquery('portuguese', $1),
+             'MaxWords=35, MinWords=12, StartSel=[[, StopSel=]]') AS headline,
+           COALESCE(ctx.contexts, '[]'::jsonb) AS source_contexts,
+           COALESCE(refs.references, '[]'::jsonb) AS reference_observations
+    FROM casework.document_segment ds
+    JOIN casework.document_representation dr ON dr.id = ds.document_representation_id
+    JOIN casework.file_binary fb ON fb.id = dr.file_binary_id
+    LEFT JOIN LATERAL (
+      SELECT jsonb_agg(jsonb_build_object(
+        'bucket_document_id', bd.id, 'document_id', d.id,
+        'process_number', cf.processo, 'occurrence_reference', b.reference_number,
+        'occurrence_date', b.bucket_date, 'designation', b.designation,
+        'document_reference', d.document_procinfo, 'document_name', d.document_name
+      ) ORDER BY b.bucket_date, b.reference_number, d.id) AS contexts
+      FROM casework.document_binary db
+      JOIN casework.document d ON d.id = db.document_id
+      JOIN casework.bucket_document bd ON bd.document_id = d.id
+      JOIN casework.bucket b ON b.id = bd.bucket_id
+      JOIN casework.case_file cf ON cf.id = b.case_file_id
+      WHERE db.file_binary_id = dr.file_binary_id
+    ) ctx ON true
+    LEFT JOIN LATERAL (
+      SELECT jsonb_agg(jsonb_build_object(
+        'id', ro.id, 'raw_value', ro.raw_value, 'raw_label', ro.raw_label,
+        'observed_in_kind', ro.observed_in_kind, 'role_hint', ro.role_hint,
+        'namespace_hint', ro.namespace_hint, 'page_no', ro.page_no,
+        'confidence', ro.confidence, 'review_state', ro.review_state
+      ) ORDER BY ro.id) AS references
+      FROM casework.reference_observation ro
+      WHERE ro.file_binary_id = dr.file_binary_id
+         OR ro.document_representation_id = dr.id
+         OR ro.document_segment_id = ds.id
+    ) refs ON true
+    WHERE ds.search_vector @@ websearch_to_tsquery('portuguese', $1)
+      AND ($3::text[] IS NULL OR fb.sha256 = ANY($3::text[]))
+    ORDER BY rank DESC, ds.id ASC
+    LIMIT $2
+  `, [query, boundedLimit, sha256s]);
+  return result.rows;
+}

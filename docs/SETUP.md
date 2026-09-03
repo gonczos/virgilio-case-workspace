@@ -1,6 +1,6 @@
 # Setup
 
-Last updated: 2026-09-01
+Last updated: 2026-09-03
 
 ## Authority
 
@@ -95,6 +95,10 @@ The root package currently provides:
 * `npm run start:ui`
 * `npm run process:c3:worker`
 * `npm run process:c3:admin`
+* `npm run db:migrate:reference-search`
+* `npm run reference:index:pilot`
+* `npm run reference:lookup -- --value <reference>`
+* `npm run search:pilot -- --query "<terms>"`
 
 ### Optional Processing Dependencies
 
@@ -211,6 +215,24 @@ The repository also contains incremental PostgreSQL migrations under
 
 This repository does not yet provide one canonical migration-runner
 command for existing databases.
+
+The bounded reference/search pilot does provide a narrow idempotent command for
+its own migration:
+
+```powershell
+npm run db:migrate:reference-search
+```
+
+After applying it, seed the frozen pilot fixture with:
+
+```powershell
+npm run reference:index:pilot
+```
+
+This seed is intentionally limited to the fixture under
+`test/fixtures/reference-index-pilot.json`; it does not index or classify the
+full corpus. Exact reference lookup and fixture-only text search are available
+through the commands listed in the Node dependencies section above.
 
 ## Verified Current Startup Path
 

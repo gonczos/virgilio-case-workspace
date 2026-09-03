@@ -20,7 +20,12 @@
     "test:c3.2": "node --test ./test/file-gateway.test.mjs",
     "test:c4.1": "node --test --test-concurrency=1 ./test/consultation-api.test.mjs",
     "test:c5.2": "node --test ./test/phase-c5.2.test.mjs",
-    "test:c5.3.1": "node --test --test-concurrency=1 ./test/phase-c5.3.1.test.mjs"
+    "test:c5.3.1": "node --test --test-concurrency=1 ./test/phase-c5.3.1.test.mjs",
+    "db:migrate:reference-search": "node ./app/apply-reference-search-migration.mjs",
+    "reference:index:pilot": "node ./app/reference-index-pilot.mjs seed",
+    "reference:lookup": "node ./app/reference-index-pilot.mjs lookup",
+    "search:pilot": "node ./app/reference-index-pilot.mjs search",
+    "test:reference-search": "node --test ./test/reference-search-store.test.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"

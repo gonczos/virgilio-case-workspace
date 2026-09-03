@@ -1,0 +1,34 @@
+{
+  "fixture_name": "citius-reference-index-pilot",
+  "fixture_version": 1,
+  "maximum_distinct_binaries": 25,
+  "selection": [
+    { "process": "13608/14.8T2SNT", "bucket_reference": "532882", "sha256": "54046584d5a7817f8932ee6d2d523aa3f0f0084f20aa86f7dcc9ef42b88f9e9c", "reason": "filing sheet reference differs from register assertion" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "84942844", "sha256": "34114da4aed263238ffea1046f35df1fa4d6e4c510244e280a518e4f16b366db", "reason": "November 2014 judicial act" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "84949806", "sha256": "46f2a936ac54053f1c586e8c7f1432a50701190559405c3fa8f37e4e388f01b4", "reason": "November 2014 registry term" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "84950019", "sha256": "a3021253be4c971fd74a27768a7b38171fba5a39c68092b7ed2bd17553497e6d", "reason": "November 2014 judicial act" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "84973771", "sha256": "15d91f9a80102a179fe61238ab4aa56f86c4995363b306f96cbda488a38121f9", "reason": "November conference Ata reused by later occurrence" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "651161", "sha256": "f1062f77d0e3fc9cf0116a29441ae8702e1199ab0fa3bf2ef19d3cd734f19e9f", "reason": "Citius filing sheet and long submission" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "652884", "sha256": "091ce3cd648add43f8d1e4dc78638998cda5c42fab8fa541cd477eb4db7b24be", "reason": "combined filing with several cited references" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "85759502", "sha256": "b99c06f6549463e422a837d488c49d6db0641030873fb309fbcddceae620bce9", "reason": "multi-file occurrence" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "85759502", "sha256": "15d91f9a80102a179fe61238ab4aa56f86c4995363b306f96cbda488a38121f9", "reason": "reused binary in multi-file occurrence" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "105492248", "sha256": "edf500891dea2023e07b754e23883086b4edac9de8b6400dff4623565df251d4", "reason": "cota citing an earlier despacho" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "105398957", "sha256": "67f246ffe670a82607725742314851fe3456a85068fa75d934a3642cdb1bcc20", "reason": "despacho targeted by the cota citation" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "15365104", "sha256": "42116ade6209c3bfe28ce42de3cce4e41f4b02ed5931b507275cfe661b56cc40", "reason": "self-reference and cited prior references" },
+    { "process": "13608/14.8T2SNT-A", "bucket_reference": "110478264", "sha256": "16ee8d2a5e2a9a7124b2287e4284bb1bb4632767442fc42f96dd5eac6a4e81db", "reason": "despacho binary reused by notification occurrence" },
+    { "process": "13608/14.8T2SNT-A", "bucket_reference": "110504576", "sha256": "16ee8d2a5e2a9a7124b2287e4284bb1bb4632767442fc42f96dd5eac6a4e81db", "reason": "notification occurrence reusing despacho binary" },
+    { "process": "13608/14.8T2SNT-A", "bucket_reference": "110506941", "sha256": "a58f085d93f1e0726df423095646a430439014a1d05cdf423a2732791b690f87", "reason": "certification occurrence containing earlier Ata" },
+    { "process": "13608/14.8T2SNT-A", "bucket_reference": "110506941", "sha256": "1618bed495b8060c30dc808665d31b1844d2cc439aae5dd0d8c6d85a707984b7", "reason": "second binary in same certification occurrence" },
+    { "process": "13608/14.8T2SNT-D", "bucket_reference": "133705905", "sha256": "99bbc7b6e893b80ac8e72b01535a8a82ea38e42d38a2ba04f51db13f7b436715", "reason": "package occurrence differs from printed Ofício reference" }
+  ],
+  "missing_binary_selection": [
+    { "process": "13608/14.8T2SNT-E", "bucket_reference": "165718265", "source_document_reference": "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9", "reason": "missing multimedia remains referenceable" },
+    { "process": "13608/14.8T2SNT-E", "bucket_reference": "165718265", "source_document_reference": "C5DD3625-EBA0-4523-B62F-DD7B79DB3F0D", "reason": "separate missing component in same occurrence" }
+  ],
+  "register_assertions": [
+    { "process": "13608/14.8T2SNT", "bucket_reference": "532882", "raw_label": "Citius Filing Reference", "raw_value": "46269572", "review_state": "needs_review" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "651161", "raw_label": "Citius Filing Reference", "raw_value": "36179121", "review_state": "needs_review" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "652884", "raw_label": "Citius Filing Reference", "raw_value": "46269572", "review_state": "needs_review" },
+    { "process": "13608/14.8T2SNT", "bucket_reference": "15365104", "raw_label": "Citius Filing Reference", "raw_value": "32973078", "review_state": "needs_review" }
+  ]
+}
