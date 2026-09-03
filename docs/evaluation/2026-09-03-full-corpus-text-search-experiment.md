@@ -9,6 +9,11 @@ pass rate. A known-target query passes when every expected SHA-256 appears
 within the first ten distinct binaries and its canonical original is readable.
 Processor passages remain independent and can consume the passage limit.
 
+The 9/10 result below was measured with a 100-passage evaluator limit. The UI
+requests 50 passages, so this is not yet the UI-equivalent score. An accepted
+follow-up will rerun this unchanged fixture with a 50-passage override and
+record both configurations separately.
+
 The evaluator uses PostgreSQL `websearch_to_tsquery('portuguese', ...)` through
 the same search function used by the API. Quoted queries therefore exercise
 that parser's syntax; the UI does not advertise a separate guaranteed-verbatim

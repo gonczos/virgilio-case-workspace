@@ -291,6 +291,25 @@ families were retrievable. This supports retaining full-corpus Text search as an
 explicit experimental scope while treating ranking as the next bounded search
 problem; it does not widen reference-observation coverage.
 
+### Accepted follow-up correction
+
+Before using the first score as representative of the UI experience, make two
+bounded corrections:
+
+- describe exact-reference coverage as `pilot reference observations`, not
+  `reviewed pilot observations`; inclusion in the fixture does not establish a
+  completed human review;
+- run the unchanged frozen query fixture at the UI's 50-passage limit as well
+  as the evaluator's original 100-passage limit, and report the two
+  configurations separately.
+
+The 100-passage result remains a valid recorded experiment, but it must not be
+presented as the UI-equivalent score. The follow-up must not revise expected
+binaries, rank thresholds, query text, or exploratory/counting status after
+observing the results. The evaluator should accept an explicit passage-limit
+override so the comparison uses the same code path rather than a copied
+fixture.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
