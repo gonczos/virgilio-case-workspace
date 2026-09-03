@@ -332,6 +332,8 @@ must satisfy this contract:
 - the UI keeps an immutable submitted-search identity containing the query and
   scope that produced the displayed results; editing the controls does not
   change what `Load more` continues;
+- every newly submitted search starts at server offset zero and replaces the
+  accumulated result set; only `Load more` appends and advances the offset;
 - the next offset advances by server rows returned before client-side
   deduplication, preventing a repeated segment from stalling pagination;
 - accumulated passages are deduplicated by segment ID, appended without
