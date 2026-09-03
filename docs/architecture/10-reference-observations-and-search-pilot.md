@@ -727,6 +727,66 @@ external-register observations active.
 After ingestion, inspect current and historical rows for a fixed sample before
 starting corpus-wide API lookup or UI changes.
 
+### Planned read-only recorded-reference API checkpoint
+
+The next checkpoint exposes the persisted reference observations through the
+consultation API. It is read-only: requests must not trigger ingestion,
+reconciliation, lifecycle transitions, or review updates. The combined search
+UI remains a later checkpoint.
+
+API scope and lifecycle are independent dimensions:
+
+- corpus scope is explicitly `pilot` or `full`;
+- lifecycle scope defaults to `current` and requires an explicit
+  diagnostic/history option to include `superseded` and
+  `retired_source_absent` observations.
+
+Selecting history must not widen corpus scope, and selecting full scope must
+not include historical observations implicitly. Superseded legacy pilot
+metadata must appear only when history is explicitly requested and must not be
+returned as a second current observation beside its directly anchored
+replacement.
+
+Recorded-reference results paginate independently from document-text search.
+They use the agreed deterministic order: court-system metadata, then
+external-register metadata, then document-text observations; within each
+origin, directly anchored occurrence date oldest first with unavailable dates
+last, followed by stable observation identity. Pagination must preserve that
+ordering and must not borrow dates from associated occurrences.
+
+Each result keeps these concepts separate:
+
+- the observed raw and normalized reference value;
+- `direct_anchor`, identifying the record or representation where it was
+  observed;
+- `associated_contexts`, containing related occurrences, documents, and
+  binaries without presenting them as the observation anchor;
+- lifecycle state;
+- provenance origin;
+- ingestion/observer identity and version;
+- human-review state and reviewed resolution, if present;
+- ingestion target candidates, kept separate from reviewed resolution; and
+- binary-association state.
+
+An `openable_binary` action is returned only when a usable associated binary
+exists. Missing-file observations remain valid results but do not receive a
+fabricated file action. Multiple associated binaries remain a collection; the
+API does not choose one silently.
+
+Every response describes its coverage independently from its matches. At
+minimum it reports the selected corpus and lifecycle scopes, included origins,
+and known coverage limitations. `result_state` distinguishes matches, no
+matches within the declared coverage, and incomplete or unavailable coverage.
+A no-match response must not imply that the referenced document or event is
+absent from the court record.
+
+The API acceptance gate covers current-only and history queries, independent
+pilot/full scope behavior, stable pagination, all three provenance origins,
+direct anchors versus associated contexts, reviewed resolution versus
+ingestion candidates, missing and mixed binary availability, and suppression
+of superseded pilot duplicates. Saved responses and focused API tests must pass
+before the multi-method UI checkpoint begins.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
