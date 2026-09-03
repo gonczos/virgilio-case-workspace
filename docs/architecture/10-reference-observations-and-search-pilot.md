@@ -570,7 +570,8 @@ recorded in `docs/evaluation/2026-09-03-reference-metadata-inventory.md`.
 Metadata ingestion, corpus-wide lookup, and the multi-method UI remain
 unimplemented. Detailed overlap groups preserve raw-value-to-source
 associations and include same-field, same-proceeding reuse across separate
-source records.
+source records as well as multiple occurrence links to the same source
+document.
 
 ## Review ownership and reseeding
 

@@ -31,15 +31,15 @@ collapse, and uppercase conversion while retaining every raw value.
 - Fifteen source document references change under normalization.
 - No distinct raw values collapse to the same normalized value, either within
   a field or across the inventoried fields.
-- There are 1,135 contextual overlap groups. These are not normalization
+- There are 1,400 contextual overlap groups. These are not normalization
   collisions: 897 are the same value appearing in both `bucket_id` and
-  `reference_number`, and 238 are source document references associated with
-  more than one process context.
+  `reference_number`, 238 are source document references associated with more
+  than one process context, and 265 are the same source document recorded in
+  multiple occurrences within one proceeding.
 - Detailed groups retain each raw value together with its source field,
   identifier type, source record, process context, directly anchored date, and
-  binary state. The detector also includes reuse across separate source records
-  within one field and proceeding; the current corpus contains no additional
-  groups of that form.
+  binary state and occurrence-link identity. The detector also includes reuse
+  across separate source records within one field and proceeding.
 - The current pilot contains 57 observations over 47 normalized values.
   Metadata source-record overlaps are reported per field in the table above;
   the same value can overlap more than one field and is not a resolved identity.

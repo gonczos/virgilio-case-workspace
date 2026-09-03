@@ -18,11 +18,11 @@ const INVENTORY_SQL = `
   SELECT 'case_file.processo' AS source_field, cf.id::text AS source_record_id,
          cf.processo AS raw_value, cf.processo AS process_context,
          NULL::date AS anchored_occurrence_date, NULL::text AS binary_state,
-         NULL::text AS field_identifier_type
+         NULL::text AS field_identifier_type, NULL::text AS occurrence_record_id
   FROM casework.case_file cf
   UNION ALL
   SELECT 'case_file.idprocesso', cf.id::text, cf.idprocesso, cf.processo,
-         NULL::date, NULL::text, NULL::text
+         NULL::date, NULL::text, NULL::text, NULL::text
   FROM casework.case_file cf
   UNION ALL
   SELECT 'bucket.bucket_id', b.id::text, b.bucket_id, cf.processo,
@@ -32,7 +32,7 @@ const INVENTORY_SQL = `
            JOIN casework.document_binary db ON db.document_id = bd.document_id
            WHERE bd.bucket_id = b.id
          ) THEN 'linked_binary' ELSE 'missing_or_no_binary' END,
-         NULL::text
+         NULL::text, b.id::text
   FROM casework.bucket b
   JOIN casework.case_file cf ON cf.id = b.case_file_id
   UNION ALL
@@ -43,7 +43,7 @@ const INVENTORY_SQL = `
            JOIN casework.document_binary db ON db.document_id = bd.document_id
            WHERE bd.bucket_id = b.id
          ) THEN 'linked_binary' ELSE 'missing_or_no_binary' END,
-         NULL::text
+         NULL::text, b.id::text
   FROM casework.bucket b
   JOIN casework.case_file cf ON cf.id = b.case_file_id
   UNION ALL
@@ -52,7 +52,7 @@ const INVENTORY_SQL = `
          CASE WHEN EXISTS (
            SELECT 1 FROM casework.document_binary db WHERE db.document_id = d.id
          ) THEN 'linked_binary' ELSE 'missing_binary' END,
-         NULL::text
+         NULL::text, bd.id::text
   FROM casework.document d
   LEFT JOIN casework.bucket_document bd ON bd.document_id = d.id
   LEFT JOIN casework.bucket b ON b.id = bd.bucket_id
@@ -60,7 +60,7 @@ const INVENTORY_SQL = `
   UNION ALL
   SELECT 'case_workspace_reference.reference_value', cwr.id::text,
          cwr.reference_value, cf.processo, NULL::date, NULL::text,
-         cwr.reference_kind
+         cwr.reference_kind, NULL::text
   FROM casework.case_workspace_reference cwr
   LEFT JOIN casework.case_file cf ON cf.case_workspace_id = cwr.case_workspace_id
   ORDER BY source_field, source_record_id, process_context, anchored_occurrence_date
@@ -151,17 +151,19 @@ export function summarizeReferenceMetadataRows(rows, pilotObservations = []) {
       source_record_id: row.source_record_id,
       anchored_occurrence_date: row.anchored_occurrence_date,
       binary_state: row.binary_state,
+      occurrence_record_id: row.occurrence_record_id,
     });
     collisionMap.set(row.normalized_value, entries);
   }
   const overlaps = [...collisionMap.entries()]
     .map(([normalizedValue, entries]) => {
       const sourceAssociations = [...new Map(entries.map((entry) => [
-        [entry.source_field, entry.source_record_id, entry.process_context ?? "", entry.anchored_occurrence_date ?? ""].join("\u001f"),
+        [entry.source_field, entry.source_record_id, entry.occurrence_record_id ?? "", entry.process_context ?? "", entry.anchored_occurrence_date ?? ""].join("\u001f"),
         entry,
       ])).values()].sort((left, right) => (
         left.source_field.localeCompare(right.source_field)
         || String(left.source_record_id).localeCompare(String(right.source_record_id))
+        || String(left.occurrence_record_id ?? "").localeCompare(String(right.occurrence_record_id ?? ""))
         || String(left.process_context ?? "").localeCompare(String(right.process_context ?? ""))
         || String(left.anchored_occurrence_date ?? "").localeCompare(String(right.anchored_occurrence_date ?? ""))
       ));
@@ -173,10 +175,11 @@ export function summarizeReferenceMetadataRows(rows, pilotObservations = []) {
       process_contexts: [...new Set(entries.map((entry) => entry.process_context).filter(Boolean))].sort(),
       observation_context_count: entries.length,
       source_record_count: new Set(entries.map((entry) => `${entry.source_field}\u001f${entry.source_record_id}`)).size,
+      source_association_count: sourceAssociations.length,
       source_associations: sourceAssociations,
     };
     })
-    .filter((item) => item.distinct_raw_values.length > 1 || item.source_fields.length > 1 || item.process_contexts.length > 1 || item.source_record_count > 1)
+    .filter((item) => item.distinct_raw_values.length > 1 || item.source_fields.length > 1 || item.process_contexts.length > 1 || item.source_record_count > 1 || item.source_association_count > 1)
     .sort((left, right) => left.normalized_value.localeCompare(right.normalized_value));
   const normalizationCollisions = overlaps.filter((item) => item.distinct_raw_values.length > 1);
 

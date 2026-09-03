@@ -38,6 +38,17 @@ test("inventory reports reuse by separate records within the same field and proc
   assert.deepEqual(overlap.source_associations.map((item) => item.source_record_id), ["4", "5"]);
 });
 
+test("inventory reports repeated occurrences of the same source document", () => {
+  const report = summarizeReferenceMetadataRows([
+    { source_field: "document.document_procinfo", source_record_id: "4", occurrence_record_id: "10", raw_value: "DOC-4", process_context: "A", anchored_occurrence_date: "2020-01-01" },
+    { source_field: "document.document_procinfo", source_record_id: "4", occurrence_record_id: "11", raw_value: "DOC-4", process_context: "A", anchored_occurrence_date: "2020-01-01" },
+  ]);
+  const overlap = report.contextual_overlap_summary.groups[0];
+  assert.equal(overlap.source_record_count, 1);
+  assert.equal(overlap.source_association_count, 2);
+  assert.deepEqual(overlap.source_associations.map((item) => item.occurrence_record_id), ["10", "11"]);
+});
+
 test("same raw identifier reused across fields is overlap, not a normalization collision", () => {
   const report = summarizeReferenceMetadataRows([
     { source_field: "bucket.bucket_id", source_record_id: "1", raw_value: "123", process_context: "A" },
