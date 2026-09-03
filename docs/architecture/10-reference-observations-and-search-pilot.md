@@ -489,6 +489,66 @@ browser new-tab actions. External-window links must use the appropriate
 This is a recorded TODO only. The URL schema and navigation behavior are not
 implemented by the current slice.
 
+### Planned corpus-wide recorded-reference expansion
+
+The consultation search will distinguish search method from corpus scope. The
+intended user-facing selector is `Search in`, with:
+
+- `Document text` — linguistic full-text search over processor-attributed
+  representations;
+- `Recorded references` — normalized exact lookup over structured reference
+  observations; and
+- `Both` — independent execution and presentation of both methods.
+
+`Document text` is the initial default; the application may later remember the
+user's last selection. `Both` is orchestration, not a combined search engine:
+each section loads, fails, reports empty results, counts, and paginates
+independently. A failure in recorded-reference lookup must not hide successful
+text results. Results are not merged or assigned a shared ranking, and the same
+binary or value may legitimately appear in both sections with different
+meaning. `Text result order` affects only the document-text section.
+
+Recorded-reference coverage will expand in two separate phases. First, ingest
+references already recorded in metadata across the corpus while preserving the
+source record, procedural occurrence, process, linked binary when available,
+and explicit missing-binary state. Second, evaluate labelled references found
+inside documents on a fixed sample before any corpus-wide expansion. These are
+observations, not automatically resolved links; generated and unreviewed
+observations may be searchable when labelled honestly.
+
+Three provenance origins remain distinct:
+
+1. court-system metadata;
+2. external-register metadata; and
+3. document-text observations.
+
+The initial deterministic recorded-reference order is court-system metadata,
+then external-register metadata, then document-text observations. Within each
+origin, use only the observation's directly anchored occurrence date, oldest
+first with unavailable dates last, followed by stable observation identity.
+Do not borrow a date from another occurrence of a reused binary. Associated
+occurrences remain visible separately as context. Normalized value is not an
+ordering key within exact lookup because every returned observation already
+shares that value.
+
+The next concrete step is a read-only inventory, before ingestion, schema, API,
+or UI changes. It must identify every metadata field capable of containing a
+reference and report its source/table semantics; total, populated, distinct,
+and malformed counts; coverage by process and occurrence; linked- versus
+missing-binary counts; reuse across binaries, documents, or processes;
+availability of directly anchored dates; overlap with pilot observations;
+normalization effects and collisions; and whether provenance can be reproduced
+without inference. The inventory defines the honest corpus-wide coverage claim
+and whether individual fields require separate ingestion rules.
+
+Once corpus-wide recorded-reference coverage exists, the development fixture
+should leave the main user controls and remain available as an evaluation
+option. A literal character-for-character text search, if needed, is a separate
+future behavior; the linguistic document-text index does not promise it.
+
+This section records the agreed plan only. The read-only inventory and all
+subsequent ingestion and UI work remain unimplemented.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
