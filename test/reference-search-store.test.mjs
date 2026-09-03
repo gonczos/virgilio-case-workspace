@@ -179,3 +179,38 @@ test("human review is written through a separate review-owned upsert", async () 
   assert.deepEqual(calls[0].params.slice(0, 2), [42, "citius_occurrence_reference"]);
   assert.equal(calls[0].params[4], "resolved");
 });
+
+test("extracts coordinated procedural continuation with inherited-label provenance", () => {
+  const text = "referência citius: 122170551 e 122178618 respectivamente";
+  const rows = extractLabelledReferences(text);
+  assert.deepEqual(rows.map((row) => row.raw_value), ["122170551", "122178618"]);
+  assert.equal(rows[0].label_provenance.kind, "direct");
+  assert.equal(rows[1].rule_key, "procedural-coordination-respectivamente-v1");
+  assert.deepEqual(rows[1].label_provenance, {
+    kind: "inherited_from_coordinated_expression",
+    source_label: "referência citius",
+    label_char_start: 0,
+    label_char_end: 17,
+    coordination_cue: "respectivamente",
+    preceding_value: "122170551",
+  });
+  assert.equal(text.slice(rows[1].char_start, rows[1].char_end), "122178618");
+});
+
+test("extracts atomic coordinated attachments without repairing raw text", () => {
+  const text = "com os Doc nº Doc 25 e 25 A tradução";
+  const rows = extractLabelledReferences(text);
+  assert.deepEqual(rows.map((row) => row.raw_value), ["Doc nº Doc 25", "25 A"]);
+  assert.deepEqual(rows.map((row) => row.parsed_reference_value), ["25", "25A"]);
+  assert.equal(rows[0].rule_key, "local-attachment-duplicated-doc-v1");
+  assert.equal(rows[0].transcription_status, "possible_duplicated_label_anomaly");
+  assert.equal(rows[1].rule_key, "local-attachment-coordination-v1");
+  assert.equal(rows[1].label_provenance.kind, "inherited_from_coordinated_expression");
+  assert.equal(text.slice(rows[0].char_start, rows[0].char_end), "Doc nº Doc 25");
+  assert.equal(text.slice(rows[1].char_start, rows[1].char_end), "25 A");
+});
+
+test("narrow coordination and attachment rules do not recognize dates", () => {
+  const dates = "26.10.2015 22/05/2017 15 /07/2017 4.04.2018 21/12/ 2018 21/07/ 2020 15-072020 10.9.2018 8.8.2018 22.03.2021 29.01.2020 10.02.2020";
+  assert.deepEqual(extractLabelledReferences(dates), []);
+});

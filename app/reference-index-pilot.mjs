@@ -292,6 +292,11 @@ async function addLiteralTextObservations(client, row, fixtureMetadata) {
           fixture_name: fixtureMetadata.fixture_name,
           fixture_version: fixtureMetadata.fixture_version,
           location_limitation: segment.page_no ? null : "document_level_only",
+          extractor_rule_key: found.rule_key,
+          label_provenance: found.label_provenance,
+          reference_family: found.reference_family ?? null,
+          parsed_reference_value: found.parsed_reference_value ?? null,
+          transcription_status: found.transcription_status ?? null,
         },
       });
     }

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 
 export const REFERENCE_EXTRACTOR_KEY = "app/reference-search-store.mjs";
-export const REFERENCE_EXTRACTOR_VERSION = "labelled-reference-v3";
+export const REFERENCE_EXTRACTOR_VERSION = "labelled-reference-v4";
 
 export function normalizeReferenceValue(value) {
   return String(value ?? "").normalize("NFKC").trim().replace(/\s+/gu, " ").toUpperCase();
@@ -15,37 +15,141 @@ function compactContext(text, start, end, radius = 90) {
 
 export function extractLabelledReferences(text) {
   const source = String(text ?? "");
-  const patterns = [
-    { role: "cited_reference", regex: /\b(SOB\s+A\s+REF[.ªº]*|COM\s+A\s+REF[.ªº]*|REFER[ÊE]NCIA\s+CITIUS\s*(?:N[.º°O]+)?)(?:\s*[:.]\s*|\s+)([A-Z0-9][A-Z0-9./_-]{4,})/giu },
-    { role: "labelled_reference", regex: /\b(REF(?:ER[ÊE]NCIA)?\s*(?:N[.º°O]+)?|REF[.ªº]*)(?:\s*[:.]\s*|\s+)([A-Z0-9][A-Z0-9./_-]{4,})/giu },
-  ];
   const observations = [];
   const seen = new Set();
-  for (const { role, regex } of patterns) {
+
+  function addObservation({ rawValue, rawLabel, role, ruleKey, charStart, charEnd, labelProvenance, metadata = {} }) {
+    const normalizedValue = normalizeReferenceValue(rawValue);
+    const key = `${charStart}:${charEnd}:${normalizedValue}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    observations.push({
+      raw_value: rawValue,
+      normalized_value: normalizedValue,
+      raw_label: rawLabel,
+      role_hint: role,
+      rule_key: ruleKey,
+      label_provenance: labelProvenance,
+      char_start: charStart,
+      char_end: charEnd,
+      context_text: compactContext(source, charStart, charEnd),
+      ...metadata,
+    });
+  }
+
+  const directPatterns = [
+    {
+      ruleKey: "cited-reference-labelled-v3",
+      role: "cited_reference",
+      regex: /\b(SOB\s+A\s+REF[.ªº]*|COM\s+A\s+REF[.ªº]*|REFER[ÊE]NCIA\s+CITIUS\s*(?:N[.º°O]+)?)(?:\s*[:.]\s*|\s+)([A-Z0-9][A-Z0-9./_-]{4,})/giu,
+    },
+    {
+      ruleKey: "reference-labelled-v3",
+      role: "labelled_reference",
+      regex: /\b(REF(?:ER[ÊE]NCIA)?\s*(?:N[.º°O]+)?|REF[.ªº]*)(?:\s*[:.]\s*|\s+)([A-Z0-9][A-Z0-9./_-]{4,})/giu,
+    },
+  ];
+  for (const { role, regex, ruleKey } of directPatterns) {
     for (const match of source.matchAll(regex)) {
       const rawLabel = match[1].trim();
       const rawValue = match[2].replace(/[.,;:)]+$/gu, "");
       if (/^REFER/iu.test(rawLabel) && /^CITIUS$/iu.test(rawValue)) continue;
-      const normalizedValue = normalizeReferenceValue(rawValue);
       const charStart = match.index + match[0].lastIndexOf(match[2]);
-      const charEnd = charStart + rawValue.length;
-      const key = `${charStart}:${charEnd}:${normalizedValue}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      observations.push({
-        raw_value: rawValue,
-        normalized_value: normalizedValue,
-        raw_label: rawLabel,
-        role_hint: role,
-        char_start: charStart,
-        char_end: charEnd,
-        context_text: compactContext(source, charStart, charEnd),
+      addObservation({
+        rawValue,
+        rawLabel,
+        role,
+        ruleKey,
+        charStart,
+        charEnd: charStart + rawValue.length,
+        labelProvenance: {
+          kind: "direct",
+          source_label: rawLabel,
+          label_char_start: match.index,
+          label_char_end: match.index + match[1].length,
+        },
       });
     }
   }
+
+  const coordinatedProcedural = /\b(REFER[ÊE]NCIA\s+CITIUS\s*(?:N[.º°O]+)?|REF(?:ER[ÊE]NCIA)?\s*(?:N[.º°O]+)?|REF[.ªº]*)\s*[:.]?\s*([A-Z0-9][A-Z0-9./_-]{4,})\s+e\s+([A-Z0-9][A-Z0-9./_-]{4,})(?=\s+respectivamente\b)/giu;
+  for (const match of source.matchAll(coordinatedProcedural)) {
+    const rawLabel = match[1].trim();
+    const rawValue = match[3].replace(/[.,;:)]+$/gu, "");
+    const charStart = match.index + match[0].lastIndexOf(match[3]);
+    addObservation({
+      rawValue,
+      rawLabel,
+      role: "coordinated_reference",
+      ruleKey: "procedural-coordination-respectivamente-v1",
+      charStart,
+      charEnd: charStart + rawValue.length,
+      labelProvenance: {
+        kind: "inherited_from_coordinated_expression",
+        source_label: rawLabel,
+        label_char_start: match.index,
+        label_char_end: match.index + match[1].length,
+        coordination_cue: "respectivamente",
+        preceding_value: match[2],
+      },
+    });
+  }
+
+  const primaryAttachment = /\b(DOC\s+N[.º°O]*\s+DOC\s+(\d+[A-Z]?))/giu;
+  for (const match of source.matchAll(primaryAttachment)) {
+    const rawValue = match[1];
+    const rawLabel = rawValue.slice(0, rawValue.lastIndexOf(match[2])).trim();
+    const charStart = match.index;
+    addObservation({
+      rawValue,
+      rawLabel,
+      role: "local_attachment_reference",
+      ruleKey: "local-attachment-duplicated-doc-v1",
+      charStart,
+      charEnd: charStart + rawValue.length,
+      labelProvenance: {
+        kind: "direct",
+        source_label: rawLabel,
+        label_char_start: match.index,
+        label_char_end: match.index + rawLabel.length,
+      },
+      metadata: {
+        reference_family: "local_attachment",
+        parsed_reference_value: match[2],
+        transcription_status: "possible_duplicated_label_anomaly",
+      },
+    });
+  }
+
+  const coordinatedAttachment = /\bDOC\s+N[.º°O]*\s+DOC\s+(\d+[A-Z]?)\s+e\s+(\d+\s*[A-Z])\b/giu;
+  for (const match of source.matchAll(coordinatedAttachment)) {
+    const rawValue = match[2];
+    const labelText = match[0].slice(0, match[0].indexOf(match[1])).trim();
+    const charStart = match.index + match[0].lastIndexOf(match[2]);
+    addObservation({
+      rawValue,
+      rawLabel: labelText,
+      role: "local_attachment_reference",
+      ruleKey: "local-attachment-coordination-v1",
+      charStart,
+      charEnd: charStart + rawValue.length,
+      labelProvenance: {
+        kind: "inherited_from_coordinated_expression",
+        source_label: labelText,
+        label_char_start: match.index,
+        label_char_end: match.index + labelText.length,
+        coordination_cue: "e",
+        preceding_value: match[1],
+      },
+      metadata: {
+        reference_family: "local_attachment",
+        parsed_reference_value: rawValue.replace(/\s+/gu, ""),
+      },
+    });
+  }
+
   return observations.sort((a, b) => a.char_start - b.char_start || a.normalized_value.localeCompare(b.normalized_value));
 }
-
 export function buildObservationKey(observation) {
   const identity = [
     observation.observer_key,

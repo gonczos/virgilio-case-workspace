@@ -58,9 +58,15 @@ source facts. Values supplied by the external Document Register remain
 `metadata_row` assertions with `needs_review` when their meaning or target is not
 established.
 
-The labelled-reference extractor is intentionally conservative. It records only
-explicitly labelled forms such as `REF` or `sob a ref.` from literal PDF text. It
-does not treat every number as a reference.
+The labelled-reference extractor is intentionally conservative. Version
+`labelled-reference-v4` records explicitly labelled forms such as `REF` or
+`sob a ref.`, a second coordinated procedural value only when the construction
+ends in `respectivamente`, and the reviewed duplicated-`Doc` attachment form
+with its coordinated value. It does not treat every number as a reference.
+Every prediction records a stable extractor rule key and whether its label was
+direct or inherited from an anchored coordinated expression. Attachment
+normalization, transcription flags, and inherited-label provenance remain
+separate from the immutable raw span and do not resolve a target.
 
 ## Text-search projection
 
