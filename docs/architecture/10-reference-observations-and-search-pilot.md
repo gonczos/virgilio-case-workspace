@@ -150,11 +150,25 @@ an observation is never itself presented as a resolved target. Extractor records
 also state whether they are current, older, or an older record retained because
 it has a review.
 
+Each exact-lookup item also retains the full binary SHA-256 when a binary exists
+and every linked source-document and procedural-occurrence context returned by
+the database. These contexts are not collapsed to the occurrence on which the
+observation was recorded: a client must be able to see reuse and navigate
+directly to `/api/consultation/binaries/<sha256>`. A missing binary is represented
+by a null binary identity rather than by dropping its source-record context.
+
 Search hits expose `passage_reference_observations` and
 `contextual_reference_observations` separately. Locations use one of three
 explicit states: `document_level`, `processor_page_unverified`, or
 `verified_pdf_page`. A numeric processor page is not promoted to a verified PDF
 page without explicit verification metadata.
+
+Observation locations additionally distinguish their evidence channel.
+`document_level` is reserved for observations made in document content without
+a page mapping. Source-system fields use `source_record`; external register or
+other metadata assertions use `metadata_record`; an observation anchored only to
+a binary uses `binary_level`. Metadata-only observations must never be presented
+as locations within document content.
 
 ## Review ownership and reseeding
 
