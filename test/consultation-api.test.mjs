@@ -195,6 +195,42 @@ test("reference pilot API separates observations from targets and includes missi
       assert.equal(citation.extractor_observation_state, "current");
       assert.equal(citation.target_resolution.state, "unresolved");
       assert.equal(citation.target_resolution.resolved_target, null);
+      assert.equal(
+        citation.binary_identity.sha256,
+        "edf500891dea2023e07b754e23883086b4edac9de8b6400dff4623565df251d4",
+      );
+      assert.equal(
+        citation.binary_identity.detail_api_path,
+        `/api/consultation/binaries/${citation.binary_identity.sha256}`,
+      );
+      assert.equal(citation.observation.location.kind, "document_level");
+      assert.equal(
+        citation.source_contexts.some(
+          (context) => context.occurrence_reference === "105492248"
+            && String(context.occurrence_date).startsWith("2017-03-02"),
+        ),
+        true,
+      );
+      const despacho = payload.items.find(
+        (item) => item.observation.role_hint === "source_recorded_occurrence_identifier",
+      );
+      assert.ok(despacho);
+      assert.equal(
+        despacho.binary_identity.sha256,
+        "67f246ffe670a82607725742314851fe3456a85068fa75d934a3642cdb1bcc20",
+      );
+      assert.equal(despacho.observation.location.kind, "source_record");
+      assert.equal(
+        despacho.source_contexts.some(
+          (context) => context.occurrence_reference === "105398957"
+            && String(context.occurrence_date).startsWith("2017-03-01"),
+        ),
+        true,
+      );
+      assert.equal(
+        despacho.source_contexts.some((context) => context.occurrence_reference === "116323638"),
+        true,
+      );
 
       const missingValue = "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9";
       const missing = await request(
@@ -209,6 +245,21 @@ test("reference pilot API separates observations from targets and includes missi
       assert.ok(missingObservation);
       assert.equal(missingObservation.observation.provenance.file_binary_id, null);
       assert.equal(missingObservation.observation.provenance.occurrence_reference, "165718265");
+      assert.equal(missingObservation.binary_identity, null);
+      assert.equal(missingObservation.observation.location.kind, "source_record");
+      assert.equal(missingObservation.source_contexts[0].occurrence_reference, "165718265");
+
+      const metadata = await request(
+        baseUrl,
+        "/api/consultation/reference-pilot/references/46269572",
+      );
+      assert.equal(metadata.statusCode, 200);
+      const metadataPayload = JSON.parse(metadata.body);
+      assert.equal(metadataPayload.items.length, 2);
+      assert.equal(
+        metadataPayload.items.every((item) => item.observation.location.kind === "metadata_record"),
+        true,
+      );
     });
   });
 });

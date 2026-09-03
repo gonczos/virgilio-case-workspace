@@ -170,17 +170,36 @@ export async function lookupReference(client, value, { fixtureName = null } = {}
     LEFT JOIN casework.case_file cf ON cf.id = b.case_file_id
     LEFT JOIN LATERAL (
       SELECT jsonb_agg(jsonb_build_object(
-        'bucket_document_id', bd2.id, 'document_id', d2.id,
-        'process_number', cf2.processo, 'occurrence_reference', b2.reference_number,
-        'occurrence_date', b2.bucket_date, 'designation', b2.designation,
-        'document_reference', d2.document_procinfo
-      ) ORDER BY b2.bucket_date, b2.reference_number, d2.id) AS contexts
-      FROM casework.document_binary db2
-      JOIN casework.document d2 ON d2.id = db2.document_id
-      JOIN casework.bucket_document bd2 ON bd2.document_id = d2.id
-      JOIN casework.bucket b2 ON b2.id = bd2.bucket_id
-      JOIN casework.case_file cf2 ON cf2.id = b2.case_file_id
-      WHERE db2.file_binary_id = ro.file_binary_id
+        'bucket_document_id', context_row.bucket_document_id,
+        'document_id', context_row.document_id,
+        'process_number', context_row.process_number,
+        'occurrence_reference', context_row.occurrence_reference,
+        'occurrence_date', context_row.occurrence_date,
+        'designation', context_row.designation,
+        'document_reference', context_row.document_reference
+      ) ORDER BY context_row.occurrence_date, context_row.occurrence_reference,
+        context_row.document_id) AS contexts
+      FROM (
+        SELECT bd_direct.id AS bucket_document_id, d_direct.id AS document_id,
+               cf_direct.processo AS process_number,
+               b_direct.reference_number AS occurrence_reference,
+               b_direct.bucket_date AS occurrence_date,
+               b_direct.designation, d_direct.document_procinfo AS document_reference
+        FROM casework.bucket_document bd_direct
+        JOIN casework.document d_direct ON d_direct.id = bd_direct.document_id
+        JOIN casework.bucket b_direct ON b_direct.id = bd_direct.bucket_id
+        JOIN casework.case_file cf_direct ON cf_direct.id = b_direct.case_file_id
+        WHERE bd_direct.id = ro.bucket_document_id
+        UNION
+        SELECT bd2.id, d2.id, cf2.processo, b2.reference_number,
+               b2.bucket_date, b2.designation, d2.document_procinfo
+        FROM casework.document_binary db2
+        JOIN casework.document d2 ON d2.id = db2.document_id
+        JOIN casework.bucket_document bd2 ON bd2.document_id = d2.id
+        JOIN casework.bucket b2 ON b2.id = bd2.bucket_id
+        JOIN casework.case_file cf2 ON cf2.id = b2.case_file_id
+        WHERE db2.file_binary_id = ro.file_binary_id
+      ) context_row
     ) ctx ON true
     WHERE ro.normalized_value = $1
       AND ($2::text IS NULL OR ro.metadata_json->>'fixture_name' = $2)

@@ -21,6 +21,23 @@ export async function loadReferencePilotFixture() {
 }
 
 function observationLocation(observation) {
+  if (observation.observed_in_kind === "source_record") {
+    return { kind: "source_record", pdf_page: null };
+  }
+  if (observation.observed_in_kind === "metadata_row") {
+    return { kind: "metadata_record", pdf_page: null };
+  }
+  const hasDocumentContentAnchor = (
+    observation.document_segment_id !== null
+      && observation.document_segment_id !== undefined
+  ) || (
+    observation.document_representation_id !== null
+      && observation.document_representation_id !== undefined
+  );
+  if (!hasDocumentContentAnchor && observation.file_binary_id !== null
+    && observation.file_binary_id !== undefined) {
+    return { kind: "binary_level", pdf_page: null };
+  }
   if (observation.page_no === null || observation.page_no === undefined) {
     return { kind: "document_level", pdf_page: null };
   }
@@ -43,6 +60,16 @@ export function buildReferencePilotObservation(observation) {
   const reviewedCandidates = observation.review?.target_candidates ?? [];
   const resolutionState = observation.review?.resolution_state ?? "unresolved";
   return {
+    binary_identity: observation.sha256 ? {
+      file_binary_id: observation.file_binary_id,
+      sha256: observation.sha256,
+      detail_api_path: `/api/consultation/binaries/${observation.sha256}`,
+    } : null,
+    source_document_identity: observation.document_id ? {
+      document_id: observation.document_id,
+      source_document_reference: observation.document_procinfo ?? null,
+    } : null,
+    source_contexts: observation.source_contexts ?? [],
     observation: {
       id: observation.id,
       observation_key: observation.observation_key,
@@ -102,6 +129,10 @@ export async function lookupReferencePilot(client, value) {
     semantics: {
       observations_are_not_resolved_targets: true,
       reviewed_resolution_is_separate: true,
+      observation_location_kinds: [
+        "source_record", "metadata_record", "binary_level", "document_level",
+        "processor_page_unverified", "verified_pdf_page",
+      ],
     },
     items: rows.map(buildReferencePilotObservation),
   };
