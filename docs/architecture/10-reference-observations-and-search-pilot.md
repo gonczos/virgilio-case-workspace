@@ -413,6 +413,47 @@ continuation is pending, and the handler independently guards the
 initial-search race rather than relying only on asynchronously updated React
 state.
 
+### Planned search-results presentation slice
+
+The next UI-only slice will make each result answer three questions before
+showing detailed provenance: what the document is, why it matched, and how to
+open the original. It does not change indexing, ranking, grouping, reference
+resolution, or evidence semantics.
+
+For text search, each binary card shows the highest-ranked matching passage
+already returned for that binary. Selection is deterministic and the preview
+retains its processor and version; text from independent representations is
+never combined and the preview does not establish a preferred extraction.
+Remaining hits are available under `More matching passages`, with their own
+representation labels and provenance.
+
+The active chronological order makes its positioning date prominent and labels
+it `Earliest recorded occurrence` or `Latest recorded occurrence`. Under
+relevance ordering, occurrence dates are context only and are not described as
+the reason for position. Repeated occurrences are summarized initially and
+expand to complete occurrence and source details. Technical identifiers remain
+available but do not dominate the scanning view. The original-file action is
+labelled `Open original PDF` where the binary is a PDF.
+
+Search mode remains above the primary input. Text scope stays with the search
+controls because it applies only when Search is submitted. Order moves to the
+submitted-results heading because it immediately reruns that submitted query
+and scope, ignoring unsubmitted control edits. It remains disabled while a
+replacement search or continuation is pending. Exact-reference mode instead
+states that lookup covers pilot reference observations only. The longer search
+coverage explanation is collapsed behind `About search coverage`.
+
+Normal continuation is rendered as neutral status: loaded binary and passage
+counts plus whether more results are available. Exact-reference cards must
+distinguish source-recorded metadata observations from references mentioned in
+document content. Only the latter necessarily has a document excerpt.
+
+Acceptance requires both text and exact-reference examples. Without expanding
+a text card, a user must be able to identify the document, see the deterministic
+processor-attributed preview, understand any chronological positioning date,
+and open the original. Expansion must preserve all occurrences, matching
+representations, observation locations, and technical provenance.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
