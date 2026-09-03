@@ -40,9 +40,15 @@ retry for the requested order without affecting recorded references.
   requested/displayed ordering, and existing text pagination/grouping tests.
 - `git diff --check` passed.
 
-Automated browser control was not available in this session. The production
-build and live API behavior are validated, but the documented live visual and
-interaction walkthrough remains a narrow manual review item.
+The live interaction walkthrough was completed in headless Chrome against
+`http://localhost:5173/reference-search`. It confirmed that full-corpus text
+search renders grouped PDFs and processor-specific secondary passages; Both
+mode renders document-text and recorded-reference results independently; and
+original-PDF actions are present where binaries are available. The missing-file
+fixture `2DD25E59-706D-44E7-A6DC-2A55C49EF3F9` remained retrievable as a source
+record, displayed `Source record retained; the original file was unavailable.`,
+offered no invented PDF action, and independently reported no document-text
+matches without implying that the document was absent.
 
 Follow-up correction: every matching processor/page hit now renders its own
 passage and contextual reference observations. Binary grouping no longer hides
