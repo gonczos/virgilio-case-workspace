@@ -354,11 +354,11 @@ export async function ingestMetadataReferences(client, { write = false } = {}) {
   };
 
   await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
-  result.mutation_statements_issued = true;
   try {
     const plan = await loadPlan(client);
     result.attempted = { ...plan.counts };
     result.desired_observation_count = plan.desired.length;
+    result.mutation_statements_issued = plan.operations.some(({ kind }) => kind !== "unchanged");
     const insertedIds = new Map();
     for (const operation of plan.operations.filter((item) => item.kind === "supersede")) {
       await setLifecycle(client, operation, "superseded", operation.related?.id ?? null);

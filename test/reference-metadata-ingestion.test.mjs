@@ -150,6 +150,7 @@ test("failed write rolls back and reports zero committed changes", async () => {
       assert.equal(error.message, "synthetic failure");
       assert.equal(error.ingestion_result.attempted.insert, 1);
       assert.equal(error.ingestion_result.committed.insert, 0);
+      assert.equal(error.ingestion_result.mutation_statements_issued, true);
       return true;
     },
   );
@@ -171,6 +172,7 @@ test("write mode builds its plan after opening the transaction", async () => {
   assert.match(queries[3], /^SELECT/);
   assert.equal(queries.at(-1), "COMMIT");
   assert.equal(result.desired_observation_count, 0);
+  assert.equal(result.mutation_statements_issued, false);
 });
 
 test("source assertion identity includes field, type, origin, and source record", () => {

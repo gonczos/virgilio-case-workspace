@@ -36,6 +36,11 @@ opening a repeatable-read transaction. This removes the earlier gap in which
 the plan was read before the transaction began. Dry-run planning remains
 outside a transaction and issues only its three read queries.
 
+The structured `mutation_statements_issued` flag describes data-changing SQL,
+not transaction-control statements. A write-mode pass containing only
+unchanged observations therefore reports `false` even though it opens and
+commits a read transaction.
+
 ## Semantics and limitations
 
 Lifecycle history is append-only and distinct from human review history.
