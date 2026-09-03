@@ -647,8 +647,9 @@ both the raw value and normalization identity match. For A -> B -> A under the
 same normalization identity, record both transitions and make the original A
 observation current again. If the raw value is unchanged but the normalization
 identity changes its meaning, create a separate derived observation instead of
-reactivating the old one. Exactly one observation may be current for each
-stable source assertion.
+reactivating the old one. At most one observation may be current for each
+stable source assertion; exactly one is current when the source value is
+present, while an absent source value legitimately leaves none current.
 
 An existing review remains attached to a reactivated observation. Reactivation
 must not change its reviewer, review timestamp, review notes, or imply that a
