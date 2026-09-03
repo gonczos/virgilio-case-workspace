@@ -562,24 +562,25 @@ should leave the main user controls and remain available as an evaluation
 option. A literal character-for-character text search, if needed, is a separate
 future behavior; the linguistic document-text index does not promise it.
 
-The inventory is complete; subsequent ingestion, API, and UI work remain
-unimplemented.
+The inventory, metadata ingestion, and read-only recorded-reference API are
+complete. The multi-method UI remains unimplemented.
 
 Implementation status (2026-09-03): the read-only inventory and the first
 metadata-ingestion checkpoint are implemented. The ingestion adds direct case
 and occurrence anchors, immutable lifecycle transitions, a truly read-only
 dry run, transactional writes, and pilot-metadata reconciliation. Corpus-wide
-lookup and the multi-method UI remain unimplemented. Detailed overlap groups
+recorded-reference lookup is also implemented; the multi-method UI remains
+unimplemented. Detailed overlap groups
 preserve raw-value-to-source associations and include same-field,
 same-proceeding reuse across separate source records as well as multiple
 occurrence links to the same source document.
 
 ### Consolidated metadata-reference ingestion checkpoint
 
-The first implementation checkpoint is limited to schema support, a genuinely
+This completed implementation checkpoint is limited to schema support, a genuinely
 read-only dry run, transactional court-metadata ingestion, and reconciliation
-with existing pilot observations. Corpus-wide lookup and the multi-method UI
-are later checkpoints.
+with existing pilot observations. Corpus-wide lookup is implemented separately;
+the multi-method UI is the next checkpoint.
 
 #### Ingestion set and direct anchors
 
@@ -1034,6 +1035,127 @@ Implementation status (2026-09-03): the endpoint and focused acceptance tests
 are implemented. Live saved-response review is recorded in
 `docs/evaluation/2026-09-03-recorded-reference-api.md`. The multi-method UI
 remains unimplemented.
+
+The API checkpoint, including the lifecycle-current correction, has completed
+independent review with no remaining blocking findings.
+
+### Planned multi-method search UI checkpoint
+
+The next bounded checkpoint changes only the consultation UI and its API
+client/types. It does not change ingestion, database schema, API semantics,
+classification, or review state, and it does not add classification or review
+editing.
+
+The user-facing `Search in` values and stable internal values are:
+
+| Label | Internal value |
+|---|---|
+| `Document text` | `document_text` |
+| `Recorded references` | `recorded_references` |
+| `Both` | `both` |
+
+`Document text` is the initial default. Corpus scope is independently selected
+as `full` or `pilot`, initially `full`; pilot remains an evaluation option.
+Recorded-reference lifecycle is `current` by default, with `include_history`
+available as an explicit diagnostic option when recorded references participate
+in the search. Text result order is independently `relevance`,
+`earliest_occurrence_asc`, or `latest_occurrence_desc` and applies only to
+document text.
+
+#### Draft, submission, and request identity
+
+Draft controls contain the input value, search method, corpus scope, and
+recorded-reference lifecycle. Editing or switching any draft control without
+submitting does not change, clear, relabel, refetch, or reorder displayed
+results. A submission takes an immutable snapshot of the applicable draft
+values and creates one monotonically increasing submitted-search generation
+ID. Display headings, coverage, pagination, and empty messages use this
+submitted snapshot rather than current draft controls.
+
+Within one generation, document text and recorded references have independent
+request identities and state. Starting a new submitted search increments the
+shared generation and invalidates outstanding initial, retry, sorting, and
+continuation requests from both sections. A response may update the UI only
+when both its generation ID and its section request ID still match.
+
+`Load more` increments only the relevant section's request identity and keeps
+the shared generation. A recorded-reference continuation reuses the submitted
+value, corpus scope, and lifecycle with its next observation offset. A text
+continuation reuses the submitted query, corpus scope, text order, and next
+binary offset. Offsets advance from server pagination metadata before any
+client grouping or deduplication.
+
+Changing text result order restarts only the text section at offset zero for
+the existing submitted query and scope. It does not submit draft edits, rerun
+recorded-reference lookup, change the shared generation, or clear a successful
+recorded-reference section. The order control is disabled while a replacement
+text request is pending.
+
+#### Independent section state
+
+Each participating section owns independent `idle`, `loading`, `success`, and
+`failure` state; accumulated results; pagination; continuation loading/error;
+and retry identity. In `Both`, the same submitted input is sent to the two API
+methods, but the requests are not coupled. Either section may render successful
+results while the other is loading or failed. Retrying one failed section
+reuses its submitted parameters and does not rerun, clear, or relabel the
+other. A failed continuation preserves already loaded results and its retryable
+offset.
+
+Document text continues to group passages by binary and to merge later
+processor passages into an existing binary group. Recorded references paginate
+and render observations independently. The UI does not merge or jointly rank
+the two sections, even when both lead to the same binary.
+
+#### Results and coverage presentation
+
+Recorded-reference cards lead with the raw observed value and identifier type,
+then show provenance origin, direct anchor, associated procedural/document
+contexts, lifecycle state, human-review/resolution state, and ingestion
+candidates as distinct concepts. Associated binary actions use the API's
+SHA-256-deduplicated collection. Each available item is a normal link that can
+open the existing binary/PDF inspection surface in a new tab. Missing-file
+observations remain visible through their source contexts and have no invented
+binary or open action.
+
+Document-text cards retain one deterministic processor-attributed matching
+excerpt, grouped binary identity, occurrence context, and expandable additional
+processor passages. Text result ordering affects only this section.
+
+Every section renders its own counts, loading, failure, retry, pagination, and
+coverage-aware empty state. A recorded-reference no-match message uses the
+API's `result_state` and declared coverage; it does not say that a document is
+absent and does not affect text state. The concise shared coverage explanation
+states that court-system metadata is indexed corpus-wide, while
+external-register observations and references extracted from document text
+remain pilot-limited. More detailed coverage remains expandable rather than
+dominating the search controls.
+
+#### UI acceptance gate
+
+Focused state and component tests must cover:
+
+- `Document text` as the initial method and immutable submitted labels despite
+  unsubmitted draft edits;
+- `Both` issuing two requests under one generation and rendering either result
+  independently;
+- a new submission rejecting stale responses from both sections;
+- retry and continuation affecting only their own section;
+- independent pagination, including merging later text hits into an existing
+  binary group;
+- text-order changes restarting only submitted text at offset zero;
+- pilot/full scope and current/history parameters continuing from the submitted
+  snapshot;
+- current replacement versus explicit history rendering;
+- direct anchors versus associated contexts and independent review state;
+- missing-file observations without open actions;
+- normal new-tab-capable links for available PDFs; and
+- coverage-aware no-match wording for both methods.
+
+Live browser acceptance repeats the established tasks: find a known recorded
+reference, follow a citation, distinguish reuse contexts, inspect a missing-file
+record, find text in a scanned document, paginate beyond the first result page,
+and open an available original without losing the search state.
 
 ## Review ownership and reseeding
 
