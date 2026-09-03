@@ -26,6 +26,7 @@
     "reference:lookup": "node ./app/reference-index-pilot.mjs lookup",
     "reference:inventory": "node ./app/reference-metadata-inventory.mjs",
     "reference:evaluate-foundation": "node ./app/evaluate-reference-extraction-foundation.mjs",
+    "reference:select-expansion": "node ./app/build-reference-expansion-selection.mjs",
     "reference:index:metadata": "node ./app/reference-metadata-ingestion.mjs",
     "search:pilot": "node ./app/reference-index-pilot.mjs search",
     "search:evaluate-full": "node ./app/evaluate-full-corpus-text-search.mjs",
