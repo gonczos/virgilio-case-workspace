@@ -56,18 +56,70 @@ function HighlightedText({ value }: { value: string }) {
   })}</Typography>;
 }
 
-function TextReferenceRow({ item, contextual, openLookup }: {
+function TextReferenceRow({ item, contextual, scope }: {
   item: ReferenceObservationView;
   contextual?: boolean;
-  openLookup: (value: string) => void;
+  scope: RecordedReferenceScope;
 }) {
+  const request = useRef(0);
+  const [lookup, setLookup] = useState<RefState>(emptyRefs);
+  const [expanded, setExpanded] = useState(false);
+
+  async function load(initial: boolean) {
+    const requestId = ++request.current;
+    const offset = initial ? 0 : lookup.next;
+    setExpanded(true);
+    setLookup((old) => initial
+      ? { ...emptyRefs(), status: "loading" }
+      : { ...old, more: true, moreError: null });
+    try {
+      const page = await lookupRecordedReferences(item.observation.raw_value, {
+        scope, lifecycle: "current", limit: 50, offset,
+      });
+      if (request.current !== requestId) return;
+      setLookup((old) => {
+        const prior = initial ? [] : old.data?.observations ?? [];
+        const seen = new Set(prior.map((entry) => entry.observation_key));
+        return {
+          status: "success",
+          data: initial ? page : { ...page, observations: [...prior, ...page.observations.filter((entry) => !seen.has(entry.observation_key))] },
+          error: null, more: false, moreError: null,
+          next: page.pagination.next_offset ?? offset,
+          hasMore: page.pagination.has_more,
+        };
+      });
+    } catch (error) {
+      if (request.current !== requestId) return;
+      if (initial) setLookup({ ...emptyRefs(), status: "failure", error: message(error) });
+      else setLookup((old) => ({ ...old, more: false, moreError: message(error) }));
+    }
+  }
+
+  function close() {
+    ++request.current;
+    setExpanded(false);
+    setLookup(emptyRefs());
+  }
+
   return <Paper variant="outlined" sx={{ p: 1.5 }}><Stack spacing={0.75}>
     <Typography fontWeight={700}>{item.observation.raw_label ? `${item.observation.raw_label}: ` : ""}{item.observation.raw_value}</Typography>
     <Typography variant="caption" color="text.secondary">
       {contextual ? "Contextual observation" : "Observed in matching passage"} · {getReferenceLocationLabel(item.observation.location.kind, item.observation.location.pdf_page, "reference")}
     </Typography>
     <Typography variant="caption">Processor: {String(item.observation.provenance.processor_key ?? "unavailable")} {String(item.observation.provenance.processor_version ?? "")}</Typography>
-    <Button variant="outlined" size="small" onClick={() => openLookup(item.observation.raw_value)} sx={{ alignSelf: "flex-start" }}>Find recorded references</Button>
+    {!expanded ? <Button variant="outlined" size="small" onClick={() => void load(true)} sx={{ alignSelf: "flex-start" }}>Find recorded references</Button> : null}
+    {expanded ? <Paper variant="outlined" sx={{ p: 1.5, bgcolor: "background.default" }}><Stack spacing={1.25}>
+      <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" spacing={1}>
+        <Typography fontWeight={700}>Recorded references for {item.observation.raw_value}</Typography>
+        <Button size="small" onClick={close} sx={{ alignSelf: "flex-start" }}>Close lookup</Button>
+      </Stack>
+      {lookup.status === "loading" ? <CircularProgress size={24} /> : null}
+      {lookup.status === "failure" ? <Alert severity="error" action={<Button color="inherit" onClick={() => void load(true)}>Retry</Button>}>Recorded-reference lookup failed: {lookup.error}</Alert> : null}
+      {lookup.data && lookup.data.result_state !== "matches" ? <Alert severity="info">No recorded-reference matches within the declared {scope} coverage. This does not mean the document is absent.</Alert> : null}
+      {lookup.data?.observations.map((observation) => <ReferenceCard key={observation.observation_key} item={observation} />)}
+      {lookup.moreError ? <Alert severity="error">Loading more recorded references failed: {lookup.moreError}. Existing results were preserved.</Alert> : null}
+      {lookup.data && lookup.hasMore ? <Button variant="outlined" disabled={lookup.more} onClick={() => void load(false)} sx={{ alignSelf: "center" }}>{lookup.more ? <CircularProgress size={22} /> : "Load more recorded references"}</Button> : null}
+    </Stack></Paper> : null}
   </Stack></Paper>;
 }
 
@@ -219,11 +271,11 @@ export function ReferenceSearchPage() {
       {groups.map((group) => <Paper key={group.sha256} elevation={0} sx={{ p: 2.5, border: "1px solid rgba(31,79,95,0.14)" }}><Stack spacing={2}>
         <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between"><Box><Typography variant="h6">{group.source_contexts[0]?.document_name ?? group.source_contexts[0]?.designation ?? `PDF ${getShortSha(group.sha256)}`}</Typography>{text.displayedSort === "earliest_occurrence_asc" ? <Typography fontWeight={600}>{formatDate(group.hits[0].earliest_occurrence_date)} · Earliest recorded occurrence</Typography> : text.displayedSort === "latest_occurrence_desc" ? <Typography fontWeight={600}>{formatDate(group.hits[0].latest_occurrence_date)} · Latest recorded occurrence</Typography> : null}</Box><Button component={RouterLink} to={`/binaries/${group.sha256}`} target="_blank" rel="noopener noreferrer" variant="outlined" sx={{ alignSelf: "flex-start" }}>Open original PDF</Button></Stack>
         <HighlightedText value={group.hits[0].headline} /><Typography variant="caption">Extracted by {group.hits[0].processor_key} {group.hits[0].processor_version} · {getReferenceLocationLabel(group.hits[0].location.kind, group.hits[0].location.pdf_page)}</Typography>
-        {group.hits.length > 1 ? <Accordion disableGutters><AccordionSummary expandIcon={<span>›</span>}>More matching passages ({group.hits.length - 1})</AccordionSummary><AccordionDetails><Stack spacing={1}>{group.hits.slice(1).map((hit) => <Paper variant="outlined" sx={{ p: 1.5 }} key={`${hit.document_representation_id}-${hit.segment_id}`}><Stack spacing={1}><Chip size="small" sx={{ alignSelf: "flex-start" }} label={`${hit.processor_key} ${hit.processor_version}`} /><HighlightedText value={hit.headline} /><Typography variant="caption">{getReferenceLocationLabel(hit.location.kind, hit.location.pdf_page)}</Typography>{getTextHitReferenceRows(hit).map(({ kind, item }) => <TextReferenceRow key={`${kind}-${item.observation.observation_key}`} item={item} contextual={kind === "contextual"} openLookup={(value) => { setMethod("recorded_references"); setQuery(value); start("recorded_references", value); }} />)}</Stack></Paper>)}</Stack></AccordionDetails></Accordion> : null}
+        {group.hits.length > 1 ? <Accordion disableGutters><AccordionSummary expandIcon={<span>›</span>}>More matching passages ({group.hits.length - 1})</AccordionSummary><AccordionDetails><Stack spacing={1}>{group.hits.slice(1).map((hit) => <Paper variant="outlined" sx={{ p: 1.5 }} key={`${hit.document_representation_id}-${hit.segment_id}`}><Stack spacing={1}><Chip size="small" sx={{ alignSelf: "flex-start" }} label={`${hit.processor_key} ${hit.processor_version}`} /><HighlightedText value={hit.headline} /><Typography variant="caption">{getReferenceLocationLabel(hit.location.kind, hit.location.pdf_page)}</Typography>{getTextHitReferenceRows(hit).map(({ kind, item }) => <TextReferenceRow key={`${kind}-${item.observation.observation_key}`} item={item} contextual={kind === "contextual"} scope={submitted.scope} />)}</Stack></Paper>)}</Stack></AccordionDetails></Accordion> : null}
         <Accordion disableGutters><AccordionSummary expandIcon={<span>›</span>}>Source details</AccordionSummary><AccordionDetails><Stack spacing={1}>
           <Typography variant="caption" display="block">Full SHA-256: {group.sha256}</Typography>
           {group.source_contexts.map((context) => <Box key={`${context.bucket_document_id}-${context.document_id}`}><Typography variant="body2" fontWeight={600}>{context.process_number} · occurrence {context.occurrence_reference} · {formatDate(context.occurrence_date)}</Typography>{context.document_reference ? <Typography variant="caption" sx={{ overflowWrap: "anywhere" }}>Source document reference: {context.document_reference}</Typography> : null}</Box>)}
-          {getTextHitReferenceRows(group.hits[0]).map(({ kind, item }) => <TextReferenceRow key={`${kind}-${item.observation.observation_key}`} item={item} contextual={kind === "contextual"} openLookup={(value) => { setMethod("recorded_references"); setQuery(value); start("recorded_references", value); }} />)}
+          {getTextHitReferenceRows(group.hits[0]).map(({ kind, item }) => <TextReferenceRow key={`${kind}-${item.observation.observation_key}`} item={item} contextual={kind === "contextual"} scope={submitted.scope} />)}
         </Stack></AccordionDetails></Accordion>
       </Stack></Paper>)}
       {text.moreError ? <Alert severity="error">Loading more text results failed: {text.moreError}. Existing results were preserved.</Alert> : null}

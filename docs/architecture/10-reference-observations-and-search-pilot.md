@@ -1185,6 +1185,15 @@ with independent section state, shared-generation invalidation, separate
 pagination, and requested-versus-displayed text ordering. Validation is
 recorded in `docs/evaluation/2026-09-03-multi-method-search-ui.md`.
 
+Citation follow-up from a document-text hit is contextual rather than a new
+top-level submission. `Find recorded references` opens an independently loaded
+panel beneath that attributed reference observation. It does not replace the
+submitted text query, text ordering, accumulated pages, binary groups, or draft
+controls. The panel uses the submitted collection scope, current observations,
+its own retry and pagination state, and can be closed without changing the text
+results. Starting an ordinary top-level search remains the only action that
+replaces both result sections.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may

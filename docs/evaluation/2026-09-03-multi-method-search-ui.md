@@ -56,6 +56,13 @@ a citation merely because it belongs to a secondary Docling, Xberg, literal-
 text, or later-page hit. The observation retains its processor, segment, and
 location provenance.
 
+Navigation follow-up: `Find recorded references` was exercised from the source
+details of a full-corpus document-text result for `105398957`. The recorded-
+reference panel opened and closed in place while the original two PDF groups,
+query heading, PDF actions, loaded passages, and displayed ordering remained
+present. The lookup therefore no longer replaces the document-text search or
+requires a browser-history restoration path.
+
 ## Boundaries
 
 No ingestion, database schema, API semantics, classification, review editing,
