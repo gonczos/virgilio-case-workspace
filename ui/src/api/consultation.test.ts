@@ -5,7 +5,6 @@ import {
   normalizeBinaryDetailResponse,
   searchText,
 } from "./consultation";
-import type { BinaryDetailResponse } from "../types/consultation";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -61,7 +60,7 @@ test("normalizeBinaryDetailResponse tolerates older detail payloads without evid
       representation_ids: [],
       comparison_ids: [],
     },
-  } as BinaryDetailResponse);
+  });
 
   expect(normalized.evidence.items).toEqual([]);
   expect(normalized.technical_details.evidence_representation_ids).toEqual([]);

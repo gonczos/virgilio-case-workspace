@@ -28,7 +28,14 @@ function normalizeRepresentationItems(value: unknown): RepresentationListItem[] 
   return Array.isArray(value) ? value as RepresentationListItem[] : [];
 }
 
-export function normalizeBinaryDetailResponse(detail: BinaryDetailResponse): BinaryDetailResponse {
+type NormalizableBinaryDetailResponse = Omit<BinaryDetailResponse, "evidence" | "technical_details"> & {
+  evidence?: BinaryDetailResponse["evidence"];
+  technical_details: Partial<BinaryDetailResponse["technical_details"]> & {
+    binary_id: number;
+  };
+};
+
+export function normalizeBinaryDetailResponse(detail: NormalizableBinaryDetailResponse): BinaryDetailResponse {
   return {
     ...detail,
     representations: {

@@ -81,10 +81,10 @@ export function ExtractionCoveragePage() {
       valueGetter: (value) => value ?? "unknown",
     },
     { field: "page_count", headerName: "Pages", type: "number", width: 85 },
-    ...Object.entries(PROCESSOR_LABELS).map(([processorKey, label]) => ({
+    ...(Object.entries(PROCESSOR_LABELS) as Array<[ExtractionProcessorKey, string]>).map<GridColDef<ExtractionCoverageItem>>(([processorKey, label]) => ({
       field: processorKey, headerName: label, width: 115, sortable: true,
-      valueGetter: (_value: unknown, row: ExtractionCoverageItem) => row.coverage[processorKey as ExtractionProcessorKey],
-      renderCell: ({ value }: { value: boolean }) => <CoverageChip successful={value} />,
+      valueGetter: (_value, row) => row.coverage[processorKey],
+      renderCell: ({ value }) => <CoverageChip successful={Boolean(value)} />,
       align: "center" as const, headerAlign: "center" as const,
     })),
     {
