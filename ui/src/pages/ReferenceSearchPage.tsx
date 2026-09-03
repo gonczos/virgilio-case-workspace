@@ -298,17 +298,16 @@ export function ReferenceSearchPage() {
 
   function changeTextSort(nextSort: TextSearchSort) {
     setTextSort(nextSort);
-    if (shouldRestartTextSearchForSort({
+    if (!submittedResult || !shouldRestartTextSearchForSort({
       initialSearchPending: initialSearchPending.current,
-      submittedMode: submittedResult?.mode ?? null,
-    })) {
-      void runSearch(
-        "text",
-        submittedResult.query,
-        submittedResult.textScope ?? "pilot",
-        nextSort,
-      );
-    }
+      submittedMode: submittedResult.mode,
+    })) return;
+    void runSearch(
+      "text",
+      submittedResult.query,
+      submittedResult.textScope ?? "pilot",
+      nextSort,
+    );
   }
 
   async function loadMore() {
