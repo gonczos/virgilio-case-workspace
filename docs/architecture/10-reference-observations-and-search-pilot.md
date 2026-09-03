@@ -565,6 +565,11 @@ future behavior; the linguistic document-text index does not promise it.
 This section records the agreed plan only. The read-only inventory and all
 subsequent ingestion and UI work remain unimplemented.
 
+Implementation status (2026-09-03): the read-only inventory is implemented and
+recorded in `docs/evaluation/2026-09-03-reference-metadata-inventory.md`.
+Metadata ingestion, corpus-wide lookup, and the multi-method UI remain
+unimplemented.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may

@@ -161,6 +161,16 @@ Useful endpoints:
 * fixture reference lookup: `http://localhost:8091/api/consultation/reference-pilot/references/<value>`
 * text search: `http://localhost:8091/api/consultation/reference-pilot/search?q=<terms>&scope=pilot|full&sort=relevance|earliest_occurrence_asc|latest_occurrence_desc`
 
+Run the read-only metadata-reference inventory with:
+
+```powershell
+npm run reference:inventory
+```
+
+It prints structured JSON and does not ingest observations or modify the
+database. Add `-- --include-overlap-details` only when the complete, potentially
+large normalization-collision and contextual-overlap groups are required.
+
 The text-search endpoint defaults to `scope=pilot`. `scope=full` searches the
 current indexed segment corpus. Exact-reference lookup remains fixture-scoped;
 full text-search coverage does not imply full reference-observation coverage.
