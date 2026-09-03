@@ -31,6 +31,11 @@ produced the same unchanged result. The legacy seeder therefore did not
 reactivate reconciled fixture metadata or create new current duplicates in
 this database state.
 
+Follow-up correction: write mode builds the source and lifecycle plan after
+opening a repeatable-read transaction. This removes the earlier gap in which
+the plan was read before the transaction began. Dry-run planning remains
+outside a transaction and issues only its three read queries.
+
 ## Semantics and limitations
 
 Lifecycle history is append-only and distinct from human review history.

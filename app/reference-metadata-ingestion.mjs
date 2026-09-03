@@ -334,19 +334,31 @@ async function setLifecycle(client, operation, state, relatedId = null) {
 }
 
 export async function ingestMetadataReferences(client, { write = false } = {}) {
-  const plan = await loadPlan(client);
+  if (!write) {
+    const plan = await loadPlan(client);
+    return {
+      mode: "dry_run",
+      attempted: plan.counts,
+      committed: emptyCounts(),
+      desired_observation_count: plan.desired.length,
+      mutation_statements_issued: false,
+    };
+  }
+
   const result = {
-    mode: write ? "write" : "dry_run",
-    attempted: plan.counts,
+    mode: "write",
+    attempted: emptyCounts(),
     committed: emptyCounts(),
-    desired_observation_count: plan.desired.length,
+    desired_observation_count: 0,
     mutation_statements_issued: false,
   };
-  if (!write) return result;
 
-  await client.query("BEGIN");
+  await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
   result.mutation_statements_issued = true;
   try {
+    const plan = await loadPlan(client);
+    result.attempted = { ...plan.counts };
+    result.desired_observation_count = plan.desired.length;
     const insertedIds = new Map();
     for (const operation of plan.operations.filter((item) => item.kind === "supersede")) {
       await setLifecycle(client, operation, "superseded", operation.related?.id ?? null);

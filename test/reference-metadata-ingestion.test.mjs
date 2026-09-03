@@ -153,9 +153,24 @@ test("failed write rolls back and reports zero committed changes", async () => {
       return true;
     },
   );
-  assert.ok(queries.includes("BEGIN"));
+  assert.ok(queries.includes("BEGIN ISOLATION LEVEL REPEATABLE READ"));
   assert.ok(queries.includes("ROLLBACK"));
   assert.ok(!queries.includes("COMMIT"));
+});
+
+test("write mode builds its plan after opening the transaction", async () => {
+  const queries = [];
+  const client = { query: async (sql) => {
+    queries.push(String(sql).trim());
+    return { rows: [] };
+  } };
+  const result = await ingestMetadataReferences(client, { write: true });
+  assert.equal(queries[0], "BEGIN ISOLATION LEVEL REPEATABLE READ");
+  assert.match(queries[1], /^SELECT/);
+  assert.match(queries[2], /^SELECT/);
+  assert.match(queries[3], /^SELECT/);
+  assert.equal(queries.at(-1), "COMMIT");
+  assert.equal(result.desired_observation_count, 0);
 });
 
 test("source assertion identity includes field, type, origin, and source record", () => {

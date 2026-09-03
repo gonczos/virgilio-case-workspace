@@ -683,7 +683,9 @@ directly anchored `bucket_date` for ordering.
 Dry run computes the complete proposed change set without issuing mutation
 statements. It must not simulate writes followed by rollback because sequence
 allocation and other effects can survive a rollback. Write mode is
-transactional and reports attempted counts separately from committed counts.
+transactional and builds its plan only after opening a repeatable-read
+transaction, so the plan and its mutations share one consistent database
+snapshot. It reports attempted counts separately from committed counts.
 Committed counts are emitted only after successful commit; after rollback they
 are zero and the failure is reported without implying partial persistence.
 
