@@ -87,7 +87,7 @@ function ObservationSummary({ item, contextual = false }: {
           {contextual ? <Chip size="small" label="Contextual reference" /> : null}
         </Stack>
         <Typography variant="body2" color="text.secondary">
-          {getReferenceLocationLabel(location.kind, location.pdf_page)}
+          {getReferenceLocationLabel(location.kind, location.pdf_page, "reference")}
         </Typography>
         {item.observation.context_text ? (
           <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>

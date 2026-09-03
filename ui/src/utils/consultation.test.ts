@@ -141,7 +141,12 @@ test("reference text hits group by binary without losing processor hits or occur
 });
 
 test("reference location labels do not promote document or processor locations to verified pages", () => {
-  expect(getReferenceLocationLabel("document_level", null)).toContain("PDF page unavailable");
+  expect(getReferenceLocationLabel("document_level", null, "reference")).toBe(
+    "Exact match found in document. Page number cannot be determined.",
+  );
+  expect(getReferenceLocationLabel("document_level", null, "text")).toBe(
+    "Text found in document. Page number cannot be determined.",
+  );
   expect(getReferenceLocationLabel("processor_page_unverified", 3)).toContain("not verified");
   expect(getReferenceLocationLabel("verified_pdf_page", 3)).toBe("Verified PDF page 3");
   expect(getReferenceLocationLabel("source_record", null)).toBe("Source-system record");

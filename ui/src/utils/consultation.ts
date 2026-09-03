@@ -178,12 +178,18 @@ export function groupReferenceTextHits(items: ReferenceTextHit[]): GroupedRefere
   return [...groups.values()];
 }
 
-export function getReferenceLocationLabel(kind: ReferenceLocationKind, page: number | null): string {
+export function getReferenceLocationLabel(
+  kind: ReferenceLocationKind,
+  page: number | null,
+  matchKind: "reference" | "text" = "text",
+): string {
   switch (kind) {
     case "source_record": return "Source-system record";
     case "metadata_record": return "Metadata assertion";
     case "binary_level": return "Binary-level observation";
-    case "document_level": return "Document-level; PDF page unavailable";
+    case "document_level": return matchKind === "reference"
+      ? "Exact match found in document. Page number cannot be determined."
+      : "Text found in document. Page number cannot be determined.";
     case "processor_page_unverified": return `Processor page ${page ?? "?"}; not verified as PDF page`;
     case "verified_pdf_page": return `Verified PDF page ${page ?? "?"}`;
   }

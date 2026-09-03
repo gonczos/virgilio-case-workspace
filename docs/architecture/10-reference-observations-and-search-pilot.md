@@ -163,6 +163,11 @@ explicit states: `document_level`, `processor_page_unverified`, or
 `verified_pdf_page`. A numeric processor page is not promoted to a verified PDF
 page without explicit verification metadata.
 
+The UI renders a document-level reference observation as `Exact match found in
+document. Page number cannot be determined.` A general text hit uses `Text found
+in document. Page number cannot be determined.` These labels describe the match
+location only; the containing binary remains known and available to open.
+
 Observation locations additionally distinguish their evidence channel.
 `document_level` is reserved for observations made in document content without
 a page mapping. Source-system fields use `source_record`; external register or
