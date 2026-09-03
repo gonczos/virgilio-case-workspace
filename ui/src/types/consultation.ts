@@ -317,7 +317,13 @@ export interface ReferenceTextHit {
 
 export interface ReferenceTextSearchResponse {
   fixture: ReferencePilotFixtureSummary;
-  query: { text: string; limit: number };
+  query: { text: string; limit: number; scope: "pilot" | "full" };
+  result_summary: {
+    passage_limit: number;
+    returned_passage_count: number;
+    distinct_binary_count: number;
+    capped: boolean;
+  };
   semantics: Record<string, unknown>;
   items: ReferenceTextHit[];
 }

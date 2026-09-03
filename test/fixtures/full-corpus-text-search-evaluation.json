@@ -1,0 +1,141 @@
+{
+  "fixture_name": "full-corpus-text-search-evaluation",
+  "fixture_version": 1,
+  "evaluation_scope": "full",
+  "passage_limit": 100,
+  "success_criterion": {
+    "expected_binary_max_distinct_rank": 10,
+    "original_must_open": true
+  },
+  "queries": [
+    {
+      "id": "cited-despacho-reference",
+      "query": "105398957",
+      "category": "literal_reference_number",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "edf500891dea2023e07b754e23883086b4edac9de8b6400dff4623565df251d4",
+        "67f246ffe670a82607725742314851fe3456a85068fa75d934a3642cdb1bcc20"
+      ],
+      "basis": "The pilot contains a Cota citing this value and the referenced Despacho bearing it.",
+      "ocr_dependency": false
+    },
+    {
+      "id": "filing-reference-17964927",
+      "query": "17964927",
+      "category": "literal_reference_number",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "54046584d5a7817f8932ee6d2d523aa3f0f0084f20aa86f7dcc9ef42b88f9e9c"
+      ],
+      "basis": "The number is present in the readable filing material used by the reference pilot.",
+      "ocr_dependency": false
+    },
+    {
+      "id": "interpreter-name",
+      "query": "Marianne intérprete",
+      "category": "keyword",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "15d91f9a80102a179fe61238ab4aa56f86c4995363b306f96cbda488a38121f9"
+      ],
+      "basis": "The November conference Ata records the interpreter and is already a pilot acceptance document.",
+      "ocr_dependency": false
+    },
+    {
+      "id": "appeal-reference-39176427",
+      "query": "39176427",
+      "category": "literal_reference_number",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+      ],
+      "basis": "The born-digital appeal response explicitly names this reference.",
+      "ocr_dependency": false
+    },
+    {
+      "id": "appeal-effect-phrase",
+      "query": "\"efeito suspensivo\"",
+      "category": "quoted_text",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+      ],
+      "basis": "The appeal response contains the phrase repeatedly; quotes exercise PostgreSQL web-search syntax rather than a separately guaranteed verbatim-match mode.",
+      "ocr_dependency": false
+    },
+    {
+      "id": "signed-order-reference",
+      "query": "134937241",
+      "category": "literal_reference_number",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "6836f8732aae33a3bc79491748134bd2a77a7b48aeaa2cd7c66647ff1f468f1c"
+      ],
+      "basis": "The signed order carries this reference in literal PDF text and Xberg output.",
+      "ocr_dependency": false
+    },
+    {
+      "id": "psychological-assessment-phrase",
+      "query": "\"perícia psicológica aos menores\"",
+      "category": "quoted_text",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "6836f8732aae33a3bc79491748134bd2a77a7b48aeaa2cd7c66647ff1f468f1c"
+      ],
+      "basis": "The signed order uses this heading across independent representations.",
+      "ocr_dependency": false
+    },
+    {
+      "id": "scanned-petition-phone",
+      "query": "965 222 111",
+      "category": "literal_reference_number",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e"
+      ],
+      "basis": "The 11-page scanned petition contains this contact number in Docling and Xberg OCR-derived interpretations.",
+      "ocr_dependency": true
+    },
+    {
+      "id": "scanned-petition-certificate",
+      "query": "BAT 720185",
+      "category": "keyword",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e"
+      ],
+      "basis": "The birth-certificate identifier is available only through OCR-derived interpretations of the scanned petition bundle.",
+      "ocr_dependency": true
+    },
+    {
+      "id": "scanned-bundle-notarial-heading",
+      "query": "\"ATTESTATION DE TRADUCTION\"",
+      "category": "quoted_text",
+      "expectation_kind": "known_target",
+      "expected_sha256s": [
+        "9d335b7bb946796c51c965d2cf39d8d6a0279e4d8a4bad558d13174e99d1fe79"
+      ],
+      "basis": "The heading occurs in OCR-derived interpretations of the 88-page scanned bundle.",
+      "ocr_dependency": true
+    },
+    {
+      "id": "explore-parental-alienation",
+      "query": "alienação parental",
+      "category": "keyword",
+      "expectation_kind": "exploratory",
+      "expected_sha256s": [],
+      "basis": "Explores issue-oriented retrieval without a predeclared complete expected set.",
+      "ocr_dependency": null
+    },
+    {
+      "id": "explore-social-security",
+      "query": "Segurança Social",
+      "category": "keyword",
+      "expectation_kind": "exploratory",
+      "expected_sha256s": [],
+      "basis": "Explores institutional correspondence retrieval without counting as an acceptance pass.",
+      "ocr_dependency": null
+    }
+  ]
+}

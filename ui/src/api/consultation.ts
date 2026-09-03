@@ -73,8 +73,11 @@ export async function lookupPilotReference(value: string): Promise<ReferenceLook
   return expectJson<ReferenceLookupResponse>(response);
 }
 
-export async function searchPilotText(query: string, limit = 50): Promise<ReferenceTextSearchResponse> {
-  const params = new URLSearchParams({ q: query, limit: String(limit) });
+export async function searchText(
+  query: string,
+  { limit = 50, scope = "pilot" }: { limit?: number; scope?: "pilot" | "full" } = {},
+): Promise<ReferenceTextSearchResponse> {
+  const params = new URLSearchParams({ q: query, limit: String(limit), scope });
   const response = await fetch(`/api/consultation/reference-pilot/search?${params.toString()}`);
   return expectJson<ReferenceTextSearchResponse>(response);
 }

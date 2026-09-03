@@ -25,6 +25,7 @@
     "reference:index:pilot": "node ./app/reference-index-pilot.mjs seed",
     "reference:lookup": "node ./app/reference-index-pilot.mjs lookup",
     "search:pilot": "node ./app/reference-index-pilot.mjs search",
+    "search:evaluate-full": "node ./app/evaluate-full-corpus-text-search.mjs",
     "test:reference-search": "node --test ./test/reference-search-store.test.mjs"
   },
   "dependencies": {

@@ -274,9 +274,22 @@ the next bounded improvement concerns ranking, extraction coverage, page
 navigation, or reference ingestion. The experiment must not assume in advance
 that reference ingestion is the next phase.
 
-This section documents the next slice only. It does not authorize implementation
-of the race fix, evaluation fixture, broader API query, or UI scope selector in
-this documentation checkpoint.
+Implementation status (2026-09-03): this bounded experiment is implemented.
+The UI uses a latest-request-wins guard, exact-reference lookup remains
+pilot-only, and Text search exposes explicit `Pilot` and `Full corpus` scopes.
+The API reports passage limit, returned passage count, distinct binary count,
+and truncation state. The frozen fixture is
+`test/fixtures/full-corpus-text-search-evaluation.json`; it must not be tuned
+after execution merely to improve the recorded pass rate.
+
+The first recorded execution found all 3,706 stored segments indexed across all
+1,238 binaries. Nine of ten predeclared known-target queries placed every
+expected binary within the first ten distinct binaries. The broad keyword query
+`Marianne intérprete` placed the expected Ata at rank 24, so the experiment did
+not meet its complete acceptance gate. Both OCR-dependent scanned-document
+families were retrievable. This supports retaining full-corpus Text search as an
+explicit experimental scope while treating ranking as the next bounded search
+problem; it does not widen reference-observation coverage.
 
 ## Review ownership and reseeding
 

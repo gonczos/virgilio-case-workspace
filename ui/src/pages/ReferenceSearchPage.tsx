@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
-import { lookupPilotReference, searchPilotText } from "../api/consultation";
+import { lookupPilotReference, searchText } from "../api/consultation";
 import type {
   ReferenceLookupResponse,
   ReferenceObservationView,
@@ -33,8 +33,10 @@ import {
   getShortSha,
   groupReferenceTextHits,
 } from "../utils/consultation";
+import { createLatestRequestTracker } from "../utils/latestRequest";
 
 type SearchMode = "reference" | "text";
+type TextSearchScope = "pilot" | "full";
 
 function formatDate(value: string | null): string {
   if (!value) return "Date unavailable";
@@ -142,9 +144,9 @@ function FixtureBoundary({ fixture }: { fixture: ReferencePilotFixtureSummary | 
   return (
     <Alert severity="info">
       <Stack spacing={0.75}>
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>Fixture-scoped pilot</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 700 }}>Search coverage</Typography>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-          <Chip size="small" label={`Text search: ${fixture?.distinct_binary_count ?? 15} fixture binaries`} />
+          <Chip size="small" label={`Text search: pilot (${fixture?.distinct_binary_count ?? 15} binaries) or full indexed corpus`} />
           <Chip size="small" label={`Reference lookup: fixture observations · ${fixture?.missing_binary_record_count ?? 2} missing-binary records`} />
         </Stack>
         <Typography variant="caption">
@@ -156,32 +158,52 @@ function FixtureBoundary({ fixture }: { fixture: ReferencePilotFixtureSummary | 
 }
 
 export function ReferenceSearchPage() {
+  const requestTracker = useRef(createLatestRequestTracker());
   const [mode, setMode] = useState<SearchMode>("reference");
+  const [textScope, setTextScope] = useState<TextSearchScope>("pilot");
   const [query, setQuery] = useState("105398957");
   const [lookup, setLookup] = useState<ReferenceLookupResponse | null>(null);
   const [search, setSearch] = useState<ReferenceTextSearchResponse | null>(null);
-  const [submittedResult, setSubmittedResult] = useState<{ mode: SearchMode; query: string } | null>(null);
+  const [submittedResult, setSubmittedResult] = useState<{
+    mode: SearchMode;
+    query: string;
+    textScope?: TextSearchScope;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textGroups = useMemo(() => groupReferenceTextHits(search?.items ?? []), [search]);
   const fixture = lookup?.fixture ?? search?.fixture ?? null;
 
-  async function runSearch(searchMode: SearchMode, value: string) {
+  async function runSearch(
+    searchMode: SearchMode,
+    value: string,
+    submittedTextScope: TextSearchScope = textScope,
+  ) {
+    const request = requestTracker.current.begin();
     setLoading(true);
     setError(null);
     try {
       if (searchMode === "reference") {
-        setLookup(await lookupPilotReference(value));
+        const result = await lookupPilotReference(value);
+        if (!request.isCurrent()) return;
+        setLookup(result);
         setSearch(null);
       } else {
-        setSearch(await searchPilotText(value));
+        const result = await searchText(value, { scope: submittedTextScope });
+        if (!request.isCurrent()) return;
+        setSearch(result);
         setLookup(null);
       }
-      setSubmittedResult({ mode: searchMode, query: value });
+      setSubmittedResult({
+        mode: searchMode,
+        query: value,
+        ...(searchMode === "text" ? { textScope: submittedTextScope } : {}),
+      });
     } catch (requestError) {
+      if (!request.isCurrent()) return;
       setError(requestError instanceof Error ? requestError.message : String(requestError));
     } finally {
-      setLoading(false);
+      if (request.isCurrent()) setLoading(false);
     }
   }
 
@@ -218,6 +240,24 @@ export function ReferenceSearchPage() {
             <ToggleButton value="reference">Exact reference</ToggleButton>
             <ToggleButton value="text">Text</ToggleButton>
           </ToggleButtonGroup>
+          {mode === "reference" ? (
+            <Typography variant="caption" color="text.secondary">
+              Exact-reference lookup remains limited to the reviewed pilot observations.
+            </Typography>
+          ) : (
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Text-search scope</Typography>
+              <ToggleButtonGroup
+                exclusive
+                value={textScope}
+                onChange={(_event, next: TextSearchScope | null) => { if (next) setTextScope(next); }}
+                size="small"
+              >
+                <ToggleButton value="pilot">Pilot</ToggleButton>
+                <ToggleButton value="full">Full corpus</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+          )}
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
             <TextField
               fullWidth
@@ -238,6 +278,9 @@ export function ReferenceSearchPage() {
       {submittedResult ? (
         <Typography variant="h5">
           {getReferenceResultHeading(submittedResult.mode, submittedResult.query)}
+          {submittedResult.mode === "text"
+            ? ` · ${submittedResult.textScope === "full" ? "Full corpus" : "Pilot"}`
+            : ""}
         </Typography>
       ) : null}
 
@@ -252,7 +295,18 @@ export function ReferenceSearchPage() {
 
       {search && textGroups.length === 0 ? (
         <Alert severity="info">
-          No text-search matches within the pilot. This does not mean the document is absent.
+          No text-search matches within the {search.query.scope === "full" ? "full corpus scope" : "pilot"}.
+          This does not mean the document is absent.
+        </Alert>
+      ) : null}
+      {search ? (
+        <Alert severity={search.result_summary.capped ? "warning" : "info"}>
+          {search.query.scope === "full" ? "Full corpus" : "Pilot"} search returned {search.result_summary.returned_passage_count} passage{search.result_summary.returned_passage_count === 1 ? "" : "s"}
+          {" across "}{search.result_summary.distinct_binary_count} distinct binar{search.result_summary.distinct_binary_count === 1 ? "y" : "ies"}.
+          {" Passage limit: "}{search.result_summary.passage_limit}.
+          {search.result_summary.capped
+            ? " Results reached the configured passage limit; additional matches may exist."
+            : " Results were not capped."}
         </Alert>
       ) : null}
       {textGroups.map((group) => (

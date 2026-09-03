@@ -138,14 +138,30 @@ export async function lookupReferencePilot(client, value) {
   };
 }
 
-export async function searchReferencePilot(client, query, { limit = 20 } = {}) {
+export async function searchReferencePilot(client, query, { limit = 20, scope = "pilot" } = {}) {
   const fixture = await loadReferencePilotFixture();
-  const sha256s = [...new Set(fixture.selection.map((item) => item.sha256))];
-  const rows = await searchPassages(client, query, { limit, sha256s });
+  const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, 100));
+  const sha256s = scope === "full"
+    ? null
+    : [...new Set(fixture.selection.map((item) => item.sha256))];
+  const probedRows = await searchPassages(client, query, {
+    limit: boundedLimit + 1,
+    maximumLimit: 101,
+    sha256s,
+  });
+  const capped = probedRows.length > boundedLimit;
+  const rows = probedRows.slice(0, boundedLimit);
   return {
     fixture: fixtureSummary(fixture),
-    query: { text: query, limit: Math.max(1, Math.min(Number(limit) || 20, 100)) },
+    query: { text: query, limit: boundedLimit, scope },
+    result_summary: {
+      passage_limit: boundedLimit,
+      returned_passage_count: rows.length,
+      distinct_binary_count: new Set(rows.map((row) => row.sha256)).size,
+      capped,
+    },
     semantics: {
+      search_scope: scope,
       passage_references_are_exact_segment_observations: true,
       contextual_references_are_not_observed_in_the_matching_passage: true,
       location_kinds: ["document_level", "processor_page_unverified", "verified_pdf_page"],

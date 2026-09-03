@@ -9,6 +9,7 @@ import {
   searchPassages,
   upsertReferenceReview,
 } from "../app/reference-search-store.mjs";
+import { searchReferencePilot } from "../app/reference-index-pilot.mjs";
 
 test("normalizes reference values without discarding punctuation", () => {
   assert.equal(normalizeReferenceValue("  re 140653198pt "), "RE 140653198PT");
@@ -83,6 +84,34 @@ test("pilot search keeps its SHA boundary and caps its result limit", async () =
   assert.match(calls[0].sql, /contextual_reference_observations/u);
   assert.match(calls[0].sql, /source_processor_key/u);
   assert.match(calls[0].sql, /observer_version/u);
+});
+
+test("full-corpus text search removes the fixture SHA filter and reports a passage cap", async () => {
+  const calls = [];
+  const client = {
+    query: async (sql, params) => {
+      calls.push({ sql, params });
+      return {
+        rows: Array.from({ length: 3 }, (_value, index) => ({
+          sha256: index < 2 ? "a".repeat(64) : "b".repeat(64),
+          page_no: null,
+          location_kind: "document_level",
+          passage_reference_observations: [],
+          contextual_reference_observations: [],
+        })),
+      };
+    },
+  };
+
+  const result = await searchReferencePilot(client, "despacho", { limit: 2, scope: "full" });
+  assert.deepEqual(calls[0].params, ["despacho", 3, null]);
+  assert.deepEqual(result.query, { text: "despacho", limit: 2, scope: "full" });
+  assert.deepEqual(result.result_summary, {
+    passage_limit: 2,
+    returned_passage_count: 2,
+    distinct_binary_count: 1,
+    capped: true,
+  });
 });
 
 test("human review is written through a separate review-owned upsert", async () => {

@@ -397,6 +397,25 @@ test("reference pilot API labels a verified PDF page distinctly", async () => {
     const payload = JSON.parse(response.body);
     assert.deepEqual(payload.items[0].location, { kind: "verified_pdf_page", pdf_page: 3 });
     assert.equal(payload.semantics.location_kinds.includes("document_level"), true);
+    assert.equal(payload.query.scope, "pilot");
+    assert.deepEqual(payload.result_summary, {
+      passage_limit: 20,
+      returned_passage_count: 1,
+      distinct_binary_count: 1,
+      capped: false,
+    });
+  });
+});
+
+test("text search validates its independently selected corpus scope", async () => {
+  const client = { query: async () => ({ rows: [] }) };
+  await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+    const response = await request(
+      baseUrl,
+      "/api/consultation/reference-pilot/search?q=matched&scope=elsewhere",
+    );
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(JSON.parse(response.body), { error: "invalid_search_scope" });
   });
 });
 

@@ -208,8 +208,13 @@ export async function lookupReference(client, value, { fixtureName = null } = {}
   return result.rows;
 }
 
-export async function searchPassages(client, query, { limit = 20, sha256s = null } = {}) {
-  const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, 100));
+export async function searchPassages(client, query, {
+  limit = 20,
+  sha256s = null,
+  maximumLimit = 100,
+} = {}) {
+  const boundedMaximum = Math.max(1, Number(maximumLimit) || 100);
+  const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, boundedMaximum));
   const result = await client.query(`
     SELECT ds.id AS segment_id, ds.document_representation_id,
            dr.file_binary_id, fb.sha256, dr.representation_kind,
