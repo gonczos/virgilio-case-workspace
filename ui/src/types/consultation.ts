@@ -295,6 +295,133 @@ export interface ReferenceLookupResponse {
   items: ReferenceObservationView[];
 }
 
+export type RecordedReferenceScope = "pilot" | "full";
+export type RecordedReferenceLifecycle = "current" | "include_history";
+
+export interface RecordedReferenceContext {
+  document_id: number;
+  bucket_document_id: number | null;
+  case_file_id: number | null;
+  bucket_id: number | null;
+  process_number: string | null;
+  occurrence_reference: string | null;
+  occurrence_date: string | null;
+  document_reference: string | null;
+  file_availability: "available" | "missing";
+  binary_sha256s: string[];
+}
+
+export interface RecordedReferenceObservation {
+  observation_id: number;
+  observation_key: string;
+  reference: {
+    raw_value: string;
+    normalized_value: string;
+    raw_label: string | null;
+    identifier_type: string | null;
+  };
+  origin: "court_metadata" | "external_register" | "document_text";
+  lifecycle: {
+    state: "current" | "superseded" | "retired_source_absent";
+    current_observation_key: string | null;
+    events: Array<{
+      transition_kind: string;
+      from_state: string | null;
+      to_state: string;
+      occurred_at: string;
+      related_observation_key: string | null;
+    }>;
+  };
+  direct_anchor: {
+    kind: "case_file" | "occurrence" | "document" | "document_text" | "external_source_record";
+    case_file_id: number | null;
+    bucket_id: number | null;
+    document_id: number | null;
+    bucket_document_id: number | null;
+    file_binary_id: number | null;
+    document_representation_id: number | null;
+    document_segment_id: number | null;
+    page_no: number | null;
+    char_start: number | null;
+    char_end: number | null;
+    process_number: string | null;
+    occurrence_reference: string | null;
+    occurrence_date: string | null;
+    document_reference: string | null;
+    processor_key: string | null;
+    processor_version: string | null;
+    external_source_name: string | null;
+    external_source_record_id: string | null;
+  };
+  associated_contexts: RecordedReferenceContext[];
+  binary_association_state: string;
+  associated_binaries: Array<{
+    file_binary_id: number;
+    sha256: string;
+    availability: "available";
+    open_action: { href: string };
+    contexts: Array<{
+      document_id: number;
+      bucket_document_id: number | null;
+      case_file_id: number | null;
+      bucket_id: number | null;
+    }>;
+  }>;
+  provenance: {
+    observed_in_kind: string;
+    source_field: string | null;
+    observer_key: string;
+    observer_version: string;
+    normalization_identity: string | null;
+  };
+  ingestion_assessment: {
+    namespace_hint: string | null;
+    role_hint: string | null;
+    target_candidates: unknown[];
+    confidence: string | null;
+    review_state: string;
+  };
+  human_review: {
+    namespace_hint: string | null;
+    role_hint: string | null;
+    target_candidates: unknown[];
+    resolution_state: "unresolved" | "ambiguous" | "resolved";
+    confidence: string | null;
+    review_state: string;
+    review_note: string | null;
+    reviewer_key: string;
+    metadata: Record<string, unknown>;
+    created_at: string;
+    updated_at: string;
+  } | null;
+}
+
+export interface RecordedReferenceLookupResponse {
+  query: {
+    raw_value: string;
+    normalized_value: string;
+    scope: RecordedReferenceScope;
+    lifecycle: RecordedReferenceLifecycle;
+  };
+  result_state: "matches" | "no_matches_within_coverage" | "coverage_unavailable_or_incomplete";
+  coverage: {
+    corpus_scope: RecordedReferenceScope;
+    lifecycle_scope: RecordedReferenceLifecycle;
+    status: "complete_for_declared_sources" | "incomplete" | "unavailable";
+    included_origins: string[];
+    limitations: Array<{ code: string; message: string }>;
+  };
+  pagination: {
+    unit: "observations";
+    limit: number;
+    offset: number;
+    returned: number;
+    has_more: boolean;
+    next_offset: number | null;
+  };
+  observations: RecordedReferenceObservation[];
+}
+
 export interface ReferenceTextHit {
   segment_id: number;
   document_representation_id: number;

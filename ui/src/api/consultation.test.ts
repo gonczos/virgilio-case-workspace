@@ -2,6 +2,7 @@ import { afterEach, expect, test, vi } from "vitest";
 
 import {
   lookupPilotReference,
+  lookupRecordedReferences,
   normalizeBinaryDetailResponse,
   searchText,
 } from "./consultation";
@@ -85,5 +86,16 @@ test("pilot API clients preserve explicit reference and text modes", async () =>
   );
   expect(fetchMock.mock.calls[1][0]).toBe(
     "/api/consultation/reference-pilot/search?q=despacho+105398957&limit=25&offset=50&scope=full&sort=earliest_occurrence_asc",
+  );
+});
+
+test("recorded-reference client preserves independent scope, lifecycle and pagination", async () => {
+  const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ observations: [] }) });
+  vi.stubGlobal("fetch", fetchMock);
+  await lookupRecordedReferences("REF / 123", {
+    scope: "full", lifecycle: "include_history", limit: 25, offset: 50,
+  });
+  expect(fetchMock.mock.calls[0][0]).toBe(
+    "/api/consultation/references/lookup?value=REF+%2F+123&scope=full&lifecycle=include_history&limit=25&offset=50",
   );
 });

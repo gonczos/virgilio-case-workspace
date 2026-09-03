@@ -1180,6 +1180,11 @@ reference, follow a citation, distinguish reuse contexts, inspect a missing-file
 record, find text in a scanned document, paginate beyond the first result page,
 and open an available original without losing the search state.
 
+Implementation status (2026-09-03): the bounded multi-method UI is implemented
+with independent section state, shared-generation invalidation, separate
+pagination, and requested-versus-displayed text ordering. Validation is
+recorded in `docs/evaluation/2026-09-03-multi-method-search-ui.md`.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may

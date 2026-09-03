@@ -3,6 +3,9 @@ import type {
   BinaryDetailResponse,
   ExtractionCoverageReport,
   ReferenceLookupResponse,
+  RecordedReferenceLifecycle,
+  RecordedReferenceLookupResponse,
+  RecordedReferenceScope,
   ReferenceTextSearchResponse,
   RepresentationListItem,
   RepresentationContentResult,
@@ -16,9 +19,11 @@ async function expectJson<T>(response: Response): Promise<T> {
     } catch {
       payload = null;
     }
-    const message = typeof payload === "object" && payload !== null && "error" in payload
-      ? String((payload as { error: string }).error)
-      : `HTTP ${response.status}`;
+    const error = typeof payload === "object" && payload !== null && "error" in payload
+      ? (payload as { error: unknown }).error : null;
+    const message = typeof error === "object" && error !== null && "message" in error
+      ? String((error as { message: unknown }).message)
+      : typeof error === "string" ? error : `HTTP ${response.status}`;
     throw new Error(message);
   }
   return response.json() as Promise<T>;
@@ -78,6 +83,27 @@ export async function lookupPilotReference(value: string): Promise<ReferenceLook
     `/api/consultation/reference-pilot/references/${encodeURIComponent(value)}`,
   );
   return expectJson<ReferenceLookupResponse>(response);
+}
+
+export async function lookupRecordedReferences(
+  value: string,
+  {
+    scope = "full",
+    lifecycle = "current",
+    limit = 50,
+    offset = 0,
+  }: {
+    scope?: RecordedReferenceScope;
+    lifecycle?: RecordedReferenceLifecycle;
+    limit?: number;
+    offset?: number;
+  } = {},
+): Promise<RecordedReferenceLookupResponse> {
+  const params = new URLSearchParams({
+    value, scope, lifecycle, limit: String(limit), offset: String(offset),
+  });
+  const response = await fetch(`/api/consultation/references/lookup?${params.toString()}`);
+  return expectJson<RecordedReferenceLookupResponse>(response);
 }
 
 export async function searchText(
