@@ -541,6 +541,22 @@ normalization effects and collisions; and whether provenance can be reproduced
 without inference. The inventory defines the honest corpus-wide coverage claim
 and whether individual fields require separate ingestion rules.
 
+Inventory validity is field-specific. Each source field must state its own
+documented format contract before counting a value as malformed. Empty values,
+contract violations, values that cannot be normalized without information
+loss, unusual-but-valid values, and unknown formats are separate outcomes;
+unusual values default to valid-but-unclassified or unknown rather than error.
+Raw values are always retained.
+
+Validity, normalization changes, and normalization collisions are independent
+dimensions. Benign normalization may remove surrounding whitespace or case
+differences without making a value invalid. The inventory records every change
+and separately identifies distinct raw values that collapse to one normalized
+value. Collision analysis retains source field, identifier type, and process
+context because equal normalized values in different contexts are not
+necessarily conflicting identifiers. Potentially information-losing or
+cross-context collisions are flagged for review, not silently resolved.
+
 Once corpus-wide recorded-reference coverage exists, the development fixture
 should leave the main user controls and remain available as an evaluation
 option. A literal character-for-character text search, if needed, is a separate
