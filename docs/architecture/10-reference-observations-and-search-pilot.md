@@ -747,6 +747,17 @@ metadata must appear only when history is explicitly requested and must not be
 returned as a second current observation beside its directly anchored
 replacement.
 
+Pilot membership is provenance-based. An observation is in pilot scope when
+either its own metadata names the frozen pilot fixture, or its stable
+`source_assertion_key` belongs to a current or historical observation reached
+from such a fixture observation through recorded lifecycle replacement events.
+This deterministic relation lets a reconciled directly anchored observation
+remain visible in the pilot without copying fixture metadata onto it. It also
+lets a later value for the same stable source assertion remain in the pilot.
+Normalized-value equality never establishes pilot membership. With lifecycle
+scope `current`, the pilot returns only the current replacement; with
+`include_history`, it may additionally return linked historical observations.
+
 #### Request and pagination contract
 
 The endpoint is:
@@ -766,7 +777,32 @@ It accepts only these query parameters:
 | `offset` | no | Observation offset from 0 through 1,000,000; default 0 |
 
 Unknown enum values, out-of-range integers, undecodable values, and an empty
-normalized lookup value return HTTP 400 with a stable error code. The route
+normalized lookup value return HTTP 400. Unknown and repeated query parameters
+are rejected rather than ignored. Every HTTP 400 response uses this envelope:
+
+```json
+{
+  "error": {
+    "code": "INVALID_REFERENCE_SCOPE",
+    "message": "scope must be pilot or full"
+  }
+}
+```
+
+Stable validation codes are:
+
+| Code | Condition |
+|---|---|
+| `UNKNOWN_QUERY_PARAMETER` | A parameter other than `value`, `scope`, `lifecycle`, `limit`, or `offset` was supplied |
+| `DUPLICATE_QUERY_PARAMETER` | An allowed parameter was supplied more than once |
+| `REFERENCE_VALUE_REQUIRED` | `value` is absent |
+| `INVALID_REFERENCE_VALUE` | `value` cannot be decoded or normalizes to an empty value |
+| `INVALID_REFERENCE_SCOPE` | `scope` is not `pilot` or `full` |
+| `INVALID_REFERENCE_LIFECYCLE` | `lifecycle` is not `current` or `include_history` |
+| `INVALID_REFERENCE_LIMIT` | `limit` is not an integer from 1 through 100 |
+| `INVALID_REFERENCE_OFFSET` | `offset` is not an integer from 0 through 1,000,000 |
+
+The route
 performs normalized exact lookup; it is not literal character matching and
 does not resolve a reference target.
 
@@ -837,6 +873,133 @@ Each result keeps these concepts separate:
 - ingestion target candidates, kept separate from reviewed resolution; and
 - binary-association state;
 - `associated_binaries`, a collection deduplicated by full SHA-256.
+
+Every observation item uses this shape; nullable fields remain present as
+`null`, while collections are present as arrays:
+
+```json
+{
+  "observation_id": 1201,
+  "observation_key": "stable-observation-key",
+  "reference": {
+    "raw_value": "105398957",
+    "normalized_value": "105398957",
+    "raw_label": "bucket.reference_number",
+    "identifier_type": "occurrence_reference"
+  },
+  "origin": "court_metadata",
+  "lifecycle": {
+    "state": "current",
+    "current_observation_key": "stable-observation-key",
+    "events": []
+  },
+  "direct_anchor": {
+    "kind": "occurrence",
+    "case_file_id": 1,
+    "bucket_id": 44,
+    "document_id": null,
+    "bucket_document_id": null,
+    "file_binary_id": null,
+    "document_representation_id": null,
+    "document_segment_id": null,
+    "page_no": null,
+    "char_start": null,
+    "char_end": null,
+    "process_number": "13608/14.8T2SNT",
+    "occurrence_reference": "105398957",
+    "occurrence_date": "2017-03-01"
+  },
+  "associated_contexts": [],
+  "binary_association_state": "all_associated_files_available",
+  "associated_binaries": [],
+  "provenance": {
+    "observed_in_kind": "source_record",
+    "source_field": "bucket.reference_number",
+    "observer_key": "app/reference-metadata-ingestion.mjs",
+    "observer_version": "v1",
+    "normalization_identity": "reference-normalization-nfkc-upper-v1"
+  },
+  "ingestion_assessment": {
+    "namespace_hint": "occurrence_reference",
+    "role_hint": "source_recorded_identifier",
+    "target_candidates": [],
+    "confidence": "high",
+    "review_state": "unreviewed"
+  },
+  "human_review": null
+}
+```
+
+`direct_anchor.kind` is exactly one of `case_file`, `occurrence`, `document`,
+`document_text`, or `external_source_record`. Its ID and location fields use
+the common nullable shape above. `document_text` additionally carries
+processor key/version and exact representation/segment location when known;
+it never invents a PDF page. `external_source_record` carries the external
+source name and stable source-record identifier.
+
+A reused document keeps one direct document anchor and repeats neither the
+observation nor the binary. Its contextual portion has this shape:
+
+```json
+{
+  "direct_anchor": {
+    "kind": "document",
+    "document_id": 1264,
+    "document_reference": "3994056_129125079_20_9125036_..."
+  },
+  "associated_contexts": [
+    {
+      "document_id": 1264,
+      "bucket_document_id": 991,
+      "case_file_id": 1,
+      "bucket_id": 44,
+      "process_number": "13608/14.8T2SNT",
+      "occurrence_reference": "105492248",
+      "occurrence_date": "2017-03-02",
+      "file_availability": "available",
+      "binary_sha256s": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+    },
+    {
+      "document_id": 1264,
+      "bucket_document_id": 1402,
+      "case_file_id": 3,
+      "bucket_id": 91,
+      "process_number": "13608/14.8T2SNT-C",
+      "occurrence_reference": "later-reference",
+      "occurrence_date": "2021-11-04",
+      "file_availability": "available",
+      "binary_sha256s": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+    }
+  ],
+  "associated_binaries": [
+    {
+      "file_binary_id": 88,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "availability": "available",
+      "open_action": {
+        "href": "/api/consultation/binaries/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "contexts": [
+        { "document_id": 1264, "bucket_document_id": 991 },
+        { "document_id": 1264, "bucket_document_id": 1402 }
+      ]
+    }
+  ]
+}
+```
+
+A missing-file observation has an empty `associated_binaries` array. Its
+`associated_contexts` entry identifies the source document and occurrence,
+uses `file_availability: "missing"`, and has `binary_sha256s: []`. It receives
+no `open_action`.
+
+When `include_history` returns a historical item, `lifecycle.state` is
+`superseded` or `retired_source_absent`, `current_observation_key` identifies
+the current replacement when one exists, and `events[]` contains timestamped
+objects with `transition_kind`, `from_state`, `to_state`, `occurred_at`, and
+the stable related observation key. Human review remains in `human_review`
+with `resolution_state`, reviewed target candidates, reviewer identity, notes,
+and timestamps; it is never merged into `ingestion_assessment`.
 
 Every `associated_binaries[]` entry contains its full SHA-256 identity,
 availability, optional API-relative open action, and nested document and
