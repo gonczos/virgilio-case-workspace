@@ -211,6 +211,7 @@ export async function lookupReference(client, value, { fixtureName = null } = {}
 export async function searchPassages(client, query, {
   limit = 20,
   offset = 0,
+  sort = "relevance",
   sha256s = null,
   maximumLimit = 100,
 } = {}) {
@@ -218,6 +219,37 @@ export async function searchPassages(client, query, {
   const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, boundedMaximum));
   const boundedOffset = Math.max(0, Number(offset) || 0);
   const result = await client.query(`
+    WITH matching_binaries AS (
+      SELECT fb.id AS file_binary_id, fb.sha256,
+             MAX(ts_rank_cd(ds.search_vector, websearch_to_tsquery('portuguese', $1))) AS relevance_rank,
+             occurrence_dates.earliest_occurrence_date,
+             occurrence_dates.latest_occurrence_date
+      FROM casework.document_segment ds
+      JOIN casework.document_representation dr ON dr.id = ds.document_representation_id
+      JOIN casework.file_binary fb ON fb.id = dr.file_binary_id
+      LEFT JOIN LATERAL (
+        SELECT MIN(b.bucket_date) AS earliest_occurrence_date,
+               MAX(b.bucket_date) AS latest_occurrence_date
+        FROM casework.document_binary db
+        JOIN casework.bucket_document bd ON bd.document_id = db.document_id
+        JOIN casework.bucket b ON b.id = bd.bucket_id
+        WHERE db.file_binary_id = fb.id
+      ) occurrence_dates ON true
+      WHERE ds.search_vector @@ websearch_to_tsquery('portuguese', $1)
+        AND ($3::text[] IS NULL OR fb.sha256 = ANY($3::text[]))
+      GROUP BY fb.id, fb.sha256,
+               occurrence_dates.earliest_occurrence_date,
+               occurrence_dates.latest_occurrence_date
+    ), selected_binaries AS (
+      SELECT *
+      FROM matching_binaries
+      ORDER BY
+        CASE WHEN $5 = 'earliest_occurrence_asc' THEN earliest_occurrence_date END ASC NULLS LAST,
+        CASE WHEN $5 = 'latest_occurrence_desc' THEN latest_occurrence_date END DESC NULLS LAST,
+        CASE WHEN $5 = 'relevance' THEN relevance_rank END DESC NULLS LAST,
+        sha256 ASC
+      LIMIT $2 OFFSET $4
+    )
     SELECT ds.id AS segment_id, ds.document_representation_id,
            dr.file_binary_id, fb.sha256, dr.representation_kind,
            dr.processor_key, dr.processor_version, ds.segment_kind,
@@ -229,6 +261,9 @@ export async function searchPassages(client, query, {
              ELSE 'processor_page_unverified'
            END AS location_kind,
            ts_rank_cd(ds.search_vector, websearch_to_tsquery('portuguese', $1)) AS rank,
+           sb.relevance_rank AS binary_relevance_rank,
+           sb.earliest_occurrence_date,
+           sb.latest_occurrence_date,
            ts_headline('portuguese', ds.text_content,
              websearch_to_tsquery('portuguese', $1),
              'MaxWords=35, MinWords=12, StartSel=[[, StopSel=]]') AS headline,
@@ -238,6 +273,7 @@ export async function searchPassages(client, query, {
     FROM casework.document_segment ds
     JOIN casework.document_representation dr ON dr.id = ds.document_representation_id
     JOIN casework.file_binary fb ON fb.id = dr.file_binary_id
+    JOIN selected_binaries sb ON sb.file_binary_id = fb.id
     LEFT JOIN LATERAL (
       SELECT jsonb_agg(jsonb_build_object(
         'bucket_document_id', bd.id, 'document_id', d.id,
@@ -339,8 +375,13 @@ export async function searchPassages(client, query, {
     ) context_refs ON true
     WHERE ds.search_vector @@ websearch_to_tsquery('portuguese', $1)
       AND ($3::text[] IS NULL OR fb.sha256 = ANY($3::text[]))
-    ORDER BY rank DESC, ds.id ASC
-    LIMIT $2 OFFSET $4
-  `, [query, boundedLimit, sha256s, boundedOffset]);
+    ORDER BY
+      CASE WHEN $5 = 'earliest_occurrence_asc' THEN sb.earliest_occurrence_date END ASC NULLS LAST,
+      CASE WHEN $5 = 'latest_occurrence_desc' THEN sb.latest_occurrence_date END DESC NULLS LAST,
+      CASE WHEN $5 = 'relevance' THEN sb.relevance_rank END DESC NULLS LAST,
+      fb.sha256 ASC,
+      rank DESC,
+      ds.id ASC
+  `, [query, boundedLimit, sha256s, boundedOffset, sort]);
   return result.rows;
 }

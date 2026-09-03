@@ -38,14 +38,12 @@ async function checkOriginal(binaryStore, client, sha256) {
 export async function evaluateFullCorpusTextSearch(client, {
   fixture = null,
   binaryStore = new LocalBinaryStore({ workspaceRoot }),
-  passageLimit = null,
+  binaryLimit = 100,
 } = {}) {
   const evaluationFixture = fixture
     ?? JSON.parse(await fs.readFile(fixturePath, "utf8"));
   const maximumRank = evaluationFixture.success_criterion.expected_binary_max_distinct_rank;
-  const evaluatedPassageLimit = passageLimit === null
-    ? evaluationFixture.passage_limit
-    : Math.max(1, Math.min(Number(passageLimit) || evaluationFixture.passage_limit, 100));
+  const evaluatedBinaryLimit = Math.max(1, Math.min(Number(binaryLimit) || 100, 100));
   const coverageResult = await client.query(`
     SELECT COUNT(*)::int AS total_segments,
            COUNT(*) FILTER (WHERE search_vector IS NOT NULL)::int AS indexed_segments,
@@ -61,7 +59,7 @@ export async function evaluateFullCorpusTextSearch(client, {
   for (const evaluationQuery of evaluationFixture.queries) {
     const startedAt = performance.now();
     const response = await searchReferencePilot(client, evaluationQuery.query, {
-      limit: evaluatedPassageLimit,
+      limit: evaluatedBinaryLimit,
       scope: evaluationFixture.evaluation_scope,
     });
     const latencyMs = Math.round((performance.now() - startedAt) * 10) / 10;
@@ -99,7 +97,8 @@ export async function evaluateFullCorpusTextSearch(client, {
     fixture_name: evaluationFixture.fixture_name,
     fixture_version: evaluationFixture.fixture_version,
     evaluated_at: new Date().toISOString(),
-    evaluated_passage_limit: evaluatedPassageLimit,
+    evaluation_pagination_unit: "binary",
+    evaluated_binary_limit: evaluatedBinaryLimit,
     success_criterion: evaluationFixture.success_criterion,
     index_coverage: coverageResult.rows[0],
     summary: {
@@ -114,10 +113,10 @@ export async function evaluateFullCorpusTextSearch(client, {
 }
 
 async function main() {
-  const limitArgumentIndex = process.argv.indexOf("--passage-limit");
-  const passageLimit = limitArgumentIndex >= 0 ? process.argv[limitArgumentIndex + 1] : null;
+  const limitArgumentIndex = process.argv.indexOf("--binary-limit");
+  const binaryLimit = limitArgumentIndex >= 0 ? process.argv[limitArgumentIndex + 1] : 100;
   await withClient("evaluate-full-corpus-text-search", async (client) => {
-    console.log(JSON.stringify(await evaluateFullCorpusTextSearch(client, { passageLimit }), null, 2));
+    console.log(JSON.stringify(await evaluateFullCorpusTextSearch(client, { binaryLimit }), null, 2));
   });
 }
 

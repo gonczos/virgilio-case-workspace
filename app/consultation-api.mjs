@@ -104,6 +104,7 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
       if (requestUrl.pathname === "/api/consultation/reference-pilot/search") {
         const query = requestUrl.searchParams.get("q")?.trim() ?? "";
         const scope = requestUrl.searchParams.get("scope") ?? "pilot";
+        const sort = requestUrl.searchParams.get("sort") ?? "relevance";
         const limit = parsePositiveInteger(requestUrl.searchParams.get("limit"), 20, { min: 1, max: 100 });
         const offset = parsePositiveInteger(requestUrl.searchParams.get("offset"), 0, { min: 0 });
         if (!query) {
@@ -118,7 +119,16 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
           sendJson(response, 400, { error: "invalid_search_scope" });
           return;
         }
-        sendJson(response, 200, await searchReferencePilot(client, query, { limit, offset, scope }));
+        if (!["relevance", "earliest_occurrence_asc", "latest_occurrence_desc"].includes(sort)) {
+          sendJson(response, 400, { error: "invalid_search_sort" });
+          return;
+        }
+        sendJson(response, 200, await searchReferencePilot(client, query, {
+          limit,
+          offset,
+          scope,
+          sort,
+        }));
         return;
       }
 

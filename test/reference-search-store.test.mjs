@@ -73,11 +73,11 @@ test("exact lookup normalizes the value without guessing a namespace", async () 
   assert.match(calls[0].sql, /AS review/u);
 });
 
-test("pilot search keeps its SHA boundary and caps its result limit", async () => {
+test("pilot search keeps its SHA boundary and caps its binary-page limit", async () => {
   const calls = [];
   const client = { query: async (sql, params) => { calls.push({ sql, params }); return { rows: [] }; } };
   await searchPassages(client, "despacho", { limit: 900, sha256s: ["abc", "def"] });
-  assert.deepEqual(calls[0].params, ["despacho", 100, ["abc", "def"], 0]);
+  assert.deepEqual(calls[0].params, ["despacho", 100, ["abc", "def"], 0, "relevance"]);
   assert.match(calls[0].sql, /ds\.search_vector @@/u);
   assert.match(calls[0].sql, /fb\.sha256 = ANY\(\$3::text\[\]\)/u);
   assert.match(calls[0].sql, /passage_reference_observations/u);
@@ -86,14 +86,14 @@ test("pilot search keeps its SHA boundary and caps its result limit", async () =
   assert.match(calls[0].sql, /observer_version/u);
 });
 
-test("full-corpus text search removes the fixture SHA filter and reports a passage cap", async () => {
+test("full-corpus text search removes the fixture SHA filter and reports a binary cap", async () => {
   const calls = [];
   const client = {
     query: async (sql, params) => {
       calls.push({ sql, params });
       return {
         rows: Array.from({ length: 3 }, (_value, index) => ({
-          sha256: index < 2 ? "a".repeat(64) : "b".repeat(64),
+          sha256: String.fromCharCode(97 + index).repeat(64),
           page_no: null,
           location_kind: "document_level",
           passage_reference_observations: [],
@@ -104,20 +104,23 @@ test("full-corpus text search removes the fixture SHA filter and reports a passa
   };
 
   const result = await searchReferencePilot(client, "despacho", { limit: 2, scope: "full" });
-  assert.deepEqual(calls[0].params, ["despacho", 3, null, 0]);
-  assert.deepEqual(result.query, { text: "despacho", limit: 2, offset: 0, scope: "full" });
+  assert.deepEqual(calls[0].params, ["despacho", 3, null, 0, "relevance"]);
+  assert.deepEqual(result.query, {
+    text: "despacho", limit: 2, offset: 0, scope: "full", sort: "relevance",
+  });
   assert.deepEqual(result.result_summary, {
     requested_offset: 0,
-    passage_limit: 2,
+    pagination_unit: "binary",
+    binary_limit: 2,
     returned_passage_count: 2,
-    distinct_binary_count: 1,
+    distinct_binary_count: 2,
     capped: true,
     has_more: true,
     next_offset: 2,
   });
 });
 
-test("text search advances its server offset by returned rows", async () => {
+test("text search advances its server offset by returned binaries", async () => {
   const calls = [];
   const client = {
     query: async (_sql, params) => {
@@ -132,11 +135,25 @@ test("text search advances its server offset by returned rows", async () => {
     },
   };
   const result = await searchReferencePilot(client, "term", { limit: 2, offset: 50, scope: "full" });
-  assert.deepEqual(calls[0], ["term", 3, null, 50]);
+  assert.deepEqual(calls[0], ["term", 3, null, 50, "relevance"]);
   assert.equal(result.result_summary.requested_offset, 50);
   assert.equal(result.result_summary.returned_passage_count, 1);
   assert.equal(result.result_summary.next_offset, 51);
   assert.equal(result.result_summary.has_more, false);
+});
+
+test("chronological binary ordering is applied before pagination with null dates last", async () => {
+  const calls = [];
+  const client = { query: async (sql, params) => { calls.push({ sql, params }); return { rows: [] }; } };
+  await searchPassages(client, "term", {
+    limit: 20,
+    offset: 40,
+    sort: "earliest_occurrence_asc",
+  });
+  assert.deepEqual(calls[0].params, ["term", 20, null, 40, "earliest_occurrence_asc"]);
+  assert.match(calls[0].sql, /MIN\(b\.bucket_date\) AS earliest_occurrence_date/u);
+  assert.match(calls[0].sql, /earliest_occurrence_date END ASC NULLS LAST/u);
+  assert.match(calls[0].sql, /selected_binaries/u);
 });
 
 test("human review is written through a separate review-owned upsert", async () => {

@@ -79,9 +79,15 @@ export async function searchText(
     limit = 50,
     offset = 0,
     scope = "pilot",
-  }: { limit?: number; offset?: number; scope?: "pilot" | "full" } = {},
+    sort = "relevance",
+  }: {
+    limit?: number;
+    offset?: number;
+    scope?: "pilot" | "full";
+    sort?: "relevance" | "earliest_occurrence_asc" | "latest_occurrence_desc";
+  } = {},
 ): Promise<ReferenceTextSearchResponse> {
-  const params = new URLSearchParams({ q: query, limit: String(limit), offset: String(offset), scope });
+  const params = new URLSearchParams({ q: query, limit: String(limit), offset: String(offset), scope, sort });
   const response = await fetch(`/api/consultation/reference-pilot/search?${params.toString()}`);
   return expectJson<ReferenceTextSearchResponse>(response);
 }

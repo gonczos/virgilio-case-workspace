@@ -309,6 +309,9 @@ export interface ReferenceTextHit {
   location_kind: ReferenceLocationKind;
   location: { kind: ReferenceLocationKind; pdf_page: number | null };
   rank: number;
+  binary_relevance_rank: number;
+  earliest_occurrence_date: string | null;
+  latest_occurrence_date: string | null;
   headline: string;
   source_contexts: ReferenceSourceContext[];
   passage_reference_observations: ReferenceObservationView[];
@@ -317,10 +320,17 @@ export interface ReferenceTextHit {
 
 export interface ReferenceTextSearchResponse {
   fixture: ReferencePilotFixtureSummary;
-  query: { text: string; limit: number; offset: number; scope: "pilot" | "full" };
+  query: {
+    text: string;
+    limit: number;
+    offset: number;
+    scope: "pilot" | "full";
+    sort: "relevance" | "earliest_occurrence_asc" | "latest_occurrence_desc";
+  };
   result_summary: {
     requested_offset: number;
-    passage_limit: number;
+    pagination_unit: "binary";
+    binary_limit: number;
     returned_passage_count: number;
     distinct_binary_count: number;
     capped: boolean;

@@ -157,18 +157,18 @@ Useful endpoints:
 * Directus: `http://localhost:8055`
 * gateway health: `http://localhost:8090/health`
 * gateway binary route: `http://localhost:8090/binary/<sha256>`
-* consultation API health: `http://127.0.0.1:8091/health`
-* fixture reference lookup: `http://127.0.0.1:8091/api/consultation/reference-pilot/references/<value>`
-* text search: `http://127.0.0.1:8091/api/consultation/reference-pilot/search?q=<terms>&scope=pilot|full`
+* consultation API health: `http://localhost:8091/health`
+* fixture reference lookup: `http://localhost:8091/api/consultation/reference-pilot/references/<value>`
+* text search: `http://localhost:8091/api/consultation/reference-pilot/search?q=<terms>&scope=pilot|full&sort=relevance|earliest_occurrence_asc|latest_occurrence_desc`
 
 The text-search endpoint defaults to `scope=pilot`. `scope=full` searches the
 current indexed segment corpus. Exact-reference lookup remains fixture-scoped;
 full text-search coverage does not imply full reference-observation coverage.
-Text-search continuation uses zero-based `offset=<rows already returned>` with
-the same query, scope, and limit. The response reports `next_offset` and
-`has_more`; offset pagination assumes the search projection is not reindexed
-during the browsing session.
-* UI dev server: `http://127.0.0.1:5173`
+Text-search continuation uses zero-based `offset=<binary groups already returned>`
+with the same query, scope, sort, and binary limit. The response reports
+`next_offset` and `has_more`; offset pagination assumes the search projection is
+not reindexed during the browsing session.
+* UI dev server: `http://localhost:5173`
 
 The UI dev server currently proxies:
 

@@ -396,6 +396,14 @@ This binary-grouped browsing order is not a procedural timeline. A later
 occurrence-based timeline may repeat the same binary at each recorded event;
 that separate view is outside this slice.
 
+Implementation status (2026-09-03): this binary-ordering slice is complete.
+The API pages binary groups in a stable server-side order and returns every
+matching processor passage for each selected binary. The UI defaults to
+relevance, restarts at offset zero when the order changes, retains all source
+occurrences within each group, and labels the recorded occurrence date used by
+either chronological order. A live full-corpus check confirmed oldest-first
+and newest-first ordering through the `localhost` UI.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may

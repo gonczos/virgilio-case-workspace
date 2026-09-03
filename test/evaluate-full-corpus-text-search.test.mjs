@@ -16,7 +16,7 @@ test("evaluation ranks binaries by their first passage without counting processo
   ]), ["a", "b", "c"]);
 });
 
-test("evaluation uses an explicit passage limit without mutating the fixture", async () => {
+test("evaluation uses an explicit binary limit without mutating the historical fixture", async () => {
   const queryLimits = [];
   const fixture = {
     fixture_name: "test",
@@ -44,11 +44,12 @@ test("evaluation uses an explicit passage limit without mutating the fixture", a
   };
   const result = await evaluateFullCorpusTextSearch(client, {
     fixture,
-    passageLimit: 50,
+    binaryLimit: 50,
     binaryStore: {},
   });
 
-  assert.equal(result.evaluated_passage_limit, 50);
+  assert.equal(result.evaluation_pagination_unit, "binary");
+  assert.equal(result.evaluated_binary_limit, 50);
   assert.equal(fixture.passage_limit, 100);
   assert.deepEqual(queryLimits, [51]);
 });

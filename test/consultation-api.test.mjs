@@ -400,7 +400,8 @@ test("reference pilot API labels a verified PDF page distinctly", async () => {
     assert.equal(payload.query.scope, "pilot");
     assert.deepEqual(payload.result_summary, {
       requested_offset: 0,
-      passage_limit: 20,
+      pagination_unit: "binary",
+      binary_limit: 20,
       returned_passage_count: 1,
       distinct_binary_count: 1,
       capped: false,
@@ -428,7 +429,19 @@ test("text search accepts a zero-based continuation offset", async () => {
     assert.equal(payload.query.offset, 50);
     assert.equal(payload.result_summary.requested_offset, 50);
     assert.equal(payload.result_summary.next_offset, 50);
-    assert.deepEqual(calls[0], ["matched", 26, null, 50]);
+    assert.deepEqual(calls[0], ["matched", 26, null, 50, "relevance"]);
+  });
+});
+
+test("text search validates its binary ordering mode", async () => {
+  const client = { query: async () => ({ rows: [] }) };
+  await withServer({ client, workspaceRoot: getWorkspaceRoot() }, async (baseUrl) => {
+    const response = await request(
+      baseUrl,
+      "/api/consultation/reference-pilot/search?q=matched&sort=document_date",
+    );
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(JSON.parse(response.body), { error: "invalid_search_sort" });
   });
 });
 

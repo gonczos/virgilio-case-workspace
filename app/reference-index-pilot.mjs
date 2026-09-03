@@ -142,6 +142,7 @@ export async function searchReferencePilot(client, query, {
   limit = 20,
   offset = 0,
   scope = "pilot",
+  sort = "relevance",
 } = {}) {
   const fixture = await loadReferencePilotFixture();
   const boundedLimit = Math.max(1, Math.min(Number(limit) || 20, 100));
@@ -152,22 +153,27 @@ export async function searchReferencePilot(client, query, {
   const probedRows = await searchPassages(client, query, {
     limit: boundedLimit + 1,
     offset: boundedOffset,
+    sort,
     maximumLimit: 101,
     sha256s,
   });
-  const capped = probedRows.length > boundedLimit;
-  const rows = probedRows.slice(0, boundedLimit);
+  const probedSha256s = [...new Set(probedRows.map((row) => row.sha256))];
+  const returnedSha256s = probedSha256s.slice(0, boundedLimit);
+  const returnedSha256Set = new Set(returnedSha256s);
+  const capped = probedSha256s.length > boundedLimit;
+  const rows = probedRows.filter((row) => returnedSha256Set.has(row.sha256));
   return {
     fixture: fixtureSummary(fixture),
-    query: { text: query, limit: boundedLimit, offset: boundedOffset, scope },
+    query: { text: query, limit: boundedLimit, offset: boundedOffset, scope, sort },
     result_summary: {
       requested_offset: boundedOffset,
-      passage_limit: boundedLimit,
+      pagination_unit: "binary",
+      binary_limit: boundedLimit,
       returned_passage_count: rows.length,
-      distinct_binary_count: new Set(rows.map((row) => row.sha256)).size,
+      distinct_binary_count: returnedSha256s.length,
       capped,
       has_more: capped,
-      next_offset: boundedOffset + rows.length,
+      next_offset: boundedOffset + returnedSha256s.length,
     },
     semantics: {
       search_scope: scope,

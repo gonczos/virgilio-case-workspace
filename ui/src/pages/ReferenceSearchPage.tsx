@@ -9,7 +9,11 @@ import {
   Chip,
   CircularProgress,
   Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Stack,
   TextField,
   ToggleButton,
@@ -38,11 +42,13 @@ import { mergeTextSearchHits } from "../utils/textSearchPagination";
 
 type SearchMode = "reference" | "text";
 type TextSearchScope = "pilot" | "full";
-const TEXT_PAGE_LIMIT = 50;
+type TextSearchSort = "relevance" | "earliest_occurrence_asc" | "latest_occurrence_desc";
+const BINARY_PAGE_LIMIT = 20;
 
 interface TextPaginationState {
   query: string;
   scope: TextSearchScope;
+  sort: TextSearchSort;
   nextOffset: number;
   hasMore: boolean;
 }
@@ -170,6 +176,7 @@ export function ReferenceSearchPage() {
   const requestTracker = useRef(createLatestRequestTracker());
   const [mode, setMode] = useState<SearchMode>("reference");
   const [textScope, setTextScope] = useState<TextSearchScope>("pilot");
+  const [textSort, setTextSort] = useState<TextSearchSort>("relevance");
   const [query, setQuery] = useState("105398957");
   const [lookup, setLookup] = useState<ReferenceLookupResponse | null>(null);
   const [search, setSearch] = useState<ReferenceTextSearchResponse | null>(null);
@@ -177,6 +184,7 @@ export function ReferenceSearchPage() {
     mode: SearchMode;
     query: string;
     textScope?: TextSearchScope;
+    textSort?: TextSearchSort;
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -190,6 +198,7 @@ export function ReferenceSearchPage() {
     searchMode: SearchMode,
     value: string,
     submittedTextScope: TextSearchScope = textScope,
+    submittedTextSort: TextSearchSort = textSort,
   ) {
     const request = requestTracker.current.begin();
     setLoading(true);
@@ -206,15 +215,17 @@ export function ReferenceSearchPage() {
         setLookup(result);
       } else {
         const result = await searchText(value, {
-          limit: TEXT_PAGE_LIMIT,
+          limit: BINARY_PAGE_LIMIT,
           offset: 0,
           scope: submittedTextScope,
+          sort: submittedTextSort,
         });
         if (!request.isCurrent()) return;
         setSearch(result);
         setTextPagination({
           query: value,
           scope: submittedTextScope,
+          sort: submittedTextSort,
           nextOffset: result.result_summary.next_offset,
           hasMore: result.result_summary.has_more,
         });
@@ -223,6 +234,7 @@ export function ReferenceSearchPage() {
         mode: searchMode,
         query: value,
         ...(searchMode === "text" ? { textScope: submittedTextScope } : {}),
+        ...(searchMode === "text" ? { textSort: submittedTextSort } : {}),
       });
     } catch (requestError) {
       if (!request.isCurrent()) return;
@@ -245,6 +257,18 @@ export function ReferenceSearchPage() {
     void runSearch("reference", value);
   }
 
+  function changeTextSort(nextSort: TextSearchSort) {
+    setTextSort(nextSort);
+    if (submittedResult?.mode === "text") {
+      void runSearch(
+        "text",
+        submittedResult.query,
+        submittedResult.textScope ?? "pilot",
+        nextSort,
+      );
+    }
+  }
+
   async function loadMore() {
     if (!search || !textPagination || !textPagination.hasMore || loadingMore) return;
     const submittedSearch = textPagination;
@@ -253,9 +277,10 @@ export function ReferenceSearchPage() {
     setLoadMoreError(null);
     try {
       const nextPage = await searchText(submittedSearch.query, {
-        limit: TEXT_PAGE_LIMIT,
+        limit: BINARY_PAGE_LIMIT,
         offset: submittedSearch.nextOffset,
         scope: submittedSearch.scope,
+        sort: submittedSearch.sort,
       });
       if (!request.isCurrent()) return;
       setSearch((current) => current ? {
@@ -313,6 +338,21 @@ export function ReferenceSearchPage() {
               </ToggleButtonGroup>
             </Stack>
           )}
+          {mode === "text" ? (
+            <FormControl size="small" sx={{ maxWidth: 360 }}>
+              <InputLabel id="text-search-order-label">Order</InputLabel>
+              <Select
+                labelId="text-search-order-label"
+                label="Order"
+                value={textSort}
+                onChange={(event) => changeTextSort(event.target.value as TextSearchSort)}
+              >
+                <MenuItem value="relevance">Relevance</MenuItem>
+                <MenuItem value="earliest_occurrence_asc">Earliest occurrence</MenuItem>
+                <MenuItem value="latest_occurrence_desc">Latest occurrence</MenuItem>
+              </Select>
+            </FormControl>
+          ) : null}
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
             <TextField
               fullWidth
@@ -358,7 +398,7 @@ export function ReferenceSearchPage() {
         <Alert severity={textPagination?.hasMore ? "warning" : "info"}>
           {search.items.length} passage{search.items.length === 1 ? "" : "s"} loaded across {textGroups.length} distinct PDF{textGroups.length === 1 ? "" : "s"}.
           {textPagination?.hasMore
-            ? ` More matches are available; each page loads up to ${TEXT_PAGE_LIMIT} passages.`
+            ? ` More matches are available; each page loads up to ${BINARY_PAGE_LIMIT} PDFs.`
             : " No further matches remain."}
         </Alert>
       ) : null}
@@ -375,6 +415,16 @@ export function ReferenceSearchPage() {
                 {group.source_contexts[0]?.document_name ?? group.source_contexts[0]?.designation ?? `Binary ${getShortSha(group.sha256)}`}
               </Typography>
               <ContextList contexts={group.source_contexts} />
+              {submittedResult?.textSort === "earliest_occurrence_asc" ? (
+                <Typography variant="caption" color="text.secondary">
+                  Positioned by earliest recorded occurrence: {formatDate(group.hits[0].earliest_occurrence_date)}
+                </Typography>
+              ) : null}
+              {submittedResult?.textSort === "latest_occurrence_desc" ? (
+                <Typography variant="caption" color="text.secondary">
+                  Positioned by latest recorded occurrence: {formatDate(group.hits[0].latest_occurrence_date)}
+                </Typography>
+              ) : null}
             </Box>
             <Button component={RouterLink} to={`/binaries/${group.sha256}`} variant="outlined" sx={{ alignSelf: "flex-start" }}>
               Open original binary
