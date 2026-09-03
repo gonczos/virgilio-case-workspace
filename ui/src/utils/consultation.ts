@@ -2,6 +2,8 @@ import type {
   BinaryCatalogueItem,
   BinaryDetailResponse,
   RepresentationListItem,
+  ReferenceLocationKind,
+  ReferenceTextHit,
 } from "../types/consultation";
 
 const FORMAT_PRIORITY = ["markdown", "text", "complete-text", "native-json"];
@@ -143,4 +145,46 @@ export function isPdfBinary(detail: BinaryDetailResponse): boolean {
 export function prefersNativePdfViewer(detail: BinaryDetailResponse): boolean {
   return detail.binary.machine_readability_status === "image_only_pdf"
     || detail.binary.machine_readability_status === "mostly_image_pdf";
+}
+
+export interface GroupedReferenceTextHits {
+  sha256: string;
+  source_contexts: ReferenceTextHit["source_contexts"];
+  hits: ReferenceTextHit[];
+}
+
+export function groupReferenceTextHits(items: ReferenceTextHit[]): GroupedReferenceTextHits[] {
+  const groups = new Map<string, GroupedReferenceTextHits>();
+  for (const item of items) {
+    const existing = groups.get(item.sha256);
+    if (existing) {
+      existing.hits.push(item);
+      for (const context of item.source_contexts) {
+        if (!existing.source_contexts.some((candidate) => (
+          candidate.bucket_document_id === context.bucket_document_id
+            && candidate.document_id === context.document_id
+        ))) {
+          existing.source_contexts.push(context);
+        }
+      }
+    } else {
+      groups.set(item.sha256, {
+        sha256: item.sha256,
+        source_contexts: [...item.source_contexts],
+        hits: [item],
+      });
+    }
+  }
+  return [...groups.values()];
+}
+
+export function getReferenceLocationLabel(kind: ReferenceLocationKind, page: number | null): string {
+  switch (kind) {
+    case "source_record": return "Source-system record";
+    case "metadata_record": return "Metadata assertion";
+    case "binary_level": return "Binary-level observation";
+    case "document_level": return "Document-level; PDF page unavailable";
+    case "processor_page_unverified": return `Processor page ${page ?? "?"}; not verified as PDF page`;
+    case "verified_pdf_page": return `Verified PDF page ${page ?? "?"}`;
+  }
 }

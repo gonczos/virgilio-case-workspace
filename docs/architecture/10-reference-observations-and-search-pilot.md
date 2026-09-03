@@ -186,6 +186,10 @@ context. Observed values remain separate from reviewed target resolutions.
 Missing-file source records remain visible and must not be described as missing
 documents or failed searches.
 
+An empty result is mode-specific: `No reference-observation matches within the
+pilot` or `No text-search matches within the pilot`. It must never say `Document
+not found`, because retrieval coverage and document presence are separate facts.
+
 Text results are grouped by full binary SHA-256. Processor-specific hits are
 expandable beneath that binary so independent extractions are not presented as
 separate documents. Grouping must not hide the source document and occurrence

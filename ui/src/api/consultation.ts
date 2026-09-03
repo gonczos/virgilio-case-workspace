@@ -2,6 +2,8 @@ import type {
   BinaryCatalogueResponse,
   BinaryDetailResponse,
   ExtractionCoverageReport,
+  ReferenceLookupResponse,
+  ReferenceTextSearchResponse,
   RepresentationListItem,
   RepresentationContentResult,
 } from "../types/consultation";
@@ -62,6 +64,19 @@ export async function listBinaries(limit = 100, offset = 0): Promise<BinaryCatal
 export async function getExtractionCoverageReport(): Promise<ExtractionCoverageReport> {
   const response = await fetch("/api/consultation/reports/extraction-coverage");
   return expectJson<ExtractionCoverageReport>(response);
+}
+
+export async function lookupPilotReference(value: string): Promise<ReferenceLookupResponse> {
+  const response = await fetch(
+    `/api/consultation/reference-pilot/references/${encodeURIComponent(value)}`,
+  );
+  return expectJson<ReferenceLookupResponse>(response);
+}
+
+export async function searchPilotText(query: string, limit = 50): Promise<ReferenceTextSearchResponse> {
+  const params = new URLSearchParams({ q: query, limit: String(limit) });
+  const response = await fetch(`/api/consultation/reference-pilot/search?${params.toString()}`);
+  return expectJson<ReferenceTextSearchResponse>(response);
 }
 
 export async function getBinaryDetail(sha256: string): Promise<BinaryDetailResponse> {

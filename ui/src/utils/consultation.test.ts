@@ -8,6 +8,8 @@ import {
   formatBytes,
   getProcessingLabel,
   getRepresentationLabel,
+  getReferenceLocationLabel,
+  groupReferenceTextHits,
   isPdfBinary,
   prefersNativePdfViewer,
   sameStableId,
@@ -114,4 +116,33 @@ test("prefersNativePdfViewer falls back for scanned pdf classes only", () => {
   expect(prefersNativePdfViewer({
     binary: { machine_readability_status: "text_pdf", mime_type: "application/pdf", file_extension: ".pdf" },
   } as BinaryDetailResponse)).toBe(false);
+});
+
+test("reference text hits group by binary without losing processor hits or occurrence contexts", () => {
+  const base = {
+    sha256: "a".repeat(64),
+    source_contexts: [{ bucket_document_id: 1, document_id: 2 }],
+  };
+  const groups = groupReferenceTextHits([
+    { ...base, processor_key: "docling" },
+    {
+      ...base,
+      processor_key: "xberg",
+      source_contexts: [
+        { bucket_document_id: 1, document_id: 2 },
+        { bucket_document_id: 3, document_id: 2 },
+      ],
+    },
+    { ...base, sha256: "b".repeat(64), processor_key: "pdf_literal_text" },
+  ] as never);
+  expect(groups).toHaveLength(2);
+  expect(groups[0].hits.map((hit) => hit.processor_key)).toEqual(["docling", "xberg"]);
+  expect(groups[0].source_contexts).toHaveLength(2);
+});
+
+test("reference location labels do not promote document or processor locations to verified pages", () => {
+  expect(getReferenceLocationLabel("document_level", null)).toContain("PDF page unavailable");
+  expect(getReferenceLocationLabel("processor_page_unverified", 3)).toContain("not verified");
+  expect(getReferenceLocationLabel("verified_pdf_page", 3)).toBe("Verified PDF page 3");
+  expect(getReferenceLocationLabel("source_record", null)).toBe("Source-system record");
 });

@@ -223,3 +223,101 @@ export interface BinaryDetailResponse {
 export type RepresentationContentResult =
   | { format: "text" | "markdown" | "complete-text"; body: string }
   | { format: "native-json"; body: unknown };
+
+export interface ReferenceSourceContext {
+  bucket_document_id: number;
+  document_id: number;
+  process_number: string;
+  occurrence_reference: string;
+  occurrence_date: string | null;
+  designation: string | null;
+  document_reference: string | null;
+  document_name?: string | null;
+}
+
+export type ReferenceLocationKind =
+  | "source_record"
+  | "metadata_record"
+  | "binary_level"
+  | "document_level"
+  | "processor_page_unverified"
+  | "verified_pdf_page";
+
+export interface ReferenceObservationView {
+  binary_identity: {
+    file_binary_id: number;
+    sha256: string;
+    detail_api_path: string;
+  } | null;
+  source_document_identity: {
+    document_id: number;
+    source_document_reference: string | null;
+  } | null;
+  source_contexts: ReferenceSourceContext[];
+  observation: {
+    id: number;
+    observation_key: string;
+    raw_value: string;
+    normalized_value: string | null;
+    raw_label: string | null;
+    observed_in_kind: string;
+    namespace_hint: string | null;
+    role_hint: string | null;
+    target_candidates: unknown[];
+    provenance: Record<string, unknown>;
+    location: { kind: ReferenceLocationKind; pdf_page: number | null };
+    char_start: number | null;
+    char_end: number | null;
+    context_text: string | null;
+    confidence: string | null;
+    review_state: string;
+  };
+  extractor_observation_state: string;
+  target_resolution: {
+    state: "unresolved" | "ambiguous" | "resolved";
+    resolved_target: unknown | null;
+    candidates: unknown[];
+    review: Record<string, unknown> | null;
+  };
+}
+
+export interface ReferencePilotFixtureSummary {
+  name: string;
+  version: number;
+  distinct_binary_count: number;
+  missing_binary_record_count: number;
+}
+
+export interface ReferenceLookupResponse {
+  fixture: ReferencePilotFixtureSummary;
+  lookup: { exact_normalized_value: string };
+  semantics: Record<string, unknown>;
+  items: ReferenceObservationView[];
+}
+
+export interface ReferenceTextHit {
+  segment_id: number;
+  document_representation_id: number;
+  file_binary_id: number;
+  sha256: string;
+  representation_kind: string;
+  processor_key: string;
+  processor_version: string;
+  segment_kind: string;
+  sequence_no: number;
+  page_no: number | null;
+  location_kind: ReferenceLocationKind;
+  location: { kind: ReferenceLocationKind; pdf_page: number | null };
+  rank: number;
+  headline: string;
+  source_contexts: ReferenceSourceContext[];
+  passage_reference_observations: ReferenceObservationView[];
+  contextual_reference_observations: ReferenceObservationView[];
+}
+
+export interface ReferenceTextSearchResponse {
+  fixture: ReferencePilotFixtureSummary;
+  query: { text: string; limit: number };
+  semantics: Record<string, unknown>;
+  items: ReferenceTextHit[];
+}

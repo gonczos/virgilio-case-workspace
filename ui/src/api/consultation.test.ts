@@ -1,7 +1,15 @@
-import { expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 
-import { normalizeBinaryDetailResponse } from "./consultation";
+import {
+  lookupPilotReference,
+  normalizeBinaryDetailResponse,
+  searchPilotText,
+} from "./consultation";
 import type { BinaryDetailResponse } from "../types/consultation";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 test("normalizeBinaryDetailResponse tolerates older detail payloads without evidence section", () => {
   const normalized = normalizeBinaryDetailResponse({
@@ -59,4 +67,22 @@ test("normalizeBinaryDetailResponse tolerates older detail payloads without evid
   expect(normalized.technical_details.evidence_representation_ids).toEqual([]);
   expect(normalized.technical_details.interpretation_representation_ids).toEqual([]);
   expect(normalized.technical_details.representation_ids).toEqual([]);
+});
+
+test("pilot API clients preserve explicit reference and text modes", async () => {
+  const fetchMock = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ fixture: {}, items: [] }),
+  });
+  vi.stubGlobal("fetch", fetchMock);
+
+  await lookupPilotReference("REF / 123");
+  await searchPilotText("despacho 105398957", 25);
+
+  expect(fetchMock.mock.calls[0][0]).toBe(
+    "/api/consultation/reference-pilot/references/REF%20%2F%20123",
+  );
+  expect(fetchMock.mock.calls[1][0]).toBe(
+    "/api/consultation/reference-pilot/search?q=despacho+105398957&limit=25",
+  );
 });
