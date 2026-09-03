@@ -562,8 +562,8 @@ should leave the main user controls and remain available as an evaluation
 option. A literal character-for-character text search, if needed, is a separate
 future behavior; the linguistic document-text index does not promise it.
 
-This section records the agreed plan only. The read-only inventory and all
-subsequent ingestion and UI work remain unimplemented.
+The inventory is complete; subsequent ingestion, API, and UI work remain
+unimplemented.
 
 Implementation status (2026-09-03): the read-only inventory is implemented and
 recorded in `docs/evaluation/2026-09-03-reference-metadata-inventory.md`.
@@ -572,6 +572,132 @@ unimplemented. Detailed overlap groups preserve raw-value-to-source
 associations and include same-field, same-proceeding reuse across separate
 source records as well as multiple occurrence links to the same source
 document.
+
+### Consolidated metadata-reference ingestion checkpoint
+
+The first implementation checkpoint is limited to schema support, a genuinely
+read-only dry run, transactional court-metadata ingestion, and reconciliation
+with existing pilot observations. Corpus-wide lookup and the multi-method UI
+are later checkpoints.
+
+#### Ingestion set and direct anchors
+
+The checkpoint ingests:
+
+| Source field | Identifier type | Direct anchor |
+|---|---|---|
+| `case_file.processo` | Process number | `case_file` |
+| `case_file.idprocesso` | Source process ID | `case_file` |
+| `bucket.reference_number` | Recorded occurrence reference | `bucket` |
+| `document.document_procinfo` | Source document reference | `document` |
+
+`bucket.bucket_id` remains available in provenance but is not separately
+ingested because all 897 inventoried values duplicate `reference_number`.
+External-register ingestion is deferred because `case_workspace_reference`
+currently has no rows. Do not add `case_workspace_reference_id` to the
+observation schema during this checkpoint.
+
+Add direct nullable `case_file_id` and `bucket_id` anchors to
+`reference_observation`, update its anchor constraint, and index both columns.
+Do not attach case or occurrence assertions to an arbitrary linked document to
+satisfy the existing constraint. Document references retain `document_id` as
+their direct anchor and have one current observation per source document; all
+procedural occurrences remain associated context rather than duplicated
+observations.
+
+#### Pilot reconciliation
+
+Existing pilot metadata observations anchored indirectly through
+`bucket_document` are not independent evidence when they describe the same
+source assertion as a new directly anchored observation. The directly anchored
+observation becomes current. The prior pilot observation remains historical,
+keeps its review record and pilot membership, links to its replacement, and is
+excluded from ordinary full-scope results. Pilot evaluation may continue to
+show historical fixture observations explicitly.
+
+Pilot document-text observations remain active because metadata ingestion does
+not replace them. Existing pilot external-register observations also remain
+active and explicitly limited in coverage. The supported claim after this
+checkpoint is `corpus-wide court-metadata coverage; external-register coverage
+remains limited to the pilot`.
+
+#### Identity, lifecycle, and versioning
+
+A stable source assertion is identified by origin, source field, source record,
+and identifier type. Observation lifecycle is explicit:
+
+- `current`;
+- `superseded`; and
+- `retired_source_absent`.
+
+A changed raw source value creates a new current observation and supersedes the
+former observation. A disappeared source value retires the former observation.
+Neither action deletes historical reviews. Observer, ingestion, and
+normalization versions remain provenance. If a version changes the normalized
+value for unchanged raw input, retain and link the previous derived
+observation rather than silently overwriting its meaning. Ordinary lookup later
+returns current observations by default; historical observations require an
+explicit history or diagnostic mode.
+
+Routine reseeding must not overwrite `reference_observation_review`. The
+reconciliation plan must classify inserts, unchanged/refreshed current rows,
+supersessions, retirements, retained reviewed rows, and historical pilot
+replacements separately.
+
+#### File association states
+
+Reference provenance does not force a single binary. Associated documents and
+binaries are contextual collections with one of these factual states:
+
+- `no_direct_binary_association`;
+- `all_associated_files_available`;
+- `all_associated_files_missing`; or
+- `mixed_file_availability`.
+
+Process references naturally have no direct binary. Multi-document occurrences
+retain every associated file. Missing-file source documents remain searchable
+from metadata. A document-level observation does not borrow an arbitrary date
+from a reused binary or occurrence; occurrence references alone use their
+directly anchored `bucket_date` for ordering.
+
+#### Dry run and transactional reporting
+
+Dry run computes the complete proposed change set without issuing mutation
+statements. It must not simulate writes followed by rollback because sequence
+allocation and other effects can survive a rollback. Write mode is
+transactional and reports attempted counts separately from committed counts.
+Committed counts are emitted only after successful commit; after rollback they
+are zero and the failure is reported without implying partial persistence.
+
+The implementation command should support explicit dry-run and write modes and
+emit deterministic structured diagnostics. It must not delete pilot
+document-text or external-register observations and must remain idempotent when
+source data and ingestion versions are unchanged.
+
+#### Acceptance gate
+
+Before this checkpoint is complete, automated and bounded database validation
+must cover:
+
+- direct case and occurrence anchors;
+- one document observation with multiple occurrences;
+- reuse across processes and separate same-date occurrences;
+- a multi-document/multi-binary occurrence, including mixed availability;
+- a process reference with no direct binary;
+- a missing-binary document reference;
+- suppression of duplicate `bucket_id`/`reference_number` observations;
+- reconciliation of an existing pilot metadata observation;
+- preservation of its review and pilot identity;
+- retention of pilot document-text and external-register observations;
+- changed and disappeared source values;
+- a normalization-version replacement;
+- deterministic reruns without duplicate observations;
+- raw-value preservation and no inferred target resolution;
+- dry run issuing no writes or sequence allocations; and
+- attempted versus committed counts on success and rollback.
+
+After ingestion, inspect current and historical rows for a fixed sample before
+starting corpus-wide API lookup or UI changes.
 
 ## Review ownership and reseeding
 
@@ -585,11 +711,12 @@ Human decisions are therefore stored in a separate one-to-one
 overlay while retaining the original observation. This also makes the reviewer,
 review timestamp, and notes independently attributable.
 
-When an extractor version is superseded, unreviewed observations from the older
-version may be removed from the bounded fixture. An observation with a review
-must be retained; the new extractor output is recorded separately under its new
-stable observation identity. Reconciliation between those observations is a
-later review action, not an ingestion-side overwrite.
+For the bounded document-text extractor fixture, an unreviewed observation from
+an older extractor version may be removed. An observation with a review must be
+retained; the new extractor output is recorded separately under its new stable
+observation identity. Reconciliation between those observations is a later
+review action, not an ingestion-side overwrite. The stricter lifecycle above
+applies to source-metadata assertions and their normalization replacements.
 
 ## Known limitations
 
