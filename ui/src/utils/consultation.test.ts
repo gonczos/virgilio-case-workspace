@@ -10,6 +10,7 @@ import {
   getRepresentationLabel,
   getReferenceLocationLabel,
   getObservationTechnicalAnchors,
+  getObservationKindLabel,
   getReferenceResultHeading,
   groupReferenceTextHits,
   isPdfBinary,
@@ -140,6 +141,21 @@ test("reference text hits group by binary without losing processor hits or occur
   expect(groups).toHaveLength(2);
   expect(groups[0].hits.map((hit) => hit.processor_key)).toEqual(["docling", "xberg"]);
   expect(groups[0].source_contexts).toHaveLength(2);
+});
+
+test("binary preview order is deterministic and starts with the highest-ranked passage", () => {
+  const groups = groupReferenceTextHits([
+    { sha256: "a".repeat(64), rank: 0.2, document_representation_id: 2, segment_id: 8, source_contexts: [] },
+    { sha256: "a".repeat(64), rank: 0.8, document_representation_id: 3, segment_id: 9, source_contexts: [] },
+    { sha256: "a".repeat(64), rank: 0.8, document_representation_id: 1, segment_id: 7, source_contexts: [] },
+  ] as never);
+  expect(groups[0].hits.map((hit) => hit.segment_id)).toEqual([7, 9, 8]);
+});
+
+test("reference observation labels distinguish source records from document mentions", () => {
+  expect(getObservationKindLabel("source_record")).toBe("Recorded by source system");
+  expect(getObservationKindLabel("metadata_row")).toBe("Recorded by source system");
+  expect(getObservationKindLabel("segment")).toBe("Mentioned in document text");
 });
 
 test("reference location labels do not promote document or processor locations to verified pages", () => {

@@ -454,6 +454,14 @@ processor-attributed preview, understand any chronological positioning date,
 and open the original. Expansion must preserve all occurrences, matching
 representations, observation locations, and technical provenance.
 
+Implementation status (2026-09-03): this presentation slice is complete. Live
+checks against the full-corpus `marie` search confirmed highlighted,
+processor-attributed previews, compact occurrence groups, neutral continuation
+status, and submitted-result ordering that ignores unsubmitted input edits. An
+exact lookup for `105398957` confirmed that document-text mentions retain their
+excerpt while source-system observations are labelled separately without an
+invented document excerpt.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may

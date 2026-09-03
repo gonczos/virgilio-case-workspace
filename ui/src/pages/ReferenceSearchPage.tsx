@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { Fragment, FormEvent, useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -8,7 +8,6 @@ import {
   Button,
   Chip,
   CircularProgress,
-  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -33,6 +32,7 @@ import type {
 import {
   getReferenceLocationLabel,
   getObservationTechnicalAnchors,
+  getObservationKindLabel,
   getReferenceResultHeading,
   getShortSha,
   groupReferenceTextHits,
@@ -59,11 +59,11 @@ function formatDate(value: string | null): string {
   return new Date(value).toLocaleDateString();
 }
 
-function ContextList({ contexts }: { contexts: ReferenceSourceContext[] }) {
+function ContextList({ contexts, compact = false }: { contexts: ReferenceSourceContext[]; compact?: boolean }) {
   if (contexts.length === 0) {
     return <Typography variant="body2" color="text.secondary">No procedural occurrence recorded.</Typography>;
   }
-  return (
+  const details = (
     <Stack spacing={0.75}>
       {contexts.map((context) => (
         <Box key={`${context.bucket_document_id}-${context.document_id}`}>
@@ -81,6 +81,34 @@ function ContextList({ contexts }: { contexts: ReferenceSourceContext[] }) {
         </Box>
       ))}
     </Stack>
+  );
+  if (!compact) return details;
+  const dates = [...new Set(contexts.map((context) => formatDate(context.occurrence_date)))];
+  return (
+    <Accordion disableGutters elevation={0} sx={{ bgcolor: "transparent" }}>
+      <AccordionSummary expandIcon={<span aria-hidden>›</span>} sx={{ px: 0 }}>
+        <Typography variant="body2">
+          {contexts.length} recorded occurrence{contexts.length === 1 ? "" : "s"}: {dates.join(", ")}
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails sx={{ px: 0 }}>{details}</AccordionDetails>
+    </Accordion>
+  );
+}
+
+function HighlightedExcerpt({ text }: { text: string }) {
+  const parts = text.split(/(\[\[|\]\])/);
+  let highlighted = false;
+  return (
+    <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.65 }}>
+      {parts.map((part, index) => {
+        if (part === "[[") { highlighted = true; return null; }
+        if (part === "]]" ) { highlighted = false; return null; }
+        return highlighted
+          ? <Box component="mark" key={index} sx={{ bgcolor: "warning.light", px: 0.25 }}>{part}</Box>
+          : <Fragment key={index}>{part}</Fragment>;
+      })}
+    </Typography>
   );
 }
 
@@ -106,16 +134,17 @@ function ObservationSummary({ item, contextual = false, onLookupReference }: {
             label={unresolved ? "Observed reference · target unresolved" : `Target ${item.target_resolution.state}`}
           />
           {contextual ? <Chip size="small" label="Contextual reference" /> : null}
+          <Chip size="small" variant="outlined" label={getObservationKindLabel(item.observation.observed_in_kind)} />
         </Stack>
         <Typography variant="body2" color="text.secondary">
           {getReferenceLocationLabel(location.kind, location.pdf_page, "reference")}
         </Typography>
-        {item.observation.context_text ? (
+        {item.observation.observed_in_kind === "segment" && item.observation.context_text ? (
           <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
             {item.observation.context_text}
           </Typography>
         ) : null}
-        <ContextList contexts={item.source_contexts} />
+        <ContextList contexts={item.source_contexts} compact />
         {onLookupReference ? (
           <Button
             variant="contained"
@@ -134,7 +163,7 @@ function ObservationSummary({ item, contextual = false, onLookupReference }: {
             size="small"
             sx={{ alignSelf: "flex-start" }}
           >
-            Open original binary
+            Open original file
           </Button>
         ) : (
           <Alert severity="info">Source record retained; the original binary was unavailable.</Alert>
@@ -158,9 +187,12 @@ function ObservationSummary({ item, contextual = false, onLookupReference }: {
 
 function FixtureBoundary({ fixture }: { fixture: ReferencePilotFixtureSummary | null }) {
   return (
-    <Alert severity="info">
-      <Stack spacing={0.75}>
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>Search coverage</Typography>
+    <Accordion disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+      <AccordionSummary expandIcon={<span aria-hidden>›</span>}>
+        <Typography variant="body2" sx={{ fontWeight: 700 }}>About search coverage</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Stack spacing={0.75}>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
           <Chip size="small" label={`Text search: pilot (${fixture?.distinct_binary_count ?? 15} binaries) or full indexed corpus`} />
           <Chip size="small" label={`Reference lookup: fixture observations · ${fixture?.missing_binary_record_count ?? 2} missing-binary records`} />
@@ -168,8 +200,9 @@ function FixtureBoundary({ fixture }: { fixture: ReferencePilotFixtureSummary | 
         <Typography variant="caption">
           Reference-lookup coverage and text-search coverage are separate. No reference result does not mean the document is absent.
         </Typography>
-      </Stack>
-    </Alert>
+        </Stack>
+      </AccordionDetails>
+    </Accordion>
   );
 }
 
@@ -325,13 +358,28 @@ export function ReferenceSearchPage() {
             value={mode}
             onChange={(_event, next: SearchMode | null) => { if (next) setMode(next); }}
             size="small"
+            sx={{ "& .Mui-selected": { bgcolor: "primary.main !important", color: "primary.contrastText !important" } }}
           >
             <ToggleButton value="reference">Exact reference</ToggleButton>
             <ToggleButton value="text">Text</ToggleButton>
           </ToggleButtonGroup>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} alignItems={{ sm: "flex-start" }}>
+            <TextField
+              fullWidth
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              label={mode === "reference" ? "Exact reference value" : "Search terms"}
+              helperText={mode === "reference"
+                ? "Exact normalized lookup; the value is not assumed to identify a resolved target."
+                : "Returns processor-specific passages grouped under their original PDF."}
+            />
+            <Button type="submit" variant="contained" disabled={loading || !query.trim()} sx={{ minWidth: 120, height: 56 }}>
+              {loading ? <CircularProgress size={22} color="inherit" /> : "Search"}
+            </Button>
+          </Stack>
           {mode === "reference" ? (
             <Typography variant="caption" color="text.secondary">
-              Exact-reference lookup remains limited to the pilot reference observations.
+              Pilot reference observations only.
             </Typography>
           ) : (
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
@@ -341,19 +389,31 @@ export function ReferenceSearchPage() {
                 value={textScope}
                 onChange={(_event, next: TextSearchScope | null) => { if (next) setTextScope(next); }}
                 size="small"
+                sx={{ "& .Mui-selected": { bgcolor: "primary.main !important", color: "primary.contrastText !important" } }}
               >
                 <ToggleButton value="pilot">Pilot</ToggleButton>
                 <ToggleButton value="full">Full corpus</ToggleButton>
               </ToggleButtonGroup>
             </Stack>
           )}
-          {mode === "text" ? (
-            <FormControl size="small" sx={{ maxWidth: 360 }}>
-              <InputLabel id="text-search-order-label">Order</InputLabel>
+        </Stack>
+      </Paper>
+      {error ? <Alert severity="error">Search failed: {error}</Alert> : null}
+      {submittedResult ? (
+        <Stack direction={{ xs: "column", md: "row" }} spacing={2} justifyContent="space-between" alignItems={{ md: "center" }}>
+          <Typography variant="h5">
+            {getReferenceResultHeading(submittedResult.mode, submittedResult.query)}
+            {submittedResult.mode === "text"
+              ? ` · ${submittedResult.textScope === "full" ? "Full corpus" : "Pilot"}`
+              : ""}
+          </Typography>
+          {submittedResult.mode === "text" ? (
+            <FormControl size="small" sx={{ minWidth: 230 }}>
+              <InputLabel id="text-search-order-label">Order submitted results</InputLabel>
               <Select
                 labelId="text-search-order-label"
-                label="Order"
-                value={textSort}
+                label="Order submitted results"
+                value={submittedResult.textSort ?? "relevance"}
                 disabled={loading || loadingMore}
                 onChange={(event) => changeTextSort(event.target.value as TextSearchSort)}
               >
@@ -363,30 +423,7 @@ export function ReferenceSearchPage() {
               </Select>
             </FormControl>
           ) : null}
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-            <TextField
-              fullWidth
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              label={mode === "reference" ? "Exact reference value" : "Search terms"}
-              helperText={mode === "reference"
-                ? "Exact normalized lookup; the value is not assumed to identify a resolved target."
-                : "Returns processor-specific passages grouped under their original binary."}
-            />
-            <Button type="submit" variant="contained" disabled={loading || !query.trim()} sx={{ minWidth: 120 }}>
-              {loading ? <CircularProgress size={22} color="inherit" /> : "Search"}
-            </Button>
-          </Stack>
         </Stack>
-      </Paper>
-      {error ? <Alert severity="error">Search failed: {error}</Alert> : null}
-      {submittedResult ? (
-        <Typography variant="h5">
-          {getReferenceResultHeading(submittedResult.mode, submittedResult.query)}
-          {submittedResult.mode === "text"
-            ? ` · ${submittedResult.textScope === "full" ? "Full corpus" : "Pilot"}`
-            : ""}
-        </Typography>
       ) : null}
 
       {lookup && lookup.items.length === 0 ? (
@@ -405,12 +442,9 @@ export function ReferenceSearchPage() {
         </Alert>
       ) : null}
       {search ? (
-        <Alert severity={textPagination?.hasMore ? "warning" : "info"}>
-          {search.items.length} passage{search.items.length === 1 ? "" : "s"} loaded across {textGroups.length} distinct PDF{textGroups.length === 1 ? "" : "s"}.
-          {textPagination?.hasMore
-            ? ` More matches are available; each page loads up to ${BINARY_PAGE_LIMIT} PDFs.`
-            : " No further matches remain."}
-        </Alert>
+        <Typography variant="body2" color="text.secondary">
+          {textGroups.length} PDF{textGroups.length === 1 ? "" : "s"} · {search.items.length} matching passage{search.items.length === 1 ? "" : "s"} · {textPagination?.hasMore ? "More available" : "All loaded"}
+        </Typography>
       ) : null}
       {loadMoreError ? (
         <Alert severity="error">
@@ -420,32 +454,50 @@ export function ReferenceSearchPage() {
       {textGroups.map((group) => (
         <Paper key={group.sha256} elevation={0} sx={{ p: 2.5, border: "1px solid rgba(31,79,95,0.14)" }}>
           <Stack spacing={2}>
-            <Box>
-              <Typography variant="h6">
-                {group.source_contexts[0]?.document_name ?? group.source_contexts[0]?.designation ?? `Binary ${getShortSha(group.sha256)}`}
-              </Typography>
-              <ContextList contexts={group.source_contexts} />
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="space-between">
+              <Box>
+                <Typography variant="h6">
+                  {group.source_contexts[0]?.document_name ?? group.source_contexts[0]?.designation ?? `PDF ${getShortSha(group.sha256)}`}
+                </Typography>
               {submittedResult?.textSort === "earliest_occurrence_asc" ? (
-                <Typography variant="caption" color="text.secondary">
-                  Positioned by earliest recorded occurrence: {formatDate(group.hits[0].earliest_occurrence_date)}
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {formatDate(group.hits[0].earliest_occurrence_date)} · Earliest recorded occurrence
                 </Typography>
               ) : null}
               {submittedResult?.textSort === "latest_occurrence_desc" ? (
-                <Typography variant="caption" color="text.secondary">
-                  Positioned by latest recorded occurrence: {formatDate(group.hits[0].latest_occurrence_date)}
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {formatDate(group.hits[0].latest_occurrence_date)} · Latest recorded occurrence
                 </Typography>
               ) : null}
+              {submittedResult?.textSort === "relevance" && group.source_contexts[0]?.occurrence_date ? (
+                <Typography variant="body2" color="text.secondary">
+                  Recorded occurrence: {formatDate(group.source_contexts[0].occurrence_date)}
+                </Typography>
+              ) : null}
+              </Box>
+              <Button component={RouterLink} to={`/binaries/${group.sha256}`} variant="outlined" sx={{ alignSelf: "flex-start" }}>
+                Open original PDF
+              </Button>
+            </Stack>
+            <Box>
+              <HighlightedExcerpt text={group.hits[0].headline} />
+              <Typography variant="caption" color="text.secondary">
+                Extracted by {group.hits[0].processor_key} {group.hits[0].processor_version} · {getReferenceLocationLabel(group.hits[0].location.kind, group.hits[0].location.pdf_page)}
+              </Typography>
             </Box>
-            <Button component={RouterLink} to={`/binaries/${group.sha256}`} variant="outlined" sx={{ alignSelf: "flex-start" }}>
-              Open original binary
-            </Button>
-            <Divider />
-            <Typography variant="subtitle2">{group.hits.length} processor-specific result{group.hits.length === 1 ? "" : "s"}</Typography>
-            {group.hits.map((hit) => (
+            <ContextList contexts={group.source_contexts} compact />
+            {group.hits.slice(1).length > 0 ? (
+              <Accordion disableGutters elevation={0}>
+                <AccordionSummary expandIcon={<span aria-hidden>›</span>} sx={{ px: 0 }}>
+                  <Typography variant="subtitle2">More matching passages ({group.hits.length - 1})</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ px: 0 }}>
+                  <Stack spacing={1}>
+                  {group.hits.slice(1).map((hit) => (
               <Accordion key={`${hit.document_representation_id}-${hit.segment_id}`} variant="outlined">
-                <AccordionSummary>
+                <AccordionSummary expandIcon={<span aria-hidden>›</span>}>
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
-                    <Chip size="small" label={hit.processor_key} color="primary" />
+                    <Chip size="small" label={`${hit.processor_key} ${hit.processor_version}`} color="primary" />
                     <Typography variant="body2">
                       {getReferenceLocationLabel(hit.location.kind, hit.location.pdf_page)}
                     </Typography>
@@ -453,7 +505,7 @@ export function ReferenceSearchPage() {
                 </AccordionSummary>
                 <AccordionDetails>
                   <Stack spacing={2}>
-                    <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>{hit.headline}</Typography>
+                    <HighlightedExcerpt text={hit.headline} />
                     {hit.passage_reference_observations.length > 0 ? (
                       <Stack spacing={1}>
                         <Typography variant="subtitle2">References in this passage</Typography>
@@ -495,7 +547,47 @@ export function ReferenceSearchPage() {
                   </Stack>
                 </AccordionDetails>
               </Accordion>
-            ))}
+                  ))}
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
+            ) : null}
+            <Accordion disableGutters elevation={0}>
+              <AccordionSummary expandIcon={<span aria-hidden>›</span>} sx={{ px: 0 }}>
+                <Typography variant="subtitle2">Source details</Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ px: 0 }}>
+                <Typography variant="caption" display="block">Full SHA-256: {group.sha256}</Typography>
+                <Typography variant="caption" display="block">
+                  Preview representation {group.hits[0].document_representation_id} · segment {group.hits[0].segment_id}
+                </Typography>
+                {group.hits[0].passage_reference_observations.length > 0 ? (
+                  <Stack spacing={1} sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2">References in the preview passage</Typography>
+                    {group.hits[0].passage_reference_observations.map((item) => (
+                      <ObservationSummary
+                        key={item.observation.observation_key}
+                        item={item}
+                        onLookupReference={findReferenceObservations}
+                      />
+                    ))}
+                  </Stack>
+                ) : null}
+                {group.hits[0].contextual_reference_observations.length > 0 ? (
+                  <Stack spacing={1} sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2">Contextual references elsewhere on this PDF</Typography>
+                    {group.hits[0].contextual_reference_observations.map((item) => (
+                      <ObservationSummary
+                        key={item.observation.observation_key}
+                        item={item}
+                        contextual
+                        onLookupReference={findReferenceObservations}
+                      />
+                    ))}
+                  </Stack>
+                ) : null}
+              </AccordionDetails>
+            </Accordion>
           </Stack>
         </Paper>
       ))}

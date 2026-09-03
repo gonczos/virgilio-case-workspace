@@ -176,7 +176,20 @@ export function groupReferenceTextHits(items: ReferenceTextHit[]): GroupedRefere
       });
     }
   }
-  return [...groups.values()];
+  return [...groups.values()].map((group) => ({
+    ...group,
+    hits: group.hits.sort((left, right) => (
+      right.rank - left.rank
+      || left.document_representation_id - right.document_representation_id
+      || left.segment_id - right.segment_id
+    )),
+  }));
+}
+
+export function getObservationKindLabel(observedInKind: string): string {
+  return observedInKind === "segment"
+    ? "Mentioned in document text"
+    : "Recorded by source system";
 }
 
 export function getReferenceLocationLabel(
