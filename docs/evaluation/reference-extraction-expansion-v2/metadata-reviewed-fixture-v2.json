@@ -2,7 +2,7 @@
   "schema_version": 2,
   "fixture_id": "reference-extraction-expansion-metadata-v2",
   "fixture_kind": "human_reviewed_metadata_observation_fixture",
-  "status": "date_corrected_pending_human_confirmation",
+  "status": "human_review_complete_date_corrected",
   "protocol_version": "reference-expansion-v2",
   "selection_fixture": "docs/evaluation/reference-extraction-expansion-v2/metadata-selection.json",
   "selection_fixture_sha256": "c6894ec919e2c6c1b2bd66678aa07880628811c40883cc5553b51593b7295f06",
@@ -34,7 +34,7 @@
       }
     ]
   },
-  "human_review_gate_satisfied": false,
+  "human_review_gate_satisfied": true,
   "summary": {
     "assertions": 24,
     "by_category": {
@@ -43,7 +43,8 @@
       "ordinary_binary_linked": 8
     },
     "date_corrections": 3,
-    "pending_human_confirmation": 24,
+    "human_confirmed_date_corrections": 3,
+    "pending_human_confirmation": 0,
     "resolved_targets": 0,
     "resolved_relationships": 0
   },
@@ -151,14 +152,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -243,14 +245,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -349,14 +352,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -441,14 +445,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -540,14 +545,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -667,14 +673,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -766,14 +773,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -858,14 +866,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -950,14 +959,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1049,14 +1059,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1149,14 +1160,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1248,14 +1260,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1340,12 +1353,13 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
-        "reviewer_identity": null,
-        "reviewer_kind": null,
-        "human_reviewer": false,
+        "review_state": "human_confirmed",
+        "review_session_id": "metadata-v2-date-correction-confirmation-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_captured",
         "confirmed_change": {
           "source_assertion_key": "9152892e88c0af0c7197d3ad28f7c5f95253cbf82037229e3ad651125679f66e",
           "raw_value": "17136443",
@@ -1353,7 +1367,7 @@
           "after": "2020-07-16",
           "field": "direct_anchor.anchored_occurrence_date"
         },
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1438,14 +1452,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1537,14 +1552,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1629,14 +1645,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1721,14 +1738,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1813,12 +1831,13 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
-        "reviewer_identity": null,
-        "reviewer_kind": null,
-        "human_reviewer": false,
+        "review_state": "human_confirmed",
+        "review_session_id": "metadata-v2-date-correction-confirmation-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_captured",
         "confirmed_change": {
           "source_assertion_key": "b9c6afbe0688604531c4d5305d2c4f9952c095131da0f5c5878068cb385d07da",
           "raw_value": "121345333",
@@ -1826,7 +1845,7 @@
           "after": "2019-09-30",
           "field": "direct_anchor.anchored_occurrence_date"
         },
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -1911,14 +1930,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -2003,14 +2023,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -2103,14 +2124,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -2203,12 +2225,13 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
-        "reviewer_identity": null,
-        "reviewer_kind": null,
-        "human_reviewer": false,
+        "review_state": "human_confirmed",
+        "review_session_id": "metadata-v2-date-correction-confirmation-attila-test-1",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_captured",
         "confirmed_change": {
           "source_assertion_key": "deb58459e60267468f4002873260b96451ed70c009514328062ffad718ca0f72",
           "raw_value": "125804397",
@@ -2216,7 +2239,7 @@
           "after": "2020-07-06",
           "field": "direct_anchor.anchored_occurrence_date"
         },
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -2301,14 +2324,15 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     },
     {
@@ -2407,21 +2431,22 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "pending_human_confirmation",
+        "review_state": "not_applicable_unchanged",
+        "review_session_id": null,
         "reviewer_identity": null,
         "reviewer_kind": null,
         "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_confirmed",
+        "confirmed_at_status": "not_applicable",
         "confirmed_change": null,
-        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+        "decision": "Version-1 human decisions are inherited; the only approved changes are the three listed source calendar dates. Targets and relationships remain unresolved."
       }
     }
   ],
   "limitations": [
     "Version 1 remains immutable.",
     "Version 1 AI simulation and human decisions are retained as historical review evidence.",
-    "The date-only comparison is technically verified, but carrying version-1 review decisions onto version 2 remains pending separate human confirmation.",
+    "A separate attributable human event confirms inheritance of version-1 decisions and the three date-only corrections; targets and relationships remain unresolved.",
     "No target or relationship was resolved."
   ]
 }

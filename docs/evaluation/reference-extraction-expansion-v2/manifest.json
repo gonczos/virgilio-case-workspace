@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "manifest_id": "reference-extraction-expansion-v2",
-  "status": "date_corrected_pending_human_confirmation",
+  "status": "human_review_complete_date_corrected",
   "protocol_version": "reference-expansion-v2",
   "lineage": {
     "supersedes_manifest": "docs/evaluation/reference-extraction-expansion-v1/manifest.json",
@@ -20,7 +20,7 @@
     },
     "metadata_reviewed_fixture": {
       "path": "metadata-reviewed-fixture-v2.json",
-      "sha256": "b434bb2745e1824b020d3b59a700771927a660f01ecb6a536cd81d3026f65136"
+      "sha256": "74cb56a7385331c6fe6d9dbea65f4680e36ae2b637dd4cd641cd81291ee1a6bc"
     }
   },
   "correction_confirmation": {
@@ -54,7 +54,7 @@
       "state": "unchanged_v1_result"
     },
     "metadata_preservation_retrieval": {
-      "state": "technical_checks_passed_human_gate_pending"
+      "state": "completed_acceptance_gate_passed"
     }
   },
   "limitations": [

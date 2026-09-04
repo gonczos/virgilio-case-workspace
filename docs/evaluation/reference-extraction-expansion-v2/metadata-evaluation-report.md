@@ -1,12 +1,10 @@
 # Metadata preservation and retrieval evaluation — version 2
 
-Status: technical data checks passed; human confirmation pending
+Status: acceptance gate passed
 
-This checkpoint corrects the calendar-date serialization defect in version 1. PostgreSQL `DATE` values are now formatted as `YYYY-MM-DD` in SQL. They no longer pass through JavaScript `Date.toISOString()`, which shifted Lisbon summer dates to the preceding UTC day.
+PostgreSQL `DATE` values are formatted as `YYYY-MM-DD` in SQL and no longer pass through JavaScript `Date.toISOString()`.
 
-Frozen version-1 artifacts remain unchanged. Version 2 preserves their AI-simulation and attributable human-review decisions as historical evidence. It does not claim that a human has approved carrying those decisions onto the corrected fixture.
-
-The technical comparison found only these selected assertion changes:
+Frozen version-1 artifacts remain unchanged. Version 2 preserves their AI-simulation and attributable human-review decisions as historical evidence. A separate attributable human confirmation event approves inheritance of those decisions for the three corrected assertions, approves only the listed calendar-date changes, and leaves every target and relationship unresolved:
 
 - `17136443`: `2020-07-15` → `2020-07-16`
 - `121345333`: `2019-09-29` → `2019-09-30`
@@ -19,16 +17,16 @@ The unchanged version-1 metric contract was rerun against version 2:
 - Missing file: 8/8
 - Ordinary binary linked: 8/8
 - Normalization collisions: 0
-- Human confirmation gate: pending
-- Overall acceptance gate: not passed
+- Human confirmation gate: passed
+- Overall acceptance gate: passed
 
-Validation confirms deterministic regeneration, exact lineage hashes, preservation of all non-date selected-assertion data, historical review provenance, missing-file invariants, valid JSON, and read-only database access.
+Validation confirms deterministic regeneration, exact lineage hashes, preservation of all non-date selected-assertion data, historical and correction review provenance, missing-file invariants, valid JSON, and read-only database access.
 
 Artifact hashes:
 
 - `metadata-selection.json`: `c6894ec919e2c6c1b2bd66678aa07880628811c40883cc5553b51593b7295f06`
-- `metadata-reviewed-fixture-v2.json`: `b434bb2745e1824b020d3b59a700771927a660f01ecb6a536cd81d3026f65136`
-- `manifest.json`: `bf655539f479916bd47e2de0aa3711df261b5fd74e4f66644a30812d94fe36fb`
-- `metadata-baseline.json`: `5938d9e3fa2c8125786d78eb9d4c21e1ce1d58d7ff94280922cb29ec12208ec1`
+- `metadata-reviewed-fixture-v2.json`: `74cb56a7385331c6fe6d9dbea65f4680e36ae2b637dd4cd641cd81291ee1a6bc`
+- `manifest.json`: `1dcdf0fba2a2401868f06354aab5894f0f2f02f745d2a08ce248d297ef8b92ae`
+- `metadata-baseline.json`: `0a98160ca1b18d75ff070b707dcc361c0c585207f037980c1205ca99bf6b9928`
 
 Text extraction remains a separate track. No extractor, API, UI, ingestion path, processor, version-1 artifact, or database state was changed.
