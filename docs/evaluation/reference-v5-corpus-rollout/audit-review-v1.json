@@ -51,6 +51,29 @@
         "d6b6705297a198c1bfd8b5eacda2c26f0d6a34a015b5046ed1f17057be076011",
         "5f3fb45e1af131a0ecb7ef55b0fefc2c91217f5a5433ef1ab2705fbe96d565be"
       ]
+    },
+    {
+      "session_id": "corpus-v5-guided-human-review-batch-003",
+      "recorded_at": "2026-09-04",
+      "method": "guided_review_of_direct_extracted_context",
+      "attribution": "The user explicitly confirmed all fifteen proposed decisions and instructed that the failed frozen gate remain unchanged while review continues.",
+      "observation_keys": [
+        "fb30ecbecc2f1fb9f4e39c2f0d3163876d32316041603c6a8ee052cc62cb2dfe",
+        "d857d42bd11232be04036fa6271e50b465365482a78badb08659c03445f52fcf",
+        "6911aa3787cc6803e14a62b5ba506c3cd24e93fe76339f39bee2a9cef75f2145",
+        "a501448a5512181800928cdf77a7db581e01d21378db926648452435e35d3d0f",
+        "b9a3b9707001abc2a354f61d62806495bdadc3c56930eb416f7321b646513d93",
+        "ca0293a90f48bdd726e8972c246c5c1cdfab8b078a97649853d5d3dc11694b84",
+        "035ea922b65c41c73c2c64761b47237eb4f608c92fc9c5839db095e919b5bca9",
+        "c5e9fb815b413fe6e0087fd0c97a9ba4d215c8b9fea6a795b49ceb4c535ff017",
+        "b0322069a720c5fda21f80726728113dedb8e536eac09662980ec36c9f602ba5",
+        "844b9747b29667bac91113e893f5896ad41b6d2a595465bd9d1be4446b214f74",
+        "0a57f39c5cccfb6b6357704029837143d7910b3228fe34e88ef34c6d6e5c6c55",
+        "d15e11de78693ba6dbef7e5fa0f5d6e779ba42a808c6c8437438ed3e537b2a24",
+        "154c8ddc2589def0ea96d254b084affe1a4f7477dd46367e0cd91cb35a5cbcf9",
+        "f259116aa6701b375bdeed771a104c05bea31a20ab674d35cfdad1def700b856",
+        "6818ca07ec8def048f7a9a5bc351d9e915aefa848e8a39103c832523bf1149d9"
+      ]
     }
   ],
   "prediction_reviews": [
@@ -261,19 +284,144 @@
       "target_resolution": "unresolved",
       "relationship_resolution": "unresolved",
       "remaining_verification": []
+    },
+    {
+      "observation_key": "fb30ecbecc2f1fb9f4e39c2f0d3163876d32316041603c6a8ee052cc62cb2dfe",
+      "decision": "confirmed",
+      "rationale": "Anexo nº 2 is an explicit annex in the procedural index.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "d857d42bd11232be04036fa6271e50b465365482a78badb08659c03445f52fcf",
+      "decision": "confirmed",
+      "rationale": "Anexo nº 22 is an explicit annex in an annex and document sequence.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "6911aa3787cc6803e14a62b5ba506c3cd24e93fe76339f39bee2a9cef75f2145",
+      "decision": "confirmed",
+      "rationale": "Anexo nº 9 is an explicit annex paired with Doc. 8.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "a501448a5512181800928cdf77a7db581e01d21378db926648452435e35d3d0f",
+      "decision": "confirmed",
+      "rationale": "fls. 972 is a clear physical-folio endpoint.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "b9a3b9707001abc2a354f61d62806495bdadc3c56930eb416f7321b646513d93",
+      "decision": "confirmed",
+      "rationale": "Doc nº2 is an explicit evidentiary attachment citation.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "ca0293a90f48bdd726e8972c246c5c1cdfab8b078a97649853d5d3dc11694b84",
+      "decision": "confirmed",
+      "rationale": "DOC Nº21 is a clear attachment or document label.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "035ea922b65c41c73c2c64761b47237eb4f608c92fc9c5839db095e919b5bca9",
+      "decision": "rejected",
+      "rationale": "In faça referência sequer, sequer is ordinary language and not an identifier.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "c5e9fb815b413fe6e0087fd0c97a9ba4d215c8b9fea6a795b49ceb4c535ff017",
+      "decision": "confirmed",
+      "rationale": "DOC Nº4 is an explicit attachment in an annex index.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "b0322069a720c5fda21f80726728113dedb8e536eac09662980ec36c9f602ba5",
+      "decision": "confirmed",
+      "rationale": "Doc nº 24 is an explicit evidentiary attachment citation.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "844b9747b29667bac91113e893f5896ad41b6d2a595465bd9d1be4446b214f74",
+      "decision": "confirmed",
+      "rationale": "13055845 is explicitly introduced as a referência citius.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "0a57f39c5cccfb6b6357704029837143d7910b3228fe34e88ef34c6d6e5c6c55",
+      "decision": "rejected",
+      "rationale": "In referência deste documento, deste is ordinary language and not an identifier.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "d15e11de78693ba6dbef7e5fa0f5d6e779ba42a808c6c8437438ed3e537b2a24",
+      "decision": "confirmed",
+      "rationale": "DOC Nº3 is an explicit attachment reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "154c8ddc2589def0ea96d254b084affe1a4f7477dd46367e0cd91cb35a5cbcf9",
+      "decision": "confirmed",
+      "rationale": "fls2 is a folio reference within the cited document.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "f259116aa6701b375bdeed771a104c05bea31a20ab674d35cfdad1def700b856",
+      "decision": "confirmed",
+      "rationale": "20339355 is explicitly introduced as REFª in a court-document header.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "6818ca07ec8def048f7a9a5bc351d9e915aefa848e8a39103c832523bf1149d9",
+      "decision": "confirmed",
+      "rationale": "Anexo nº 27 is an explicit annex reference; its association with DOC Nº25-A remains unresolved.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
     }
   ],
   "summary": {
     "prediction_sample_total": 180,
-    "prediction_reviews_recorded": 25,
-    "confirmed": 21,
-    "rejected": 3,
+    "prediction_reviews_recorded": 40,
+    "confirmed": 34,
+    "rejected": 5,
     "ambiguous": 0,
     "needs_original_pdf_verification": 1,
-    "prediction_reviews_pending": 155,
+    "prediction_reviews_pending": 140,
     "no_prediction_controls_total": 30,
     "no_prediction_controls_reviewed": 0,
     "no_prediction_controls_pending": 30,
-    "human_gate_passed": false
+    "human_gate_passed": false,
+    "human_gate_state": "failed_threshold_exceeded_audit_continues",
+    "human_gate_failure_reasons": [
+      "prediction_false_positive_count_exceeds_3",
+      "prediction_false_positive_rate_exceeds_0.02"
+    ]
   }
 }
