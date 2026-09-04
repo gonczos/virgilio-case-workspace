@@ -5,7 +5,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { getProceduralBucketExpansion, getProceduralFlow, type ProceduralFlowGraphNode,
   type ProceduralFlowResponse } from "../api/consultation";
 import { bucketLabel, chronologicalEdges, chronologicalYearEdges, groupProceduralYears,
-  positionProceduralBuckets, type PositionedBucket } from "../utils/proceduralFlow";
+  positionProceduralBuckets, yearGroupLabel, type PositionedBucket } from "../utils/proceduralFlow";
 
 const expansionPosition = (focus: NodeSingular, index: number) => {
   const angle = (index % 8) * (Math.PI / 4);
@@ -40,8 +40,7 @@ export function ProceduralFlowPage() {
     const cy = cytoscape({
       container: container.current,
       elements: [
-        ...years.map((year) => ({ data: { ...year,
-          displayLabel: `${year.year}\n${year.bucket_count} bucket${year.bucket_count === 1 ? "" : "s"}` },
+        ...years.map((year) => ({ data: { ...year, displayLabel: yearGroupLabel(year) },
           position: { x: year.x, y: year.y } })),
         ...chronologicalYearEdges(years),
       ],
@@ -51,7 +50,8 @@ export function ProceduralFlowPage() {
           "background-color": "#1f4f5f", width: 28, height: 28 } },
         { selector: "node[file_availability = 'missing']", style: { "background-color": "#a6512d", shape: "diamond" } },
         { selector: "node[kind = 'year_group']", style: { "background-color": "#1f4f5f",
-          shape: "round-rectangle", width: 62, height: 38, "font-weight": 700 } },
+          shape: "round-rectangle", width: 76, height: 44, "font-weight": 700,
+          "text-max-width": "150px" } },
         { selector: "node[kind = 'source_document']", style: { "background-color": "#5d7c52", shape: "round-rectangle" } },
         { selector: "node[kind = 'binary']", style: { "background-color": "#555", shape: "hexagon" } },
         { selector: "node[kind = 'related_occurrence']", style: { "background-color": "#397f9a", shape: "diamond" } },
@@ -105,13 +105,31 @@ export function ProceduralFlowPage() {
       const result = await getProceduralBucketExpansion(bucketId);
       const focus = cy.getElementById(`bucket:${bucketId}`);
       const newNodes = result.nodes.filter((node) => cy.getElementById(node.id).empty());
-      cy.add(newNodes.map((node, index) => ({ group: "nodes", data: { ...node,
+      const addedNodes = cy.add(newNodes.map((node, index) => ({ group: "nodes", data: { ...node,
         displayLabel: node.kind === "binary" ? `PDF\n${String(node.sha256).slice(0, 8)}…`
           : node.kind === "related_occurrence" ? `${node.occurrence_date ?? "Date unavailable"}\n${node.label}`
             : node.label }, position: expansionPosition(focus, index) })));
-      cy.add(result.edges.filter((edge) => cy.getElementById(edge.id).empty() &&
+      const addedEdges = cy.add(result.edges.filter((edge) => cy.getElementById(edge.id).empty() &&
         cy.getElementById(edge.source).nonempty() && cy.getElementById(edge.target).nonempty())
         .map((edge) => ({ group: "edges", data: edge })));
+      if (addedNodes.nonempty()) {
+        focus.lock();
+        focus.union(addedNodes).union(addedEdges).layout({
+          name: "cose",
+          animate: false,
+          fit: false,
+          randomize: false,
+          nodeRepulsion: () => 8500,
+          idealEdgeLength: () => 90,
+          gravity: 0.8,
+          boundingBox: {
+            x1: focus.position("x") - 240,
+            y1: focus.position("y") - 180,
+            w: 480,
+            h: 360,
+          },
+        }).run();
+      }
       expandedBuckets.current.add(bucketId);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));

@@ -77,3 +77,7 @@ export function chronologicalYearEdges(groups: ProceduralYearGroup[]) {
 export function bucketLabel(bucket: ProceduralFlowBucket) {
   return `${bucket.occurrence_date ?? "Date unavailable"}\n${bucket.reference_number ?? bucket.designation ?? `Bucket ${bucket.bucket_id}`}`;
 }
+
+export function yearGroupLabel(group: ProceduralYearGroup) {
+  return `${group.process_number}\n${group.year}\n${group.bucket_count} bucket${group.bucket_count === 1 ? "" : "s"}`;
+}
