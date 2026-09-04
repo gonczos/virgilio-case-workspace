@@ -5,6 +5,11 @@ system**, separately from the [source/storage dictionary](17-citius-source-data-
 Existing behavior and future proposals are distinguished. No correction or
 migration is implemented by this document.
 
+Import/source dates now follow the [execution and source-time contract](19-import-execution-and-source-time.md).
+The HTML importer creates an execution header per database attempt; the saved
+source timestamp is separately marked inferred/unknown. The portable-package
+import path retains its existing `import_batch` behavior.
+
 ## Two ingestion paths and their authority
 
 1. `app/import-package.mjs` imports the upstream portable package into normalized

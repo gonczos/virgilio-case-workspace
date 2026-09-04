@@ -24,13 +24,22 @@ not the read-only `ptdocs_reviewer` role, because provenance insertion is requir
 No grants or roles are changed. This is an application-scoped write boundary, not
 a new database-enforced restricted credential.
 
-The capture uses `manual_source_capture`: its timestamp is the local registration
-time. The producer run label is preserved, but no verified per-row observation
-timestamp or scraper version is invented. Extractor/loader and snapshot hashes
+The capture uses `manual_source_capture`: `captured_at` now describes source run
+start, with `capture_time_basis` distinguishing inferred, reported, unknown and
+legacy-unspecified times. `capture_ended_at` remains null when unknown. The run-label
+timestamp is inferred, not verified per-row observation time. No scraper version
+is invented. Extractor/loader and snapshot hashes
 identify the processing lineage. The capture key is based on the source manifest;
 identical reruns reuse it, verify stored raw bytes and link counts, and append no
 duplicates. Changed parsing with the same source identity is rejected for an
 explicit future versioning decision rather than overwriting observations.
+
+Each database import attempt now has a `casework.import_execution` header with
+start/end time, status, importer/input hashes, counts and optional failure details.
+Retries create new execution headers while reusing the source capture. The prior
+HTML registration timestamp was preserved in a `historical_completed` header and
+capture metadata; its exact execution end is unknown. See the
+[import execution contract](19-import-execution-and-source-time.md).
 
 Case and bucket rows use their existing observation kinds. Individual document
 HTML rows and complete document tables use `package_artifact`, with an explicit

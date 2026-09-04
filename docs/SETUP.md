@@ -582,6 +582,21 @@ as observations only; the site rendering order was not stable.
 
 ### Saved Citius HTML provenance import
 
+Before running the HTML importer against an existing database, apply the execution
+header/source-time migration once (replay is supported):
+
+```powershell
+node app/apply-import-execution-migration.mjs
+node --test app/import-execution.test.mjs
+```
+
+This applies `2026-09-05-015-import-execution.sql`, adds `import_execution`, and
+separates source timing from the old HTML registration timestamp while retaining
+history. The configured migration connection needs table-owner/DDL rights. Fresh
+database bootstrap includes the same schema. Regular HTML imports additionally
+need INSERT/SELECT/UPDATE and sequence access on `import_execution`. No new runtime
+dependency or service is introduced. See [timing semantics](architecture/19-import-execution-and-source-time.md).
+
 Requires Python 3.11+ (standard library), the existing Node/pg dependencies and
 configured PostgreSQL connection. Run against the extracted multicase HTML folder,
 not its parent upload/download directories. Use a new snapshot output path:
@@ -595,8 +610,8 @@ python app/citius-html-snapshot-test.py
 Use Python's full executable path if it is not on PATH. The import uses existing
 provenance tables and configured DB login with SELECT on court records and
 INSERT/SELECT plus sequence access on the three provenance tables. The restricted
-PTDocs reviewer role cannot perform it. No migration or grant change is needed
-for the verified current configured login. Repeating the Node command reuses the
+PTDocs reviewer role cannot perform it. Migration 015 is required; no additional
+grant change is needed for the verified current configured login. Repeating the Node command reuses the
 same capture; changed parsing for the same manifest is rejected. Raw HTML bytes
 are retained in PostgreSQL as base64 and in the local snapshot; back up both.
 This command does not update canonical court fields. See the

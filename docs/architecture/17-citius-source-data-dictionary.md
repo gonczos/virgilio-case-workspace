@@ -140,7 +140,9 @@ The original saved-HTML registration is `source_capture.id = 2`.
 | `capture_kind` | `manual_source_capture` |
 | `capture_key` | `saved-html:` plus source-manifest SHA-256 |
 | `external_source_label` | Extracted run directory name |
-| `captured_at` | Local registration timestamp, **not original per-row scrape time** |
+| `captured_at` | Source capture/run start; nullable when unknown |
+| `capture_ended_at` | Source capture end; null for this run |
+| `capture_time_basis` | `inferred_run_label` for this run; timestamp is not verified per-row time |
 | `scraper_key`, `scraper_version` | Null; original scraper implementation identity not invented |
 | `source_locator` | Run directory label, not its absolute local path |
 | `metadata_json` | `snapshot_sha256`, `extractor_sha256`, `loader_sha256`, `captured_at_semantics`, `order_policy` |
@@ -148,7 +150,16 @@ The original saved-HTML registration is `source_capture.id = 2`.
 
 The manifest hashes ordered relative paths, sizes and file hashes. The snapshot
 hash covers the serialized snapshot; extractor/loader hashes identify processors.
-The original run time encoded in the label is not promoted into verified row time.
+The original run time encoded in the label is stored as inferred source run start,
+not verified row time. Original registration time is preserved in import history.
+
+### `casework.import_execution`
+
+One header per database import attempt, including retries. Its fields, historical
+backfill and failure semantics are defined in the
+[import execution dictionary](19-import-execution-and-source-time.md). It links
+the source capture to execution timestamps, importer/input identity and results.
+It does not replace the portable-package `import_batch` table.
 
 ### `casework.source_observation`
 

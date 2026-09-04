@@ -918,3 +918,31 @@ SET
   country_name = EXCLUDED.country_name,
   iso_alpha3 = EXCLUDED.iso_alpha3;
 
+
+-- Import execution and source-time separation (015).
+ALTER TABLE casework.source_capture ALTER COLUMN captured_at DROP NOT NULL;
+ALTER TABLE casework.source_capture ADD COLUMN IF NOT EXISTS capture_ended_at timestamptz;
+ALTER TABLE casework.source_capture ADD COLUMN IF NOT EXISTS capture_time_basis text NOT NULL DEFAULT 'legacy_unspecified'
+  CHECK (capture_time_basis IN ('legacy_unspecified','unknown','source_reported','inferred_run_label'));
+
+CREATE TABLE IF NOT EXISTS casework.import_execution (
+  id bigserial PRIMARY KEY,
+  source_capture_id bigint REFERENCES casework.source_capture(id) ON DELETE RESTRICT,
+  import_batch_id bigint REFERENCES casework.import_batch(id) ON DELETE RESTRICT,
+  execution_key text UNIQUE,
+  importer_key text NOT NULL,
+  importer_version text NOT NULL,
+  input_sha256 text NOT NULL CHECK (input_sha256 ~ '^[a-f0-9]{64}$'),
+  source_label text NOT NULL,
+  started_at timestamptz NOT NULL DEFAULT now(),
+  finished_at timestamptz,
+  status text NOT NULL CHECK (status IN ('running','succeeded','failed','historical_completed')),
+  reused_capture boolean NOT NULL DEFAULT false,
+  counts_json jsonb NOT NULL DEFAULT '{}',
+  error_json jsonb,
+  metadata_json jsonb NOT NULL DEFAULT '{}',
+  CHECK (finished_at IS NULL OR finished_at >= started_at),
+  CHECK (status NOT IN ('succeeded','failed') OR finished_at IS NOT NULL)
+);
+CREATE INDEX IF NOT EXISTS ix_import_execution_capture ON casework.import_execution(source_capture_id);
+

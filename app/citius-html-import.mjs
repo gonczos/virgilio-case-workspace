@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 import {createDbClient,loadDotEnv,getWorkspaceRoot} from './processing-common.mjs';
+import {sourceTimeFromLabel} from './import-execution.mjs';
 
 const [snapshotPath,reportPath]=process.argv.slice(2);
 assert(snapshotPath && reportPath,'Usage: node app/citius-html-import.mjs <snapshot.json> <report.json>');
@@ -18,7 +19,11 @@ const report={snapshot_sha256:hash(bytes),extractor_sha256:snapshot.extractor_sh
 const norm=v=>v===null||v===undefined||v==='null'||v==='undefined'?'':String(v).trim();
 const numeric=v=>norm(v).replaceAll('.','');
 await db.connect();
+let executionId; let committed=false;
 try {
+  executionId=(await db.query(`INSERT INTO casework.import_execution(importer_key,importer_version,input_sha256,source_label,status)
+    VALUES('citius-html-import',$1,$2,$3,'running') RETURNING id`,[report.loader_sha256,report.snapshot_sha256,snapshot.source_label])).rows[0].id;
+  report.import_execution_id=executionId;
   await db.query('BEGIN ISOLATION LEVEL REPEATABLE READ');
   await db.query('SELECT pg_advisory_xact_lock(hashtext($1))',['citius-html:'+snapshot.manifest_sha256]);
   const cases=(await db.query("SELECT *,data_autuacao::text AS data_autuacao,data_decisao::text AS data_decisao FROM casework.case_file WHERE source_system='tribunais_org_pt'")).rows;
@@ -67,9 +72,10 @@ try {
   let cap=(await db.query("SELECT id,metadata_json FROM casework.source_capture WHERE capture_kind='manual_source_capture' AND source_system='tribunais_org_pt' AND capture_key=$1",[key])).rows[0];
   if(cap){assert.equal(cap.metadata_json.snapshot_sha256,report.snapshot_sha256,'Same capture with changed parsing; use a deliberate new processor snapshot identity');report.reused=true;}
   else {
-    cap=(await db.query(`INSERT INTO casework.source_capture(source_system,capture_kind,capture_key,external_source_label,captured_at,source_locator,metadata_json)
-      VALUES('tribunais_org_pt','manual_source_capture',$1,$2,now(),$2,$3) RETURNING id`,[key,snapshot.source_label,JSON.stringify({snapshot_sha256:report.snapshot_sha256,extractor_sha256:report.extractor_sha256,loader_sha256:report.loader_sha256,
-        captured_at_semantics:'Time saved artifacts were registered here; original run timestamp is only encoded in source_label, not verified per-row capture time',order_policy:snapshot.order_policy})])).rows[0];
+    const time=sourceTimeFromLabel(snapshot.source_label);
+    cap=(await db.query(`INSERT INTO casework.source_capture(source_system,capture_kind,capture_key,external_source_label,captured_at,capture_time_basis,source_locator,metadata_json)
+      VALUES('tribunais_org_pt','manual_source_capture',$1,$2,$4,$5,$2,$3) RETURNING id`,[key,snapshot.source_label,JSON.stringify({snapshot_sha256:report.snapshot_sha256,extractor_sha256:report.extractor_sha256,loader_sha256:report.loader_sha256,
+        captured_at_semantics:'Source run start inferred from label when available; not verified per-row capture time',source_time_evidence:snapshot.source_label,order_policy:snapshot.order_policy}),time.started_at,time.basis])).rows[0];
     const bypath=new Map(links.map(x=>[x.path,x]));
     for(const r of snapshot.items){
       // Individual raw rows use package_artifact: do not mislabel them as deduplicated occurrence groups.
@@ -90,7 +96,10 @@ try {
   for(const {payload_json:r} of stored)assert.equal(hash(Buffer.from(r.raw_base64,'base64')),r.sha256);
   assert.equal(Number((await db.query('SELECT count(*) FROM casework.source_observation_link l JOIN casework.source_observation o ON o.id=l.source_observation_id WHERE o.source_capture_id=$1',[cap.id])).rows[0].count),links.length);
   report.persisted_html_hashes_verified=stored.length;report.links=links.length;
+  await db.query(`UPDATE casework.import_execution SET source_capture_id=$2,status='succeeded',finished_at=clock_timestamp(),reused_capture=$3,counts_json=$4 WHERE id=$1`,
+    [executionId,cap.id,report.reused??false,JSON.stringify({html_artifacts:stored.length,links:links.length,coverage:report.coverage})]);
   await db.query('COMMIT');
+  committed=true;
   await fs.mkdir(path.dirname(reportPath),{recursive:true});await fs.writeFile(reportPath,JSON.stringify(report,null,2));
   console.log(JSON.stringify({capture_id:cap.id,reused:report.reused??false,coverage:report.coverage,unmatched:report.unmatched.length,links:links.length,summary:report.summary}));
-}catch(e){await db.query('ROLLBACK');throw e;}finally{await db.end();}
+}catch(e){if(!committed){await db.query('ROLLBACK');if(executionId)await db.query("UPDATE casework.import_execution SET status='failed',finished_at=clock_timestamp(),error_json=$2 WHERE id=$1",[executionId,JSON.stringify({code:e.code??'IMPORT_ERROR',name:e.name,note:'Import transaction rolled back; inspect local error output for details'})]);}throw e;}finally{await db.end();}
