@@ -837,8 +837,8 @@ envelope is:
     ],
     "limitations": [
       {
-        "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-        "message": "External-register and document-text observations remain pilot-scoped."
+        "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+        "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
       }
     ]
   },
@@ -1200,7 +1200,7 @@ its own retry and pagination state, and can be closed without changing the text
 results. Starting an ordinary top-level search remains the only action that
 replaces both result sections.
 
-### Planned labelled-reference-v5 observation-ingestion checkpoint
+### Labelled-reference-v5 observation-ingestion checkpoint
 
 This documentation checkpoint freezes the contract for a bounded ingestion of
 the reviewed `labelled-reference-v5` results. It does not authorize corpus-wide
@@ -1211,6 +1211,13 @@ regression fixtures:
   `reference-extraction-expansion-v1/text-reviewed-fixture-v1.json`; and
 - 18 exact positive observations from
   `reference-extraction-foundation-fixture/annotations.json`.
+
+Implementation status (2026-09-04): fixture-scoped ingestion is implemented.
+The saved-response validation includes a transactionally constructed reviewed
+history case. Its rows, review, and lifecycle event are rolled back, while the
+PostgreSQL observation and lifecycle sequences advance because `nextval` is
+nontransactional. This validation is explicit and state-affecting; it is not a
+routine read-only command and does not restore sequences with `setval`.
 
 The expected extractor input is therefore 111 reviewed positive spans. The 35
 expansion negatives and three ambiguous spans remain validation controls and
@@ -1428,6 +1435,13 @@ This checkpoint does not authorize:
 - PDF-page claims or page mapping; or
 - deletion or rewriting of historical observations, reviews, fixtures, or
   extraction artifacts.
+
+During saved-response review, the user explicitly authorized two bounded API
+accuracy corrections: replace the obsolete pilot-only coverage wording with
+the actual bounded document-text scopes, and serialize normalization and
+extraction provenance already stored on v5 observations. This exception does
+not authorize any other API-contract, lookup-scope, retrieval, UI, or workflow
+change.
 
 Implementation may begin only after this contract passes independent review
 and is committed. UI work begins only after transactional ingestion,

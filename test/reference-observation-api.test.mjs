@@ -142,4 +142,9 @@ test("no-match result reflects declared coverage instead of claiming corpus abse
   const full = await lookupRecordedReferences(client, "none", { scope: "full" });
   assert.equal(pilot.result_state, "no_matches_within_coverage");
   assert.equal(full.result_state, "coverage_unavailable_or_incomplete");
+  assert.equal(full.coverage.limitations[0].code, "NON_COURT_METADATA_COVERAGE_IS_BOUNDED");
+  assert.match(full.coverage.limitations[0].message, /Court metadata is corpus-wide/u);
+  assert.match(full.coverage.limitations[0].message, /frozen labelled-reference-v5 expansion and foundation fixtures only/u);
 });
+
+test("document-text provenance falls back to metadata normalization identity",()=>{const item=buildRecordedReferenceObservation(row({effective_origin:"document_text",observed_in_kind:"segment",normalization_identity:null,metadata_json:{normalization_identity:"reference-normalization-nfkc-upper-v1"}}));assert.equal(item.provenance.normalization_identity,"reference-normalization-nfkc-upper-v1");});

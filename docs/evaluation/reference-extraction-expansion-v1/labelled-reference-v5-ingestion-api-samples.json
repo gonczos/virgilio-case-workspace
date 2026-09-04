@@ -1,8 +1,8 @@
 {
-  "schema_version": 1,
-  "kind": "labelled_reference_v5_ingestion_read_only_api_samples",
-  "generated_at": "2026-09-04T04:22:08.607Z",
-  "samples": [
+  "schema_version": 2,
+  "kind": "labelled_reference_v5_ingestion_api_validation_samples",
+  "generated_at": "2026-09-04T04:26:55.785Z",
+  "durable_samples": [
     {
       "case": "direct_attachment",
       "sample_scope": "canonical_frozen_v5_fixture_observations_only",
@@ -26,8 +26,8 @@
         ],
         "limitations": [
           {
-            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-            "message": "External-register and document-text observations remain pilot-scoped."
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
           }
         ]
       },
@@ -116,7 +116,7 @@
             "source_field": "Anexo nº",
             "observer_key": "app/reference-search-store.mjs",
             "observer_version": "labelled-reference-v5",
-            "normalization_identity": null,
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
             "extraction": {
               "observation_identity_version": "reference-text-observation-identity-v1",
               "fixture_scope": "frozen-v5-expansion-and-foundation",
@@ -173,8 +173,8 @@
         ],
         "limitations": [
           {
-            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-            "message": "External-register and document-text observations remain pilot-scoped."
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
           }
         ]
       },
@@ -263,7 +263,7 @@
             "source_field": "fls.",
             "observer_key": "app/reference-search-store.mjs",
             "observer_version": "labelled-reference-v5",
-            "normalization_identity": null,
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
             "extraction": {
               "observation_identity_version": "reference-text-observation-identity-v1",
               "fixture_scope": "frozen-v5-expansion-and-foundation",
@@ -320,8 +320,8 @@
         ],
         "limitations": [
           {
-            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-            "message": "External-register and document-text observations remain pilot-scoped."
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
           }
         ]
       },
@@ -410,7 +410,7 @@
             "source_field": "Registo:",
             "observer_key": "app/reference-search-store.mjs",
             "observer_version": "labelled-reference-v5",
-            "normalization_identity": null,
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
             "extraction": {
               "observation_identity_version": "reference-text-observation-identity-v1",
               "fixture_scope": "frozen-v5-expansion-and-foundation",
@@ -467,8 +467,8 @@
         ],
         "limitations": [
           {
-            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-            "message": "External-register and document-text observations remain pilot-scoped."
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
           }
         ]
       },
@@ -557,7 +557,7 @@
             "source_field": "Registo n.°",
             "observer_key": "app/reference-search-store.mjs",
             "observer_version": "labelled-reference-v5",
-            "normalization_identity": null,
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
             "extraction": {
               "observation_identity_version": "reference-text-observation-identity-v1",
               "fixture_scope": "frozen-v5-expansion-and-foundation",
@@ -614,8 +614,8 @@
         ],
         "limitations": [
           {
-            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-            "message": "External-register and document-text observations remain pilot-scoped."
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
           }
         ]
       },
@@ -704,7 +704,7 @@
             "source_field": "Nmr  piéce  ·",
             "observer_key": "app/reference-search-store.mjs",
             "observer_version": "labelled-reference-v5",
-            "normalization_identity": null,
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
             "extraction": {
               "observation_identity_version": "reference-text-observation-identity-v1",
               "fixture_scope": "frozen-v5-expansion-and-foundation",
@@ -761,8 +761,8 @@
         ],
         "limitations": [
           {
-            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-            "message": "External-register and document-text observations remain pilot-scoped."
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
           }
         ]
       },
@@ -871,7 +871,7 @@
             "source_field": "referência  citius",
             "observer_key": "app/reference-search-store.mjs",
             "observer_version": "labelled-reference-v5",
-            "normalization_identity": null,
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
             "extraction": {
               "observation_identity_version": "reference-text-observation-identity-v1",
               "fixture_scope": "frozen-v5-expansion-and-foundation",
@@ -908,11 +908,329 @@
       ]
     }
   ],
-  "blocked_samples": [
+  "transactional_rolled_back_samples": [
     {
-      "case": "current_vs_retained_reviewed_history",
-      "state": "blocked_no_authentic_source_row",
-      "reason": "The live database contains no reviewed historical segment observation. The lifecycle/review-preservation path is validated transactionally and rolled back; no sample is fabricated."
+      "case": "older_procedural_and_current_vs_retained_reviewed_history",
+      "sample_scope": "transactionally_constructed_and_rolled_back_validation",
+      "durable_database_evidence": false,
+      "request": {
+        "endpoint": "GET /api/consultation/references/lookup",
+        "value": "131089062",
+        "scope": "full",
+        "lifecycle": "include_history",
+        "limit": 100,
+        "offset": 0
+      },
+      "result_state": "matches",
+      "coverage": {
+        "corpus_scope": "full",
+        "lifecycle_scope": "include_history",
+        "status": "incomplete",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
+          }
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": 7628,
+          "observation_key": "12ed47d70b84ba59da9a4bf8df865f2385926c3bd6617e83867650440d9ac477",
+          "reference": {
+            "raw_value": "131089062",
+            "normalized_value": "131089062",
+            "raw_label": "referência",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "superseded",
+            "current_observation_key": "8d52e43572fbabe2625844ba0a8471dff2f3970bd6ee602e5d635db521acfbf0",
+            "events": [
+              {
+                "transition_kind": "supersede",
+                "from_state": "current",
+                "to_state": "superseded",
+                "occurred_at": "2026-09-04T04:26:55.693Z",
+                "related_observation_key": "8d52e43572fbabe2625844ba0a8471dff2f3970bd6ee602e5d635db521acfbf0"
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 121,
+            "document_representation_id": 6038,
+            "document_segment_id": 3553,
+            "page_no": null,
+            "char_start": 6934,
+            "char_end": 6943,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 909,
+              "bucket_document_id": 1316,
+              "case_file_id": 1,
+              "bucket_id": 635,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "19142479",
+              "occurrence_date": "2021-07-06",
+              "document_reference": "3994056_156921011_67_5685656_BB82E258-CE0F-4C1A-B2B2-871B0AF19ACB",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              ]
+            },
+            {
+              "document_id": 909,
+              "bucket_document_id": 1789,
+              "case_file_id": 3,
+              "bucket_id": 842,
+              "process_number": "13608/14.8T2SNT-C",
+              "occurrence_reference": "133698460",
+              "occurrence_date": "2021-11-04",
+              "document_reference": "3994056_156921011_67_5685656_BB82E258-CE0F-4C1A-B2B2-871B0AF19ACB",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 121,
+              "sha256": "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              },
+              "contexts": [
+                {
+                  "document_id": 909,
+                  "bucket_document_id": 1316,
+                  "case_file_id": 1,
+                  "bucket_id": 635
+                },
+                {
+                  "document_id": 909,
+                  "bucket_document_id": 1789,
+                  "case_file_id": 3,
+                  "bucket_id": 842
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "referência",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v4",
+            "normalization_identity": null,
+            "extraction": {
+              "observation_identity_version": null,
+              "fixture_scope": null,
+              "representation_content_sha256": null,
+              "segment_content_sha256": null,
+              "rule_key": null,
+              "representation_span": null,
+              "segment_span": null,
+              "label_provenance": null
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "labelled_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": {
+            "namespace_hint": null,
+            "role_hint": "procedural_reference",
+            "target_candidates": [],
+            "resolution_state": "unresolved",
+            "confidence": "high",
+            "review_state": "reviewed",
+            "review_note": "Transactional review-preservation validation",
+            "reviewer_key": "transactional-validation-reviewer",
+            "metadata": {
+              "transactional_validation_only": true
+            },
+            "created_at": "2026-09-04T04:26:55.693Z",
+            "updated_at": "2026-09-04T04:26:55.693Z"
+          }
+        },
+        {
+          "observation_id": 6735,
+          "observation_key": "8d52e43572fbabe2625844ba0a8471dff2f3970bd6ee602e5d635db521acfbf0",
+          "reference": {
+            "raw_value": "131089062",
+            "normalized_value": "131089062",
+            "raw_label": "referência",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "current",
+            "current_observation_key": "8d52e43572fbabe2625844ba0a8471dff2f3970bd6ee602e5d635db521acfbf0",
+            "events": [
+              {
+                "transition_kind": "created",
+                "from_state": null,
+                "to_state": "current",
+                "occurred_at": "2026-09-04T04:10:56.959Z",
+                "related_observation_key": null
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 121,
+            "document_representation_id": 6038,
+            "document_segment_id": 3553,
+            "page_no": null,
+            "char_start": 6934,
+            "char_end": 6943,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 909,
+              "bucket_document_id": 1316,
+              "case_file_id": 1,
+              "bucket_id": 635,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "19142479",
+              "occurrence_date": "2021-07-06",
+              "document_reference": "3994056_156921011_67_5685656_BB82E258-CE0F-4C1A-B2B2-871B0AF19ACB",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              ]
+            },
+            {
+              "document_id": 909,
+              "bucket_document_id": 1789,
+              "case_file_id": 3,
+              "bucket_id": 842,
+              "process_number": "13608/14.8T2SNT-C",
+              "occurrence_reference": "133698460",
+              "occurrence_date": "2021-11-04",
+              "document_reference": "3994056_156921011_67_5685656_BB82E258-CE0F-4C1A-B2B2-871B0AF19ACB",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 121,
+              "sha256": "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              },
+              "contexts": [
+                {
+                  "document_id": 909,
+                  "bucket_document_id": 1316,
+                  "case_file_id": 1,
+                  "bucket_id": 635
+                },
+                {
+                  "document_id": 909,
+                  "bucket_document_id": 1789,
+                  "case_file_id": 3,
+                  "bucket_id": 842
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "referência",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v5",
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
+            "extraction": {
+              "observation_identity_version": "reference-text-observation-identity-v1",
+              "fixture_scope": "frozen-v5-expansion-and-foundation",
+              "representation_content_sha256": "a0799b74106cc7c9d60a648d48ea342952a1489e33b1cc4c878173487cb16bb4",
+              "segment_content_sha256": "a0799b74106cc7c9d60a648d48ea342952a1489e33b1cc4c878173487cb16bb4",
+              "rule_key": "reference-labelled-v3",
+              "representation_span": {
+                "char_start": 6934,
+                "char_end": 6943
+              },
+              "segment_span": {
+                "char_start": 6934,
+                "char_end": 6943
+              },
+              "label_provenance": {
+                "kind": "direct",
+                "source_label": "referência",
+                "label_char_end": 6931,
+                "label_char_start": 6921
+              }
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "labelled_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": null
+        }
+      ]
     }
-  ]
+  ],
+  "validation": {
+    "persisted_transactional_sample_residue": {
+      "observation_rows": 0,
+      "review_rows": 0,
+      "lifecycle_event_rows": 0
+    }
+  },
+  "generation": {
+    "state_affecting_validation": true,
+    "routine_read_only_operation": false,
+    "warning": "The transactional sample rolled back its observation, review, and lifecycle-event rows, but PostgreSQL sequence nextval effects are nontransactional and were not restored with setval.",
+    "sequence_observation": {
+      "capture_state": "unavailable_for_retained_generation",
+      "known_effect": "reference_observation and reference_observation_lifecycle_event sequences advanced by the rolled-back validation; exact before and after values were not captured during this retained generation"
+    }
+  }
 }

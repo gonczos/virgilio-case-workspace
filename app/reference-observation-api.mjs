@@ -293,7 +293,7 @@ export function buildRecordedReferenceObservation(row, contextRows = [], eventRo
       source_field: row.source_field ?? row.raw_label ?? null,
       observer_key: row.observer_key,
       observer_version: row.observer_version,
-      normalization_identity: row.normalization_identity ?? null,
+      normalization_identity: row.normalization_identity ?? (origin === "document_text" ? row.metadata_json?.normalization_identity ?? null : null),
       extraction: origin === "document_text" ? {
         observation_identity_version: row.metadata_json?.observation_identity_version ?? null,
         fixture_scope: row.metadata_json?.fixture_scope ?? null,
@@ -338,8 +338,8 @@ function coverage(scope, lifecycle) {
     status: "incomplete",
     included_origins: ["court_metadata", "external_register", "document_text"],
     limitations: [{
-      code: "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
-      message: "External-register and document-text observations remain pilot-scoped.",
+      code: "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+      message: "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only.",
     }],
   };
 }
