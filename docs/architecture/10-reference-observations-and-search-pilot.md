@@ -1200,6 +1200,239 @@ its own retry and pagination state, and can be closed without changing the text
 results. Starting an ordinary top-level search remains the only action that
 replaces both result sections.
 
+### Planned labelled-reference-v5 observation-ingestion checkpoint
+
+This documentation checkpoint freezes the contract for a bounded ingestion of
+the reviewed `labelled-reference-v5` results. It does not authorize corpus-wide
+reference extraction. The initial ingestion scope is exactly the two frozen
+regression fixtures:
+
+- 93 exact positive observations from
+  `reference-extraction-expansion-v1/text-reviewed-fixture-v1.json`; and
+- 18 exact positive observations from
+  `reference-extraction-foundation-fixture/annotations.json`.
+
+The expected extractor input is therefore 111 reviewed positive spans. The 35
+expansion negatives and three ambiguous spans remain validation controls and
+must produce no persisted observation. Families recorded as `not_evaluated`
+remain unsupported; ingestion must not manufacture observations for them.
+
+The fixture review establishes whether a span is a reference under the frozen
+extraction taxonomy. It is not a target-resolution review. Ingestion records
+the 111 observations as unresolved and must not copy fixture review decisions
+into `reference_observation_review`, infer a namespace, resolve a target,
+create a relationship, or select a preferred binary.
+
+#### Exact input and coordinate contract
+
+Every planned observation must reconstruct from the immutable representation
+whose content SHA-256 is frozen in its fixture. The ingester rejects the whole
+plan before any write when:
+
+- a representation-content hash differs;
+- a fixture range or predicted raw span does not reconstruct exactly;
+- a prediction is not an exact reviewed positive;
+- a label-provenance span does not reconstruct its recorded source label;
+- representation-level offsets cannot be mapped losslessly to one stored
+  segment; or
+- a prediction overlaps a protected negative or ambiguous span.
+
+Database `char_start` and `char_end` are zero-based, half-open Unicode
+code-point offsets in the directly identified stored segment. Representation-
+level fixture offsets, segment-local offsets, and label offsets remain separate
+named fields in `metadata_json`; they must never be silently interchanged.
+When a reviewed span crosses segment boundaries or has no exact stored-segment
+mapping, it is reported as `unmappable` and is not persisted.
+
+Each persisted observation retains:
+
+- binary, representation, and segment identities;
+- representation-content SHA-256 and the exact segment text identity when
+  available;
+- exact raw and normalized values;
+- exact raw label and role hint;
+- representation-level and segment-local observation offsets;
+- label-provenance kind, source label, and exact label offsets;
+- rule key, reference family, parsed candidate fields, and v5 extractor
+  identity;
+- bounded context derived from that same segment; and
+- honest document-level or processor-page location semantics.
+
+No occurrence, document, page, or binary context may be borrowed from another
+representation merely because its text or hash appears similar. Reused
+binaries retain all independently sourced procedural contexts in consultation,
+but those contexts do not become part of the extracted span's identity.
+
+#### Deterministic observation identity
+
+The v5 ingestion identity is the SHA-256 of a UTF-8 canonical tuple joined with
+U+001F in this exact order:
+
+1. `app/reference-search-store.mjs`;
+2. `labelled-reference-v5`;
+3. `segment`;
+4. file-binary ID;
+5. document-representation ID;
+6. document-segment ID;
+7. representation-content SHA-256;
+8. segment-local `char_start`;
+9. segment-local `char_end`;
+10. exact raw value;
+11. normalized value using `reference-normalization-nfkc-upper-v1`;
+12. exact raw label;
+13. extractor rule key;
+14. label-provenance kind;
+15. segment-local label start; and
+16. segment-local label end.
+
+Null values use the empty string. Integers use base-10 ASCII without padding.
+The tuple version is `reference-text-observation-identity-v1` and is stored in
+`metadata_json`. The tuple deliberately excludes confidence, bounded context,
+target candidates, review state, occurrence contexts, and timestamps because
+those values may change without changing the observed source span. Any future
+change to tuple fields or normalization semantics requires a new identity
+version; it must not reinterpret existing keys.
+
+#### Lifecycle and review ownership
+
+Exactly matching v5 identity is `unchanged` on rerun. A newly observed v5 span
+is inserted as `current`. Older extractor observations at the same exact
+representation and span remain historical evidence. Whether an older row has a
+human target-resolution review does not exempt its lifecycle state from the
+single-current invariant. A current older row transitions to `superseded`
+through an immutable event naming the v5 replacement, while its
+`reference_observation_review` row, reviewer, decision, candidates, notes, and
+timestamps remain unchanged. An older observation at a different span remains
+independent and is not reconciled by normalized-value equality.
+
+The ingester must also reconcile same-version v5 rows created before
+`reference-text-observation-identity-v1`. Such rows use the legacy
+`buildObservationKey()` tuple and may otherwise duplicate the same source span.
+Legacy identity is recognized only by exact provenance equality across observer
+key/version, binary, representation, segment, segment-local observation span,
+normalized value, and raw label. Absence of the new identity-version marker is
+expected for a legacy candidate. The candidate is authenticated by recomputing
+the historical `buildObservationKey()` tuple from its stored fields and
+requiring exact equality with its stored `observation_key`. A matching legacy
+row transitions to `superseded` with an immutable
+`identity_version_replacement` event naming the new identity. Its review
+remains attached to the legacy row and is not copied to the replacement. More
+than one authenticated candidate, conflicting exact provenance, an invalid
+recomputed legacy key, or unknown/malformed/conflicting identity-version
+metadata is a blocking `AMBIGUOUS_LEGACY_IDENTITY` validation failure rather
+than grounds to choose a row heuristically.
+
+If a later rerun no longer produces a previously current v5 identity from the
+same frozen scope, write mode retires it as `retired_source_absent` only after
+the representation hash and complete scope have been verified. Partial,
+unavailable, hash-mismatched, or unmappable input must never retire an
+observation. A returning identical v5 identity reactivates its historical row
+and appends an immutable transition event; it does not create a duplicate.
+
+At most one current observation may exist for the same identity version and
+canonical source-span assertion. Lifecycle changes never update or delete
+`reference_observation_review`. Reseeding preserves reviews attached to v3,
+v4, or v5 observations and does not imply that an older review applies to the
+new v5 observation.
+
+#### Dry run and write guarantees
+
+The command has explicit `--dry-run` and `--write` modes and defaults to dry
+run. Dry run performs all fixture, hash, extraction, coordinate-mapping,
+identity, lifecycle, and review-preservation checks without issuing mutation
+statements, allocating sequence values, acquiring write locks, or changing
+timestamps.
+
+Write mode opens a repeatable-read transaction before reading existing
+observations or building the mutation plan. Planning and mutation use that one
+snapshot. Any validation or mutation failure rolls back the full transaction.
+Reports distinguish planned, attempted, committed, and rolled-back counts and
+set `mutation_statements_issued` only when a data-changing statement was
+actually attempted.
+
+Both modes emit deterministic machine-readable counts for:
+
+- fixture positives, negative controls, ambiguous diagnostics, exact
+  predictions, and unmappable predictions;
+- inserts, unchanged identities, supersessions, retirements, reactivations,
+  retained reviewed history, and review rows preserved;
+- observations by rule key, family, representation, and coordinate-mapping
+  state; and
+- validation failures with stable codes.
+
+Repeated write mode against unchanged fixtures and database state must report
+111 unchanged current v5 observations, zero lifecycle mutations, zero review
+changes, and `mutation_statements_issued: false`.
+
+The legacy pilot seeder must be made identity-version aware in the same
+implementation checkpoint. After canonical v5 ingestion, rerunning that seeder
+must recognize the canonical current observation and must not recreate the
+legacy-key v5 row, reactivate a superseded row, create a second current row,
+alter lifecycle links, or change any review. This compatibility change is
+limited to observation identity/reconciliation; it does not widen fixture or
+extractor scope.
+
+#### Validation fixture and saved-response gate
+
+The immutable validation inputs are the reviewed expansion and foundation
+fixtures, their frozen representation hashes, the v5 evaluation artifacts, and
+the v5 extractor source identity. Before write mode is accepted:
+
+- v5 must remain 93/93 exact on expansion and 18/18 exact on foundation;
+- all 35 protected negatives and three ambiguous diagnostics must have zero
+  prediction overlap;
+- all observation and label spans must reconstruct exactly;
+- planned identities must be unique and stable across repeated dry runs;
+- a forced failure must demonstrate full rollback;
+- two successful write runs must demonstrate idempotency;
+- existing human review rows and older reviewed observations must be byte-for-
+  field unchanged; and
+- a reviewed current older observation must become historical while its review
+  row remains unchanged and exactly one canonical observation remains current;
+- pre-identity-version v5 rows must reconcile deterministically or fail with
+  `AMBIGUOUS_LEGACY_IDENTITY` without writes;
+- rerunning the legacy pilot seeder after canonical ingestion must not recreate
+  a legacy-key row, reactivate replaced history, create a second current
+  observation, change lifecycle links, or alter reviews;
+- frozen fixture, manifest, evaluator, and v5 artifact hashes must remain
+  unchanged.
+
+After ingestion, save a small read-only API sample that covers:
+
+- a direct `DOC` or `Anexo` observation;
+- a direct physical-folio observation;
+- each explicit `Registo` form;
+- the inherited damaged-French-`piéce` label with its label provenance;
+- an existing procedural or coordinated observation retained across extractor
+  versions;
+- a reused binary with all procedural contexts; and
+- current versus retained reviewed history.
+
+Each saved response must expose exact representation, segment, rule, span,
+label, extractor-version, lifecycle, and unresolved-resolution provenance. A
+no-match or unmappable result must not imply that a document or reference is
+absent.
+
+#### Explicit exclusions
+
+This checkpoint does not authorize:
+
+- corpus-wide v5 extraction or ingestion outside the two frozen fixtures;
+- new extractor rules, AI extraction, embeddings, semantic classification, or
+  normalization changes;
+- automatic namespace, target, attachment-parent, interval, document, binary,
+  occurrence, or graph-edge resolution;
+- writing fixture review decisions into target-resolution review records;
+- schema, API-contract, UI, document-viewer, graph, glossary, or structured-
+  discovery changes;
+- PDF-page claims or page mapping; or
+- deletion or rewriting of historical observations, reviews, fixtures, or
+  extraction artifacts.
+
+Implementation may begin only after this contract passes independent review
+and is committed. UI work begins only after transactional ingestion,
+idempotency, review preservation, and the saved-response/API gate all pass.
+
 ## Review ownership and reseeding
 
 Ingestion and human review have different ownership. Routine ingestion may
