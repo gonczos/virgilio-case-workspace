@@ -42,6 +42,7 @@ interface InspectionViewerProps {
   onViewedRepresentationChange: (representation: RepresentationListItem | null) => void;
   originalPdf?: { url: string; preferNativeViewer?: boolean };
   initialSearchTerm?: string;
+  onCloseInspection?: () => void;
 }
 
 const filterOptions = createFilterOptions<InspectionOption>({
@@ -114,6 +115,16 @@ export function findInspectionMatches(value: string, query: string): InspectionM
   }));
 }
 
+export function orderInspectionSearchOptions(options: InspectionOption[], selectedOption: InspectionOption | null) {
+  const searchable = options.filter((option) => option.category !== "original" && option.representation && !(option.format === "markdown" && option.renderMode === "rendered"));
+  const selectedSearchId = selectedOption?.format === "markdown" && selectedOption.renderMode === "rendered"
+    ? searchable.find((option) => option.representation?.representation_id === selectedOption.representation?.representation_id && option.format === "markdown")?.id
+    : selectedOption?.id;
+  const selectedIndex = searchable.findIndex((option) => option.id === selectedSearchId);
+  const start = selectedIndex < 0 ? 0 : selectedIndex;
+  return [...searchable.slice(start), ...searchable.slice(0, start)];
+}
+
 function SearchHighlightedText({ value, matches, current }: { value: string; matches: InspectionMatch[]; current: number }) {
   const currentRef = useRef<HTMLElement | null>(null);
   useEffect(() => { currentRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }); }, [current]);
@@ -138,6 +149,7 @@ export function InspectionViewer({
   onViewedRepresentationChange,
   originalPdf,
   initialSearchTerm = "",
+  onCloseInspection,
 }: InspectionViewerProps) {
   const options = useMemo(() => [
     ...(originalPdf ? [{
@@ -159,15 +171,19 @@ export function InspectionViewer({
   const [searchDraft, setSearchDraft] = useState(initialSearchTerm);
   const [activeSearch, setActiveSearch] = useState("");
   const [currentMatch, setCurrentMatch] = useState(-1);
+  const [searchingViews, setSearchingViews] = useState(false);
+  const [searchMiss, setSearchMiss] = useState(false);
+  const searchRequest = useRef(0);
   const selectedOption = options.find((option) => option.id === selectedId) ?? null;
   const searchableText = typeof content === "string" ? content : content === null ? "" : JSON.stringify(content, null, 2);
   const matches = useMemo(() => findInspectionMatches(searchableText, activeSearch), [activeSearch, searchableText]);
-  const canSearch = Boolean(selectedOption && selectedOption.category !== "original" && !loading && !error && searchableText);
+  const canSearch = options.some((option) => option.category !== "original" && option.representation);
 
   useEffect(() => {
     setSearchDraft(initialSearchTerm);
     setActiveSearch("");
     setCurrentMatch(-1);
+    setSearchMiss(false);
   }, [initialSearchTerm]);
 
   useEffect(() => { setCurrentMatch(matches.length ? 0 : -1); }, [activeSearch, searchableText]);
@@ -202,17 +218,44 @@ export function InspectionViewer({
 
   function selectOption(option: InspectionOption | null) {
     if (!option) return;
+    if (activeSearch && option.format === "markdown" && option.renderMode === "rendered") {
+      const rawOption = options.find((candidate) => candidate.representation?.representation_id === option.representation?.representation_id && candidate.format === "markdown" && candidate.renderMode === "raw");
+      if (rawOption) {
+        setSelectedId(rawOption.id);
+        return;
+      }
+    }
     setSelectedId(option.id);
   }
 
-  function runSearch() {
+  async function runSearch() {
     const value = searchDraft.trim();
-    if (!value || !selectedOption || selectedOption.category === "original") return;
-    if (selectedOption.format === "markdown" && selectedOption.renderMode === "rendered") {
-      const rawOption = options.find((option) => option.representation?.representation_id === selectedOption.representation?.representation_id && option.format === "markdown" && option.renderMode === "raw");
-      if (rawOption) setSelectedId(rawOption.id);
+    if (!value || !canSearch) return;
+    const request = ++searchRequest.current;
+    setSearchingViews(true);
+    setSearchMiss(false);
+    const ordered = orderInspectionSearchOptions(options, selectedOption);
+    for (const option of ordered) {
+      if (!option.representation) continue;
+      try {
+        const result = option.id === selectedOption?.id && searchableText
+          ? searchableText
+          : await getRepresentationContent(option.representation.representation_id, option.format).then((response) => typeof response.body === "string" ? response.body : JSON.stringify(response.body, null, 2));
+        if (searchRequest.current !== request) return;
+        if (findInspectionMatches(result, value).length) {
+          setSelectedId(option.id);
+          setActiveSearch(value);
+          setSearchMiss(false);
+          setSearchingViews(false);
+          return;
+        }
+      } catch {
+        // An unavailable view does not prevent searching the remaining attributed views.
+      }
     }
     setActiveSearch(value);
+    setSearchMiss(true);
+    setSearchingViews(false);
   }
 
   function moveMatch(step: number) {
@@ -222,15 +265,16 @@ export function InspectionViewer({
 
   return <Paper elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", height, minHeight: 520, display: "flex", flexDirection: "column", overflow: "hidden" }}>
     <Box sx={{ px: 2, pt: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)" }}>
-      <Stack direction="row" spacing={0.5} alignItems="center">
-        <Typography variant="body2" fontWeight={700}>Inspect</Typography>
-        <TextField value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); runSearch(); } }} size="small" fullWidth placeholder="Find in current view" />
-        <Tooltip title={selectedOption?.category === "original" ? "Search is available in extracted views" : "Search current view"}><span><IconButton size="small" aria-label="Search current inspection view" disabled={!canSearch || !searchDraft.trim()} onClick={runSearch} sx={{ fontSize: "0.9rem" }}>🔍</IconButton></span></Tooltip>
+      <Typography variant="overline" fontWeight={800}>Inspect</Typography>
+      <Stack direction="row" spacing={0.25} alignItems="center">
+        <TextField value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void runSearch(); } }} size="small" fullWidth placeholder="Find across available views" />
+        <Tooltip title="Search available extracted views"><span><IconButton size="small" aria-label="Search available inspection views" disabled={!canSearch || !searchDraft.trim() || searchingViews} onClick={() => void runSearch()} sx={{ fontSize: "0.9rem" }}>{searchingViews ? <CircularProgress size={16} /> : "🔍"}</IconButton></span></Tooltip>
         {activeSearch ? <Typography variant="caption" sx={{ minWidth: 42, textAlign: "center" }}>{matches.length ? `${currentMatch + 1}/${matches.length}` : "0/0"}</Typography> : null}
-        <Tooltip title="Previous match"><span><IconButton size="small" aria-label="Previous inspection match" disabled={!matches.length} onClick={() => moveMatch(-1)}>‹</IconButton></span></Tooltip>
-        <Tooltip title="Next match"><span><IconButton size="small" aria-label="Next inspection match" disabled={!matches.length} onClick={() => moveMatch(1)}>›</IconButton></span></Tooltip>
-        <Tooltip title="Clear inspection search"><span><IconButton size="small" aria-label="Clear inspection search" disabled={!searchDraft && !activeSearch} onClick={() => { setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); }}>×</IconButton></span></Tooltip>
+        <Tooltip title="Previous match"><span><IconButton size="small" aria-label="Previous inspection match" disabled={!matches.length} onClick={() => moveMatch(-1)}>↑</IconButton></span></Tooltip>
+        <Tooltip title="Next match"><span><IconButton size="small" aria-label="Next inspection match" disabled={!matches.length} onClick={() => moveMatch(1)}>↓</IconButton></span></Tooltip>
+        <Tooltip title="Clear and collapse inspection"><IconButton size="small" aria-label="Clear and collapse inspection" onClick={() => { ++searchRequest.current; setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); setSearchMiss(false); onCloseInspection?.(); }}>×</IconButton></Tooltip>
       </Stack>
+      {searchMiss ? <Typography variant="caption" color="text.secondary">No match in the available readable views.</Typography> : null}
       <Autocomplete
         fullWidth
         size="small"
@@ -250,7 +294,7 @@ export function InspectionViewer({
             {option.representation ? <Typography variant="caption" color="text.secondary">{option.representation.processor_version}</Typography> : null}
           </Stack>
         </li>}
-        sx={{ my: 1.5 }}
+        sx={{ mt: 1, mb: 1 }}
       />
       {selectedOption?.representation ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pb: 1.5 }}>
         <Typography variant="caption" color="text.secondary">

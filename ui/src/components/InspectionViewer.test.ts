@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { buildInspectionOptions, chooseInitialInspectionOption, findInspectionMatches } from "./InspectionViewer";
+import { buildInspectionOptions, chooseInitialInspectionOption, findInspectionMatches, orderInspectionSearchOptions } from "./InspectionViewer";
 import type { RepresentationListItem } from "../types/consultation";
 
 function representation(formats: string[]): RepresentationListItem {
@@ -75,4 +75,16 @@ test("inspection search finds case-insensitive literal matches with stable offse
 
 test("inspection search treats punctuation as literal text", () => {
   expect(findInspectionMatches("Ref. 12 and RefX 12", "Ref. 12")).toEqual([{ start: 0, end: 7 }]);
+});
+
+test("cross-view search starts with the selected view and skips PDF and rendered duplicates", () => {
+  const original = { id: "original:pdf", category: "original" as const, representation: null, format: "pdf", renderMode: "raw" as const, label: "Original", searchText: "original" };
+  const evidence = buildInspectionOptions("evidence", [processorRepresentation("pdf_literal_text", 2, ["text"])]);
+  const interpretations = buildInspectionOptions("interpretation", [processorRepresentation("docling", 3, ["markdown"])]);
+  const options = [original, ...evidence, ...interpretations];
+
+  expect(orderInspectionSearchOptions(options, interpretations[0]).map((option) => option.id)).toEqual([
+    interpretations[1].id,
+    evidence[0].id,
+  ]);
 });

@@ -52,7 +52,7 @@ function formatDate(value: string | null) {
 
 const ignoreViewedRepresentation = () => undefined;
 
-function BinaryInspection({ target, initialSearchTerm }: { target: Extract<SearchInspectionTarget, { kind: "binary" }>; initialSearchTerm: string }) {
+function BinaryInspection({ target, initialSearchTerm, onCollapse }: { target: Extract<SearchInspectionTarget, { kind: "binary" }>; initialSearchTerm: string; onCollapse: () => void }) {
   const [detail, setDetail] = useState<BinaryDetailResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,6 +80,7 @@ function BinaryInspection({ target, initialSearchTerm }: { target: Extract<Searc
       height="100%"
       onViewedRepresentationChange={ignoreViewedRepresentation}
       initialSearchTerm={initialSearchTerm}
+      onCloseInspection={onCollapse}
     />
     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
       <Button component={RouterLink} to={`/binaries/${detail.binary.sha256}`} target="_blank" rel="noopener noreferrer" size="small">Open full document detail</Button>
@@ -155,15 +156,10 @@ function ReferenceInspection({ target, onNavigate }: {
   </Stack>;
 }
 
-export function SearchInspectionPane({ target, initialSearchTerm, collapsed, canBack, canForward, onBack, onForward, onClose, onToggleCollapsed, onNavigate }: {
+export function SearchInspectionPane({ target, initialSearchTerm, collapsed, onToggleCollapsed, onNavigate }: {
   target: SearchInspectionTarget | null;
   initialSearchTerm: string;
   collapsed: boolean;
-  canBack: boolean;
-  canForward: boolean;
-  onBack: () => void;
-  onForward: () => void;
-  onClose: () => void;
   onToggleCollapsed: () => void;
   onNavigate: (target: SearchInspectionTarget) => void;
 }) {
@@ -174,17 +170,10 @@ export function SearchInspectionPane({ target, initialSearchTerm, collapsed, can
   }
 
   return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", p: 2, height: "100%", minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-    <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 1.5 }}>
-      <Typography variant="subtitle1" fontWeight={700} sx={{ flexGrow: 1 }}>Inspection</Typography>
-      <Button size="small" disabled={!canBack} onClick={onBack}>Back</Button>
-      <Button size="small" disabled={!canForward} onClick={onForward}>Forward</Button>
-      <Button size="small" onClick={onToggleCollapsed}>Collapse</Button>
-      <Button size="small" disabled={!target} onClick={onClose}>Clear</Button>
-    </Stack>
-    <Divider sx={{ mb: 2 }} />
+    {target?.kind !== "binary" ? <Stack direction="row" alignItems="center" sx={{ mb: 1 }}><Typography variant="overline" fontWeight={800} sx={{ flexGrow: 1 }}>Inspect</Typography><Button size="small" aria-label="Collapse inspection" onClick={onToggleCollapsed}>×</Button></Stack> : null}
     <Box sx={{ minHeight: 0, flex: 1, overflow: "auto" }}>
       {!target ? <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ minHeight: 320, textAlign: "center", px: 3 }}><Typography variant="h6">Select a result to inspect</Typography><Typography color="text.secondary">Open a document, reference, or procedural context without leaving the search.</Typography></Stack> : null}
-      {target?.kind === "binary" ? <BinaryInspection target={target} initialSearchTerm={initialSearchTerm} /> : null}
+      {target?.kind === "binary" ? <BinaryInspection target={target} initialSearchTerm={initialSearchTerm} onCollapse={onToggleCollapsed} /> : null}
       {target?.kind === "context" ? <ContextInspection target={target} onNavigate={onNavigate} /> : null}
       {target?.kind === "reference" ? <ReferenceInspection target={target} onNavigate={onNavigate} /> : null}
     </Box>

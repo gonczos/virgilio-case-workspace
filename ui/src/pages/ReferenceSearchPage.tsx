@@ -244,11 +244,6 @@ export function ReferenceSearchPage() {
           target={inspected}
           initialSearchTerm={submitted?.query ?? ""}
           collapsed={inspectionCollapsed}
-          canBack={inspectionIndex > 0}
-          canForward={inspectionIndex >= 0 && inspectionIndex < inspectionHistory.length - 1}
-          onBack={() => setInspectionIndex((value) => Math.max(0, value - 1))}
-          onForward={() => setInspectionIndex((value) => Math.min(inspectionHistory.length - 1, value + 1))}
-          onClose={() => { setInspectionHistory([]); setInspectionIndex(-1); }}
           onToggleCollapsed={() => setInspectionCollapsed((value) => !value)}
           onNavigate={inspect}
         />

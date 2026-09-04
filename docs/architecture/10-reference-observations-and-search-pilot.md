@@ -1156,10 +1156,9 @@ scrolling must not move the search controls or inspector out of their workspace.
 A persistent right inspection pane accepts three attributed targets: binary,
 recorded-reference lookup, and procedural/source-document context. Selecting a
 target does not replace the submitted search or navigate away from its results.
-The pane maintains local Back and Forward history. Selecting any inspect action
-automatically expands a collapsed pane. Collapsing preserves its target,
-history, loaded binary, and selected representation; the collapsed state is a
-narrow vertical `Inspection` rail on the right.
+The pane header does not expose a separate Back, Forward, or Close navigation
+toolbar. Selecting any inspect action automatically expands a collapsed pane;
+the collapsed state is a narrow vertical `Inspection` rail on the right.
 
 Binary inspection loads the existing binary-detail response, including its
 recorded context, without permanently rendering duplicate document metadata
@@ -1170,22 +1169,28 @@ shown when selected as its own inspection target, while the complete binary-
 detail page remains available in a new tab. The pane also retains a direct
 new-tab action for the original file.
 
-The binary inspector includes a compact current-view search toolbar above the
-`Available views` selector. Its draft value initializes from the submitted main
+The binary inspector header is a compact two-line control: an `Inspect` title
+and search row, followed by the smaller `Available views` selector. Its draft
+value initializes from the submitted main
 search query but remains independent: editing, submitting, navigating, or
 clearing it never changes the main search. Enter or the search icon applies a
-case-insensitive literal search to the currently selected textual or JSON view;
-the toolbar reports the current/total match count and provides previous, next,
-and clear icon controls. Switching views preserves the inspection query and
-reruns it against the newly loaded view. Searching a rendered-Markdown option
-selects that same processor's raw-Markdown view so exact matches can be
-highlighted without altering processor output.
+case-insensitive literal search beginning with the current readable view. When
+that view has no match, the inspector checks each subsequent independently
+attributed textual or JSON view in selector order and switches directly to the
+first view containing a match. It stops after one complete cycle. The toolbar
+reports the current/total matches in the selected view and provides previous
+and next controls. Its `x` action clears the inspection search and collapses the
+pane. Switching views preserves the query and evaluates it against the newly
+loaded view. A rendered-Markdown option uses that same processor's raw-Markdown
+view while a search is active so exact matches can be highlighted without
+altering processor output or mislabelling the displayed format.
 
-The original PDF remains an available canonical-evidence view, but current-view
-search is disabled there because the canvas viewer has no reliable searchable
-text layer. The UI must not imply PDF-page matching or navigation from an
-extracted-text match. Searching all representations, document context, or the
-original PDF is outside this checkpoint.
+The original PDF remains an available canonical-evidence view, but the canvas
+viewer has no reliable searchable text layer. Starting inspection search from
+the PDF therefore moves through the attributed readable views rather than
+claiming a PDF match. The UI must not imply PDF-page matching or navigation from
+an extracted-text match. Searching procedural context or the original PDF
+itself is outside this checkpoint.
 
 Related contexts are inspect actions rather than expanding a result row. A
 missing-file context remains inspectable as metadata but receives no invented
