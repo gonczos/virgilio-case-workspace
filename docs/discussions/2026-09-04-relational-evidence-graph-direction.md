@@ -218,6 +218,73 @@ The recent `Ofício` / `Despacho` example is a useful acceptance case: an
 *Despacho*. The glossary should clarify these distinctions rather than assign
 one translated label to the whole package.
 
+## `Assunto` and structured occurrence discovery
+
+Source-recorded and document-observed `Assunto` values are potentially useful
+navigation and retrieval fields. They must remain separate from both the
+source-system occurrence designation and any reviewed substantive document
+classification. For example:
+
+```text
+Source designation: Ofício
+Assunto: Despacho
+```
+
+This states that the official communication concerns or transmits a judicial
+order; it does not reclassify the *Ofício* itself as a *Despacho*.
+
+An eventual subject observation should preserve:
+
+* the exact source wording;
+* an optional normalized search value without replacing the raw value;
+* whether it came from court metadata or a document header;
+* its binary, representation, page or span, processor, version, and input
+  lineage where extracted from a document; and
+* its review state, particularly when header extraction or document structure
+  is uncertain.
+
+Multiple or conflicting subject observations should remain independently
+attributed. In an initial graph view, `Assunto` can remain a prominent node
+attribute. It need only become a graph node if repeated values later support a
+useful, evidence-preserving navigation function.
+
+Structured occurrence discovery is a related high-value navigation direction.
+A query such as “show all *Requerimentos* from 2016” should initially mean:
+
+```text
+Source occurrence designation = Requerimento
+Recorded occurrence date is within 2016
+```
+
+The result should not silently include documents merely inferred or reviewed
+as substantive *Requerimentos*. Results should remain grouped by bucket or
+occurrence because one source-labelled submission can contain several files.
+Useful result fields include court reference number, recorded occurrence date,
+process number, presenter, source designation, `Assunto` where available,
+linked-document count, and available or missing file state.
+
+Possible structured queries include:
+
+* all source-designated *Requerimentos* in a year or date range;
+* all *Ofícios* with `Assunto: Despacho`;
+* occurrences submitted by a specified presenter;
+* source-designated *Notificações* in a date range;
+* occurrences with missing files; and
+* source-designated *Requerimentos* containing documents later given a
+  different reviewed substantive type.
+
+The query contract and UI should keep these dimensions explicit:
+
+* source occurrence designation;
+* source- or document-observed `Assunto`;
+* reviewed substantive document type; and
+* contained or embedded component type.
+
+They may be combined deliberately by a user, but must not be merged into one
+unqualified “document type” filter. Structured filtering over existing court
+metadata is the smallest useful first slice; AI classification is not required
+for it.
+
 ## Open questions
 
 * What stable node and edge vocabulary is sufficient for the first reference
@@ -238,6 +305,10 @@ one translated label to the whole package.
 * Should the bilingual glossary be a standalone controlled resource, and which
   entries require review by a Portuguese legal expert before use beyond
   explanatory UI text?
+* Which source fields and document-header observations can supply `Assunto`
+  values, and what measured coverage can structured search promise?
+* Should structured occurrence discovery become a catalogue view, a graph
+  starting-point finder, or both over one shared query contract?
 
 ## Decision boundary
 
