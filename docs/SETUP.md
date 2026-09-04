@@ -580,6 +580,28 @@ derived JSON artifacts. No database connection or PDF extraction is performed.
 Use a fresh output directory for a new snapshot. HTML row positions are retained
 as observations only; the site rendering order was not stable.
 
+### Saved Citius HTML provenance import
+
+Requires Python 3.11+ (standard library), the existing Node/pg dependencies and
+configured PostgreSQL connection. Run against the extracted multicase HTML folder,
+not its parent upload/download directories. Use a new snapshot output path:
+
+```powershell
+python app/citius-html-snapshot.py C:/repos/PTDocs/attila_originalScrapes/tribunais-multicase-audit-2026-08-29T22-50-36-257Z data/exports/citius-html/2026-09-05/snapshot.json
+node app/citius-html-import.mjs data/exports/citius-html/2026-09-05/snapshot.json data/exports/citius-html/2026-09-05/report.json
+python app/citius-html-snapshot-test.py
+```
+
+Use Python's full executable path if it is not on PATH. The import uses existing
+provenance tables and configured DB login with SELECT on court records and
+INSERT/SELECT plus sequence access on the three provenance tables. The restricted
+PTDocs reviewer role cannot perform it. No migration or grant change is needed
+for the verified current configured login. Repeating the Node command reuses the
+same capture; changed parsing for the same manifest is rejected. Raw HTML bytes
+are retained in PostgreSQL as base64 and in the local snapshot; back up both.
+This command does not update canonical court fields. See the
+[provenance contract](architecture/16-saved-citius-html-provenance.md) for scope.
+
 ### Remaining setup gaps
 
 The following are not yet fully documented as reproducible end-to-end

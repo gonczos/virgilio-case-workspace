@@ -1,5 +1,9 @@
 # Import Pipeline
 
+An additional offline [saved Citius HTML provenance import](16-saved-citius-html-provenance.md)
+now preserves original HTML and compares it with current records. It appends source
+observations only; it does not use the canonical upsert pipeline described below.
+
 Last updated: 2026-08-30
 
 ## Purpose
