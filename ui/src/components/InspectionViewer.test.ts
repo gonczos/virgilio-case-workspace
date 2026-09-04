@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { buildInspectionOptions, chooseInitialInspectionOption } from "./InspectionViewer";
+import { buildInspectionOptions, chooseInitialInspectionOption, findInspectionMatches } from "./InspectionViewer";
 import type { RepresentationListItem } from "../types/consultation";
 
 function representation(formats: string[]): RepresentationListItem {
@@ -64,4 +64,15 @@ test("original PDF can be selected ahead of derived representations", () => {
   const options = [original, ...buildInspectionOptions("evidence", [processorRepresentation("pdf_literal_text", 2, ["text"])])];
 
   expect(chooseInitialInspectionOption(options, "original", null)).toBe(original);
+});
+
+test("inspection search finds case-insensitive literal matches with stable offsets", () => {
+  expect(findInspectionMatches("Marie met MARIE and Mariana", "marie")).toEqual([
+    { start: 0, end: 5 },
+    { start: 10, end: 15 },
+  ]);
+});
+
+test("inspection search treats punctuation as literal text", () => {
+  expect(findInspectionMatches("Ref. 12 and RefX 12", "Ref. 12")).toEqual([{ start: 0, end: 7 }]);
 });

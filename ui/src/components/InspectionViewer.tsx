@@ -1,13 +1,16 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   Alert,
   Autocomplete,
   Box,
   CircularProgress,
+  IconButton,
   Paper,
   Stack,
   TextField,
+  Tooltip,
   Typography,
   createFilterOptions,
 } from "@mui/material";
@@ -38,6 +41,7 @@ interface InspectionViewerProps {
   height: string | Record<string, string>;
   onViewedRepresentationChange: (representation: RepresentationListItem | null) => void;
   originalPdf?: { url: string; preferNativeViewer?: boolean };
+  initialSearchTerm?: string;
 }
 
 const filterOptions = createFilterOptions<InspectionOption>({
@@ -98,6 +102,33 @@ function JsonView({ value }: { value: unknown }) {
   </Box>;
 }
 
+export interface InspectionMatch { start: number; end: number }
+
+export function findInspectionMatches(value: string, query: string): InspectionMatch[] {
+  const needle = query.trim();
+  if (!needle) return [];
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  return [...value.matchAll(new RegExp(escaped, "giu"))].map((match) => ({
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+}
+
+function SearchHighlightedText({ value, matches, current }: { value: string; matches: InspectionMatch[]; current: number }) {
+  const currentRef = useRef<HTMLElement | null>(null);
+  useEffect(() => { currentRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }); }, [current]);
+  if (!matches.length) return <>{value}</>;
+  const parts: ReactNode[] = [];
+  let cursor = 0;
+  matches.forEach((match, index) => {
+    parts.push(value.slice(cursor, match.start));
+    parts.push(<Box component="mark" key={`${match.start}:${match.end}`} ref={index === current ? currentRef : undefined} sx={{ bgcolor: index === current ? "warning.main" : "warning.light", px: 0.15 }}>{value.slice(match.start, match.end)}</Box>);
+    cursor = match.end;
+  });
+  parts.push(value.slice(cursor));
+  return <>{parts}</>;
+}
+
 export function InspectionViewer({
   interpretations,
   evidence,
@@ -106,6 +137,7 @@ export function InspectionViewer({
   height,
   onViewedRepresentationChange,
   originalPdf,
+  initialSearchTerm = "",
 }: InspectionViewerProps) {
   const options = useMemo(() => [
     ...(originalPdf ? [{
@@ -124,7 +156,21 @@ export function InspectionViewer({
   const [content, setContent] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchDraft, setSearchDraft] = useState(initialSearchTerm);
+  const [activeSearch, setActiveSearch] = useState("");
+  const [currentMatch, setCurrentMatch] = useState(-1);
   const selectedOption = options.find((option) => option.id === selectedId) ?? null;
+  const searchableText = typeof content === "string" ? content : content === null ? "" : JSON.stringify(content, null, 2);
+  const matches = useMemo(() => findInspectionMatches(searchableText, activeSearch), [activeSearch, searchableText]);
+  const canSearch = Boolean(selectedOption && selectedOption.category !== "original" && !loading && !error && searchableText);
+
+  useEffect(() => {
+    setSearchDraft(initialSearchTerm);
+    setActiveSearch("");
+    setCurrentMatch(-1);
+  }, [initialSearchTerm]);
+
+  useEffect(() => { setCurrentMatch(matches.length ? 0 : -1); }, [activeSearch, searchableText]);
 
   useEffect(() => {
     if (selectedOption) return;
@@ -159,8 +205,32 @@ export function InspectionViewer({
     setSelectedId(option.id);
   }
 
+  function runSearch() {
+    const value = searchDraft.trim();
+    if (!value || !selectedOption || selectedOption.category === "original") return;
+    if (selectedOption.format === "markdown" && selectedOption.renderMode === "rendered") {
+      const rawOption = options.find((option) => option.representation?.representation_id === selectedOption.representation?.representation_id && option.format === "markdown" && option.renderMode === "raw");
+      if (rawOption) setSelectedId(rawOption.id);
+    }
+    setActiveSearch(value);
+  }
+
+  function moveMatch(step: number) {
+    if (!matches.length) return;
+    setCurrentMatch((value) => (value + step + matches.length) % matches.length);
+  }
+
   return <Paper elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", height, minHeight: 520, display: "flex", flexDirection: "column", overflow: "hidden" }}>
     <Box sx={{ px: 2, pt: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)" }}>
+      <Stack direction="row" spacing={0.5} alignItems="center">
+        <Typography variant="body2" fontWeight={700}>Inspect</Typography>
+        <TextField value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); runSearch(); } }} size="small" fullWidth placeholder="Find in current view" />
+        <Tooltip title={selectedOption?.category === "original" ? "Search is available in extracted views" : "Search current view"}><span><IconButton size="small" aria-label="Search current inspection view" disabled={!canSearch || !searchDraft.trim()} onClick={runSearch} sx={{ fontSize: "0.9rem" }}>🔍</IconButton></span></Tooltip>
+        {activeSearch ? <Typography variant="caption" sx={{ minWidth: 42, textAlign: "center" }}>{matches.length ? `${currentMatch + 1}/${matches.length}` : "0/0"}</Typography> : null}
+        <Tooltip title="Previous match"><span><IconButton size="small" aria-label="Previous inspection match" disabled={!matches.length} onClick={() => moveMatch(-1)}>‹</IconButton></span></Tooltip>
+        <Tooltip title="Next match"><span><IconButton size="small" aria-label="Next inspection match" disabled={!matches.length} onClick={() => moveMatch(1)}>›</IconButton></span></Tooltip>
+        <Tooltip title="Clear inspection search"><span><IconButton size="small" aria-label="Clear inspection search" disabled={!searchDraft && !activeSearch} onClick={() => { setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); }}>×</IconButton></span></Tooltip>
+      </Stack>
       <Autocomplete
         fullWidth
         size="small"
@@ -173,7 +243,7 @@ export function InspectionViewer({
         groupBy={(option) => option.category === "original" ? "Original" : option.category === "evidence" ? "Evidence" : "Interpretations"}
         getOptionLabel={(option) => option.label}
         isOptionEqualToValue={(option, value) => option.id === value.id}
-        renderInput={(params) => <TextField {...params} label="Inspect extracted data" placeholder="Type to filter" />}
+        renderInput={(params) => <TextField {...params} label="Available views" placeholder="Type to filter" />}
         renderOption={(props, option) => <li {...props} key={option.id}>
           <Stack spacing={0.25} sx={{ py: 0.5 }}>
             <Typography variant="body2">{option.label}</Typography>
@@ -193,6 +263,7 @@ export function InspectionViewer({
         : options.length === 0 ? <Alert severity="info">No extracted data is available for this binary.</Alert>
         : loading ? <Stack alignItems="center" justifyContent="center" spacing={2} sx={{ minHeight: 260 }}><CircularProgress /><Typography color="text.secondary">Loading extracted data...</Typography></Stack>
           : error ? <Alert severity="warning">Extracted data unavailable.</Alert>
+            : activeSearch && searchableText ? <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", fontFamily: "\"Cascadia Code\", Consolas, monospace", fontSize: 13, lineHeight: 1.55 }}><SearchHighlightedText value={searchableText} matches={matches} current={currentMatch} /></Box>
             : selectedOption?.format === "native-json" ? <JsonView value={content} />
               : selectedOption?.format === "markdown" && selectedOption.renderMode === "rendered" ? <Box sx={{ "& h1, & h2, & h3": { color: "primary.main" }, "& p, & li": { lineHeight: 1.7 } }}><ReactMarkdown>{typeof content === "string" ? content : ""}</ReactMarkdown></Box>
                 : <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", fontFamily: "\"Cascadia Code\", Consolas, monospace", fontSize: 13, lineHeight: 1.55 }}>{typeof content === "string" ? content : ""}</Box>}

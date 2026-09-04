@@ -242,6 +242,7 @@ export function ReferenceSearchPage() {
       <Box sx={{ minWidth: 0, minHeight: { xs: 520, lg: 0 }, height: { xs: 620, lg: "100%" }, mt: { xs: 2, lg: 0 } }}>
         <SearchInspectionPane
           target={inspected}
+          initialSearchTerm={submitted?.query ?? ""}
           collapsed={inspectionCollapsed}
           canBack={inspectionIndex > 0}
           canForward={inspectionIndex >= 0 && inspectionIndex < inspectionHistory.length - 1}

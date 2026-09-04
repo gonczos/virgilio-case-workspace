@@ -53,7 +53,7 @@ function formatDate(value: string | null) {
 
 const ignoreViewedRepresentation = () => undefined;
 
-function BinaryInspection({ target }: { target: Extract<SearchInspectionTarget, { kind: "binary" }> }) {
+function BinaryInspection({ target, initialSearchTerm }: { target: Extract<SearchInspectionTarget, { kind: "binary" }>; initialSearchTerm: string }) {
   const [detail, setDetail] = useState<BinaryDetailResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,6 +95,7 @@ function BinaryInspection({ target }: { target: Extract<SearchInspectionTarget, 
       originalPdf={isPdfBinary(detail) ? { url: detail.binary.original_binary_url, preferNativeViewer: prefersNativePdfViewer(detail) } : undefined}
       height="100%"
       onViewedRepresentationChange={ignoreViewedRepresentation}
+      initialSearchTerm={initialSearchTerm}
     />
     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
       <Button component={RouterLink} to={`/binaries/${detail.binary.sha256}`} target="_blank" rel="noopener noreferrer" size="small">Open full document detail</Button>
@@ -170,8 +171,9 @@ function ReferenceInspection({ target, onNavigate }: {
   </Stack>;
 }
 
-export function SearchInspectionPane({ target, collapsed, canBack, canForward, onBack, onForward, onClose, onToggleCollapsed, onNavigate }: {
+export function SearchInspectionPane({ target, initialSearchTerm, collapsed, canBack, canForward, onBack, onForward, onClose, onToggleCollapsed, onNavigate }: {
   target: SearchInspectionTarget | null;
+  initialSearchTerm: string;
   collapsed: boolean;
   canBack: boolean;
   canForward: boolean;
@@ -198,7 +200,7 @@ export function SearchInspectionPane({ target, collapsed, canBack, canForward, o
     <Divider sx={{ mb: 2 }} />
     <Box sx={{ minHeight: 0, flex: 1, overflow: "auto" }}>
       {!target ? <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ minHeight: 320, textAlign: "center", px: 3 }}><Typography variant="h6">Select a result to inspect</Typography><Typography color="text.secondary">Open a document, reference, or procedural context without leaving the search.</Typography></Stack> : null}
-      {target?.kind === "binary" ? <BinaryInspection target={target} /> : null}
+      {target?.kind === "binary" ? <BinaryInspection target={target} initialSearchTerm={initialSearchTerm} /> : null}
       {target?.kind === "context" ? <ContextInspection target={target} onNavigate={onNavigate} /> : null}
       {target?.kind === "reference" ? <ReferenceInspection target={target} onNavigate={onNavigate} /> : null}
     </Box>

@@ -1169,6 +1169,23 @@ PDF as canonical evidence, followed by independently attributed evidence and
 interpretation representations. The pane also retains explicit new-tab actions
 for the complete binary-detail page and original file.
 
+The binary inspector includes a compact current-view search toolbar above the
+`Available views` selector. Its draft value initializes from the submitted main
+search query but remains independent: editing, submitting, navigating, or
+clearing it never changes the main search. Enter or the search icon applies a
+case-insensitive literal search to the currently selected textual or JSON view;
+the toolbar reports the current/total match count and provides previous, next,
+and clear icon controls. Switching views preserves the inspection query and
+reruns it against the newly loaded view. Searching a rendered-Markdown option
+selects that same processor's raw-Markdown view so exact matches can be
+highlighted without altering processor output.
+
+The original PDF remains an available canonical-evidence view, but current-view
+search is disabled there because the canvas viewer has no reliable searchable
+text layer. The UI must not imply PDF-page matching or navigation from an
+extracted-text match. Searching all representations, document context, or the
+original PDF is outside this checkpoint.
+
 Related contexts are inspect actions rather than expanding a result row. A
 missing-file context remains inspectable as metadata but receives no invented
 binary action. Recorded-reference discovery likewise renders in the right pane
