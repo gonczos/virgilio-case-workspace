@@ -31,7 +31,9 @@
     "search:pilot": "node ./app/reference-index-pilot.mjs search",
     "search:evaluate-full": "node ./app/evaluate-full-corpus-text-search.mjs",
     "test:reference-search": "node --test ./test/reference-search-store.test.mjs",
-    "reference:validate-expansion-text": "node ./app/validate-reference-expansion-text-fixture.mjs"
+    "reference:validate-expansion-text": "node ./app/validate-reference-expansion-text-fixture.mjs",
+    "reference:build-expansion-metadata-review": "node ./app/build-reviewed-reference-expansion-metadata-fixture.mjs",
+    "reference:validate-expansion-metadata": "node ./app/validate-reference-expansion-metadata-fixture.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"

@@ -1,0 +1,35 @@
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+const SOURCE = "docs/evaluation/reference-extraction-expansion-v1/metadata-selection.json";
+const FIXTURE = "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json";
+const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+const fail = (message) => { throw new Error(message); };
+const sourceText = await readFile(SOURCE, "utf8");
+const source = JSON.parse(sourceText);
+const fixtureText = await readFile(FIXTURE, "utf8");
+const fixture = JSON.parse(fixtureText);
+if (fixture.status !== "human_review_complete") fail("Fixture must record completed human review");
+if (fixture.human_review_gate_satisfied !== true) fail("Human-review gate must be satisfied");
+if (fixture.review_timestamp_status !== "captured" || !fixture.review_timestamp) fail("Human-review timestamp must be captured");
+if (fixture.selection_fixture_sha256 !== sha256(sourceText)) fail("Frozen selection hash mismatch");
+if (fixture.assertions.length !== 24) fail("Expected exactly 24 assertions");
+if (new Set(fixture.assertions.map((x) => x.assertion_id)).size !== 24) fail("Assertion IDs are not unique");
+if (new Set(fixture.assertions.map((x) => x.source_assertion.source_assertion_key)).size !== 24) fail("Source assertion keys are not unique");
+if (JSON.stringify(fixture.assertions.map((x) => x.source_assertion)) !== JSON.stringify(source.selected_candidates)) fail("Fixture does not preserve selected assertions exactly");
+for (const category of ["reused_binary", "missing_file", "ordinary_binary_linked"]) if (fixture.assertions.filter((x) => x.source_assertion.category === category).length !== 8) fail(`Expected 8 ${category} assertions`);
+for (const item of fixture.assertions) {
+  const sourceAssertion = item.source_assertion, review = item.simulated_review, humanReview = item.human_review;
+  if (review.reviewer_identity !== "simulated_case_reviewer_agent_1" || review.reviewer_kind !== "ai_simulation" || review.human_reviewer !== false) fail(`Invalid simulated provenance for ${item.assertion_id}`);
+  if (review.review_state !== "pending_human_review") fail(`Invalid review state for ${item.assertion_id}`);
+  if (review.target_resolution !== "unresolved" || review.relationship_resolution !== "unresolved") fail(`Unsupported resolution for ${item.assertion_id}`);
+  if (!review.remaining_verification.includes("human_approval")) fail(`Missing human approval requirement for ${item.assertion_id}`);
+  if (humanReview.reviewer_identity !== "case_support_reviewer_attila_test_1" || humanReview.reviewer_kind !== "human" || humanReview.human_reviewer !== true) fail(`Invalid human provenance for ${item.assertion_id}`);
+  if (humanReview.review_session_id !== "guided-metadata-review-attila-test-1" || humanReview.reviewed_at !== fixture.review_timestamp) fail(`Invalid human review session for ${item.assertion_id}`);
+  if (humanReview.review_state !== "human_reviewed" || humanReview.decision !== "confirmed_simulated_decision") fail(`Invalid human decision for ${item.assertion_id}`);
+  if (humanReview.confirmed_classification !== sourceAssertion.identifier_type) fail(`Human classification mismatch for ${item.assertion_id}`);
+  if (humanReview.target_resolution !== "unresolved" || humanReview.relationship_resolution !== "unresolved") fail(`Unsupported human resolution for ${item.assertion_id}`);
+  if (humanReview.remaining_verification.includes("human_approval")) fail(`Completed review still requires human approval for ${item.assertion_id}`);
+  if (sourceAssertion.category === "missing_file" && (sourceAssertion.binary_association_state !== "all_associated_files_missing" || sourceAssertion.available_file_count !== 0)) fail(`Invalid missing-file assertion ${item.assertion_id}`);
+}
+if (fixture.summary.pending_human_review !== 0 || fixture.summary.human_reviewed !== 24) fail("Invalid human-review summary");
+console.log(JSON.stringify({ valid: true, fixture_sha256: sha256(fixtureText), selection_sha256: sha256(sourceText), assertions: fixture.assertions.length, by_category: fixture.summary.by_category, pending_human_review: fixture.summary.pending_human_review, human_reviewed: fixture.summary.human_reviewed, human_review_gate_satisfied: fixture.human_review_gate_satisfied, database_writes: false, extractor_run: false }, null, 2));
