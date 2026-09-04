@@ -140,7 +140,7 @@ function SearchHighlightedText({ value, matches, current }: { value: string; mat
   let cursor = 0;
   matches.forEach((match, index) => {
     parts.push(value.slice(cursor, match.start));
-    parts.push(<Box component="mark" key={`${match.start}:${match.end}`} ref={index === current ? currentRef : undefined} sx={{ bgcolor: index === current ? "warning.main" : "warning.light", px: 0.15 }}>{value.slice(match.start, match.end)}</Box>);
+    parts.push(<Box component="mark" key={`${match.start}:${match.end}`} ref={index === current ? currentRef : undefined} sx={{ bgcolor: index === current ? "#ffeb3b" : "#fff59d", color: "inherit", px: 0.15 }}>{value.slice(match.start, match.end)}</Box>);
     cursor = match.end;
   });
   parts.push(value.slice(cursor));

@@ -55,7 +55,7 @@ function HighlightedText({ value }: { value: string }) {
   return <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.65 }}>{parts.map((part, index) => {
     if (part === "[[") { selected = true; return null; }
     if (part === "]]" ) { selected = false; return null; }
-    return selected ? <Box component="mark" key={index} sx={{ bgcolor: "warning.light" }}>{part}</Box> : <Fragment key={index}>{part}</Fragment>;
+    return selected ? <Box component="mark" key={index} sx={{ bgcolor: "#fff59d", color: "inherit" }}>{part}</Box> : <Fragment key={index}>{part}</Fragment>;
   })}</Typography>;
 }
 
