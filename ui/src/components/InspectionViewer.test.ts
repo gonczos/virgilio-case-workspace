@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { buildInspectionOptions, chooseInitialInspectionOption, findInspectionMatches, orderInspectionSearchOptions } from "./InspectionViewer";
+import { buildInspectionOptions, chooseInitialInspectionOption, findInspectionMatches, nextInspectionMatchCursor, orderInspectionSearchOptions } from "./InspectionViewer";
 import type { RepresentationListItem } from "../types/consultation";
 
 function representation(formats: string[]): RepresentationListItem {
@@ -87,4 +87,13 @@ test("cross-view search starts with the selected view and skips PDF and rendered
     interpretations[1].id,
     evidence[0].id,
   ]);
+});
+
+test("cross-view match navigation advances and wraps in both directions", () => {
+  expect(nextInspectionMatchCursor(1, 1, 3)).toBe(2);
+  expect(nextInspectionMatchCursor(2, 1, 3)).toBe(0);
+  expect(nextInspectionMatchCursor(0, -1, 3)).toBe(2);
+  expect(nextInspectionMatchCursor(-1, 1, 3)).toBe(0);
+  expect(nextInspectionMatchCursor(-1, -1, 3)).toBe(2);
+  expect(nextInspectionMatchCursor(0, 1, 0)).toBe(-1);
 });

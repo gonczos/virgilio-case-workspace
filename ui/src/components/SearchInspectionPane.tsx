@@ -69,8 +69,8 @@ function BinaryInspection({ target, initialSearchTerm, onCollapse }: { target: E
   if (error) return <Alert severity="error">Could not load document inspection: {error}</Alert>;
   if (!detail) return <Stack alignItems="center" spacing={1.5} sx={{ py: 6 }}><CircularProgress /><Typography color="text.secondary">Loading document…</Typography></Stack>;
 
-  return <Stack spacing={1.5} sx={{ minHeight: 0, flex: 1 }}>
-    <InspectionViewer
+  return <Stack spacing={1.5} sx={{ height: "100%", minHeight: 0, overflow: "hidden" }}>
+    <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}><InspectionViewer
       key={detail.binary.sha256}
       interpretations={detail.representations.items}
       evidence={detail.evidence?.items ?? []}
@@ -81,8 +81,8 @@ function BinaryInspection({ target, initialSearchTerm, onCollapse }: { target: E
       onViewedRepresentationChange={ignoreViewedRepresentation}
       initialSearchTerm={initialSearchTerm}
       onCloseInspection={onCollapse}
-    />
-    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+    /></Box>
+    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ flexShrink: 0 }}>
       <Button component={RouterLink} to={`/binaries/${detail.binary.sha256}`} target="_blank" rel="noopener noreferrer" size="small">Open full document detail</Button>
       <Button component="a" href={detail.binary.original_binary_url} target="_blank" rel="noreferrer" size="small">Open file in new tab</Button>
     </Stack>
@@ -171,7 +171,7 @@ export function SearchInspectionPane({ target, initialSearchTerm, collapsed, onT
 
   return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", p: 2, height: "100%", minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
     {target?.kind !== "binary" ? <Stack direction="row" alignItems="center" sx={{ mb: 1 }}><Typography variant="overline" fontWeight={800} sx={{ flexGrow: 1 }}>Inspect</Typography><Button size="small" aria-label="Collapse inspection" onClick={onToggleCollapsed}>×</Button></Stack> : null}
-    <Box sx={{ minHeight: 0, flex: 1, overflow: "auto" }}>
+    <Box sx={{ minHeight: 0, flex: 1, overflow: target?.kind === "binary" ? "hidden" : "auto" }}>
       {!target ? <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ minHeight: 320, textAlign: "center", px: 3 }}><Typography variant="h6">Select a result to inspect</Typography><Typography color="text.secondary">Open a document, reference, or procedural context without leaving the search.</Typography></Stack> : null}
       {target?.kind === "binary" ? <BinaryInspection target={target} initialSearchTerm={initialSearchTerm} onCollapse={onToggleCollapsed} /> : null}
       {target?.kind === "context" ? <ContextInspection target={target} onNavigate={onNavigate} /> : null}

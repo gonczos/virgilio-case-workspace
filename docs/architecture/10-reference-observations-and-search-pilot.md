@@ -1174,18 +1174,25 @@ and search row, followed by the smaller `Available views` selector. Its draft
 value initializes from the submitted main
 search query but remains independent: editing, submitting, navigating, or
 clearing it never changes the main search. Enter or the search icon applies a
-case-insensitive literal search beginning with the current readable view. When
-that view has no match, the inspector checks each subsequent independently
-attributed textual or JSON view in selector order and switches directly to the
-first view containing a match. It stops after one complete cycle. Previous and
-next controls remain with the search field, while the current/total count is
-labelled `in view` and appears beside `Available views` because it describes
-only the selected representation, not the cross-view traversal. The `x` action
+case-insensitive literal search beginning with the current readable view, then
+checks every subsequent independently attributed textual or JSON view in
+selector order for one complete cycle. The resulting navigation sequence keeps
+each view and processor separate. Previous and next traverse all matches in the
+current view and automatically switch `Available views` when crossing into the
+preceding or following view. The current/total count is labelled `in view` and
+appears beside the selector because it describes only that representation, not
+the complete cross-view sequence. The `x` action
 clears the inspection search and collapses the pane. Switching views preserves
-the query and evaluates it against the newly loaded view. A rendered-Markdown
-option uses that same processor's raw-Markdown view while a search is active so
+the query and evaluates it against the newly loaded view. The inspector title,
+search controls, view selector, and local match count remain fixed at the top of
+the pane. Scrolling is confined to the selected document, evidence, or
+interpretation content below those controls. A rendered-Markdown option uses
+that same processor's raw-Markdown view while a search is active so
 exact matches can be highlighted without altering processor output or
-mislabelling the displayed format.
+mislabelling the displayed format. `Available views` is a controlled display of
+the content currently visible: it initially identifies the original PDF when
+that view is shown and follows every automatic cross-view transition to the
+exact processor and format containing the selected match.
 
 The original PDF remains an available canonical-evidence view, but the canvas
 viewer has no reliable searchable text layer. Starting inspection search from

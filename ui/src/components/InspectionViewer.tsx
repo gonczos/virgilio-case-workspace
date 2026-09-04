@@ -104,6 +104,7 @@ function JsonView({ value }: { value: unknown }) {
 }
 
 export interface InspectionMatch { start: number; end: number }
+interface CrossViewMatch extends InspectionMatch { optionId: string; matchIndex: number }
 
 export function findInspectionMatches(value: string, query: string): InspectionMatch[] {
   const needle = query.trim();
@@ -123,6 +124,12 @@ export function orderInspectionSearchOptions(options: InspectionOption[], select
   const selectedIndex = searchable.findIndex((option) => option.id === selectedSearchId);
   const start = selectedIndex < 0 ? 0 : selectedIndex;
   return [...searchable.slice(start), ...searchable.slice(0, start)];
+}
+
+export function nextInspectionMatchCursor(current: number, step: number, count: number) {
+  if (count <= 0) return -1;
+  if (current < 0) return step < 0 ? count - 1 : 0;
+  return ((current + step) % count + count) % count;
 }
 
 function SearchHighlightedText({ value, matches, current }: { value: string; matches: InspectionMatch[]; current: number }) {
@@ -173,6 +180,8 @@ export function InspectionViewer({
   const [currentMatch, setCurrentMatch] = useState(-1);
   const [searchingViews, setSearchingViews] = useState(false);
   const [searchMiss, setSearchMiss] = useState(false);
+  const [crossViewMatches, setCrossViewMatches] = useState<CrossViewMatch[]>([]);
+  const [crossViewCursor, setCrossViewCursor] = useState(-1);
   const searchRequest = useRef(0);
   const selectedOption = options.find((option) => option.id === selectedId) ?? null;
   const searchableText = typeof content === "string" ? content : content === null ? "" : JSON.stringify(content, null, 2);
@@ -184,9 +193,14 @@ export function InspectionViewer({
     setActiveSearch("");
     setCurrentMatch(-1);
     setSearchMiss(false);
+    setCrossViewMatches([]);
+    setCrossViewCursor(-1);
   }, [initialSearchTerm]);
 
-  useEffect(() => { setCurrentMatch(matches.length ? 0 : -1); }, [activeSearch, searchableText]);
+  useEffect(() => {
+    const selectedMatch = crossViewMatches[crossViewCursor];
+    setCurrentMatch(selectedMatch?.optionId === selectedId ? selectedMatch.matchIndex : -1);
+  }, [crossViewCursor, crossViewMatches, matches.length, selectedId]);
 
   useEffect(() => {
     if (selectedOption) return;
@@ -218,14 +232,15 @@ export function InspectionViewer({
 
   function selectOption(option: InspectionOption | null) {
     if (!option) return;
+    let nextOption = option;
     if (activeSearch && option.format === "markdown" && option.renderMode === "rendered") {
       const rawOption = options.find((candidate) => candidate.representation?.representation_id === option.representation?.representation_id && candidate.format === "markdown" && candidate.renderMode === "raw");
       if (rawOption) {
-        setSelectedId(rawOption.id);
-        return;
+        nextOption = rawOption;
       }
     }
-    setSelectedId(option.id);
+    setSelectedId(nextOption.id);
+    if (activeSearch) setCrossViewCursor(crossViewMatches.findIndex((match) => match.optionId === nextOption.id));
   }
 
   async function runSearch() {
@@ -235,6 +250,7 @@ export function InspectionViewer({
     setSearchingViews(true);
     setSearchMiss(false);
     const ordered = orderInspectionSearchOptions(options, selectedOption);
+    const found: CrossViewMatch[] = [];
     for (const option of ordered) {
       if (!option.representation) continue;
       try {
@@ -242,36 +258,35 @@ export function InspectionViewer({
           ? searchableText
           : await getRepresentationContent(option.representation.representation_id, option.format).then((response) => typeof response.body === "string" ? response.body : JSON.stringify(response.body, null, 2));
         if (searchRequest.current !== request) return;
-        if (findInspectionMatches(result, value).length) {
-          setSelectedId(option.id);
-          setActiveSearch(value);
-          setSearchMiss(false);
-          setSearchingViews(false);
-          return;
-        }
+        findInspectionMatches(result, value).forEach((match, matchIndex) => found.push({ ...match, optionId: option.id, matchIndex }));
       } catch {
         // An unavailable view does not prevent searching the remaining attributed views.
       }
     }
     setActiveSearch(value);
-    setSearchMiss(true);
+    setCrossViewMatches(found);
+    setCrossViewCursor(found.length ? 0 : -1);
+    if (found.length) setSelectedId(found[0].optionId);
+    setSearchMiss(found.length === 0);
     setSearchingViews(false);
   }
 
   function moveMatch(step: number) {
-    if (!matches.length) return;
-    setCurrentMatch((value) => (value + step + matches.length) % matches.length);
+    if (!crossViewMatches.length) return;
+    const next = nextInspectionMatchCursor(crossViewCursor, step, crossViewMatches.length);
+    setCrossViewCursor(next);
+    setSelectedId(crossViewMatches[next].optionId);
   }
 
   return <Paper elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", height, minHeight: 520, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-    <Box sx={{ px: 2, pt: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)" }}>
+    <Box sx={{ px: 2, pt: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)", flexShrink: 0 }}>
       <Typography variant="overline" fontWeight={800}>Inspect</Typography>
       <Stack direction="row" spacing={0.25} alignItems="center">
         <TextField value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void runSearch(); } }} size="small" fullWidth placeholder="Find across available views" />
         <Tooltip title="Search available extracted views"><span><IconButton size="small" aria-label="Search available inspection views" disabled={!canSearch || !searchDraft.trim() || searchingViews} onClick={() => void runSearch()} sx={{ fontSize: "0.9rem" }}>{searchingViews ? <CircularProgress size={16} /> : "🔍"}</IconButton></span></Tooltip>
-        <Tooltip title="Previous match"><span><IconButton size="small" aria-label="Previous inspection match" disabled={!matches.length} onClick={() => moveMatch(-1)}>↑</IconButton></span></Tooltip>
-        <Tooltip title="Next match"><span><IconButton size="small" aria-label="Next inspection match" disabled={!matches.length} onClick={() => moveMatch(1)}>↓</IconButton></span></Tooltip>
-        <Tooltip title="Clear and collapse inspection"><IconButton size="small" aria-label="Clear and collapse inspection" onClick={() => { ++searchRequest.current; setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); setSearchMiss(false); onCloseInspection?.(); }}>×</IconButton></Tooltip>
+        <Tooltip title="Previous match across views"><span><IconButton size="small" aria-label="Previous inspection match across views" disabled={!crossViewMatches.length} onClick={() => moveMatch(-1)}>↑</IconButton></span></Tooltip>
+        <Tooltip title="Next match across views"><span><IconButton size="small" aria-label="Next inspection match across views" disabled={!crossViewMatches.length} onClick={() => moveMatch(1)}>↓</IconButton></span></Tooltip>
+        <Tooltip title="Clear and collapse inspection"><IconButton size="small" aria-label="Clear and collapse inspection" onClick={() => { ++searchRequest.current; setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); setCrossViewMatches([]); setCrossViewCursor(-1); setSearchMiss(false); onCloseInspection?.(); }}>×</IconButton></Tooltip>
       </Stack>
       {searchMiss ? <Typography variant="caption" color="text.secondary">No match in the available readable views.</Typography> : null}
       <Stack direction="row" spacing={1} alignItems="center">
@@ -281,7 +296,7 @@ export function InspectionViewer({
         openOnFocus
         disableClearable
         options={options}
-        value={selectedOption ?? undefined}
+        value={selectedOption}
         onChange={(_event, option) => selectOption(option)}
         filterOptions={filterOptions}
         groupBy={(option) => option.category === "original" ? "Original" : option.category === "evidence" ? "Evidence" : "Interpretations"}
