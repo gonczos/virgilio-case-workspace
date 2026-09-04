@@ -11,10 +11,10 @@
   "evaluation_time_status": "omitted_for_deterministic_artifact",
   "inputs": {
     "manifest_commit": null,
-    "manifest_sha256": "3c49b7183fe9ab3cc065481e6eeb399b93a9b0b5e0208a924105c6a9c3529b84",
+    "manifest_sha256": "bf655539f479916bd47e2de0aa3711df261b5fd74e4f66644a30812d94fe36fb",
     "fixture_path": "metadata-reviewed-fixture-v2.json",
-    "fixture_sha256": "04d201e219783decc2607befb28b57ed794ff14205df37100a4b26b21d5c5b0b",
-    "expected_fixture_sha256": "04d201e219783decc2607befb28b57ed794ff14205df37100a4b26b21d5c5b0b",
+    "fixture_sha256": "b434bb2745e1824b020d3b59a700771927a660f01ecb6a536cd81d3026f65136",
+    "expected_fixture_sha256": "b434bb2745e1824b020d3b59a700771927a660f01ecb6a536cd81d3026f65136",
     "database_access": "read_only_queries",
     "lookup_contract": "lookupRecordedReferences(scope=full,lifecycle=include_history,limit=100,offset=0)"
   },
@@ -37,7 +37,9 @@
       }
     },
     "normalization_collisions_in_sample": 0,
-    "acceptance_gate_passed": true
+    "data_checks_passed": true,
+    "human_confirmation_gate_passed": false,
+    "acceptance_gate_passed": false
   },
   "metrics": {
     "one_current_row_for_source_assertion": {

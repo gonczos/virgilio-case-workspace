@@ -169,7 +169,9 @@ async function evaluate(client, fixture, manifest) {
         passed: details.filter((item) => item.category === category && item.passed).length,
       }])),
       normalization_collisions_in_sample: collisions.length,
-      acceptance_gate_passed: details.every((item) => item.passed) && collisions.length === 0,
+      data_checks_passed: details.every((item) => item.passed) && collisions.length === 0,
+      human_confirmation_gate_passed: fixture.human_review_gate_satisfied === true,
+      acceptance_gate_passed: details.every((item) => item.passed) && collisions.length === 0 && fixture.human_review_gate_satisfied === true,
     },
     metrics,
     normalization_collisions: collisions.map(([normalized_value, entries]) => ({

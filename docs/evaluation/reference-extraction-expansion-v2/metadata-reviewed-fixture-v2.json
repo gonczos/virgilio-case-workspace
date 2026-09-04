@@ -2,7 +2,7 @@
   "schema_version": 2,
   "fixture_id": "reference-extraction-expansion-metadata-v2",
   "fixture_kind": "human_reviewed_metadata_observation_fixture",
-  "status": "human_review_complete_date_corrected",
+  "status": "date_corrected_pending_human_confirmation",
   "protocol_version": "reference-expansion-v2",
   "selection_fixture": "docs/evaluation/reference-extraction-expansion-v2/metadata-selection.json",
   "selection_fixture_sha256": "c6894ec919e2c6c1b2bd66678aa07880628811c40883cc5553b51593b7295f06",
@@ -34,7 +34,7 @@
       }
     ]
   },
-  "human_review_gate_satisfied": true,
+  "human_review_gate_satisfied": false,
   "summary": {
     "assertions": 24,
     "by_category": {
@@ -43,6 +43,7 @@
       "ordinary_binary_linked": 8
     },
     "date_corrections": 3,
+    "pending_human_confirmation": 24,
     "resolved_targets": 0,
     "resolved_relationships": 0
   },
@@ -150,12 +151,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -242,12 +243,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -348,12 +349,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -440,12 +441,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -539,12 +540,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -666,12 +667,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -765,12 +766,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -857,12 +858,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -949,12 +950,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1048,12 +1049,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1148,12 +1149,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1247,12 +1248,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1339,12 +1340,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": {
           "source_assertion_key": "9152892e88c0af0c7197d3ad28f7c5f95253cbf82037229e3ad651125679f66e",
           "raw_value": "17136443",
@@ -1437,12 +1438,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1536,12 +1537,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1628,12 +1629,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1720,12 +1721,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -1812,12 +1813,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": {
           "source_assertion_key": "b9c6afbe0688604531c4d5305d2c4f9952c095131da0f5c5878068cb385d07da",
           "raw_value": "121345333",
@@ -1910,12 +1911,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -2002,12 +2003,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -2102,12 +2103,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -2202,12 +2203,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": {
           "source_assertion_key": "deb58459e60267468f4002873260b96451ed70c009514328062ffad718ca0f72",
           "raw_value": "125804397",
@@ -2300,12 +2301,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -2406,12 +2407,12 @@
         }
       },
       "correction_confirmation": {
-        "review_state": "human_confirmed_date_only_carry_forward",
-        "reviewer_identity": "case_support_reviewer_attila_test_1",
-        "reviewer_kind": "human",
-        "human_reviewer": true,
+        "review_state": "pending_human_confirmation",
+        "reviewer_identity": null,
+        "reviewer_kind": null,
+        "human_reviewer": false,
         "confirmed_at": null,
-        "confirmed_at_status": "not_captured",
+        "confirmed_at_status": "not_confirmed",
         "confirmed_change": null,
         "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
       }
@@ -2420,7 +2421,7 @@
   "limitations": [
     "Version 1 remains immutable.",
     "Version 1 AI simulation and human decisions are retained as historical review evidence.",
-    "The correction confirmation carries those decisions forward after confirming that only three source calendar dates changed.",
+    "The date-only comparison is technically verified, but carrying version-1 review decisions onto version 2 remains pending separate human confirmation.",
     "No target or relationship was resolved."
   ]
 }

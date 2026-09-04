@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "manifest_id": "reference-extraction-expansion-v2",
-  "status": "frozen_reviewed_fixtures_ready_for_separate_evaluation",
+  "status": "date_corrected_pending_human_confirmation",
   "protocol_version": "reference-expansion-v2",
   "lineage": {
     "supersedes_manifest": "docs/evaluation/reference-extraction-expansion-v1/manifest.json",
@@ -20,7 +20,7 @@
     },
     "metadata_reviewed_fixture": {
       "path": "metadata-reviewed-fixture-v2.json",
-      "sha256": "04d201e219783decc2607befb28b57ed794ff14205df37100a4b26b21d5c5b0b"
+      "sha256": "b434bb2745e1824b020d3b59a700771927a660f01ecb6a536cd81d3026f65136"
     }
   },
   "correction_confirmation": {
@@ -54,7 +54,7 @@
       "state": "unchanged_v1_result"
     },
     "metadata_preservation_retrieval": {
-      "state": "completed_acceptance_gate_passed"
+      "state": "technical_checks_passed_human_gate_pending"
     }
   },
   "limitations": [
