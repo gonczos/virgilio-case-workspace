@@ -24,6 +24,36 @@ export interface ReferenceGraphResponse {
   coverage: { status: string }; limitations: string[];
 }
 
+export interface ProceduralFlowLane {
+  id: string; case_file_id: number; process_number: string;
+  parent_case_file_id: number | null; is_base_case: boolean;
+}
+export interface ProceduralFlowBucket {
+  id: string; kind: "bucket"; bucket_id: number; case_file_id: number;
+  process_number: string; reference_number: string | null; occurrence_date: string | null;
+  designation: string | null; presenter: string | null; source_document_count: number;
+  available_binary_count: number; file_availability: "available" | "mixed" | "missing";
+  expandable: boolean;
+}
+export interface ProceduralFlowResponse {
+  lanes: ProceduralFlowLane[]; buckets: ProceduralFlowBucket[];
+  coverage: { status: string; bucket_limit: number; date_semantics: string };
+  limitations: string[];
+}
+export interface ProceduralFlowGraphNode {
+  id: string; kind: string; label: string; sha256?: string;
+  process_number?: string; occurrence_date?: string | null;
+  open_action?: { href: string }; [key: string]: unknown;
+}
+export interface ProceduralFlowGraphEdge {
+  id: string; source: string; target: string; kind: string; basis: "source_recorded";
+}
+export interface BucketExpansionResponse {
+  focus: { kind: "bucket"; bucket_id: number };
+  nodes: ProceduralFlowGraphNode[]; edges: ProceduralFlowGraphEdge[];
+  truncated: boolean; limitations: string[];
+}
+
 async function expectJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let payload: unknown = null;
@@ -122,6 +152,16 @@ export async function lookupRecordedReferences(
 export async function getReferenceGraph(value: string): Promise<ReferenceGraphResponse> {
   const response = await fetch(`/api/consultation/graphs/references/${encodeURIComponent(value)}?scope=pilot&lifecycle=current`);
   return expectJson<ReferenceGraphResponse>(response);
+}
+
+export async function getProceduralFlow(): Promise<ProceduralFlowResponse> {
+  return expectJson<ProceduralFlowResponse>(await fetch("/api/consultation/graphs/procedural-flow"));
+}
+
+export async function getProceduralBucketExpansion(bucketId: number): Promise<BucketExpansionResponse> {
+  return expectJson<BucketExpansionResponse>(await fetch(
+    `/api/consultation/graphs/procedural-flow/buckets/${bucketId}`,
+  ));
 }
 
 export async function searchText(

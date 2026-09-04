@@ -18,6 +18,7 @@ import { BinaryDetailPage } from "./pages/BinaryDetailPage";
 import { ExtractionCoveragePage } from "./pages/ExtractionCoveragePage";
 import { ReferenceSearchPage } from "./pages/ReferenceSearchPage";
 import { ReferenceGraphPage } from "./pages/ReferenceGraphPage";
+import { ProceduralFlowPage } from "./pages/ProceduralFlowPage";
 
 const theme = createTheme({
   palette: {
@@ -108,6 +109,9 @@ function App() {
               <MuiLink component={Link} to="/reference-graph/105398957" underline="hover" color="text.secondary">
                 Graph spike
               </MuiLink>
+              <MuiLink component={Link} to="/procedural-flow" underline="hover" color="text.secondary">
+                Procedural flow
+              </MuiLink>
               <MuiLink
                 href="http://localhost:8055"
                 target="_blank"
@@ -127,6 +131,7 @@ function App() {
               <Route path="/reports/extraction-coverage" element={<ExtractionCoveragePage />} />
               <Route path="/reference-search" element={<ReferenceSearchPage />} />
               <Route path="/reference-graph/:value" element={<ReferenceGraphPage />} />
+              <Route path="/procedural-flow" element={<ProceduralFlowPage />} />
             </Routes>
           </Container>
         </Box>

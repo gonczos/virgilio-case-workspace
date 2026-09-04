@@ -30,6 +30,7 @@ import {
   lookupRecordedReferences,
 } from "./reference-observation-api.mjs";
 import { getReferenceNeighbourhoodGraph, parseReferenceGraphOptions } from "./reference-graph-api.mjs";
+import { getBucketExpansion, getProceduralFlow } from "./procedural-flow-api.mjs";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -197,6 +198,25 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
           scope,
           sort,
         }));
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/consultation/graphs/procedural-flow") {
+        if ([...requestUrl.searchParams.keys()].length > 0) {
+          sendContractError(response, "UNKNOWN_QUERY_PARAMETER", "procedural flow does not accept query parameters");
+          return;
+        }
+        sendJson(response, 200, await getProceduralFlow(client));
+        return;
+      }
+
+      const bucketGraphMatch = requestUrl.pathname.match(/^\/api\/consultation\/graphs\/procedural-flow\/buckets\/([0-9]+)$/u);
+      if (bucketGraphMatch) {
+        if ([...requestUrl.searchParams.keys()].length > 0) {
+          sendContractError(response, "UNKNOWN_QUERY_PARAMETER", "bucket expansion does not accept query parameters");
+          return;
+        }
+        sendJson(response, 200, await getBucketExpansion(client, Number(bucketGraphMatch[1])));
         return;
       }
 
