@@ -107,9 +107,10 @@ function compactSearchItem(row) {
   };
 }
 
-function compactBinaryDetail(detail) {
+export function compactBinaryDetail(detail) {
+  const { original_binary_url: _localOnlyUrl, ...binary } = detail.binary;
   return {
-    binary: detail.binary,
+    binary,
     context: detail.context,
     representations: detail.representations,
     evidence: detail.evidence,
@@ -118,6 +119,7 @@ function compactBinaryDetail(detail) {
     provenance: detail.provenance,
     semantics: {
       original_binary_is_canonical: true,
+      original_binary_content_available_through_this_mcp: false,
       representations_are_processor_attributed_derivations: true,
       representations_are_not_merged: true,
     },

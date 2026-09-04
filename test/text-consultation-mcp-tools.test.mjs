@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createTextConsultationMcpTools, TEXT_CONSULTATION_MCP_TOOLS } from "../app/text-consultation-mcp-tools.mjs";
+import { compactBinaryDetail, createTextConsultationMcpTools, TEXT_CONSULTATION_MCP_TOOLS } from "../app/text-consultation-mcp-tools.mjs";
 
 const sha256 = "a".repeat(64);
 
@@ -9,6 +9,16 @@ test("publishes only the three bounded read-only text-consultation tools", () =>
   assert.deepEqual(TEXT_CONSULTATION_MCP_TOOLS.map((tool) => tool.name), [
     "search_document_text", "get_binary_details", "get_representation_content",
   ]);
+});
+
+test("binary details omit the local download URL and declare content unavailable through MCP", () => {
+  const result = compactBinaryDetail({
+    binary: { sha256, original_binary_url: `/binary/${sha256}`, mime_type: "application/pdf" },
+    context: {}, representations: {}, evidence: {}, processing: { summary: {} }, attention: {}, provenance: {},
+  });
+  assert.equal("original_binary_url" in result.binary, false);
+  assert.equal(result.binary.sha256, sha256);
+  assert.equal(result.semantics.original_binary_content_available_through_this_mcp, false);
 });
 
 test("text search defaults to full scope and removes reference-observation payloads", async () => {

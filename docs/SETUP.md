@@ -339,7 +339,9 @@ the local consultation API and binary gateway.
 The optional local stdio MCP exposes only existing text consultation through
 `search_document_text`, `get_binary_details`, and
 `get_representation_content`. It does not expose recorded-reference lookup,
-graphs, reviews, ingestion, or writes.
+graphs, reviews, ingestion, writes, or original-binary downloads. Binary detail
+retains the canonical SHA-256 identity but omits the consultation UI's local
+download URL.
 
 Configure an MCP client to run this command from the repository root:
 

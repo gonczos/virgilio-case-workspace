@@ -46,6 +46,12 @@ request bodies, and is intended to sit behind private Tailscale Serve HTTPS.
 This transport does not broaden the three-tool contract or make the MVP a
 public service. PostgreSQL remains private and is never exposed directly.
 
+The MCP binary-detail projection deliberately omits the consultation UI's local
+`original_binary_url`. Round 1 does not deliver or download original binaries;
+it reports that original content is unavailable through this MCP while retaining
+the SHA-256 canonical-evidence identity. The underlying consultation API and
+local file gateway remain unchanged.
+
 ## Round 2 is deferred
 
 Consolidated document-record queries, APIs, reference lookup, graphs, and any expansion beyond the original three tools belong to a separately planned Round 2. None is designed or partially implemented here.
