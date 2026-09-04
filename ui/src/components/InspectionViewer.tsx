@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   Alert,
@@ -16,12 +16,14 @@ import { getRepresentationContent } from "../api/consultation";
 import type { RepresentationListItem } from "../types/consultation";
 import { getRepresentationLabel, sameStableId } from "../utils/consultation";
 
-export type InspectionCategory = "interpretation" | "evidence";
+const PdfViewer = lazy(() => import("./PdfViewer").then((module) => ({ default: module.PdfViewer })));
+
+export type InspectionCategory = "original" | "interpretation" | "evidence";
 
 export interface InspectionOption {
   id: string;
   category: InspectionCategory;
-  representation: RepresentationListItem;
+  representation: RepresentationListItem | null;
   format: string;
   renderMode: "rendered" | "raw";
   label: string;
@@ -35,6 +37,7 @@ interface InspectionViewerProps {
   initialCategory?: InspectionCategory;
   height: string | Record<string, string>;
   onViewedRepresentationChange: (representation: RepresentationListItem | null) => void;
+  originalPdf?: { url: string; preferNativeViewer?: boolean };
 }
 
 const filterOptions = createFilterOptions<InspectionOption>({
@@ -74,13 +77,15 @@ export function chooseInitialInspectionOption(
 ) {
   const categoryOptions = options.filter((option) => option.category === initialCategory);
   return (
-    initialCategory === "evidence"
+    initialCategory === "original"
+      ? categoryOptions[0]
+      : initialCategory === "evidence"
       ? categoryOptions.find((option) => (
-          option.representation.processor_key === "pdf_literal_text"
+          option.representation?.processor_key === "pdf_literal_text"
           && option.format === "text"
         ))
       : categoryOptions.find((option) => (
-          sameStableId(option.representation.representation_id, effectiveRepresentationId)
+          sameStableId(option.representation?.representation_id, effectiveRepresentationId)
           && option.format === "markdown"
           && option.renderMode === "rendered"
         ))
@@ -100,11 +105,21 @@ export function InspectionViewer({
   initialCategory = "evidence",
   height,
   onViewedRepresentationChange,
+  originalPdf,
 }: InspectionViewerProps) {
   const options = useMemo(() => [
+    ...(originalPdf ? [{
+      id: "original:pdf",
+      category: "original" as const,
+      representation: null,
+      format: "pdf",
+      renderMode: "raw" as const,
+      label: "Original PDF — canonical evidence",
+      searchText: "original PDF canonical evidence",
+    }] : []),
     ...buildInspectionOptions("evidence", evidence),
     ...buildInspectionOptions("interpretation", interpretations),
-  ], [evidence, interpretations]);
+  ], [evidence, interpretations, originalPdf]);
   const [selectedId, setSelectedId] = useState("");
   const [content, setContent] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
@@ -122,11 +137,12 @@ export function InspectionViewer({
   }, [onViewedRepresentationChange, selectedOption]);
 
   useEffect(() => {
-    if (!selectedOption) {
+    if (!selectedOption || selectedOption.category === "original") {
       setContent(null);
       setError(null);
       return;
     }
+    if (!selectedOption.representation) return;
     let active = true;
     setLoading(true);
     setError(null);
@@ -154,26 +170,27 @@ export function InspectionViewer({
         value={selectedOption ?? undefined}
         onChange={(_event, option) => selectOption(option)}
         filterOptions={filterOptions}
-        groupBy={(option) => option.category === "evidence" ? "Evidence" : "Interpretations"}
+        groupBy={(option) => option.category === "original" ? "Original" : option.category === "evidence" ? "Evidence" : "Interpretations"}
         getOptionLabel={(option) => option.label}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         renderInput={(params) => <TextField {...params} label="Inspect extracted data" placeholder="Type to filter" />}
         renderOption={(props, option) => <li {...props} key={option.id}>
           <Stack spacing={0.25} sx={{ py: 0.5 }}>
             <Typography variant="body2">{option.label}</Typography>
-            <Typography variant="caption" color="text.secondary">{option.representation.processor_version}</Typography>
+            {option.representation ? <Typography variant="caption" color="text.secondary">{option.representation.processor_version}</Typography> : null}
           </Stack>
         </li>}
         sx={{ my: 1.5 }}
       />
-      {selectedOption ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pb: 1.5 }}>
+      {selectedOption?.representation ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pb: 1.5 }}>
         <Typography variant="caption" color="text.secondary">
           Created {new Date(selectedOption.representation.created_at).toLocaleString()}
         </Typography>
       </Stack> : null}
     </Box>
     <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2, bgcolor: "#fffaf2" }}>
-      {options.length === 0 ? <Alert severity="info">No extracted data is available for this binary.</Alert>
+      {selectedOption?.category === "original" && originalPdf ? <Box sx={{ height: "100%", "& > .MuiPaper-root": { height: "100%", minHeight: 0, border: 0 } }}><Suspense fallback={<CircularProgress />}><PdfViewer url={originalPdf.url} preferNativeViewer={originalPdf.preferNativeViewer} /></Suspense></Box>
+        : options.length === 0 ? <Alert severity="info">No extracted data is available for this binary.</Alert>
         : loading ? <Stack alignItems="center" justifyContent="center" spacing={2} sx={{ minHeight: 260 }}><CircularProgress /><Typography color="text.secondary">Loading extracted data...</Typography></Stack>
           : error ? <Alert severity="warning">Extracted data unavailable.</Alert>
             : selectedOption?.format === "native-json" ? <JsonView value={content} />

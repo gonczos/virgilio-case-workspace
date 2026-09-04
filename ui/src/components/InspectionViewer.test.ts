@@ -48,5 +48,20 @@ test("evidence is ordered first and PDF literal text is the default evidence sou
   const options = [...evidence, ...interpretations];
 
   expect(options.map((option) => option.category)).toEqual(["evidence", "evidence", "interpretation", "interpretation"]);
-  expect(chooseInitialInspectionOption(options, "evidence", null)?.representation.processor_key).toBe("pdf_literal_text");
+  expect(chooseInitialInspectionOption(options, "evidence", null)?.representation?.processor_key).toBe("pdf_literal_text");
+});
+
+test("original PDF can be selected ahead of derived representations", () => {
+  const original = {
+    id: "original:pdf",
+    category: "original" as const,
+    representation: null,
+    format: "pdf",
+    renderMode: "raw" as const,
+    label: "Original PDF — canonical evidence",
+    searchText: "original PDF canonical evidence",
+  };
+  const options = [original, ...buildInspectionOptions("evidence", [processorRepresentation("pdf_literal_text", 2, ["text"])])];
+
+  expect(chooseInitialInspectionOption(options, "original", null)).toBe(original);
 });
