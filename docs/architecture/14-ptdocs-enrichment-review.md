@@ -4,6 +4,21 @@ Status: implemented experimental review area, 4 September 2026. This extends the
 current PostgreSQL setup with staging only; it does not change canonical evidence,
 representation selection, court-record semantics, or application consultation.
 
+The full-set package pass is now implemented as a separate review operation. It
+screens every canonical binary's selected text, retains independent literal/OCR
+observations, verifies every supplied file's actual SHA, and reconstructs Citius
+manifest membership with exact source segment offsets. It also records combined
+PDF cover references and internal indexes. Legacy `Anexo nº 1` can be the main
+pleading, so internal index positions are not converted into modern `Doc. 1`
+annex positions or synthetic binaries.
+
+Own filing references and alleged later parent filings remain separate. A matching
+parent filename alone does not verify a row's membership. A missing file's manifest
+slot is distinct from the identity of its fileless court occurrence. Full-set
+screening is not full-page semantic or legal review; nondetection in incomplete
+text remains a coverage limitation. Source category and intrinsic document type
+remain separate, including manifest `Outro` versus a substantive `Promoção`.
+
 `ptdocs_review` holds attributed external observations from Virgílio's workbook
 exports. A SHA match establishes byte identity, not correctness of enrichment.
 Occurrence, binary, submission package, embedded act, event, and thread are distinct
