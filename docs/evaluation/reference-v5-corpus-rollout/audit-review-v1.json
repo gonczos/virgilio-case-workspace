@@ -28,6 +28,29 @@
         "db83695501d8bdf93bd38b1d892aae0151458aacfb693fca64bfacdfd871f99c",
         "12a42b239c50ad9763d8deeb3bd0434bbe80ed77f48f11ac73f0ebc1edbf28f1"
       ]
+    },
+    {
+      "session_id": "corpus-v5-guided-human-review-batch-002",
+      "recorded_at": "2026-09-04",
+      "method": "guided_review_of_direct_extracted_context",
+      "attribution": "The user explicitly confirmed all fifteen proposed decisions in the active conversation.",
+      "observation_keys": [
+        "bb5a28e8ad8e505547e795c911d676353749a64a3e6ba7a69cb839aa5540aa31",
+        "ef829fdc3a56058ffdc1b51216b8a2a92f953d0d21b340c672ed8e4ec13689b4",
+        "41bfbaf1fb5b984ce8df1aab90d3013db87dac9591d35496f1d225c8c6257ccc",
+        "662c9f0bf09e2f7865972775b687628a69fd929dceccc2460a18f982aa25b838",
+        "58c22916ea86995d5c5772e21fe40ca2a1b907dbbc686df0accb69a2a10a3ae2",
+        "aa748c2f28e5d0d3943c71977afca28572188b1ac7b32e73728b79fa60a02241",
+        "150b25bf4802a24e9656b72fa30aedaf82e485e69b1e84d6316d8d75fa78cfd2",
+        "69c5a7d2c1bbb46f3ae4b2bf0d95ec7022dadd6ed63fd3b2b2b3782c5e0ecdd7",
+        "8fa75e08d1ffa925c1f391ca01cf0141a2fe459932c666e131e001585e5eaad3",
+        "84d013755a10b5591c723d7576a7a331a1d24b83f380c4be45c2eb6a40ea3c89",
+        "e8f4bed973e5d5ff88c84fe8d42c53497578e0ca1d6c93437800d98acaaa02b3",
+        "ef2b1daef09fb59c3f99d6066c77b25de2a3b5f7ee63c2b3db9c2c416925726f",
+        "2d8443cc7df99aa16c4dbb8732081a6dca186870f7ef0f7c7786edd01ae7d783",
+        "d6b6705297a198c1bfd8b5eacda2c26f0d6a34a015b5046ed1f17057be076011",
+        "5f3fb45e1af131a0ecb7ef55b0fefc2c91217f5a5433ef1ab2705fbe96d565be"
+      ]
     }
   ],
   "prediction_reviews": [
@@ -118,16 +141,136 @@
       "target_resolution": "unresolved",
       "relationship_resolution": "unresolved",
       "remaining_verification": []
+    },
+    {
+      "observation_key": "bb5a28e8ad8e505547e795c911d676353749a64a3e6ba7a69cb839aa5540aa31",
+      "decision": "confirmed",
+      "rationale": "126177986 is explicitly introduced as a referência citius.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "ef829fdc3a56058ffdc1b51216b8a2a92f953d0d21b340c672ed8e4ec13689b4",
+      "decision": "confirmed",
+      "rationale": "fls 1187 is a clear physical-folio endpoint.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "41bfbaf1fb5b984ce8df1aab90d3013db87dac9591d35496f1d225c8c6257ccc",
+      "decision": "confirmed",
+      "rationale": "12454647 is explicitly introduced as a referência citius.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "662c9f0bf09e2f7865972775b687628a69fd929dceccc2460a18f982aa25b838",
+      "decision": "confirmed",
+      "rationale": "Doc nº3 is an explicit local attachment reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "58c22916ea86995d5c5772e21fe40ca2a1b907dbbc686df0accb69a2a10a3ae2",
+      "decision": "confirmed",
+      "rationale": "fls1 is accepted as a folio reference despite the missing spacing.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "aa748c2f28e5d0d3943c71977afca28572188b1ac7b32e73728b79fa60a02241",
+      "decision": "confirmed",
+      "rationale": "13679228 is explicitly introduced as a referência citius.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "150b25bf4802a24e9656b72fa30aedaf82e485e69b1e84d6316d8d75fa78cfd2",
+      "decision": "rejected",
+      "rationale": "In referência deste documento, deste is ordinary language and not an identifier.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "69c5a7d2c1bbb46f3ae4b2bf0d95ec7022dadd6ed63fd3b2b2b3782c5e0ecdd7",
+      "decision": "confirmed",
+      "rationale": "Doc nº15 is an explicit local attachment reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "8fa75e08d1ffa925c1f391ca01cf0141a2fe459932c666e131e001585e5eaad3",
+      "decision": "confirmed",
+      "rationale": "DOC Nº3 is an explicit local attachment reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "84d013755a10b5591c723d7576a7a331a1d24b83f380c4be45c2eb6a40ea3c89",
+      "decision": "confirmed",
+      "rationale": "Anexo nº 16 is an explicit annex reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "e8f4bed973e5d5ff88c84fe8d42c53497578e0ca1d6c93437800d98acaaa02b3",
+      "decision": "confirmed",
+      "rationale": "DOC Nº 5 is an explicit attachment reference despite the flattened context.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "ef2b1daef09fb59c3f99d6066c77b25de2a3b5f7ee63c2b3db9c2c416925726f",
+      "decision": "confirmed",
+      "rationale": "Doc nº23 is an explicit local attachment reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "2d8443cc7df99aa16c4dbb8732081a6dca186870f7ef0f7c7786edd01ae7d783",
+      "decision": "rejected",
+      "rationale": "In Refº Citius: 8656497, Citius identifies the namespace; the numeric value is the reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "d6b6705297a198c1bfd8b5eacda2c26f0d6a34a015b5046ed1f17057be076011",
+      "decision": "confirmed",
+      "rationale": "17764195 is explicitly presented as a court-document reference.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "5f3fb45e1af131a0ecb7ef55b0fefc2c91217f5a5433ef1ab2705fbe96d565be",
+      "decision": "confirmed",
+      "rationale": "fls. 513 is a clear physical-folio endpoint.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
     }
   ],
   "summary": {
     "prediction_sample_total": 180,
-    "prediction_reviews_recorded": 10,
-    "confirmed": 8,
-    "rejected": 1,
+    "prediction_reviews_recorded": 25,
+    "confirmed": 21,
+    "rejected": 3,
     "ambiguous": 0,
     "needs_original_pdf_verification": 1,
-    "prediction_reviews_pending": 170,
+    "prediction_reviews_pending": 155,
     "no_prediction_controls_total": 30,
     "no_prediction_controls_reviewed": 0,
     "no_prediction_controls_pending": 30,
