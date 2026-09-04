@@ -29,6 +29,7 @@ import {
   REFERENCE_LOOKUP_MAX_OFFSET,
   lookupRecordedReferences,
 } from "./reference-observation-api.mjs";
+import { getReferenceNeighbourhoodGraph, parseReferenceGraphOptions } from "./reference-graph-api.mjs";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -196,6 +197,27 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
           scope,
           sort,
         }));
+        return;
+      }
+
+      const graphMatch = requestUrl.pathname.match(/^\/api\/consultation\/graphs\/references\/(.+)$/u);
+      if (graphMatch) {
+        const parsed = parseReferenceGraphOptions(requestUrl.searchParams);
+        if (parsed.error) {
+          sendContractError(response, parsed.error[0], parsed.error[1]);
+          return;
+        }
+        let value;
+        try { value = decodeURIComponent(graphMatch[1]).trim(); }
+        catch {
+          sendContractError(response, "INVALID_REFERENCE_VALUE", "reference value must be valid percent-encoded UTF-8");
+          return;
+        }
+        if (!value) {
+          sendContractError(response, "REFERENCE_VALUE_REQUIRED", "reference value is required");
+          return;
+        }
+        sendJson(response, 200, await getReferenceNeighbourhoodGraph(client, value));
         return;
       }
 
