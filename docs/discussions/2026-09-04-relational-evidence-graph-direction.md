@@ -167,6 +167,57 @@ Evaluation should ask whether a user can:
    documents; and
 6. detect when graph coverage is incomplete.
 
+## Bilingual glossary direction
+
+A Portuguese-to-English court-term glossary could make graph nodes, search
+results, AI consultation, and future MCP tools easier to understand without
+replacing the terminology used by the source record. This should be a legal and
+procedural glossary, not a simple word-for-word translation table: several
+Portuguese procedural concepts have no exact English equivalent.
+
+Each eventual entry could retain:
+
+* the canonical Portuguese term;
+* a cautious English rendering;
+* a plain-language explanation;
+* whether it describes a document, procedural event, package role, participant,
+  or relationship;
+* important distinctions, examples, and counterexamples; and
+* translation notes, provenance, and confidence where applicable.
+
+An initial discussion table is:
+
+| Portuguese | Suggested English | Important qualification |
+| --- | --- | --- |
+| Despacho | Judicial order | Broader than some English uses of “order”; context matters. |
+| Ofício | Official court communication | The communication may transmit a separate order or report. |
+| Ata | Official minutes / record | Can contain embedded statements, agreements, or judicial orders. |
+| Requerimento | Formal application / request | A Citius package labelled *Requerimento* may contain multiple independent files. |
+| Vista | Referral for examination | A procedural event, not automatically a Ministério Público submission. |
+| Promoção | Public Prosecutor’s submission/proposal | Must not be inferred solely from *Vista*. |
+| Conclusão | Referral of the file to the judge | Not itself a judicial order. |
+| Cota | Court registry note | Records a procedural occurrence or information. |
+| Juntada | Addition to the case file | Usually a procedural act rather than the attached document’s type. |
+| Certidão | Official certificate / certified statement | The exact English rendering depends on what is certified. |
+| Acórdão | Collegiate court judgment | Commonly an appellate collegiate decision. |
+| Sentença | Judgment | Usually distinguished from an appellate *Acórdão*. |
+| Apenso | Attached/connected proceeding | Normally a relationship between proceedings, not a document type. |
+| Ref.ª / Referência | Reference number | Its namespace and target must still be established. |
+| Doc. n.º | Document/Exhibit No. | Usually local to the referring document or filing; not necessarily a global identifier. |
+| Fls. | Folio(s) | Refers to physical or sequential case-file sheets, not necessarily PDF pages. |
+
+The Portuguese source term should remain primary. English renderings are
+navigation and explanation aids, not authoritative legal translations and not
+substitutes for source wording. A future implementation could maintain a
+human-readable glossary and a machine-readable counterpart used by UI
+tooltips, search expansion, and AI instructions. Search expansion must not
+overwrite or normalize away the original Portuguese expression.
+
+The recent `Ofício` / `Despacho` example is a useful acceptance case: an
+*Ofício* can transmit a *Despacho*, and an *Ata* can contain an embedded
+*Despacho*. The glossary should clarify these distinctions rather than assign
+one translated label to the whole package.
+
 ## Open questions
 
 * What stable node and edge vocabulary is sufficient for the first reference
@@ -184,6 +235,9 @@ Evaluation should ask whether a user can:
   graph database?
 * How should the dedicated human-review interface and graph investigation view
   share evidence without becoming one oversized workflow?
+* Should the bilingual glossary be a standalone controlled resource, and which
+  entries require review by a Portuguese legal expert before use beyond
+  explanatory UI text?
 
 ## Decision boundary
 
