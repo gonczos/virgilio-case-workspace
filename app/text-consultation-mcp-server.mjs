@@ -13,6 +13,7 @@ import {
   loadDotEnv,
 } from "./processing-common.mjs";
 import { createTextConsultationMcpTools } from "./text-consultation-mcp-tools.mjs";
+import { createOperationalLogger, errorFields } from "./consultation-operational-logger.mjs";
 
 const READ_ONLY_ANNOTATIONS = {
   readOnlyHint: true,
@@ -98,7 +99,7 @@ function textResult(payload, isError = false) {
   };
 }
 
-export function createTextConsultationMcpServer({ callTool }) {
+export function createTextConsultationMcpServer({ callTool, operationalLogger = null }) {
   if (typeof callTool !== "function") throw new TypeError("callTool function is required");
   const server = new McpServer({
     name: "virgilio-text-consultation",
@@ -110,9 +111,18 @@ export function createTextConsultationMcpServer({ callTool }) {
       inputSchema: tool.inputSchema,
       annotations: READ_ONLY_ANNOTATIONS,
     }, async (args) => {
+      const startedAt = performance.now();
       try {
-        return textResult(await callTool(tool.name, args));
+        const result = await callTool(tool.name, args);
+        operationalLogger?.info("tool_call_completed", {
+          tool_name: tool.name, status: "success", duration_ms: Math.round(performance.now() - startedAt),
+        });
+        return textResult(result);
       } catch (error) {
+        operationalLogger?.error("tool_call_completed", {
+          tool_name: tool.name, status: "error", duration_ms: Math.round(performance.now() - startedAt),
+          ...errorFields(error),
+        });
         return textResult(safeToolError(error), true);
       }
     });
@@ -123,6 +133,7 @@ export function createTextConsultationMcpServer({ callTool }) {
 export async function main() {
   const workspaceRoot = getWorkspaceRoot();
   loadDotEnv(path.join(workspaceRoot, ".env"));
+  const operationalLogger = createOperationalLogger({ service: "text-consultation-mcp-stdio" });
   const client = createDbClient("text-consultation-mcp-v1");
   const lifecycle = attachClientLifecycleLogging(client, {
     logPrefix: "[text-consultation-mcp]",
@@ -131,11 +142,13 @@ export async function main() {
   await client.connect();
   const server = createTextConsultationMcpServer({
     callTool: createTextConsultationMcpTools({ client, workspaceRoot }),
+    operationalLogger,
   });
   const shutdown = async () => {
     lifecycle.dispose();
     await server.close();
     await client.end();
+    await operationalLogger.close();
   };
   process.once("SIGINT", () => { shutdown().finally(() => { process.exitCode = 130; }); });
   process.once("SIGTERM", () => { shutdown().finally(() => { process.exitCode = 143; }); });

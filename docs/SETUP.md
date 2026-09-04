@@ -370,7 +370,14 @@ TEXT_CONSULTATION_MCP_HTTP_TOKEN=<random secret of at least 32 characters>
 TEXT_CONSULTATION_MCP_HTTP_HOST=127.0.0.1
 TEXT_CONSULTATION_MCP_HTTP_PORT=8092
 TEXT_CONSULTATION_MCP_HTTP_ALLOWED_HOSTS=localhost,127.0.0.1,<device>.<tailnet>.ts.net
+TEXT_CONSULTATION_MCP_LOG_PATH=data/processing-runtime/text-consultation-mcp-http.log
 ```
+
+The log path is optional; the shown ignored runtime path is the default. The
+server writes JSON Lines operational records there and to standard error. Logs
+include timestamps, routes or tool names, durations, statuses, and sanitized
+error details. They do not include bearer tokens, query strings, tool
+arguments, search text, or document content.
 
 Start the private HTTP process:
 

@@ -79,3 +79,7 @@ verified against original PDFs.
 This checkpoint does not add recorded-reference lookup, citation resolution,
 document taxonomy enrichment, contents inventories, graph traversal, binary
 delivery, review/editing operations, ingestion, or database schema changes.
+
+Operational failures are logged by the MCP transport using structured,
+redaction-safe records. Tool arguments, search terms, document contents,
+authorization values, and URL query strings are intentionally excluded.

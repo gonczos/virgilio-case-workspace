@@ -9,8 +9,8 @@ import { createTextConsultationMcpHttpHandler } from "../app/text-consultation-m
 
 const TOKEN = "test-token-that-is-at-least-thirty-two-characters";
 
-async function startTestServer(callTool = async () => ({ ok: true })) {
-  const handler = createTextConsultationMcpHttpHandler({ callTool, token: TOKEN });
+async function startTestServer(callTool = async () => ({ ok: true }), operationalLogger = null) {
+  const handler = createTextConsultationMcpHttpHandler({ callTool, token: TOKEN, operationalLogger });
   const server = createServer((request, response) => { void handler(request, response); });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const address = server.address();
@@ -21,11 +21,17 @@ async function startTestServer(callTool = async () => ({ ok: true })) {
 }
 
 test("HTTP MCP requires a bearer token", async (context) => {
-  const server = await startTestServer();
+  const events = [];
+  const logger = { warn: (event, fields) => events.push({ event, fields }), info: () => {}, error: () => {} };
+  const server = await startTestServer(async () => ({}), logger);
   context.after(server.close);
   const response = await fetch(`${server.baseUrl}/mcp`, { method: "POST", body: "{}", headers: { "Content-Type": "application/json" } });
   assert.equal(response.status, 401);
   assert.equal(response.headers.get("www-authenticate"), "Bearer");
+  assert.deepEqual(events, [{
+    event: "http_request_rejected",
+    fields: { method: "POST", route: "/mcp", status_code: 401, error_code: "UNAUTHORIZED" },
+  }]);
 });
 
 test("HTTP MCP refuses a short configured token", () => {
