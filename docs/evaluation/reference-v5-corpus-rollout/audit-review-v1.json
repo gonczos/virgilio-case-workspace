@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "review_kind": "labelled_reference_v5_corpus_sample_human_audit",
+  "sample": {
+    "path": "docs/evaluation/reference-v5-corpus-rollout/audit-sample-v1.json",
+    "sha256": "90f275468ff38771e9ffbb5f9f87cbda7414f0d2040dba290e368b3ad61d5d0b",
+    "sample_id": "labelled-reference-v5-corpus-audit-sample-v1"
+  },
+  "reviewer": {
+    "reviewer_key": "case_support_reviewer_attila_test_1",
+    "identity_kind": "user_provided_persistent_test_reviewer_identity"
+  },
+  "review_sessions": [
+    {
+      "session_id": "corpus-v5-guided-human-review-batch-001",
+      "recorded_at": "2026-09-04",
+      "method": "guided_review_of_direct_extracted_context",
+      "attribution": "The user explicitly confirmed all ten proposed decisions in the active conversation.",
+      "observation_keys": [
+        "1ba1f0925bb83f8cc2abd8041b6af6df9e9b2e4d8b0bc57e62f91ab75d44656f",
+        "3c9b6404957ede9cf5b4713092ed35d0ec644c4d5c4098e33052a3856a6ab0f3",
+        "a8c45f74bd4cafbcd8e9b1a8bc3fc57f936a3e71850e7e1bbdb3ac6411d4ad9f",
+        "7d4090e48deb7c260fd72b908cc1dc862710e92155925ef8441a1b626ead4210",
+        "c3d69bb90b6205ed7f710b9db56bfd8b602c131443b21a3b6eed8ffee216e45f",
+        "e11457a5ae81036a5f3ff01b3b00868e102c30320949bbfcae66bb663ad0cca3",
+        "37448980187d779cd87b6e4e9845942bca34ae78349554d4985df64f43f4a650",
+        "6910220d9936a24e511d226c31a1185f6a8600b68f9b12fedb3abb08255b8d4f",
+        "db83695501d8bdf93bd38b1d892aae0151458aacfb693fca64bfacdfd871f99c",
+        "12a42b239c50ad9763d8deeb3bd0434bbe80ed77f48f11ac73f0ebc1edbf28f1"
+      ]
+    }
+  ],
+  "prediction_reviews": [
+    {
+      "observation_key": "1ba1f0925bb83f8cc2abd8041b6af6df9e9b2e4d8b0bc57e62f91ab75d44656f",
+      "decision": "confirmed",
+      "rationale": "DOC Nº17 is a clear local attachment reference in the displayed annex sequence.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "3c9b6404957ede9cf5b4713092ed35d0ec644c4d5c4098e33052a3856a6ab0f3",
+      "decision": "confirmed",
+      "rationale": "DOC Nº10 is a clear document or attachment label in the displayed document list.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "a8c45f74bd4cafbcd8e9b1a8bc3fc57f936a3e71850e7e1bbdb3ac6411d4ad9f",
+      "decision": "confirmed",
+      "rationale": "Doc nº4 is an explicit local attachment cited with other documents.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "7d4090e48deb7c260fd72b908cc1dc862710e92155925ef8441a1b626ead4210",
+      "decision": "rejected",
+      "rationale": "The source expression is DOC Nº 14 A. Omitting the meaningful A suffix makes the predicted span incomplete.",
+      "suggested_correction": {
+        "kind": "extend_span_to_include_suffix",
+        "raw_value_candidate": "DOC Nº 14 A",
+        "status": "human_confirmed_correction_candidate_not_applied_to_extractor"
+      },
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "c3d69bb90b6205ed7f710b9db56bfd8b602c131443b21a3b6eed8ffee216e45f",
+      "decision": "confirmed",
+      "rationale": "DOC Nº26 is a clear attachment reference in the displayed annex sequence.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "e11457a5ae81036a5f3ff01b3b00868e102c30320949bbfcae66bb663ad0cca3",
+      "decision": "confirmed",
+      "rationale": "29252773 is explicitly introduced by referência nº and is therefore a reference observation.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "37448980187d779cd87b6e4e9845942bca34ae78349554d4985df64f43f4a650",
+      "decision": "confirmed",
+      "rationale": "126236170 is explicitly presented as Referência in a court-document header.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "6910220d9936a24e511d226c31a1185f6a8600b68f9b12fedb3abb08255b8d4f",
+      "decision": "needs_original_pdf_verification",
+      "rationale": "The extracted value 38477843- may contain separator punctuation, but the extracted context does not establish whether the trailing hyphen belongs to the identifier.",
+      "suggested_correction": null,
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": [
+        "original_pdf"
+      ]
+    },
+    {
+      "observation_key": "db83695501d8bdf93bd38b1d892aae0151458aacfb693fca64bfacdfd871f99c",
+      "decision": "confirmed",
+      "rationale": "122170551 is explicitly introduced as a referência citius.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    },
+    {
+      "observation_key": "12a42b239c50ad9763d8deeb3bd0434bbe80ed77f48f11ac73f0ebc1edbf28f1",
+      "decision": "confirmed",
+      "rationale": "DOC Nº24 is a clear attachment reference in an enumerated list.",
+      "target_resolution": "unresolved",
+      "relationship_resolution": "unresolved",
+      "remaining_verification": []
+    }
+  ],
+  "summary": {
+    "prediction_sample_total": 180,
+    "prediction_reviews_recorded": 10,
+    "confirmed": 8,
+    "rejected": 1,
+    "ambiguous": 0,
+    "needs_original_pdf_verification": 1,
+    "prediction_reviews_pending": 170,
+    "no_prediction_controls_total": 30,
+    "no_prediction_controls_reviewed": 0,
+    "no_prediction_controls_pending": 30,
+    "human_gate_passed": false
+  }
+}
