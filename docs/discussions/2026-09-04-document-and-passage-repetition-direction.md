@@ -23,6 +23,10 @@ This note complements
 `2026-09-03-reference-investigation-and-review-direction.md`. It does not change
 the current reference-extraction evaluation.
 
+Possible reusable candidate-generation and comparison tools are recorded in
+`2026-09-04-reusable-tools-and-standards-evaluation-direction.md`; that note does
+not select or authorize them.
+
 ## Distinctions to preserve
 
 The following must not be collapsed:

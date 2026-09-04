@@ -24,6 +24,9 @@ This direction complements:
 * `2026-09-04-document-and-passage-repetition-direction.md`; and
 * `2026-09-04-claim-and-argument-comparison-direction.md`.
 
+Candidate libraries and interchange conventions are considered separately in
+`2026-09-04-reusable-tools-and-standards-evaluation-direction.md`.
+
 It does not change their boundaries or authorize their implementation.
 
 ## Layers to keep distinct

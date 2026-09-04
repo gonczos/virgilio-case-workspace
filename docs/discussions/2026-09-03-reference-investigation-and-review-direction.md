@@ -17,6 +17,10 @@ application should decide, what an AI should propose, and what must remain a
 human decision. This note records those doubts and possible directions without
 changing the experiment or selecting an implementation.
 
+Possible reusable annotation tools and interchange standards are evaluated
+separately in
+`2026-09-04-reusable-tools-and-standards-evaluation-direction.md`.
+
 ## Current working direction
 
 The application should primarily be a system for preserving evidence,
