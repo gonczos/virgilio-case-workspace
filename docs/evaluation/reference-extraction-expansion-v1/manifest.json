@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "manifest_id": "reference-extraction-expansion-v1",
+  "status": "frozen_reviewed_fixtures_ready_for_separate_evaluation",
+  "protocol_version": "reference-expansion-v1",
+  "selection_seed": "virgilio-reference-expansion-v1",
+  "created_by": {
+    "tool": "codex_manifest_writer",
+    "version": "v1",
+    "created_at": null,
+    "created_at_status": "unavailable_not_captured"
+  },
+  "artifacts": {
+    "text-selection.json": {
+      "sha256": "69cdb8554d1d824adb82099a6ca1a6dcf186a3c14d4e23e3bdb57e84d40cfb5f",
+      "bytes": 6871913
+    },
+    "text-reviewed-fixture-v1.json": {
+      "sha256": "2bbaee48b3753680b07c2297050c485d1c8142a114d34e4338fc377ea0fd7d11",
+      "bytes": 216561
+    },
+    "annotation-guide.md": {
+      "sha256": "0a52693014068a626bfccc16e09730364470da58802bedc3d5b7b6d5b4588db9",
+      "bytes": 3486
+    },
+    "metadata-selection.json": {
+      "sha256": "f7e0191ecab0bbae3f521da1ea98d5fed6b781813b2969dc8bfc3f4783060a75",
+      "bytes": 1602346
+    },
+    "metadata-reviewed-fixture-v1.json": {
+      "sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+      "bytes": 96753
+    },
+    "metadata-review-guide.md": {
+      "sha256": "de0fec75516beeb2669e9e91e54122c2ff679dcc97750c702f2c99980a9cff2b",
+      "bytes": 1421
+    }
+  },
+  "text_fixture": {
+    "path": "text-reviewed-fixture-v1.json",
+    "status": "reviewed_frozen",
+    "summary": {
+      "ranges": 12,
+      "annotations": 131,
+      "positive": 93,
+      "negative": 35,
+      "ambiguous": 3
+    },
+    "review_session_id": "guided-reference-expansion-text-review-attila-test-1",
+    "independent_verification_identity": "codex_root_independent_fixture_review_v1"
+  },
+  "metadata_fixture": {
+    "path": "metadata-reviewed-fixture-v1.json",
+    "status": "human_review_complete",
+    "summary": {
+      "assertions": 24,
+      "by_category": {
+        "reused_binary": 8,
+        "missing_file": 8,
+        "ordinary_binary_linked": 8
+      },
+      "pending_human_review": 0,
+      "human_reviewed": 24,
+      "resolved_targets": 0,
+      "resolved_relationships": 0
+    },
+    "simulated_reviewer": {
+      "reviewer_role": "case_support_reviewer_attila_test_1",
+      "reviewer_identity": "simulated_case_reviewer_agent_1",
+      "reviewer_kind": "ai_simulation",
+      "human_reviewer": false
+    },
+    "human_reviewer": {
+      "review_session_id": "guided-metadata-review-attila-test-1",
+      "reviewer_identity": "case_support_reviewer_attila_test_1",
+      "reviewer_kind": "human",
+      "human_reviewer": true,
+      "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+      "method": "interactive_guided_review"
+    }
+  },
+  "representations": [
+    {
+      "representation_id": 704,
+      "binary_sha256": "8fa6ad4a3c948f361286ef9a862ed37ada8d6c726acac30ade032fe9ef3f747b",
+      "processor_key": "pdf_literal_text",
+      "processor_version": "poppler-layout-v2-c5.3.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "9a35132723a0a716f3e392f94fda1afffefd7f2038d32d1163797a4729ea4182"
+    },
+    {
+      "representation_id": 821,
+      "binary_sha256": "a74153f1d929db1a678436472a90000d0095c8d9d8677192aa8397e6dd5622bc",
+      "processor_key": "pdf_literal_text",
+      "processor_version": "poppler-layout-v2-c5.3.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "2f2849cfe9a21f63c29682727f0e387f7f0d59489e04f6ae98c034b6c707fe59"
+    },
+    {
+      "representation_id": 3887,
+      "binary_sha256": "208fa97ccf1e700b9933416dfdee948fed641a73a1b54031b6b86e739224a1d8",
+      "processor_key": "xberg",
+      "processor_version": "1.0.14-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "762fbdde8d516ad73f4f5171b90a165bad07da20b735596746eec4196b8cabfb"
+    },
+    {
+      "representation_id": 3893,
+      "binary_sha256": "229c01c70d034b36a9bacefa5f6b5ed2098d07618033392400a66e81a835aa6f",
+      "processor_key": "xberg",
+      "processor_version": "1.0.14-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "19b677f68567fe0a3635a569a4a52ad85847f3d031ff9644d66855ad656dd795"
+    },
+    {
+      "representation_id": 4233,
+      "binary_sha256": "6e74c7e999501d5a9d99fea32df9f92e622bc60dc33ae037eaf70e25a7f726f2",
+      "processor_key": "xberg",
+      "processor_version": "1.0.14-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "5422f0437f876e264c306e92a9a28cf630fab9114731c58d9413b4e265573384"
+    },
+    {
+      "representation_id": 4528,
+      "binary_sha256": "a919d69793d47dd839e4a1513f2f4a2e6e98856ce8742965855d29036c4dbbd3",
+      "processor_key": "xberg",
+      "processor_version": "1.0.14-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "000527e9928043a5400169017d4ed5dc16729ec2cc52290aaa003c16265b8ac4"
+    },
+    {
+      "representation_id": 4886,
+      "binary_sha256": "f321cf1582e31d4c3001bb67e83b33acb08ed16a814c801cd7ec0bd8297a1a1d",
+      "processor_key": "xberg",
+      "processor_version": "1.0.14-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "e0d8b8803c05fb9699cc32da18cc3be598ff8560e7e5a7ab2fe572fca8ef1620"
+    },
+    {
+      "representation_id": 4964,
+      "binary_sha256": "0fcb71f4265fb0fc5239539949817982b82756ebbc40470ff097312d989a6b1b",
+      "processor_key": "docling",
+      "processor_version": "2.123.1-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "3dd8ad49fc19f263d1548a739ef45a2ae006ba5e7a450e11f757893df48ed00e"
+    },
+    {
+      "representation_id": 5063,
+      "binary_sha256": "72b005fb854888b62f917b7a54838c49e2e9b51e861ccc3d48e9eb010c96e8c9",
+      "processor_key": "docling",
+      "processor_version": "2.123.1-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "8a2dffd1e4e03626779efab4caea11799e2a877749d629af7f6e1bb72f44a105"
+    },
+    {
+      "representation_id": 6031,
+      "binary_sha256": "bb3e8d573c9aa5d4c073f6f9b9c2ec42b8464c7e129a87e9537852f665087a7e",
+      "processor_key": "docling",
+      "processor_version": "2.123.1-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "480f5f83eb911ff2658ff7a90e112cd1f2b3d73d4f0da19b758a649f65416889"
+    },
+    {
+      "representation_id": 6125,
+      "binary_sha256": "5640551acaccfb95c9369da4a5279c062c4556577a8bd538439646d97fa53a85",
+      "processor_key": "docling",
+      "processor_version": "2.123.1-c5.2",
+      "processor_configuration_identity": null,
+      "content_sha256": "96b035bba323503f187786b0bcf7744a1abf13fe19196416a70cb16e90c685b6"
+    }
+  ],
+  "extractor": {
+    "key": "labelled-reference",
+    "version": "v4",
+    "configuration_kind": "built_in_static_patterns_no_external_configuration",
+    "state": "unchanged_not_run_in_manifest_checkpoint"
+  },
+  "evaluation_tracks": {
+    "text_extraction": {
+      "state": "authorized_not_run",
+      "metrics": "span extraction metrics by reviewed family"
+    },
+    "metadata_preservation_retrieval": {
+      "state": "authorized_not_run",
+      "metrics": "metadata preservation and retrieval metrics"
+    }
+  },
+  "limitations": [
+    "Text and metadata evaluations must remain separate.",
+    "Families absent from the frozen selection remain not_evaluated.",
+    "The manifest records immutable artifact hashes; corrections require a new version with explicit lineage.",
+    "No extractor execution or database write occurred while freezing this manifest."
+  ],
+  "path_deviation": {
+    "protocol_listed": "text-annotations.json",
+    "actual_versioned": "text-reviewed-fixture-v1.json",
+    "reason": "The reviewed text fixture was deliberately versioned before manifest freeze; this manifest binds the actual immutable path."
+  }
+}
