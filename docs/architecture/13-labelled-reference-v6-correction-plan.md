@@ -154,10 +154,14 @@ implementation target is zero rejected predictions among the corrected frozen
 sample, but this remains bounded evaluation evidence and not a corpus-wide
 precision or recall claim.
 
-## Next checkpoint
+## Checkpoint status
 
-The next action is to independently review and commit this documentation-only
-contract. After that, implementation may create the v6 evaluator/oracle and
-extractor changes as one bounded checkpoint. It must stop after evaluation and
-must not run corpus-wide extraction, refresh the v5 inventory, ingest
-observations, or authorize writes.
+The bounded v6 implementation and evaluation are complete in commits
+`b432480` and `2a167f9`. Independent re-review found no remaining issues after
+the oracle was tightened to compare complete label provenance and all emitted
+offsets were corrected to zero-based, half-open Unicode code-point positions.
+
+This closes v6 as a regression checkpoint only. It does not authorize
+corpus-wide extraction, inventory refresh, observation ingestion, API or UI
+changes, target resolution, relationship inference, or database writes. Any
+corpus rollout remains a separate decision and checkpoint.
