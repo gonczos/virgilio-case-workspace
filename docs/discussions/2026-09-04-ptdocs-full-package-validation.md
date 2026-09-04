@@ -1,5 +1,9 @@
 # Full-set PTDocs package validation
 
+Follow-up: [original upload and raw scrape cross-check](2026-09-04-ptdocs-original-scrape-crosscheck.md).
+The original bytes corroborate the hash-discrepancy findings. The user reports
+unstable site rendering order; occurrence mappings must not rely on row positions.
+
 Completed the structural review across all 2,070 occurrence rows and 1,248 supplied
 files. Results are attributed observations in `ptdocs_review`, batch 1. Original
 files, canonical casework data and representation preferences remain unchanged.

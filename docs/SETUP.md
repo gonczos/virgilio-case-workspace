@@ -563,6 +563,23 @@ new application runtime dependencies. A pixel mismatch remains explicitly separa
 from visually supported derivative correspondence. Keep these git-ignored local
 artifacts in backups; persisted findings retain source lineage and evidence text.
 
+### Original court scrape cross-check
+
+For a read-only comparison with the extracted original court scrape and upload,
+run the following with Python 3.11 or later (standard library only):
+
+```powershell
+python app/ptdocs-original-audit.py C:/repos/PTDocs/attila_originalScrapes data/exports/ptdocs-packages/2026-09-04 data/exports/ptdocs-original-audit/2026-09-04
+```
+
+Use an available Python executable's full path if `python` is not on PATH. The
+first argument is a configurable read-only source directory containing the two
+extracted package folders. Archives are ignored. The second argument must contain
+the earlier `inventory.json` and `row-review.json` snapshots; the third receives
+derived JSON artifacts. No database connection or PDF extraction is performed.
+Use a fresh output directory for a new snapshot. HTML row positions are retained
+as observations only; the site rendering order was not stable.
+
 ### Remaining setup gaps
 
 The following are not yet fully documented as reproducible end-to-end
