@@ -1,0 +1,15 @@
+import crypto from "node:crypto";
+import fs from "node:fs/promises";
+const D="docs/evaluation/reference-extraction-expansion-v2",V1="docs/evaluation/reference-extraction-expansion-v1";
+const sha=x=>crypto.createHash("sha256").update(x).digest("hex"),fail=x=>{throw new Error(x)};
+const [s2b,f2b,m2b,s1b,f1b,m1b,t1b]=await Promise.all(["metadata-selection.json","metadata-reviewed-fixture-v2.json","manifest.json"].map(x=>fs.readFile(`${D}/${x}`)).concat(["metadata-selection.json","metadata-reviewed-fixture-v1.json","manifest.json","text-reviewed-fixture-v1.json"].map(x=>fs.readFile(`${V1}/${x}`))));
+const s2=JSON.parse(s2b),f2=JSON.parse(f2b),m2=JSON.parse(m2b),s1=JSON.parse(s1b);
+if(s2.selected_candidates.length!==24||f2.assertions.length!==24)fail("Expected 24 assertions");
+if(f2.selection_fixture_sha256!==sha(s2b))fail("Selection hash mismatch");
+if(m2.artifacts.metadata_selection.sha256!==sha(s2b)||m2.artifacts.metadata_reviewed_fixture.sha256!==sha(f2b)||m2.artifacts.text_reviewed_fixture.sha256!==sha(t1b))fail("Manifest hash mismatch");
+if(m2.lineage.supersedes_manifest_sha256!==sha(m1b)||s2.lineage.superseded_sha256!==sha(s1b)||f2.lineage.superseded_sha256!==sha(f1b))fail("Lineage hash mismatch");
+const mask=x=>JSON.stringify(x,(k,v)=>k==="anchored_occurrence_date"?"<date>":v);if(mask(s1.selected_candidates)!==mask(s2.selected_candidates))fail("Non-date selected assertion change");
+const changes=s2.selected_candidates.flatMap(x=>{const a=s1.selected_candidates.find(y=>y.source_assertion_key===x.source_assertion_key);return a.direct_anchor.anchored_occurrence_date===x.direct_anchor.anchored_occurrence_date?[]:[[x.raw_value,a.direct_anchor.anchored_occurrence_date,x.direct_anchor.anchored_occurrence_date]]});
+const expected=[["17136443","2020-07-15","2020-07-16"],["121345333","2019-09-29","2019-09-30"],["125804397","2020-07-05","2020-07-06"]];if(JSON.stringify(changes)!==JSON.stringify(expected))fail(`Unexpected changes ${JSON.stringify(changes)}`);
+for(const a of f2.assertions){if(a.correction_confirmation.review_state!=="human_confirmed_date_only_carry_forward")fail("Missing correction confirmation");if(a.historical_review_evidence.fixture_sha256!==sha(f1b))fail("Historical evidence hash mismatch");if(a.historical_review_evidence.simulated_review.reviewer_kind!=="ai_simulation"||a.historical_review_evidence.human_review.reviewer_kind!=="human")fail("Review provenance mismatch");if(a.source_assertion.category==="missing_file"&&(a.source_assertion.available_file_count!==0||a.source_assertion.binary_association_state!=="all_associated_files_missing"))fail("Missing-file invariant failed")}
+console.log(JSON.stringify({valid:true,assertions:24,date_only_corrections:changes.length,selection_sha256:sha(s2b),fixture_sha256:sha(f2b),manifest_sha256:sha(m2b),v1_artifacts_unchanged:true,database_writes:false},null,2));

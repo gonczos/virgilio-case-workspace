@@ -1,0 +1,2426 @@
+{
+  "schema_version": 2,
+  "fixture_id": "reference-extraction-expansion-metadata-v2",
+  "fixture_kind": "human_reviewed_metadata_observation_fixture",
+  "status": "human_review_complete_date_corrected",
+  "protocol_version": "reference-expansion-v2",
+  "selection_fixture": "docs/evaluation/reference-extraction-expansion-v2/metadata-selection.json",
+  "selection_fixture_sha256": "c6894ec919e2c6c1b2bd66678aa07880628811c40883cc5553b51593b7295f06",
+  "lineage": {
+    "supersedes": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+    "superseded_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+    "carried_review_assertions": 24,
+    "date_only_corrections": [
+      {
+        "source_assertion_key": "9152892e88c0af0c7197d3ad28f7c5f95253cbf82037229e3ad651125679f66e",
+        "raw_value": "17136443",
+        "before": "2020-07-15",
+        "after": "2020-07-16",
+        "field": "direct_anchor.anchored_occurrence_date"
+      },
+      {
+        "source_assertion_key": "b9c6afbe0688604531c4d5305d2c4f9952c095131da0f5c5878068cb385d07da",
+        "raw_value": "121345333",
+        "before": "2019-09-29",
+        "after": "2019-09-30",
+        "field": "direct_anchor.anchored_occurrence_date"
+      },
+      {
+        "source_assertion_key": "deb58459e60267468f4002873260b96451ed70c009514328062ffad718ca0f72",
+        "raw_value": "125804397",
+        "before": "2020-07-05",
+        "after": "2020-07-06",
+        "field": "direct_anchor.anchored_occurrence_date"
+      }
+    ]
+  },
+  "human_review_gate_satisfied": true,
+  "summary": {
+    "assertions": 24,
+    "by_category": {
+      "reused_binary": 8,
+      "missing_file": 8,
+      "ordinary_binary_linked": 8
+    },
+    "date_corrections": 3,
+    "resolved_targets": 0,
+    "resolved_relationships": 0
+  },
+  "assertions": [
+    {
+      "assertion_id": "metadata-expansion-v2-0320194cb627a0d7",
+      "source_assertion": {
+        "source_assertion_key": "0320194cb627a0d7ed9c94dd0bde1e768b00b6170b535f776d7b102a76bca095",
+        "seeded_order_key": "062223f98bc82ad6268a33367c1fb0b5b409af242dcbb731a4ef38207b3d87f4",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_115459078_16_861364_63F33EA2-2A51-4319-BCD9-28B092AC724E",
+        "normalized_value": "3994056_115459078_16_861364_63F33EA2-2A51-4319-BCD9-28B092AC724E",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "72",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 65,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2015-05-14",
+            "bucket_document_id": 72,
+            "occurrence_reference": "89866724"
+          },
+          {
+            "bucket_id": 66,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2015-05-19",
+            "bucket_document_id": 73,
+            "occurrence_reference": "90023356"
+          },
+          {
+            "bucket_id": 67,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2015-05-19",
+            "bucket_document_id": 75,
+            "occurrence_reference": "90023577"
+          },
+          {
+            "bucket_id": 376,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2018-11-23",
+            "bucket_document_id": 503,
+            "occurrence_reference": "116323638"
+          }
+        ],
+        "seeded_rank_within_stratum": 8,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-0320194cb627a0d7",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-1755c5ac84a23759",
+      "source_assertion": {
+        "source_assertion_key": "1755c5ac84a237596440132d0f551a9f320050e52d9b964d6b8e517853e97ec4",
+        "seeded_order_key": "0013fa84fb339d93d50b0517bb3f85abd18c92f076bc5bb4f0c2affed69a32c7",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_139338007_32_4797264_13192E46-3AF2-4720-A22B-454CCA1E3CE8",
+        "normalized_value": "3994056_139338007_32_4797264_13192E46-3AF2-4720-A22B-454CCA1E3CE8",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "418",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 378,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2018-11-23",
+            "bucket_document_id": 644,
+            "occurrence_reference": "116326478"
+          }
+        ],
+        "seeded_rank_within_stratum": 1,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-1755c5ac84a23759",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-2bf700c22601d49d",
+      "source_assertion": {
+        "source_assertion_key": "2bf700c22601d49d6ec2840da34381646b38dadb9f9766c4f4038ea2fb44c2ff",
+        "seeded_order_key": "04ae61904e2b3381b2b6c4d9668a21326125759d6c862d7528e5e82458be94a3",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_152443949_17_9022523_ABE8CEF2-03C0-40E6-BB29-5A477A854087",
+        "normalized_value": "3994056_152443949_17_9022523_ABE8CEF2-03C0-40E6-BB29-5A477A854087",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "835",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 597,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-12-14",
+            "bucket_document_id": 1222,
+            "occurrence_reference": "128217057"
+          },
+          {
+            "bucket_id": 598,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2021-01-02",
+            "bucket_document_id": 1223,
+            "occurrence_reference": "128488009"
+          },
+          {
+            "bucket_id": 599,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2021-01-02",
+            "bucket_document_id": 1225,
+            "occurrence_reference": "128488010"
+          }
+        ],
+        "seeded_rank_within_stratum": 4,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-2bf700c22601d49d",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-3143bd37f7f2e957",
+      "source_assertion": {
+        "source_assertion_key": "3143bd37f7f2e957ec865f06270a1c2f0eb440da00d4d79a4f79f39ccb01a669",
+        "seeded_order_key": "00899a88fef8e5f088b6cc42b4b375196a0cebb63b1e01f3d33c4cf669711045",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "87717088",
+        "normalized_value": "87717088",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "bucket.reference_number",
+        "identifier_type": "occurrence_reference",
+        "direct_anchor": {
+          "case_file_id": "1",
+          "bucket_id": "40",
+          "document_id": null,
+          "anchored_occurrence_date": "2015-02-17"
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "document_id": 47,
+            "binary_sha256s": [
+              "f258f33c8bfacd90a3d25d50a31c6a85019708cb678077988d8d2b4f1704c2d0"
+            ],
+            "bucket_document_id": 44,
+            "document_reference": "3994056_113550628_15_7793994_48B3F84F-E3A4-4346-8D7F-D183AC3CF221"
+          }
+        ],
+        "seeded_rank_within_stratum": 5,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-3143bd37f7f2e957",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "occurrence_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The occurrence reference is classified from its source field; linked document and binary contexts do not become its resolved target."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "occurrence_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-3ea45efe01a366c8",
+      "source_assertion": {
+        "source_assertion_key": "3ea45efe01a366c881ac31a7fc8ca070995a60ae3b247d20ac235ea3864c589a",
+        "seeded_order_key": "036c39eec437bade9efe5b1cd00eab57c5b6a83f1aad1875693e48e826f001a1",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_150489370_56_8674291_2F48A705-1D79-469F-873F-38C7C0FBA609",
+        "normalized_value": "3994056_150489370_56_8674291_2F48A705-1D79-469F-873F-38C7C0FBA609",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "791",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 579,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1151,
+            "occurrence_reference": "17404074"
+          },
+          {
+            "bucket_id": 869,
+            "process_number": "13608/14.8T2SNT-D",
+            "occurrence_date": "2021-11-04",
+            "bucket_document_id": 1943,
+            "occurrence_reference": "133705905"
+          }
+        ],
+        "seeded_rank_within_stratum": 3,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-3ea45efe01a366c8",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-4055c38808e0340e",
+      "source_assertion": {
+        "source_assertion_key": "4055c38808e0340efdeb9fdf11f1fe29b9bfb062a112d0f612fadcc091c26226",
+        "seeded_order_key": "04d19db463312b9294db1040c3709c60af4151674f772ef9f184bc024b52a0c9",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_199277453_127_2749969_75A08F5A-F96F-4F69-94F7-06B2C2A2F016",
+        "normalized_value": "3994056_199277453_127_2749969_75A08F5A-F96F-4F69-94F7-06B2C2A2F016",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "1253",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 896,
+            "process_number": "13608/14.8T2SNT-E",
+            "occurrence_date": "2026-07-13",
+            "bucket_document_id": 2066,
+            "occurrence_reference": "165718265"
+          },
+          {
+            "bucket_id": 810,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2026-07-13",
+            "bucket_document_id": 1707,
+            "occurrence_reference": "165719410"
+          },
+          {
+            "bucket_id": 811,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2026-07-13",
+            "bucket_document_id": 1709,
+            "occurrence_reference": "165719488"
+          },
+          {
+            "bucket_id": 812,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2026-07-13",
+            "bucket_document_id": 1711,
+            "occurrence_reference": "165719489"
+          },
+          {
+            "bucket_id": 813,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2026-08-06",
+            "bucket_document_id": 1713,
+            "occurrence_reference": "166037053"
+          },
+          {
+            "bucket_id": 814,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2026-08-06",
+            "bucket_document_id": 1715,
+            "occurrence_reference": "166037054"
+          }
+        ],
+        "seeded_rank_within_stratum": 5,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-4055c38808e0340e",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-454e3cc7b5eb1ea8",
+      "source_assertion": {
+        "source_assertion_key": "454e3cc7b5eb1ea8866e821a7d7eb2c18dad87b988461c187fbe8c5420949254",
+        "seeded_order_key": "25869099a81feac61f50147d2fbdfdc795b5de4c4fff135e2882754d5cd41e6a",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9",
+        "normalized_value": "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "5",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 771,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2023-07-27",
+            "bucket_document_id": 1575,
+            "occurrence_reference": "23833701"
+          },
+          {
+            "bucket_id": 896,
+            "process_number": "13608/14.8T2SNT-E",
+            "occurrence_date": "2026-07-13",
+            "bucket_document_id": 2013,
+            "occurrence_reference": "165718265"
+          }
+        ],
+        "seeded_rank_within_stratum": 8,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-454e3cc7b5eb1ea8",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-45c9ada707e32cfa",
+      "source_assertion": {
+        "source_assertion_key": "45c9ada707e32cfae8ae5bec86bca1fa7d686b960c8d5ee8c628d3cf619444a4",
+        "seeded_order_key": "20b5fd9be524b30bfadf0a6fc4add4e78151e13b707c67f22951be14b78997d4",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "E1A8FC13-4CC3-4A66-AF37-910AC8B0697C",
+        "normalized_value": "E1A8FC13-4CC3-4A66-AF37-910AC8B0697C",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "1288",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 580,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1185,
+            "occurrence_reference": "17404710"
+          }
+        ],
+        "seeded_rank_within_stratum": 6,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-45c9ada707e32cfa",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-569272a2f1e97364",
+      "source_assertion": {
+        "source_assertion_key": "569272a2f1e97364f8b9a668bbc6c30319ad360043c819b13bb0df0dc7ea2e23",
+        "seeded_order_key": "0c2e337fa782bb01bd194315cfe356e03a2b435d7d8507e380c2a10e883e4fc4",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "11C46A16-1ABA-476A-882A-99E585556893",
+        "normalized_value": "11C46A16-1ABA-476A-882A-99E585556893",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "3",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 581,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1189,
+            "occurrence_reference": "17405328"
+          }
+        ],
+        "seeded_rank_within_stratum": 1,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-569272a2f1e97364",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-6bc766a06a792c4e",
+      "source_assertion": {
+        "source_assertion_key": "6bc766a06a792c4ec131bd4f1ce49ee92ea95a7150c8be35dfb6c3dbbb326b7c",
+        "seeded_order_key": "04e9e39a89e9f3de82a5f319bd6121081a4c39305a91a3dfb9f002b8d2c8a0c0",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_160070976_79_18890_1D3EA636-876D-4DB2-AA57-6514E14F7AD2",
+        "normalized_value": "3994056_160070976_79_18890_1D3EA636-876D-4DB2-AA57-6514E14F7AD2",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "995",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 684,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2021-12-06",
+            "bucket_document_id": 1429,
+            "occurrence_reference": "20015798"
+          },
+          {
+            "bucket_id": 700,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2022-02-02",
+            "bucket_document_id": 1459,
+            "occurrence_reference": "135410653"
+          }
+        ],
+        "seeded_rank_within_stratum": 6,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-6bc766a06a792c4e",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-87a4a8f47f818b0d",
+      "source_assertion": {
+        "source_assertion_key": "87a4a8f47f818b0d107cc6afa54081893bd49ce38cb717d6157a6581cf40c13a",
+        "seeded_order_key": "018f955883c14b34ded3abc48b8267623e493645fdc233cf84f6cb8aa513b5ac",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "134060143",
+        "normalized_value": "134060143",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "bucket.reference_number",
+        "identifier_type": "occurrence_reference",
+        "direct_anchor": {
+          "case_file_id": "1",
+          "bucket_id": "678",
+          "document_id": null,
+          "anchored_occurrence_date": "2021-11-22"
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 2,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "document_id": 988,
+            "binary_sha256s": [
+              "f71dfacf66239f017de9b2aee115ec251ce3b1c8ef3768b127482b33b0b43250"
+            ],
+            "bucket_document_id": 1417,
+            "document_reference": "3994056_159510896_55_4653844_2AE46004-8137-4542-896A-7B7509049A22"
+          },
+          {
+            "document_id": 989,
+            "binary_sha256s": [
+              "a69903ffc0d96a1ebb57fb4c17f367cf7e03ce7af545928b94430688d1a76f82"
+            ],
+            "bucket_document_id": 1418,
+            "document_reference": "3994056_159711534_74_5190638_EA8230B6-5087-41EE-8476-9648EB5E508E"
+          }
+        ],
+        "seeded_rank_within_stratum": 8,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-87a4a8f47f818b0d",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "occurrence_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The occurrence reference is classified from its source field; linked document and binary contexts do not become its resolved target."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "occurrence_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-895dbfec6f52ad3b",
+      "source_assertion": {
+        "source_assertion_key": "895dbfec6f52ad3be4a6fcab913ed137c530750c7b5cb907aabc923922bab91c",
+        "seeded_order_key": "02835d0d011004c1a2d1239104060bfb6914c959ea90966f89bc61ef4c57941d",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_138506569_31_1002038_8717E06A-7209-4139-89AE-D9C9A91F7314",
+        "normalized_value": "3994056_138506569_31_1002038_8717E06A-7209-4139-89AE-D9C9A91F7314",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "402",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 351,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2018-10-08",
+            "bucket_document_id": 450,
+            "occurrence_reference": "13244099"
+          },
+          {
+            "bucket_id": 376,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2018-11-23",
+            "bucket_document_id": 632,
+            "occurrence_reference": "116323638"
+          }
+        ],
+        "seeded_rank_within_stratum": 1,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-895dbfec6f52ad3b",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-9152892e88c0af0c",
+      "source_assertion": {
+        "source_assertion_key": "9152892e88c0af0c7197d3ad28f7c5f95253cbf82037229e3ad651125679f66e",
+        "seeded_order_key": "0164033d57e29183e39d95db2339619b5612f7379c3d94760d9f64793dc10fd2",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "17136443",
+        "normalized_value": "17136443",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "bucket.reference_number",
+        "identifier_type": "occurrence_reference",
+        "direct_anchor": {
+          "case_file_id": "1",
+          "bucket_id": "532",
+          "document_id": null,
+          "anchored_occurrence_date": "2020-07-16"
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "document_id": 616,
+            "binary_sha256s": [
+              "c625f0e2ee160e5c9886ae88d1c96c4ef8c16e50769c1bfd8db031c42ffdc2b4"
+            ],
+            "bucket_document_id": 949,
+            "document_reference": "3994056_149702224_59_7407663_89B521CC-8F70-4C62-ADA5-C044D7EC25AC"
+          }
+        ],
+        "seeded_rank_within_stratum": 7,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-9152892e88c0af0c",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "occurrence_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The occurrence reference is classified from its source field; linked document and binary contexts do not become its resolved target."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "occurrence_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": {
+          "source_assertion_key": "9152892e88c0af0c7197d3ad28f7c5f95253cbf82037229e3ad651125679f66e",
+          "raw_value": "17136443",
+          "before": "2020-07-15",
+          "after": "2020-07-16",
+          "field": "direct_anchor.anchored_occurrence_date"
+        },
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-a63462455776d5af",
+      "source_assertion": {
+        "source_assertion_key": "a63462455776d5af6f590a2c6cff6f55845c29a2ec75e8812ccf98d9c0c2de18",
+        "seeded_order_key": "23645c6dc5cd2698fd144947555e490ab5d718146c16441990011c27d4687309",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "4D5D0D93-C0C4-4FE1-ABF1-347EC9A272C2",
+        "normalized_value": "4D5D0D93-C0C4-4FE1-ABF1-347EC9A272C2",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "1269",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 579,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1175,
+            "occurrence_reference": "17404074"
+          }
+        ],
+        "seeded_rank_within_stratum": 7,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-a63462455776d5af",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b0c066a22da5779b",
+      "source_assertion": {
+        "source_assertion_key": "b0c066a22da5779ba84986ef3a46d5f3bb1e2699ea6a92e5368efc1e8db81f77",
+        "seeded_order_key": "059f052966e4fd538310b94327eac3a1ebc4a5424fcf2637df342c5c4ae5a19c",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_150489369_58_8673947_73FEBD39-E650-492B-9E2A-070E25B43D33",
+        "normalized_value": "3994056_150489369_58_8673947_73FEBD39-E650-492B-9E2A-070E25B43D33",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "790",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 579,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1150,
+            "occurrence_reference": "17404074"
+          },
+          {
+            "bucket_id": 869,
+            "process_number": "13608/14.8T2SNT-D",
+            "occurrence_date": "2021-11-04",
+            "bucket_document_id": 1942,
+            "occurrence_reference": "133705905"
+          }
+        ],
+        "seeded_rank_within_stratum": 7,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-b0c066a22da5779b",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b2819b1598d3ed94",
+      "source_assertion": {
+        "source_assertion_key": "b2819b1598d3ed94fff2ed1c3c9b1c18833342373dffbbfd1f02cc1f30f3eda6",
+        "seeded_order_key": "1a40a2f80c6a9f0bbd31999f421e4c3bc384db09513c8538379d55c0d89af97d",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "CA290784-C8B7-4BDB-B7F1-495FB40A8F6C",
+        "normalized_value": "CA290784-C8B7-4BDB-B7F1-495FB40A8F6C",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "1284",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 580,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1184,
+            "occurrence_reference": "17404710"
+          }
+        ],
+        "seeded_rank_within_stratum": 5,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-b2819b1598d3ed94",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b5a9061b8c4f7687",
+      "source_assertion": {
+        "source_assertion_key": "b5a9061b8c4f7687c057cc216e7bb9f04a43068a00478cb3d71d3ea88b3078a3",
+        "seeded_order_key": "006052bec2a000cfcc3a66c1bc3b54b50d29d85d11969ad48c619bae9e9f6c60",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_127858757_22_9066265_DF6829F0-8082-4730-927B-4F6327F1E333",
+        "normalized_value": "3994056_127858757_22_9066265_DF6829F0-8082-4730-927B-4F6327F1E333",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "148",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 141,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2016-12-21",
+            "bucket_document_id": 170,
+            "occurrence_reference": "104090059"
+          }
+        ],
+        "seeded_rank_within_stratum": 4,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-b5a9061b8c4f7687",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b9c6afbe06886045",
+      "source_assertion": {
+        "source_assertion_key": "b9c6afbe0688604531c4d5305d2c4f9952c095131da0f5c5878068cb385d07da",
+        "seeded_order_key": "0024ff6e63b0f4cf4078f01078d537cd6a848e15314012f6a3cebee3c3aa3286",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "121345333",
+        "normalized_value": "121345333",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "bucket.reference_number",
+        "identifier_type": "occurrence_reference",
+        "direct_anchor": {
+          "case_file_id": "1",
+          "bucket_id": "447",
+          "document_id": null,
+          "anchored_occurrence_date": "2019-09-30"
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "document_id": 490,
+            "binary_sha256s": [
+              "15cb18252a1440159a771be0a6bef7baf2e52f9b28bd34c75ccc96e9dae2640f"
+            ],
+            "bucket_document_id": 754,
+            "document_reference": "3994056_144156997_17_7646925_9F36CEC4-EFEC-422A-8310-23D2F0077A06"
+          }
+        ],
+        "seeded_rank_within_stratum": 2,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-b9c6afbe06886045",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "occurrence_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The occurrence reference is classified from its source field; linked document and binary contexts do not become its resolved target."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "occurrence_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": {
+          "source_assertion_key": "b9c6afbe0688604531c4d5305d2c4f9952c095131da0f5c5878068cb385d07da",
+          "raw_value": "121345333",
+          "before": "2019-09-29",
+          "after": "2019-09-30",
+          "field": "direct_anchor.anchored_occurrence_date"
+        },
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-bc5b1faf1078fee5",
+      "source_assertion": {
+        "source_assertion_key": "bc5b1faf1078fee5dc7cdebf247f1597baeababf6cdf3334e6794506df3422e5",
+        "seeded_order_key": "0d287f6247b991e0d1487215ed2aada5395aca8871c1193fa4fc3e3b6b2f8655",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3CE3C774-7B5D-4E06-92E4-B16723ADC748",
+        "normalized_value": "3CE3C774-7B5D-4E06-92E4-B16723ADC748",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "1266",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 580,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1178,
+            "occurrence_reference": "17404710"
+          }
+        ],
+        "seeded_rank_within_stratum": 2,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-bc5b1faf1078fee5",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-c54e221dc183c79f",
+      "source_assertion": {
+        "source_assertion_key": "c54e221dc183c79f2a02e7a5f2157f95cc2aa8dc7f5e95ad290a3bbed8c2e5ee",
+        "seeded_order_key": "0edea84fe97d49bf87f264018cf283536e2170eabefa7dded7919b0b3e39ccf2",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "062A694A-F961-46AE-938D-DEE1BD9006C1",
+        "normalized_value": "062A694A-F961-46AE-938D-DEE1BD9006C1",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "1",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 581,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1187,
+            "occurrence_reference": "17405328"
+          }
+        ],
+        "seeded_rank_within_stratum": 3,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-c54e221dc183c79f",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-d7fa95e2a6453c3b",
+      "source_assertion": {
+        "source_assertion_key": "d7fa95e2a6453c3bfc5cb044a32fe910d0b4aaa9d070756982e95557cb99236d",
+        "seeded_order_key": "01455cbcaf3e5ad4ebd342478d88a126aa2707fb317624b3918671c99900010b",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "134060157",
+        "normalized_value": "134060157",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "bucket.reference_number",
+        "identifier_type": "occurrence_reference",
+        "direct_anchor": {
+          "case_file_id": "1",
+          "bucket_id": "679",
+          "document_id": null,
+          "anchored_occurrence_date": "2021-11-22"
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 2,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "document_id": 988,
+            "binary_sha256s": [
+              "f71dfacf66239f017de9b2aee115ec251ce3b1c8ef3768b127482b33b0b43250"
+            ],
+            "bucket_document_id": 1419,
+            "document_reference": "3994056_159510896_55_4653844_2AE46004-8137-4542-896A-7B7509049A22"
+          },
+          {
+            "document_id": 990,
+            "binary_sha256s": [
+              "ef53c6849b8515acd5eea327ff0bb4c67ca680a60a3e5293c807afbc34b6c08d"
+            ],
+            "bucket_document_id": 1420,
+            "document_reference": "3994056_159711549_68_7783905_632EDF5B-9607-498A-AB3D-242FC9C82C85"
+          }
+        ],
+        "seeded_rank_within_stratum": 6,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-d7fa95e2a6453c3b",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "occurrence_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The occurrence reference is classified from its source field; linked document and binary contexts do not become its resolved target."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "occurrence_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-deb58459e6026746",
+      "source_assertion": {
+        "source_assertion_key": "deb58459e60267468f4002873260b96451ed70c009514328062ffad718ca0f72",
+        "seeded_order_key": "0038d2d487f419b1ba51d8d767fd0db7004c6dedb2d057c6919af968ecadd444",
+        "category": "ordinary_binary_linked",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "125804397",
+        "normalized_value": "125804397",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "bucket.reference_number",
+        "identifier_type": "occurrence_reference",
+        "direct_anchor": {
+          "case_file_id": "1",
+          "bucket_id": "502",
+          "document_id": null,
+          "anchored_occurrence_date": "2020-07-06"
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 2,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "document_id": 566,
+            "binary_sha256s": [
+              "1e8e542c94ed1f6f57e787a03eb004e72ba514dd5b9dcb0da2e69f8e4b3a8e6a"
+            ],
+            "bucket_document_id": 856,
+            "document_reference": "3994056_149362571_18_8525148_EDE0D662-448B-437F-B6F6-7FA52D7EBB52"
+          },
+          {
+            "document_id": 567,
+            "binary_sha256s": [
+              "8e776577c9729841dac37074529af3b278b50d96e74751332384e2728e8aa1e1"
+            ],
+            "bucket_document_id": 857,
+            "document_reference": "3994056_149436878_59_7014020_53988322-A519-410A-8500-A041BB709E41"
+          }
+        ],
+        "seeded_rank_within_stratum": 3,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-deb58459e6026746",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "occurrence_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The occurrence reference is classified from its source field; linked document and binary contexts do not become its resolved target."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "occurrence_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": {
+          "source_assertion_key": "deb58459e60267468f4002873260b96451ed70c009514328062ffad718ca0f72",
+          "raw_value": "125804397",
+          "before": "2020-07-05",
+          "after": "2020-07-06",
+          "field": "direct_anchor.anchored_occurrence_date"
+        },
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-e244d6a3bc2bccc8",
+      "source_assertion": {
+        "source_assertion_key": "e244d6a3bc2bccc8c40e7490e498ef4b9e57eb1e2f039f69274d968e727526e3",
+        "seeded_order_key": "165460c9d5b0ed3fcd4d7b304402e813ba48a85e1ba7ae7cd4765a7048590730",
+        "category": "missing_file",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "418E9EA0-BAF0-41DC-99E8-A1AA1A6F40E1",
+        "normalized_value": "418E9EA0-BAF0-41DC-99E8-A1AA1A6F40E1",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "1268",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_missing",
+        "available_file_count": 0,
+        "missing_file_count": 1,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 580,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2020-09-14",
+            "bucket_document_id": 1180,
+            "occurrence_reference": "17404710"
+          }
+        ],
+        "seeded_rank_within_stratum": 4,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-e244d6a3bc2bccc8",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "No associated binary is available in the reviewed snapshot; this does not mean that the source record, reference, or document is absent.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "future_binary_availability_check_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-e6298c5274ae4582",
+      "source_assertion": {
+        "source_assertion_key": "e6298c5274ae4582a10eb2d6e3b03f11bbfcf85273b3d10ab97b7d63ab5d17bc",
+        "seeded_order_key": "02d69411dea7338dcb2db81eb4a2136c390b49e68cdaefc110541420536b409d",
+        "category": "reused_binary",
+        "selection_source": "current_corpus_metadata_observation",
+        "raw_value": "3994056_158877164_73_4575945_6222EC89-177C-46D8-A4F4-4698DC4D98EF",
+        "normalized_value": "3994056_158877164_73_4575945_6222EC89-177C-46D8-A4F4-4698DC4D98EF",
+        "normalization_identity": "reference-normalization-nfkc-upper-v1",
+        "origin": "court_metadata",
+        "source_field": "document.document_procinfo",
+        "identifier_type": "source_document_reference",
+        "direct_anchor": {
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": "961",
+          "anchored_occurrence_date": null
+        },
+        "binary_association_state": "all_associated_files_available",
+        "available_file_count": 1,
+        "missing_file_count": 0,
+        "occurrence_contexts": [
+          {
+            "bucket_id": 667,
+            "process_number": "13608/14.8T2SNT",
+            "occurrence_date": "2021-10-20",
+            "bucket_document_id": 1397,
+            "occurrence_reference": "133391794"
+          },
+          {
+            "bucket_id": 842,
+            "process_number": "13608/14.8T2SNT-C",
+            "occurrence_date": "2021-11-04",
+            "bucket_document_id": 1806,
+            "occurrence_reference": "133698460"
+          },
+          {
+            "bucket_id": 869,
+            "process_number": "13608/14.8T2SNT-D",
+            "occurrence_date": "2021-11-04",
+            "bucket_document_id": 1980,
+            "occurrence_reference": "133705905"
+          }
+        ],
+        "seeded_rank_within_stratum": 2,
+        "selection_state": "selected",
+        "rejection_reason": null
+      },
+      "historical_review_evidence": {
+        "fixture": "docs/evaluation/reference-extraction-expansion-v1/metadata-reviewed-fixture-v1.json",
+        "fixture_sha256": "a958f160c41819547b5b8e3731fab2a28cac922d3f6b2df3c81e29f6adfd566e",
+        "assertion_id": "metadata-expansion-v1-e6298c5274ae4582",
+        "simulated_review": {
+          "reviewer_role": "case_support_reviewer_attila_test_1",
+          "reviewer_identity": "simulated_case_reviewer_agent_1",
+          "reviewer_kind": "ai_simulation",
+          "human_reviewer": false,
+          "review_state": "pending_human_review",
+          "decision": "accept_as_source_recorded_metadata_observation",
+          "classification": "source_document_reference",
+          "classification_basis": "documented_source_field_contract",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "availability_interpretation": "Preserve only the binary associations supplied by the frozen inventory; they do not resolve the referenced entity.",
+          "uncertainty": [
+            "The opaque source value's referenced entity and meaning remain unresolved.",
+            "The direct document anchor records metadata provenance and is not resolved referenced-entity identity."
+          ],
+          "remaining_verification": [
+            "human_approval",
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "Accept the source-recorded observation and preserve its supplied anchors, contexts, values, ordering, and association state without inferring a target or relationship."
+        },
+        "human_review": {
+          "review_session_id": "guided-metadata-review-attila-test-1",
+          "reviewer_identity": "case_support_reviewer_attila_test_1",
+          "reviewer_kind": "human",
+          "human_reviewer": true,
+          "reviewed_at": "2026-09-04T00:28:24.1282756Z",
+          "method": "interactive_guided_review",
+          "review_state": "human_reviewed",
+          "decision": "confirmed_simulated_decision",
+          "confirmed_classification": "source_document_reference",
+          "target_resolution": "unresolved",
+          "relationship_resolution": "unresolved",
+          "remaining_verification": [
+            "target_resolution",
+            "binary_identity_if_needed"
+          ],
+          "rationale": "The human reviewer confirmed the source-recorded metadata observation, its direct anchor, associated contexts, and recorded binary-association state while leaving target and relationship resolution open."
+        }
+      },
+      "correction_confirmation": {
+        "review_state": "human_confirmed_date_only_carry_forward",
+        "reviewer_identity": "case_support_reviewer_attila_test_1",
+        "reviewer_kind": "human",
+        "human_reviewer": true,
+        "confirmed_at": null,
+        "confirmed_at_status": "not_captured",
+        "confirmed_change": null,
+        "decision": "Carry forward the version-1 classification and unresolved-state decisions; only the listed source calendar dates changed."
+      }
+    }
+  ],
+  "limitations": [
+    "Version 1 remains immutable.",
+    "Version 1 AI simulation and human decisions are retained as historical review evidence.",
+    "The correction confirmation carries those decisions forward after confirming that only three source calendar dates changed.",
+    "No target or relationship was resolved."
+  ]
+}

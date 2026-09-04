@@ -34,7 +34,10 @@
     "reference:validate-expansion-text": "node ./app/validate-reference-expansion-text-fixture.mjs",
     "reference:build-expansion-metadata-review": "node ./app/build-reviewed-reference-expansion-metadata-fixture.mjs",
     "reference:validate-expansion-metadata": "node ./app/validate-reference-expansion-metadata-fixture.mjs",
-    "reference:evaluate-expansion-text": "node ./app/evaluate-reference-extraction-expansion.mjs"
+    "reference:evaluate-expansion-text": "node ./app/evaluate-reference-extraction-expansion.mjs",
+    "reference:build-expansion-metadata-v2": "node ./app/build-reference-expansion-metadata-v2.mjs",
+    "reference:validate-expansion-metadata-v2": "node ./app/validate-reference-expansion-metadata-v2.mjs",
+    "reference:evaluate-expansion-metadata-v2": "node ./app/evaluate-reference-expansion-metadata-v2.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"

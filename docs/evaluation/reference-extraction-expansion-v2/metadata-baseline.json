@@ -1,0 +1,1729 @@
+{
+  "schema_version": 1,
+  "evaluation_id": "reference-extraction-expansion-v2-metadata-baseline",
+  "evaluation_kind": "metadata_preservation_retrieval",
+  "evaluator": {
+    "key": "app/evaluate-reference-expansion-metadata-v2.mjs",
+    "version": "reference-expansion-metadata-evaluator-v2",
+    "metric_contract": "reference-expansion-metadata-evaluator-v1-unchanged"
+  },
+  "evaluation_time": null,
+  "evaluation_time_status": "omitted_for_deterministic_artifact",
+  "inputs": {
+    "manifest_commit": null,
+    "manifest_sha256": "3c49b7183fe9ab3cc065481e6eeb399b93a9b0b5e0208a924105c6a9c3529b84",
+    "fixture_path": "metadata-reviewed-fixture-v2.json",
+    "fixture_sha256": "04d201e219783decc2607befb28b57ed794ff14205df37100a4b26b21d5c5b0b",
+    "expected_fixture_sha256": "04d201e219783decc2607befb28b57ed794ff14205df37100a4b26b21d5c5b0b",
+    "database_access": "read_only_queries",
+    "lookup_contract": "lookupRecordedReferences(scope=full,lifecycle=include_history,limit=100,offset=0)"
+  },
+  "summary": {
+    "assertions": 24,
+    "passed": 24,
+    "failed": 0,
+    "by_category": {
+      "reused_binary": {
+        "total": 8,
+        "passed": 8
+      },
+      "missing_file": {
+        "total": 8,
+        "passed": 8
+      },
+      "ordinary_binary_linked": {
+        "total": 8,
+        "passed": 8
+      }
+    },
+    "normalization_collisions_in_sample": 0,
+    "acceptance_gate_passed": true
+  },
+  "metrics": {
+    "one_current_row_for_source_assertion": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "raw_value_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "normalized_value_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "normalization_identity_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "source_assertion_identity_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "source_origin_field_type_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "direct_anchor_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "current_lifecycle_correct": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "availability_state_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "binary_sha256s_preserved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "expected_contexts_retrieved": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "missing_file_has_no_fabricated_action": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "raw_lookup_retrieves_assertion": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "normalized_lookup_retrieves_assertion": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "raw_lookup_order_deterministic": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    },
+    "raw_lookup_order_matches_contract": {
+      "passed": 24,
+      "total": 24,
+      "rate": 1
+    }
+  },
+  "normalization_collisions": [],
+  "assertions": [
+    {
+      "assertion_id": "metadata-expansion-v2-0320194cb627a0d7",
+      "source_assertion_key": "0320194cb627a0d7ed9c94dd0bde1e768b00b6170b535f776d7b102a76bca095",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_115459078_16_861364_63F33EA2-2A51-4319-BCD9-28B092AC724E",
+        "normalized_value": "3994056_115459078_16_861364_63F33EA2-2A51-4319-BCD9-28B092AC724E"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "72",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "a9c2646f28fc6a393051297e3f6cbe635b71b5232443574b448691f07b89df98",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 72,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_115459078_16_861364_63F33EA2-2A51-4319-BCD9-28B092AC724E",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "8530a32f46e6935ac8bd88f5a3a5fd9bd0b734185ea3d2621d0d5ba63ceeb0d4"
+        ],
+        "context_count": 4
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-1755c5ac84a23759",
+      "source_assertion_key": "1755c5ac84a237596440132d0f551a9f320050e52d9b964d6b8e517853e97ec4",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "3994056_139338007_32_4797264_13192E46-3AF2-4720-A22B-454CCA1E3CE8",
+        "normalized_value": "3994056_139338007_32_4797264_13192E46-3AF2-4720-A22B-454CCA1E3CE8"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "418",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "84528f70b0244897e856a648e6c70ff210f10f00be366c55ee2e652ea3cc463f",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 418,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_139338007_32_4797264_13192E46-3AF2-4720-A22B-454CCA1E3CE8",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "61165a1fb61bac777ad09aa860b11b241ecccecab20c94d5659ee8356282aed7"
+        ],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-2bf700c22601d49d",
+      "source_assertion_key": "2bf700c22601d49d6ec2840da34381646b38dadb9f9766c4f4038ea2fb44c2ff",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_152443949_17_9022523_ABE8CEF2-03C0-40E6-BB29-5A477A854087",
+        "normalized_value": "3994056_152443949_17_9022523_ABE8CEF2-03C0-40E6-BB29-5A477A854087"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "835",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "cf394fb22a5b7670d5da26407faa7fadbd04fca0034bebab72658f8f073f8635",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 835,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_152443949_17_9022523_ABE8CEF2-03C0-40E6-BB29-5A477A854087",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "7aa570ae26dad2bdd65459954d365d3b7108fa1e024c55e6bea2df133951aea4"
+        ],
+        "context_count": 3
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-3143bd37f7f2e957",
+      "source_assertion_key": "3143bd37f7f2e957ec865f06270a1c2f0eb440da00d4d79a4f79f39ccb01a669",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "87717088",
+        "normalized_value": "87717088"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": "1",
+        "bucket_id": "40",
+        "document_id": null,
+        "anchored_occurrence_date": "2015-02-17"
+      },
+      "observed": {
+        "observation_key": "bb3295990f15158e62a2ba6f266e0f000597d426fdd4f7175611bf641211ea0e",
+        "direct_anchor": {
+          "kind": "occurrence",
+          "case_file_id": 1,
+          "bucket_id": 40,
+          "document_id": null,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": "13608/14.8T2SNT",
+          "occurrence_reference": "87717088",
+          "occurrence_date": "2015-02-17",
+          "document_reference": null,
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "f258f33c8bfacd90a3d25d50a31c6a85019708cb678077988d8d2b4f1704c2d0"
+        ],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-3ea45efe01a366c8",
+      "source_assertion_key": "3ea45efe01a366c881ac31a7fc8ca070995a60ae3b247d20ac235ea3864c589a",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_150489370_56_8674291_2F48A705-1D79-469F-873F-38C7C0FBA609",
+        "normalized_value": "3994056_150489370_56_8674291_2F48A705-1D79-469F-873F-38C7C0FBA609"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "791",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "5055cdd5065062c5d9e5e636ed42ac01c732abb66b04774f50681aaddd780873",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 791,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_150489370_56_8674291_2F48A705-1D79-469F-873F-38C7C0FBA609",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "b9034bd15087a81378a2956ac2c412db579c8241ab9ce8b24d21c0152cfe46e0"
+        ],
+        "context_count": 2
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-4055c38808e0340e",
+      "source_assertion_key": "4055c38808e0340efdeb9fdf11f1fe29b9bfb062a112d0f612fadcc091c26226",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_199277453_127_2749969_75A08F5A-F96F-4F69-94F7-06B2C2A2F016",
+        "normalized_value": "3994056_199277453_127_2749969_75A08F5A-F96F-4F69-94F7-06B2C2A2F016"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "1253",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "3b65e5bfdb08a1ffca2cc8ee1d96f9f3236cbbd6239facbab4286abb11582bdf",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 1253,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_199277453_127_2749969_75A08F5A-F96F-4F69-94F7-06B2C2A2F016",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "ab83cbdf81a52b5c13ef4d578a575a92d5c41f8bb5f23ca9d6ee3f46c64c3b1d"
+        ],
+        "context_count": 6
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-454e3cc7b5eb1ea8",
+      "source_assertion_key": "454e3cc7b5eb1ea8866e821a7d7eb2c18dad87b988461c187fbe8c5420949254",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9",
+        "normalized_value": "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "5",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "4a1d0304cc9a5b7a84a92eb8b8fd73577af7c8f4b31a69206b79be624eaa9f57",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 5,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "2DD25E59-706D-44E7-A6DC-2A55C49EF3F9",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 2,
+        "lifecycle_states": [
+          "current",
+          "superseded"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 2
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-45c9ada707e32cfa",
+      "source_assertion_key": "45c9ada707e32cfae8ae5bec86bca1fa7d686b960c8d5ee8c628d3cf619444a4",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "E1A8FC13-4CC3-4A66-AF37-910AC8B0697C",
+        "normalized_value": "E1A8FC13-4CC3-4A66-AF37-910AC8B0697C"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "1288",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "b67b8f99fbd89f0c929d515af39b4ee6cf522720b6f851fbc55cd3623ff0f608",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 1288,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "E1A8FC13-4CC3-4A66-AF37-910AC8B0697C",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-569272a2f1e97364",
+      "source_assertion_key": "569272a2f1e97364f8b9a668bbc6c30319ad360043c819b13bb0df0dc7ea2e23",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "11C46A16-1ABA-476A-882A-99E585556893",
+        "normalized_value": "11C46A16-1ABA-476A-882A-99E585556893"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "3",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "575e8d9fc42db7e80e56d2bf17509a9ec946ff0821d856c0bc48b06284bbbada",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 3,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "11C46A16-1ABA-476A-882A-99E585556893",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-6bc766a06a792c4e",
+      "source_assertion_key": "6bc766a06a792c4ec131bd4f1ce49ee92ea95a7150c8be35dfb6c3dbbb326b7c",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_160070976_79_18890_1D3EA636-876D-4DB2-AA57-6514E14F7AD2",
+        "normalized_value": "3994056_160070976_79_18890_1D3EA636-876D-4DB2-AA57-6514E14F7AD2"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "995",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "6024716da76bb113e37074a8b19a1ff89bd3fb49a88e6277567474775761a8a4",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 995,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_160070976_79_18890_1D3EA636-876D-4DB2-AA57-6514E14F7AD2",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "acd1987440381f95f45bcd20116881780c24b276bf27fd5474aa18dc10d9c1c8"
+        ],
+        "context_count": 2
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-87a4a8f47f818b0d",
+      "source_assertion_key": "87a4a8f47f818b0d107cc6afa54081893bd49ce38cb717d6157a6581cf40c13a",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "134060143",
+        "normalized_value": "134060143"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": "1",
+        "bucket_id": "678",
+        "document_id": null,
+        "anchored_occurrence_date": "2021-11-22"
+      },
+      "observed": {
+        "observation_key": "0e0e608123bd4ab6aa821ba2fdbadca60407dde3d31ead0cca8d27d9ed9eedfe",
+        "direct_anchor": {
+          "kind": "occurrence",
+          "case_file_id": 1,
+          "bucket_id": 678,
+          "document_id": null,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": "13608/14.8T2SNT",
+          "occurrence_reference": "134060143",
+          "occurrence_date": "2021-11-22",
+          "document_reference": null,
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "a69903ffc0d96a1ebb57fb4c17f367cf7e03ce7af545928b94430688d1a76f82",
+          "f71dfacf66239f017de9b2aee115ec251ce3b1c8ef3768b127482b33b0b43250"
+        ],
+        "context_count": 4
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-895dbfec6f52ad3b",
+      "source_assertion_key": "895dbfec6f52ad3be4a6fcab913ed137c530750c7b5cb907aabc923922bab91c",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_138506569_31_1002038_8717E06A-7209-4139-89AE-D9C9A91F7314",
+        "normalized_value": "3994056_138506569_31_1002038_8717E06A-7209-4139-89AE-D9C9A91F7314"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "402",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "81f64ef041c94c80b2d8995d6eae39a0031cc5c5e46428e5292ad8b1a56923f9",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 402,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_138506569_31_1002038_8717E06A-7209-4139-89AE-D9C9A91F7314",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "5dd2f4a29dc67d6894ac9d5e49e4d5707d98124274d635db493acd5c93106ce2"
+        ],
+        "context_count": 2
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-9152892e88c0af0c",
+      "source_assertion_key": "9152892e88c0af0c7197d3ad28f7c5f95253cbf82037229e3ad651125679f66e",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "17136443",
+        "normalized_value": "17136443"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": "1",
+        "bucket_id": "532",
+        "document_id": null,
+        "anchored_occurrence_date": "2020-07-16"
+      },
+      "observed": {
+        "observation_key": "f122d477099aa492e725021bc6933cc8bdc27442d3e8cb44b6b0c83c6a86d31a",
+        "direct_anchor": {
+          "kind": "occurrence",
+          "case_file_id": 1,
+          "bucket_id": 532,
+          "document_id": null,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": "13608/14.8T2SNT",
+          "occurrence_reference": "17136443",
+          "occurrence_date": "2020-07-16",
+          "document_reference": null,
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "c625f0e2ee160e5c9886ae88d1c96c4ef8c16e50769c1bfd8db031c42ffdc2b4"
+        ],
+        "context_count": 2
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-a63462455776d5af",
+      "source_assertion_key": "a63462455776d5af6f590a2c6cff6f55845c29a2ec75e8812ccf98d9c0c2de18",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "4D5D0D93-C0C4-4FE1-ABF1-347EC9A272C2",
+        "normalized_value": "4D5D0D93-C0C4-4FE1-ABF1-347EC9A272C2"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "1269",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "df2564e10ee3f08d5b23d125041766d99e09cb2434781e677d9e3220b35b0531",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 1269,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "4D5D0D93-C0C4-4FE1-ABF1-347EC9A272C2",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b0c066a22da5779b",
+      "source_assertion_key": "b0c066a22da5779ba84986ef3a46d5f3bb1e2699ea6a92e5368efc1e8db81f77",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_150489369_58_8673947_73FEBD39-E650-492B-9E2A-070E25B43D33",
+        "normalized_value": "3994056_150489369_58_8673947_73FEBD39-E650-492B-9E2A-070E25B43D33"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "790",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "81639c1a98a4fb0f85ded436f3e2290a6a7659de82baa3d154f8eba26bc6ba87",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 790,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_150489369_58_8673947_73FEBD39-E650-492B-9E2A-070E25B43D33",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "3086cfa2fe90753dba6165d002fc59d31a8e9b417bccfb2f8de52d76806d40b4"
+        ],
+        "context_count": 2
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b2819b1598d3ed94",
+      "source_assertion_key": "b2819b1598d3ed94fff2ed1c3c9b1c18833342373dffbbfd1f02cc1f30f3eda6",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "CA290784-C8B7-4BDB-B7F1-495FB40A8F6C",
+        "normalized_value": "CA290784-C8B7-4BDB-B7F1-495FB40A8F6C"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "1284",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "3335352adf8fa1025b8c76b8fdd9d89df449e23f7e0d4efcf68f4e629edd17d0",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 1284,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "CA290784-C8B7-4BDB-B7F1-495FB40A8F6C",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b5a9061b8c4f7687",
+      "source_assertion_key": "b5a9061b8c4f7687c057cc216e7bb9f04a43068a00478cb3d71d3ea88b3078a3",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "3994056_127858757_22_9066265_DF6829F0-8082-4730-927B-4F6327F1E333",
+        "normalized_value": "3994056_127858757_22_9066265_DF6829F0-8082-4730-927B-4F6327F1E333"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "148",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "656719a2c8a5e6ad805b476e5545ece775a221a06894ea765e86c41297387514",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 148,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_127858757_22_9066265_DF6829F0-8082-4730-927B-4F6327F1E333",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "c28b514b1584eaf12e3243fdba01ef3dfb398ff375515bcfc20971834f582990"
+        ],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-b9c6afbe06886045",
+      "source_assertion_key": "b9c6afbe0688604531c4d5305d2c4f9952c095131da0f5c5878068cb385d07da",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "121345333",
+        "normalized_value": "121345333"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": "1",
+        "bucket_id": "447",
+        "document_id": null,
+        "anchored_occurrence_date": "2019-09-30"
+      },
+      "observed": {
+        "observation_key": "5e7c4e91406b0a95fe2c50f5918d7a076baf94416921238562b1f698c1d01899",
+        "direct_anchor": {
+          "kind": "occurrence",
+          "case_file_id": 1,
+          "bucket_id": 447,
+          "document_id": null,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": "13608/14.8T2SNT",
+          "occurrence_reference": "121345333",
+          "occurrence_date": "2019-09-30",
+          "document_reference": null,
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "15cb18252a1440159a771be0a6bef7baf2e52f9b28bd34c75ccc96e9dae2640f"
+        ],
+        "context_count": 3
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-bc5b1faf1078fee5",
+      "source_assertion_key": "bc5b1faf1078fee5dc7cdebf247f1597baeababf6cdf3334e6794506df3422e5",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "3CE3C774-7B5D-4E06-92E4-B16723ADC748",
+        "normalized_value": "3CE3C774-7B5D-4E06-92E4-B16723ADC748"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "1266",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "c5dfd6c993c1ab3ecc06c6511fcf42909ac94b9a957ba7d4376ad665f0e81201",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 1266,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3CE3C774-7B5D-4E06-92E4-B16723ADC748",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-c54e221dc183c79f",
+      "source_assertion_key": "c54e221dc183c79f2a02e7a5f2157f95cc2aa8dc7f5e95ad290a3bbed8c2e5ee",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "062A694A-F961-46AE-938D-DEE1BD9006C1",
+        "normalized_value": "062A694A-F961-46AE-938D-DEE1BD9006C1"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "1",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "ba6316f1915b6c36b29310c9ab8d879b1c65e1eb63b229b7cb209d9d0a2dcaee",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 1,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "062A694A-F961-46AE-938D-DEE1BD9006C1",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-d7fa95e2a6453c3b",
+      "source_assertion_key": "d7fa95e2a6453c3bfc5cb044a32fe910d0b4aaa9d070756982e95557cb99236d",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "134060157",
+        "normalized_value": "134060157"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": "1",
+        "bucket_id": "679",
+        "document_id": null,
+        "anchored_occurrence_date": "2021-11-22"
+      },
+      "observed": {
+        "observation_key": "0459dce2c3dc27bd84ddc69f037b8b8bfc10c98cfce6ac799ac9cdd612951d8d",
+        "direct_anchor": {
+          "kind": "occurrence",
+          "case_file_id": 1,
+          "bucket_id": 679,
+          "document_id": null,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": "13608/14.8T2SNT",
+          "occurrence_reference": "134060157",
+          "occurrence_date": "2021-11-22",
+          "document_reference": null,
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "ef53c6849b8515acd5eea327ff0bb4c67ca680a60a3e5293c807afbc34b6c08d",
+          "f71dfacf66239f017de9b2aee115ec251ce3b1c8ef3768b127482b33b0b43250"
+        ],
+        "context_count": 4
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-deb58459e6026746",
+      "source_assertion_key": "deb58459e60267468f4002873260b96451ed70c009514328062ffad718ca0f72",
+      "category": "ordinary_binary_linked",
+      "query": {
+        "raw_value": "125804397",
+        "normalized_value": "125804397"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": "1",
+        "bucket_id": "502",
+        "document_id": null,
+        "anchored_occurrence_date": "2020-07-06"
+      },
+      "observed": {
+        "observation_key": "3a9f9e8a7206b7e6416afc67cece656ffa5aa676ce8187d967bc835274e85e16",
+        "direct_anchor": {
+          "kind": "occurrence",
+          "case_file_id": 1,
+          "bucket_id": 502,
+          "document_id": null,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": "13608/14.8T2SNT",
+          "occurrence_reference": "125804397",
+          "occurrence_date": "2020-07-06",
+          "document_reference": null,
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "1e8e542c94ed1f6f57e787a03eb004e72ba514dd5b9dcb0da2e69f8e4b3a8e6a",
+          "8e776577c9729841dac37074529af3b278b50d96e74751332384e2728e8aa1e1"
+        ],
+        "context_count": 12
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-e244d6a3bc2bccc8",
+      "source_assertion_key": "e244d6a3bc2bccc8c40e7490e498ef4b9e57eb1e2f039f69274d968e727526e3",
+      "category": "missing_file",
+      "query": {
+        "raw_value": "418E9EA0-BAF0-41DC-99E8-A1AA1A6F40E1",
+        "normalized_value": "418E9EA0-BAF0-41DC-99E8-A1AA1A6F40E1"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "1268",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "db9207016570578e8eaa04141cc3d24865e7c4331ec58dca0c11ad1d4aba29e6",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 1268,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "418E9EA0-BAF0-41DC-99E8-A1AA1A6F40E1",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_missing",
+        "binary_sha256s": [],
+        "context_count": 1
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    },
+    {
+      "assertion_id": "metadata-expansion-v2-e6298c5274ae4582",
+      "source_assertion_key": "e6298c5274ae4582a10eb2d6e3b03f11bbfcf85273b3d10ab97b7d63ab5d17bc",
+      "category": "reused_binary",
+      "query": {
+        "raw_value": "3994056_158877164_73_4575945_6222EC89-177C-46D8-A4F4-4698DC4D98EF",
+        "normalized_value": "3994056_158877164_73_4575945_6222EC89-177C-46D8-A4F4-4698DC4D98EF"
+      },
+      "expected_direct_anchor": {
+        "case_file_id": null,
+        "bucket_id": null,
+        "document_id": "961",
+        "anchored_occurrence_date": null
+      },
+      "observed": {
+        "observation_key": "9d36a316d25eb9d35c599472a65c5c3d7a508f747c6ecd46783eb958b660805b",
+        "direct_anchor": {
+          "kind": "document",
+          "case_file_id": null,
+          "bucket_id": null,
+          "document_id": 961,
+          "bucket_document_id": null,
+          "file_binary_id": null,
+          "document_representation_id": null,
+          "document_segment_id": null,
+          "page_no": null,
+          "char_start": null,
+          "char_end": null,
+          "process_number": null,
+          "occurrence_reference": null,
+          "occurrence_date": null,
+          "document_reference": "3994056_158877164_73_4575945_6222EC89-177C-46D8-A4F4-4698DC4D98EF",
+          "processor_key": null,
+          "processor_version": null,
+          "external_source_name": null,
+          "external_source_record_id": null
+        },
+        "matching_observations": 1,
+        "lifecycle_states": [
+          "current"
+        ],
+        "binary_association_state": "all_associated_files_available",
+        "binary_sha256s": [
+          "24e05ac9b319994b5f4ecdfa5c6919da75a0d4ffa8cef4556fa39b575961db4c"
+        ],
+        "context_count": 3
+      },
+      "checks": {
+        "one_current_row_for_source_assertion": true,
+        "raw_value_preserved": true,
+        "normalized_value_preserved": true,
+        "normalization_identity_preserved": true,
+        "source_assertion_identity_preserved": true,
+        "source_origin_field_type_preserved": true,
+        "direct_anchor_preserved": true,
+        "current_lifecycle_correct": true,
+        "availability_state_preserved": true,
+        "binary_sha256s_preserved": true,
+        "expected_contexts_retrieved": true,
+        "missing_file_has_no_fabricated_action": true,
+        "raw_lookup_retrieves_assertion": true,
+        "normalized_lookup_retrieves_assertion": true,
+        "raw_lookup_order_deterministic": true,
+        "raw_lookup_order_matches_contract": true
+      },
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "This evaluates only the 24 assertions frozen in reference-expansion-v1.",
+    "Raw and normalized query strings are identical for every sampled assertion; both lookup paths were still executed independently.",
+    "Target resolution and semantic correctness are outside this preservation/retrieval evaluation.",
+    "Text-span extraction metrics are intentionally excluded."
+  ]
+}

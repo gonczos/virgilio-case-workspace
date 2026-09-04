@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "manifest_id": "reference-extraction-expansion-v2",
+  "status": "frozen_reviewed_fixtures_ready_for_separate_evaluation",
+  "protocol_version": "reference-expansion-v2",
+  "lineage": {
+    "supersedes_manifest": "docs/evaluation/reference-extraction-expansion-v1/manifest.json",
+    "supersedes_manifest_sha256": "7a514f2fcc81b25de4661496ffd628f83d757c1fdc603647559db6b63d1a30cc",
+    "correction": "calendar_date_serialization"
+  },
+  "artifacts": {
+    "text_reviewed_fixture": {
+      "path": "../reference-extraction-expansion-v1/text-reviewed-fixture-v1.json",
+      "sha256": "2bbaee48b3753680b07c2297050c485d1c8142a114d34e4338fc377ea0fd7d11",
+      "lineage_state": "unchanged_v1_artifact"
+    },
+    "metadata_selection": {
+      "path": "metadata-selection.json",
+      "sha256": "c6894ec919e2c6c1b2bd66678aa07880628811c40883cc5553b51593b7295f06"
+    },
+    "metadata_reviewed_fixture": {
+      "path": "metadata-reviewed-fixture-v2.json",
+      "sha256": "04d201e219783decc2607befb28b57ed794ff14205df37100a4b26b21d5c5b0b"
+    }
+  },
+  "correction_confirmation": {
+    "only_changed_selected_assertion_fields": "direct_anchor.anchored_occurrence_date",
+    "changes": [
+      {
+        "source_assertion_key": "9152892e88c0af0c7197d3ad28f7c5f95253cbf82037229e3ad651125679f66e",
+        "raw_value": "17136443",
+        "before": "2020-07-15",
+        "after": "2020-07-16",
+        "field": "direct_anchor.anchored_occurrence_date"
+      },
+      {
+        "source_assertion_key": "b9c6afbe0688604531c4d5305d2c4f9952c095131da0f5c5878068cb385d07da",
+        "raw_value": "121345333",
+        "before": "2019-09-29",
+        "after": "2019-09-30",
+        "field": "direct_anchor.anchored_occurrence_date"
+      },
+      {
+        "source_assertion_key": "deb58459e60267468f4002873260b96451ed70c009514328062ffad718ca0f72",
+        "raw_value": "125804397",
+        "before": "2020-07-05",
+        "after": "2020-07-06",
+        "field": "direct_anchor.anchored_occurrence_date"
+      }
+    ]
+  },
+  "evaluation_tracks": {
+    "text_extraction": {
+      "state": "unchanged_v1_result"
+    },
+    "metadata_preservation_retrieval": {
+      "state": "completed_acceptance_gate_passed"
+    }
+  },
+  "limitations": [
+    "Frozen version-1 artifacts were not edited.",
+    "Text extraction and metadata preservation/retrieval remain separate."
+  ]
+}
