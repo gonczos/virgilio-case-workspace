@@ -493,6 +493,46 @@ a documented reproducible model-cache bootstrap workflow.
 
 ## Known Current Gaps
 
+### Optional PTDocs enrichment review area
+
+The existing Node/`pg` and PostgreSQL setup supports isolated external staging.
+Apply explicitly with the configured administrative connection (role/schema/table
+creation and grants required); this is not part of automatic database bootstrap:
+
+```powershell
+node app/ptdocs-review.mjs setup
+node app/ptdocs-review.mjs stage data/exports/ptdocs-reconciliation/2026-09-04
+node app/ptdocs-review-assess.mjs 1 data/exports/ptdocs-review/2026-09-04
+node app/ptdocs-review.mjs findings 1 data/exports/ptdocs-review/2026-09-04/sample-findings.json
+node app/ptdocs-review.mjs findings 1 data/exports/ptdocs-review/2026-09-04/package-findings.json
+node app/ptdocs-review-check.mjs
+```
+
+Use the batch ID returned by `stage`, not a hard-coded `1` on other databases.
+`setup` applies `db/migrations/2026-09-04-014-ptdocs-review.sql`, creates a NOLOGIN
+reviewer role and four append-only staging tables, and checks canonical UPDATE
+denial. Subsequent commands switch to that role; the session login must be allowed
+to `SET ROLE ptdocs_reviewer` (the current administrator can). This does not create
+a separate credential or remove the administrator's own privileges.
+
+The loader consumes an already prepared reconciliation snapshot, not arbitrary
+XLSX files: `source-manifest.json`, `staged-rows.json`, `staged-binaries.json`,
+`row-matches.json`, `summary.json`, `sheets.json`. Identical input digests reuse the
+existing batch. The September snapshot and case-specific extraction scripts are
+local, git-ignored artifacts, not a portable workbook import pipeline. Preserve
+them in backups along with PostgreSQL. Source rows and findings live in the DB;
+rendered inspection pages live only in the local evidence directory. The staged
+rows JSON is approximately 108 MB and the loader reads it into memory.
+
+Assessment uses existing representations and does not run corpus extraction.
+Manual source-page inspection used existing Poppler `pdftoppm`; reproducing those
+renders requires that executable. No new model or OCR prerequisite was added.
+The integration check rolls back its test rows, though identity sequences can
+advance. There is no UI integration, automatic canonical promotion or cleanup job.
+See `docs/architecture/14-ptdocs-enrichment-review.md` for boundaries.
+
+### Remaining setup gaps
+
 The following are not yet fully documented as reproducible end-to-end
 setup paths:
 
