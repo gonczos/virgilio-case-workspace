@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chronologicalEdges, positionProceduralBuckets } from "./proceduralFlow";
+import { chronologicalEdges, chronologicalYearEdges, groupProceduralYears, positionProceduralBuckets } from "./proceduralFlow";
 
 const lanes = [
   { id: "case:1", case_file_id: 1, process_number: "P", parent_case_file_id: null, is_base_case: true },
@@ -25,5 +25,13 @@ describe("procedural flow positioning", () => {
     const result = positionProceduralBuckets(lanes, [bucket(1, 1, "2020-01-01"), bucket(2, 1, "2020-01-01")]);
     expect(result[0].x).not.toBe(result[1].x);
     expect(result[0].y).not.toBe(result[1].y);
+  });
+  it("starts with one chronological group per process and year", () => {
+    const positioned = positionProceduralBuckets(lanes, [bucket(1, 1, "2020-01-01"),
+      bucket(2, 1, "2020-03-01"), bucket(3, 1, "2021-01-01"), bucket(4, 2, "2020-01-01")]);
+    const groups = groupProceduralYears(positioned);
+    expect(groups).toHaveLength(3);
+    expect(groups.find((group) => group.id === "year:1:2020")?.bucket_count).toBe(2);
+    expect(chronologicalYearEdges(groups)).toHaveLength(1);
   });
 });

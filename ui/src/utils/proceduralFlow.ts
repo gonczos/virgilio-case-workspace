@@ -1,6 +1,11 @@
 import type { ProceduralFlowBucket, ProceduralFlowLane } from "../api/consultation";
 
 export interface PositionedBucket extends ProceduralFlowBucket { x: number; y: number }
+export interface ProceduralYearGroup {
+  id: string; kind: "year_group"; case_file_id: number; process_number: string;
+  year: string; bucket_count: number; missing_file_count: number;
+  x: number; y: number; bucket_ids: number[];
+}
 
 export function positionProceduralBuckets(
   lanes: ProceduralFlowLane[], buckets: ProceduralFlowBucket[], width = 3600, laneGap = 150,
@@ -35,6 +40,36 @@ export function chronologicalEdges(buckets: PositionedBucket[]) {
   for (const bucket of buckets) byLane.set(bucket.case_file_id, [...(byLane.get(bucket.case_file_id) ?? []), bucket]);
   return [...byLane.values()].flatMap((items) => items.slice(0, -1).map((item, index) => ({
     data: { id: `chronology:${item.id}:${items[index + 1].id}`, source: item.id,
+      target: items[index + 1].id, kind: "chronological_next", basis: "display_order" },
+  })));
+}
+
+export function groupProceduralYears(buckets: PositionedBucket[]): ProceduralYearGroup[] {
+  const groups = new Map<string, PositionedBucket[]>();
+  for (const bucket of buckets) {
+    const year = bucket.occurrence_date?.slice(0, 4) ?? "Undated";
+    const key = `${bucket.case_file_id}:${year}`;
+    groups.set(key, [...(groups.get(key) ?? []), bucket]);
+  }
+  return [...groups.entries()].map(([key, items]) => ({
+    id: `year:${key}`,
+    kind: "year_group" as const,
+    case_file_id: items[0].case_file_id,
+    process_number: items[0].process_number,
+    year: items[0].occurrence_date?.slice(0, 4) ?? "Undated",
+    bucket_count: items.length,
+    missing_file_count: items.filter((item) => item.file_availability === "missing").length,
+    x: items.reduce((total, item) => total + item.x, 0) / items.length,
+    y: Math.min(...items.map((item) => item.y)),
+    bucket_ids: items.map((item) => item.bucket_id),
+  })).sort((a, b) => a.case_file_id - b.case_file_id || a.x - b.x || a.id.localeCompare(b.id));
+}
+
+export function chronologicalYearEdges(groups: ProceduralYearGroup[]) {
+  const byLane = new Map<number, ProceduralYearGroup[]>();
+  for (const group of groups) byLane.set(group.case_file_id, [...(byLane.get(group.case_file_id) ?? []), group]);
+  return [...byLane.values()].flatMap((items) => items.slice(0, -1).map((item, index) => ({
+    data: { id: `year-chronology:${item.id}:${items[index + 1].id}`, source: item.id,
       target: items[index + 1].id, kind: "chronological_next", basis: "display_order" },
   })));
 }
