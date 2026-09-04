@@ -12,18 +12,21 @@ or database.
 
 | Decision | Count |
 | --- | ---: |
-| Confirmed | 163 |
-| Rejected | 15 |
+| Confirmed | 162 |
+| Rejected | 16 |
 | Requires original-PDF verification | 2 |
 | Total | 180 |
 
-The sampled false-positive rate is 8.33%. This exceeds both frozen limits: no
+The sampled false-positive rate is 8.89%. This exceeds both frozen limits: no
 more than three rejected predictions and no more than 2% false positives.
 
 The rejected predictions expose recurring bounded patterns: ordinary words
 captured after linguistic uses of `referência`, the namespace word `Citius`
 captured instead of its numeric identifier, and attachment suffixes omitted
-from predicted spans. The two unresolved predictions preserve their extracted
+from predicted spans. Prediction 133 was corrected through an attributable
+follow-up after exact offsets showed that `Doc nº5` begins the source expression
+`Doc nº5- A`; its original confirmation remains in decision history. The two
+unresolved predictions preserve their extracted
 values unchanged pending original-PDF verification.
 
 ## No-prediction controls

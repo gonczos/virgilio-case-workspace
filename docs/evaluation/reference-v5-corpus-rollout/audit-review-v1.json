@@ -340,6 +340,15 @@
         1319,
         2216
       ]
+    },
+    {
+      "session_id": "corpus-v5-guided-human-review-correction-001",
+      "recorded_at": "2026-09-04",
+      "method": "guided_review_offset_correction",
+      "attribution": "The user explicitly confirmed correction of prediction 133 after exact offset inspection showed that its span begins the source expression Doc nº5- A.",
+      "observation_keys": [
+        "71aea701c2a215b07c82974c3e34f778bd16d50ad0d8d0e6cb275614509f1e46"
+      ]
     }
   ],
   "prediction_reviews": [
@@ -1421,11 +1430,24 @@
     },
     {
       "observation_key": "71aea701c2a215b07c82974c3e34f778bd16d50ad0d8d0e6cb275614509f1e46",
-      "decision": "confirmed",
-      "rationale": "Doc nº5 is an explicit local attachment reference.",
+      "decision": "rejected",
+      "rationale": "The recorded offsets point to Doc nº5- A. Omitting the meaningful -A suffix makes the predicted span incomplete.",
       "target_resolution": "unresolved",
       "relationship_resolution": "unresolved",
-      "remaining_verification": []
+      "remaining_verification": [],
+      "decision_history": [
+        {
+          "decision": "confirmed",
+          "rationale": "Doc nº5 is an explicit local attachment reference.",
+          "superseded_at": "2026-09-04",
+          "superseded_by_session": "corpus-v5-guided-human-review-correction-001"
+        }
+      ],
+      "suggested_correction": {
+        "kind": "extend_span_to_include_suffix",
+        "raw_value_candidate": "Doc nº5- A",
+        "status": "human_confirmed_correction_candidate_not_applied_to_extractor"
+      }
     },
     {
       "observation_key": "6cad98b90299b989e6c20b4104445127855c21b05598df3a83146c583b71f563",
@@ -1807,12 +1829,12 @@
   "summary": {
     "prediction_sample_total": 180,
     "prediction_reviews_recorded": 180,
-    "confirmed": 163,
-    "rejected": 15,
+    "confirmed": 162,
+    "rejected": 16,
     "ambiguous": 0,
     "needs_original_pdf_verification": 2,
     "prediction_reviews_pending": 0,
-    "sampled_false_positive_rate": 0.08333333333333333,
+    "sampled_false_positive_rate": 0.08888888888888889,
     "no_prediction_controls_total": 30,
     "no_prediction_controls_reviewed": 30,
     "no_prediction_controls_passed": 30,
@@ -2216,5 +2238,5 @@
     }
   ],
   "completed_at": "2026-09-04",
-  "completion_statement": "The frozen human audit is complete. The no-prediction control gate passes, but the prediction false-positive thresholds fail. Corpus ingestion remains unauthorized."
+  "completion_statement": "The frozen human audit and attributable offset correction are complete. The no-prediction control gate passes, but the prediction false-positive thresholds fail. Corpus ingestion remains unauthorized."
 }

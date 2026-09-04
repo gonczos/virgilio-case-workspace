@@ -10,7 +10,7 @@ The correction is based only on:
 - frozen audit sample SHA-256
   `90f275468ff38771e9ffbb5f9f87cbda7414f0d2040dba290e368b3ad61d5d0b`;
 - completed human audit commit `cd13d5a`;
-- 15 rejected predictions;
+- 16 rejected predictions;
 - four separately recorded recall findings; and
 - 30 passed no-prediction controls.
 
@@ -112,8 +112,8 @@ The v6 correction does not add or infer:
 Before implementation results are accepted, create a versioned v6 evaluation
 oracle derived from the completed audit. It must identify:
 
-- the 163 already confirmed v5 predictions that remain expected;
-- replacements for all three truncated attachment predictions;
+- the 162 already confirmed v5 predictions that remain expected;
+- replacements for all four truncated attachment predictions;
 - replacement numeric observations for all four namespace-only `Citius`
   predictions;
 - removal of seven ordinary-language predictions and the one empty-field party
@@ -133,12 +133,12 @@ database when the frozen source evidence is already available.
 A later implementation checkpoint must run v6 against the exact frozen source
 representations and demonstrate:
 
-- all 15 reviewed v5 rejection causes are absent;
-- all three corrected attachment spans match exactly;
+- all 16 reviewed v5 rejection causes are absent;
+- all four corrected attachment spans match exactly;
 - all four qualified-Citius observations emit the numeric value rather than
   `Citius`;
 - all four recall findings are recovered at exact spans;
-- all 163 previously confirmed predictions remain correct, accounting for any
+- all 162 previously confirmed predictions remain correct, accounting for any
   deliberately versioned rule identity;
 - both PDF-dependent predictions remain unscored and byte-for-span unchanged;
 - zero predictions overlap the 50 protected negatives;

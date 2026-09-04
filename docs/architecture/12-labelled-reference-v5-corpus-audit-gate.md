@@ -61,8 +61,8 @@ The attributable audit recorded in
 `docs/evaluation/reference-v5-corpus-rollout/audit-review-v1.json` reviewed all
 180 sampled predictions and all 30 no-prediction segment controls. It found:
 
-- 163 confirmed predictions;
-- 15 rejected predictions, an 8.33% sampled false-positive rate;
+- 162 confirmed predictions;
+- 16 rejected predictions, an 8.89% sampled false-positive rate;
 - two predictions requiring original-PDF verification;
 - 30 controls with no confirmed missed in-scope v5 surface form; and
 - four separate recall/error-analysis observations found beside valid sampled
@@ -72,7 +72,9 @@ The no-prediction control criterion passes, but both frozen false-positive
 limits fail. The audit also records future-family and flattened-layout
 diagnostics without scoring them as supported-v5 misses. Corpus ingestion is
 therefore not authorized. The next checkpoint must analyze the completed error
-profile before proposing a versioned extractor or sampling decision.
+profile before proposing a versioned extractor or sampling decision. The
+attributable correction session records that prediction 133's frozen offsets
+point to `Doc nº5- A`; its earlier confirmation is retained in decision history.
 
 ## Hard operational ceilings
 

@@ -31,6 +31,8 @@
     "reference:index:v5-fixtures": "node ./app/reference-v5-ingestion.mjs",
     "reference:inventory:v5-corpus": "node ./app/reference-v5-corpus-inventory.mjs",
     "reference:sample:v5-corpus-audit": "node ./app/build-reference-v5-corpus-audit-sample.mjs",
+    "reference:build-v6-oracle": "node ./app/build-reference-v6-audit-oracle.mjs",
+    "reference:evaluate-v6": "node ./app/evaluate-reference-v6.mjs",
     "reference:save-v5-api-samples": "node ./app/save-reference-v5-ingestion-api-samples.mjs",
     "search:pilot": "node ./app/reference-index-pilot.mjs search",
     "search:evaluate-full": "node ./app/evaluate-full-corpus-text-search.mjs",

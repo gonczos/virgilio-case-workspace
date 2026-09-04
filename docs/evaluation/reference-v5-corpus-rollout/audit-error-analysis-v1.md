@@ -11,11 +11,11 @@ evidence boundary for a later versioned correction. It does not modify
 `labelled-reference-v5`, run extraction, authorize ingestion, or reinterpret
 the frozen audit gate.
 
-The prediction sample contains 163 confirmed predictions, 15 rejected
+The prediction sample contains 162 confirmed predictions, 16 rejected
 predictions, and two predictions requiring original-PDF verification. The
-frozen gate rate remains 15/180, or 8.33%. When the two unresolved predictions
-are excluded from adjudicated precision, v5 has 163 true positives among 178
-decided predictions: 91.57% precision, with an 8.43% decided-prediction error
+frozen gate rate is 16/180, or 8.89%. When the two unresolved predictions
+are excluded from adjudicated precision, v5 has 162 true positives among 178
+decided predictions: 91.01% precision, with an 8.99% decided-prediction error
 rate. The unresolved predictions are neither true nor false positives.
 
 ## False-positive and boundary-error classes
@@ -25,7 +25,7 @@ rate. The unresolved predictions are neither true nor false positives.
 | Ordinary-language capture | `reference-labelled-v3` | 7 | 17, 32, 36, 46, 56, 77, 114 | Do not emit `deste` or `sequer` as identifiers. |
 | Namespace captured as value | `reference-labelled-v3` | 4 | 23, 70, 78, 106 | Treat `Ref.º Citius:` as a combined label and inspect the following identifier; do not emit `Citius`. |
 | Empty-field spillover | `reference-labelled-v3` | 1 | 129 | Do not cross an empty reference field and emit the following party label `Requerente`. |
-| Attachment suffix omitted | `local-attachment-doc-v1` | 3 | 4, 102, 127 | Preserve the complete `A` suffix in `DOC Nº 14 A`, `DOC Nº 13-A`, and `Docnº18-A`. |
+| Attachment suffix omitted | `local-attachment-doc-v1` | 4 | 4, 102, 127, 133 | Preserve the complete `A` suffix in `DOC Nº 14 A`, `DOC Nº 13 -A`, `Docnº18-A`, and `Doc nº5- A`. |
 
 The first three classes account for all 12 rejected predictions from
 `reference-labelled-v3`. Every confirmed prediction produced by the generic or
@@ -39,6 +39,10 @@ For the four `Citius` errors, the directly following numeric values are
 others. The broader lists following `8656497` are not part of this correction:
 their punctuation and coordination were not exhaustively reviewed as an
 independent family.
+
+Prediction 133 was initially confirmed, but exact offset inspection showed
+that its span begins `Doc nº5- A`; an attributable follow-up corrected the
+decision while retaining the earlier decision in history.
 
 The attachment errors are exact-span errors rather than evidence that no
 attachment exists. A corrected prediction replaces each truncated observation;

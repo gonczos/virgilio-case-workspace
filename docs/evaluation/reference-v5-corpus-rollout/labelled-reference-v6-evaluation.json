@@ -1,0 +1,3281 @@
+{
+  "schema_version": 1,
+  "evaluation_kind": "labelled_reference_v6_bounded_evaluation",
+  "reproducible_command": "npm run reference:evaluate-v6",
+  "oracle": {
+    "path": "docs/evaluation/reference-v5-corpus-rollout/v6-audit-oracle-v1.json",
+    "sha256": "025531fcf96a0b8f1ef7c329eca31f3a886297f190316388796215582949ca9a",
+    "oracle_id": "labelled-reference-v6-corpus-audit-oracle-v1"
+  },
+  "extractor": {
+    "key": "app/reference-search-store-v6.mjs",
+    "version": "labelled-reference-v6",
+    "function_source_sha256": "96b76d7ba1f7c8cc1a4a519e63e00974b0796478b11198449cc7c9f3d7c8a456"
+  },
+  "audit": {
+    "cases": [
+      {
+        "source_prediction_number": 1,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº17",
+          "char_start": 167606,
+          "char_end": 167614,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 167606,
+            "label_char_end": 167612
+          }
+        }
+      },
+      {
+        "source_prediction_number": 2,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº10",
+          "char_start": 2718,
+          "char_end": 2726,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 2718,
+            "label_char_end": 2724
+          }
+        }
+      },
+      {
+        "source_prediction_number": 3,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº4",
+          "char_start": 22030,
+          "char_end": 22037,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 22030,
+            "label_char_end": 22036
+          }
+        }
+      },
+      {
+        "source_prediction_number": 4,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº 14 A",
+          "char_start": 55733,
+          "char_end": 55744,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 55733,
+            "label_char_end": 55739
+          }
+        }
+      },
+      {
+        "source_prediction_number": 5,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº26",
+          "char_start": 123662,
+          "char_end": 123670,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 123662,
+            "label_char_end": 123668
+          }
+        }
+      },
+      {
+        "source_prediction_number": 6,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "29252773",
+          "char_start": 81189,
+          "char_end": 81197,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência nº",
+            "label_char_start": 81175,
+            "label_char_end": 81188
+          }
+        }
+      },
+      {
+        "source_prediction_number": 7,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "126236170",
+          "char_start": 483,
+          "char_end": 492,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 471,
+            "label_char_end": 481
+          }
+        }
+      },
+      {
+        "source_prediction_number": 8,
+        "disposition": "unscored_preserved",
+        "passed": true,
+        "matched": {
+          "raw_value": "38477843-",
+          "char_start": 32080,
+          "char_end": 32089,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência",
+            "label_char_start": 32068,
+            "label_char_end": 32078
+          }
+        }
+      },
+      {
+        "source_prediction_number": 9,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "122170551",
+          "char_start": 10717,
+          "char_end": 10726,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 10698,
+            "label_char_end": 10715
+          }
+        }
+      },
+      {
+        "source_prediction_number": 10,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº24",
+          "char_start": 3345,
+          "char_end": 3353,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 3345,
+            "label_char_end": 3351
+          }
+        }
+      },
+      {
+        "source_prediction_number": 11,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "126177986",
+          "char_start": 118657,
+          "char_end": 118666,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 118638,
+            "label_char_end": 118655
+          }
+        }
+      },
+      {
+        "source_prediction_number": 12,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls 1187",
+          "char_start": 42279,
+          "char_end": 42287,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 42279,
+            "label_char_end": 42282
+          }
+        }
+      },
+      {
+        "source_prediction_number": 13,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "12454647",
+          "char_start": 39804,
+          "char_end": 39812,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 39786,
+            "label_char_end": 39803
+          }
+        }
+      },
+      {
+        "source_prediction_number": 14,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº3",
+          "char_start": 9942,
+          "char_end": 9949,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 9942,
+            "label_char_end": 9948
+          }
+        }
+      },
+      {
+        "source_prediction_number": 15,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls1",
+          "char_start": 37966,
+          "char_end": 37970,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 37966,
+            "label_char_end": 37969
+          }
+        }
+      },
+      {
+        "source_prediction_number": 16,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "13679228",
+          "char_start": 34808,
+          "char_end": 34816,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 34790,
+            "label_char_end": 34807
+          }
+        }
+      },
+      {
+        "source_prediction_number": 17,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 18,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº15",
+          "char_start": 34391,
+          "char_end": 34399,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 34391,
+            "label_char_end": 34397
+          }
+        }
+      },
+      {
+        "source_prediction_number": 19,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº3",
+          "char_start": 9078,
+          "char_end": 9085,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 9078,
+            "label_char_end": 9084
+          }
+        }
+      },
+      {
+        "source_prediction_number": 20,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 16",
+          "char_start": 123374,
+          "char_end": 123385,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 123374,
+            "label_char_end": 123382
+          }
+        }
+      },
+      {
+        "source_prediction_number": 21,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº 5",
+          "char_start": 4863,
+          "char_end": 4871,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 4863,
+            "label_char_end": 4869
+          }
+        }
+      },
+      {
+        "source_prediction_number": 22,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº23",
+          "char_start": 26954,
+          "char_end": 26962,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 26954,
+            "label_char_end": 26960
+          }
+        }
+      },
+      {
+        "source_prediction_number": 23,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "8656497",
+          "char_start": 38884,
+          "char_end": 38891,
+          "rule_key": "reference-citius-qualified-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Refº Citius",
+            "label_char_start": 38871,
+            "label_char_end": 38882
+          }
+        }
+      },
+      {
+        "source_prediction_number": 24,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "17764195",
+          "char_start": 62938,
+          "char_end": 62946,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 62926,
+            "label_char_end": 62936
+          }
+        }
+      },
+      {
+        "source_prediction_number": 25,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 513",
+          "char_start": 1270,
+          "char_end": 1278,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 1270,
+            "label_char_end": 1274
+          }
+        }
+      },
+      {
+        "source_prediction_number": 26,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 2",
+          "char_start": 3167,
+          "char_end": 3177,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 3167,
+            "label_char_end": 3175
+          }
+        }
+      },
+      {
+        "source_prediction_number": 27,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 22",
+          "char_start": 24784,
+          "char_end": 24795,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 24784,
+            "label_char_end": 24792
+          }
+        }
+      },
+      {
+        "source_prediction_number": 28,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 9",
+          "char_start": 56189,
+          "char_end": 56199,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 56189,
+            "label_char_end": 56197
+          }
+        }
+      },
+      {
+        "source_prediction_number": 29,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 972",
+          "char_start": 1249,
+          "char_end": 1257,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 1249,
+            "label_char_end": 1253
+          }
+        }
+      },
+      {
+        "source_prediction_number": 30,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº2",
+          "char_start": 4378,
+          "char_end": 4385,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 4378,
+            "label_char_end": 4384
+          }
+        }
+      },
+      {
+        "source_prediction_number": 31,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº21",
+          "char_start": 72287,
+          "char_end": 72295,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 72287,
+            "label_char_end": 72293
+          }
+        }
+      },
+      {
+        "source_prediction_number": 32,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 33,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº4",
+          "char_start": 190182,
+          "char_end": 190189,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 190182,
+            "label_char_end": 190188
+          }
+        }
+      },
+      {
+        "source_prediction_number": 34,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº 24",
+          "char_start": 25622,
+          "char_end": 25631,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 25622,
+            "label_char_end": 25628
+          }
+        }
+      },
+      {
+        "source_prediction_number": 35,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "13055845",
+          "char_start": 37766,
+          "char_end": 37774,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 37747,
+            "label_char_end": 37764
+          }
+        }
+      },
+      {
+        "source_prediction_number": 36,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 37,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº3",
+          "char_start": 27433,
+          "char_end": 27440,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 27433,
+            "label_char_end": 27439
+          }
+        }
+      },
+      {
+        "source_prediction_number": 38,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls2",
+          "char_start": 13079,
+          "char_end": 13083,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 13079,
+            "label_char_end": 13082
+          }
+        }
+      },
+      {
+        "source_prediction_number": 39,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "20339355",
+          "char_start": 338,
+          "char_end": 346,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "REFª",
+            "label_char_start": 332,
+            "label_char_end": 336
+          }
+        }
+      },
+      {
+        "source_prediction_number": 40,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 27",
+          "char_start": 76345,
+          "char_end": 76356,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 76345,
+            "label_char_end": 76353
+          }
+        }
+      },
+      {
+        "source_prediction_number": 41,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo: 702380056723040",
+          "char_start": 583,
+          "char_end": 607,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 583,
+            "label_char_end": 591
+          }
+        }
+      },
+      {
+        "source_prediction_number": 42,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 4",
+          "char_start": 11018,
+          "char_end": 11028,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 11018,
+            "label_char_end": 11026
+          }
+        }
+      },
+      {
+        "source_prediction_number": 43,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 2",
+          "char_start": 3393,
+          "char_end": 3403,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 3393,
+            "label_char_end": 3401
+          }
+        }
+      },
+      {
+        "source_prediction_number": 44,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº 5",
+          "char_start": 82677,
+          "char_end": 82685,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 82677,
+            "label_char_end": 82683
+          }
+        }
+      },
+      {
+        "source_prediction_number": 45,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº14",
+          "char_start": 0,
+          "char_end": 8,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 0,
+            "label_char_end": 6
+          }
+        }
+      },
+      {
+        "source_prediction_number": 46,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 47,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº28",
+          "char_start": 3044,
+          "char_end": 3052,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 3044,
+            "label_char_end": 3050
+          }
+        }
+      },
+      {
+        "source_prediction_number": 48,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "36046853",
+          "char_start": 215703,
+          "char_end": 215711,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência",
+            "label_char_start": 215692,
+            "label_char_end": 215702
+          }
+        }
+      },
+      {
+        "source_prediction_number": 49,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "36040770",
+          "char_start": 308,
+          "char_end": 316,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "REFª",
+            "label_char_start": 302,
+            "label_char_end": 306
+          }
+        }
+      },
+      {
+        "source_prediction_number": 50,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº1",
+          "char_start": 1570,
+          "char_end": 1577,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 1570,
+            "label_char_end": 1576
+          }
+        }
+      },
+      {
+        "source_prediction_number": 51,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "36088925",
+          "char_start": 3008,
+          "char_end": 3016,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência",
+            "label_char_start": 2997,
+            "label_char_end": 3007
+          }
+        }
+      },
+      {
+        "source_prediction_number": 52,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "39377446",
+          "char_start": 7291,
+          "char_end": 7299,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "REFª.",
+            "label_char_start": 7285,
+            "label_char_end": 7290
+          }
+        }
+      },
+      {
+        "source_prediction_number": 53,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "17024838",
+          "char_start": 201135,
+          "char_end": 201143,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 201117,
+            "label_char_end": 201134
+          }
+        }
+      },
+      {
+        "source_prediction_number": 54,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls1",
+          "char_start": 155,
+          "char_end": 159,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 155,
+            "label_char_end": 158
+          }
+        }
+      },
+      {
+        "source_prediction_number": 55,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 2",
+          "char_start": 2605,
+          "char_end": 2615,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 2605,
+            "label_char_end": 2613
+          }
+        }
+      },
+      {
+        "source_prediction_number": 56,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 57,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 18",
+          "char_start": 97231,
+          "char_end": 97242,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 97231,
+            "label_char_end": 97239
+          }
+        }
+      },
+      {
+        "source_prediction_number": 58,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº7",
+          "char_start": 54086,
+          "char_end": 54093,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 54086,
+            "label_char_end": 54092
+          }
+        }
+      },
+      {
+        "source_prediction_number": 59,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls 1989",
+          "char_start": 324,
+          "char_end": 332,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 324,
+            "label_char_end": 327
+          }
+        }
+      },
+      {
+        "source_prediction_number": 60,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 17",
+          "char_start": 38512,
+          "char_end": 38523,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 38512,
+            "label_char_end": 38520
+          }
+        }
+      },
+      {
+        "source_prediction_number": 61,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº38",
+          "char_start": 103328,
+          "char_end": 103336,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 103328,
+            "label_char_end": 103334
+          }
+        }
+      },
+      {
+        "source_prediction_number": 62,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº2",
+          "char_start": 141751,
+          "char_end": 141758,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 141751,
+            "label_char_end": 141757
+          }
+        }
+      },
+      {
+        "source_prediction_number": 63,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "101407074",
+          "char_start": 6593,
+          "char_end": 6602,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 6581,
+            "label_char_end": 6591
+          }
+        }
+      },
+      {
+        "source_prediction_number": 64,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº2",
+          "char_start": 9162,
+          "char_end": 9169,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 9162,
+            "label_char_end": 9168
+          }
+        }
+      },
+      {
+        "source_prediction_number": 65,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "17103461",
+          "char_start": 2117,
+          "char_end": 2125,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 2099,
+            "label_char_end": 2116
+          }
+        }
+      },
+      {
+        "source_prediction_number": 66,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº3",
+          "char_start": 88512,
+          "char_end": 88519,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 88512,
+            "label_char_end": 88518
+          }
+        }
+      },
+      {
+        "source_prediction_number": 67,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº4",
+          "char_start": 121349,
+          "char_end": 121356,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 121349,
+            "label_char_end": 121355
+          }
+        }
+      },
+      {
+        "source_prediction_number": 68,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº42",
+          "char_start": 90668,
+          "char_end": 90676,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 90668,
+            "label_char_end": 90674
+          }
+        }
+      },
+      {
+        "source_prediction_number": 69,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 514",
+          "char_start": 15226,
+          "char_end": 15234,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 15226,
+            "label_char_end": 15230
+          }
+        }
+      },
+      {
+        "source_prediction_number": 70,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "8656497",
+          "char_start": 53624,
+          "char_end": 53631,
+          "rule_key": "reference-citius-qualified-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Refº Citius",
+            "label_char_start": 53611,
+            "label_char_end": 53622
+          }
+        }
+      },
+      {
+        "source_prediction_number": 71,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "38923822",
+          "char_start": 308,
+          "char_end": 316,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "REFª",
+            "label_char_start": 302,
+            "label_char_end": 306
+          }
+        }
+      },
+      {
+        "source_prediction_number": 72,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 378",
+          "char_start": 11296,
+          "char_end": 11304,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 11296,
+            "label_char_end": 11300
+          }
+        }
+      },
+      {
+        "source_prediction_number": 73,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 24",
+          "char_start": 80949,
+          "char_end": 80960,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 80949,
+            "label_char_end": 80957
+          }
+        }
+      },
+      {
+        "source_prediction_number": 74,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "126237411",
+          "char_start": 419,
+          "char_end": 428,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referencia",
+            "label_char_start": 408,
+            "label_char_end": 418
+          }
+        }
+      },
+      {
+        "source_prediction_number": 75,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 25",
+          "char_start": 23160,
+          "char_end": 23167,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 23160,
+            "label_char_end": 23164
+          }
+        }
+      },
+      {
+        "source_prediction_number": 76,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC nº32",
+          "char_start": 107541,
+          "char_end": 107549,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC nº",
+            "label_char_start": 107541,
+            "label_char_end": 107547
+          }
+        }
+      },
+      {
+        "source_prediction_number": 77,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 78,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "651161",
+          "char_start": 79450,
+          "char_end": 79456,
+          "rule_key": "reference-citius-qualified-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Refº Citius",
+            "label_char_start": 79437,
+            "label_char_end": 79448
+          }
+        }
+      },
+      {
+        "source_prediction_number": 79,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 7",
+          "char_start": 70325,
+          "char_end": 70335,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 70325,
+            "label_char_end": 70333
+          }
+        }
+      },
+      {
+        "source_prediction_number": 80,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "38071386",
+          "char_start": 1566,
+          "char_end": 1574,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "REFª.",
+            "label_char_start": 1560,
+            "label_char_end": 1565
+          }
+        }
+      },
+      {
+        "source_prediction_number": 81,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 10",
+          "char_start": 243769,
+          "char_end": 243780,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 243769,
+            "label_char_end": 243777
+          }
+        }
+      },
+      {
+        "source_prediction_number": 82,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 9",
+          "char_start": 87161,
+          "char_end": 87171,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 87161,
+            "label_char_end": 87169
+          }
+        }
+      },
+      {
+        "source_prediction_number": 83,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº10",
+          "char_start": 14407,
+          "char_end": 14415,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 14407,
+            "label_char_end": 14413
+          }
+        }
+      },
+      {
+        "source_prediction_number": 84,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº 5",
+          "char_start": 84652,
+          "char_end": 84660,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 84652,
+            "label_char_end": 84658
+          }
+        }
+      },
+      {
+        "source_prediction_number": 85,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº10",
+          "char_start": 14672,
+          "char_end": 14680,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 14672,
+            "label_char_end": 14678
+          }
+        }
+      },
+      {
+        "source_prediction_number": 86,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº2",
+          "char_start": 0,
+          "char_end": 7,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 0,
+            "label_char_end": 6
+          }
+        }
+      },
+      {
+        "source_prediction_number": 87,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "116975096",
+          "char_start": 487,
+          "char_end": 496,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 475,
+            "label_char_end": 485
+          }
+        }
+      },
+      {
+        "source_prediction_number": 88,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº5",
+          "char_start": 6507,
+          "char_end": 6514,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 6507,
+            "label_char_end": 6513
+          }
+        }
+      },
+      {
+        "source_prediction_number": 89,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº22",
+          "char_start": 2896,
+          "char_end": 2904,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 2896,
+            "label_char_end": 2902
+          }
+        }
+      },
+      {
+        "source_prediction_number": 90,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 19",
+          "char_start": 38610,
+          "char_end": 38621,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 38610,
+            "label_char_end": 38618
+          }
+        }
+      },
+      {
+        "source_prediction_number": 91,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº 3",
+          "char_start": 3261,
+          "char_end": 3269,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 3261,
+            "label_char_end": 3267
+          }
+        }
+      },
+      {
+        "source_prediction_number": 92,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 10",
+          "char_start": 131256,
+          "char_end": 131267,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 131256,
+            "label_char_end": 131264
+          }
+        }
+      },
+      {
+        "source_prediction_number": 93,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº28",
+          "char_start": 39035,
+          "char_end": 39043,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 39035,
+            "label_char_end": 39041
+          }
+        }
+      },
+      {
+        "source_prediction_number": 94,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº1",
+          "char_start": 43,
+          "char_end": 50,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 43,
+            "label_char_end": 49
+          }
+        }
+      },
+      {
+        "source_prediction_number": 95,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "106716560",
+          "char_start": 1212,
+          "char_end": 1221,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 1200,
+            "label_char_end": 1210
+          }
+        }
+      },
+      {
+        "source_prediction_number": 96,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº24",
+          "char_start": 60449,
+          "char_end": 60457,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 60449,
+            "label_char_end": 60455
+          }
+        }
+      },
+      {
+        "source_prediction_number": 97,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº28",
+          "char_start": 140791,
+          "char_end": 140799,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 140791,
+            "label_char_end": 140797
+          }
+        }
+      },
+      {
+        "source_prediction_number": 98,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 2",
+          "char_start": 841,
+          "char_end": 851,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 841,
+            "label_char_end": 849
+          }
+        }
+      },
+      {
+        "source_prediction_number": 99,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº11",
+          "char_start": 90885,
+          "char_end": 90893,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 90885,
+            "label_char_end": 90891
+          }
+        }
+      },
+      {
+        "source_prediction_number": 100,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 2",
+          "char_start": 3400,
+          "char_end": 3410,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 3400,
+            "label_char_end": 3408
+          }
+        }
+      },
+      {
+        "source_prediction_number": 101,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "104166386",
+          "char_start": 2280,
+          "char_end": 2289,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência nº",
+            "label_char_start": 2266,
+            "label_char_end": 2279
+          }
+        }
+      },
+      {
+        "source_prediction_number": 102,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº 13 -A",
+          "char_start": 42298,
+          "char_end": 42310,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 42298,
+            "label_char_end": 42304
+          }
+        }
+      },
+      {
+        "source_prediction_number": 103,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 961",
+          "char_start": 1238,
+          "char_end": 1246,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 1238,
+            "label_char_end": 1242
+          }
+        }
+      },
+      {
+        "source_prediction_number": 104,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº27",
+          "char_start": 70642,
+          "char_end": 70650,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 70642,
+            "label_char_end": 70648
+          }
+        }
+      },
+      {
+        "source_prediction_number": 105,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "122178618",
+          "char_start": 1458,
+          "char_end": 1467,
+          "rule_key": "procedural-coordination-respectivamente-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "referência citius",
+            "label_char_start": 1427,
+            "label_char_end": 1444,
+            "coordination_cue": "respectivamente",
+            "preceding_value": "122170551"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 106,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "651161",
+          "char_start": 79716,
+          "char_end": 79722,
+          "rule_key": "reference-citius-qualified-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Refº Citius",
+            "label_char_start": 79703,
+            "label_char_end": 79714
+          }
+        }
+      },
+      {
+        "source_prediction_number": 107,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº20",
+          "char_start": 5936,
+          "char_end": 5944,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 5936,
+            "label_char_end": 5942
+          }
+        }
+      },
+      {
+        "source_prediction_number": 108,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "93528486",
+          "char_start": 101714,
+          "char_end": 101722,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius nº",
+            "label_char_start": 101674,
+            "label_char_end": 101694
+          }
+        }
+      },
+      {
+        "source_prediction_number": 109,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº9",
+          "char_start": 7751,
+          "char_end": 7758,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 7751,
+            "label_char_end": 7757
+          }
+        }
+      },
+      {
+        "source_prediction_number": 110,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 2",
+          "char_start": 5480,
+          "char_end": 5490,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 5480,
+            "label_char_end": 5488
+          }
+        }
+      },
+      {
+        "source_prediction_number": 111,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº10",
+          "char_start": 16611,
+          "char_end": 16619,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 16611,
+            "label_char_end": 16617
+          }
+        }
+      },
+      {
+        "source_prediction_number": 112,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "114387397",
+          "char_start": 687,
+          "char_end": 696,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 676,
+            "label_char_end": 686
+          }
+        }
+      },
+      {
+        "source_prediction_number": 113,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 3",
+          "char_start": 3852,
+          "char_end": 3862,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 3852,
+            "label_char_end": 3860
+          }
+        }
+      },
+      {
+        "source_prediction_number": 114,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 115,
+        "disposition": "unscored_preserved",
+        "passed": true,
+        "matched": {
+          "raw_value": "1606407299",
+          "char_start": 334836,
+          "char_end": 334846,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 334817,
+            "label_char_end": 334834
+          }
+        }
+      },
+      {
+        "source_prediction_number": 116,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº1",
+          "char_start": 23450,
+          "char_end": 23457,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 23450,
+            "label_char_end": 23456
+          }
+        }
+      },
+      {
+        "source_prediction_number": 117,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 9",
+          "char_start": 75934,
+          "char_end": 75944,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 75934,
+            "label_char_end": 75942
+          }
+        }
+      },
+      {
+        "source_prediction_number": 118,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "94210221",
+          "char_start": 126269,
+          "char_end": 126277,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência",
+            "label_char_start": 126257,
+            "label_char_end": 126267
+          }
+        }
+      },
+      {
+        "source_prediction_number": 119,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "145865564",
+          "char_start": 290,
+          "char_end": 299,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 278,
+            "label_char_end": 288
+          }
+        }
+      },
+      {
+        "source_prediction_number": 120,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº20",
+          "char_start": 67407,
+          "char_end": 67415,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 67407,
+            "label_char_end": 67413
+          }
+        }
+      },
+      {
+        "source_prediction_number": 121,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 11",
+          "char_start": 140277,
+          "char_end": 140288,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 140277,
+            "label_char_end": 140285
+          }
+        }
+      },
+      {
+        "source_prediction_number": 122,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "138245251",
+          "char_start": 401,
+          "char_end": 410,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 389,
+            "label_char_end": 399
+          }
+        }
+      },
+      {
+        "source_prediction_number": 123,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 7",
+          "char_start": 3115,
+          "char_end": 3125,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 3115,
+            "label_char_end": 3123
+          }
+        }
+      },
+      {
+        "source_prediction_number": 124,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 8",
+          "char_start": 27420,
+          "char_end": 27430,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 27420,
+            "label_char_end": 27428
+          }
+        }
+      },
+      {
+        "source_prediction_number": 125,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº3",
+          "char_start": 18273,
+          "char_end": 18280,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 18273,
+            "label_char_end": 18279
+          }
+        }
+      },
+      {
+        "source_prediction_number": 126,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 3",
+          "char_start": 134335,
+          "char_end": 134345,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 134335,
+            "label_char_end": 134343
+          }
+        }
+      },
+      {
+        "source_prediction_number": 127,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Docnº18-A",
+          "char_start": 20560,
+          "char_end": 20569,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Docnº",
+            "label_char_start": 20560,
+            "label_char_end": 20565
+          }
+        }
+      },
+      {
+        "source_prediction_number": 128,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº5",
+          "char_start": 1742,
+          "char_end": 1749,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 1742,
+            "label_char_end": 1748
+          }
+        }
+      },
+      {
+        "source_prediction_number": 129,
+        "disposition": "expected_absent",
+        "passed": true
+      },
+      {
+        "source_prediction_number": 130,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "129435687",
+          "char_start": 992,
+          "char_end": 1001,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 980,
+            "label_char_end": 990
+          }
+        }
+      },
+      {
+        "source_prediction_number": 131,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "B33-00165/2021",
+          "char_start": 130,
+          "char_end": 144,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Ref",
+            "label_char_start": 125,
+            "label_char_end": 128
+          }
+        }
+      },
+      {
+        "source_prediction_number": 132,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº18",
+          "char_start": 36734,
+          "char_end": 36742,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 36734,
+            "label_char_end": 36740
+          }
+        }
+      },
+      {
+        "source_prediction_number": 133,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº5- A",
+          "char_start": 8476,
+          "char_end": 8486,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 8476,
+            "label_char_end": 8482
+          }
+        }
+      },
+      {
+        "source_prediction_number": 134,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "30033264",
+          "char_start": 83970,
+          "char_end": 83978,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência nº",
+            "label_char_start": 83956,
+            "label_char_end": 83969
+          }
+        }
+      },
+      {
+        "source_prediction_number": 135,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc  nº4",
+          "char_start": 27379,
+          "char_end": 27387,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc  nº",
+            "label_char_start": 27379,
+            "label_char_end": 27386
+          }
+        }
+      },
+      {
+        "source_prediction_number": 136,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº1",
+          "char_start": 2651,
+          "char_end": 2658,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 2651,
+            "label_char_end": 2657
+          }
+        }
+      },
+      {
+        "source_prediction_number": 137,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº26",
+          "char_start": 6493,
+          "char_end": 6501,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 6493,
+            "label_char_end": 6499
+          }
+        }
+      },
+      {
+        "source_prediction_number": 138,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº33",
+          "char_start": 7796,
+          "char_end": 7804,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 7796,
+            "label_char_end": 7802
+          }
+        }
+      },
+      {
+        "source_prediction_number": 139,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Anexo nº 1",
+          "char_start": 4164,
+          "char_end": 4174,
+          "rule_key": "local-attachment-anexo-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Anexo nº",
+            "label_char_start": 4164,
+            "label_char_end": 4172
+          }
+        }
+      },
+      {
+        "source_prediction_number": 140,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº1",
+          "char_start": 16721,
+          "char_end": 16728,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº",
+            "label_char_start": 16721,
+            "label_char_end": 16727
+          }
+        }
+      },
+      {
+        "source_prediction_number": 141,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls.  837",
+          "char_start": 1104,
+          "char_end": 1113,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 1104,
+            "label_char_end": 1108
+          }
+        }
+      },
+      {
+        "source_prediction_number": 142,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls 1055",
+          "char_start": 28031,
+          "char_end": 28039,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 28031,
+            "label_char_end": 28034
+          }
+        }
+      },
+      {
+        "source_prediction_number": 143,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 1007",
+          "char_start": 2085,
+          "char_end": 2094,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 2085,
+            "label_char_end": 2089
+          }
+        }
+      },
+      {
+        "source_prediction_number": 144,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls26",
+          "char_start": 28089,
+          "char_end": 28094,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 28089,
+            "label_char_end": 28092
+          }
+        }
+      },
+      {
+        "source_prediction_number": 145,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº43",
+          "char_start": 4196,
+          "char_end": 4204,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 4196,
+            "label_char_end": 4202
+          }
+        }
+      },
+      {
+        "source_prediction_number": 146,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo: 702680056977093",
+          "char_start": 112,
+          "char_end": 136,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 112,
+            "label_char_end": 120
+          }
+        }
+      },
+      {
+        "source_prediction_number": 147,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "25 A",
+          "char_start": 6559,
+          "char_end": 6563,
+          "rule_key": "local-attachment-coordination-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "Doc nº Doc",
+            "label_char_start": 6543,
+            "label_char_end": 6553,
+            "coordination_cue": "e",
+            "preceding_value": "25"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 148,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 64",
+          "char_start": 793,
+          "char_end": 800,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 793,
+            "label_char_end": 797
+          }
+        }
+      },
+      {
+        "source_prediction_number": 149,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº 45",
+          "char_start": 4274,
+          "char_end": 4283,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 4274,
+            "label_char_end": 4280
+          }
+        }
+      },
+      {
+        "source_prediction_number": 150,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls.10",
+          "char_start": 740,
+          "char_end": 746,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 740,
+            "label_char_end": 744
+          }
+        }
+      },
+      {
+        "source_prediction_number": 151,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "122178618",
+          "char_start": 8408,
+          "char_end": 8417,
+          "rule_key": "procedural-coordination-respectivamente-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "referência citius",
+            "label_char_start": 8377,
+            "label_char_end": 8394,
+            "coordination_cue": "respectivamente",
+            "preceding_value": "122170551"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 152,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "122178618",
+          "char_start": 18276,
+          "char_end": 18285,
+          "rule_key": "procedural-coordination-respectivamente-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "referência citius",
+            "label_char_start": 18245,
+            "label_char_end": 18262,
+            "coordination_cue": "respectivamente",
+            "preceding_value": "122170551"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 153,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "25 A",
+          "char_start": 42069,
+          "char_end": 42073,
+          "rule_key": "local-attachment-coordination-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "Doc nº Doc",
+            "label_char_start": 42053,
+            "label_char_end": 42063,
+            "coordination_cue": "e",
+            "preceding_value": "25"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 154,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo: 702180042331960",
+          "char_start": 800,
+          "char_end": 824,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 800,
+            "label_char_end": 808
+          }
+        }
+      },
+      {
+        "source_prediction_number": 155,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº Doc 25",
+          "char_start": 10345,
+          "char_end": 10358,
+          "rule_key": "local-attachment-duplicated-doc-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº Doc",
+            "label_char_start": 10345,
+            "label_char_end": 10355
+          }
+        }
+      },
+      {
+        "source_prediction_number": 156,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo n.° 1684/2020",
+          "char_start": 5852,
+          "char_end": 5873,
+          "rule_key": "external-register-numbered-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo n.°",
+            "label_char_start": 5852,
+            "label_char_end": 5863
+          }
+        }
+      },
+      {
+        "source_prediction_number": 157,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo: 702380056723040",
+          "char_start": 152,
+          "char_end": 176,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 152,
+            "label_char_end": 160
+          }
+        }
+      },
+      {
+        "source_prediction_number": 158,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 399",
+          "char_start": 936,
+          "char_end": 944,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 936,
+            "label_char_end": 940
+          }
+        }
+      },
+      {
+        "source_prediction_number": 159,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº Doc 25",
+          "char_start": 8082,
+          "char_end": 8095,
+          "rule_key": "local-attachment-duplicated-doc-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº Doc",
+            "label_char_start": 8082,
+            "label_char_end": 8092
+          }
+        }
+      },
+      {
+        "source_prediction_number": 160,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Doc nº Doc 25",
+          "char_start": 9332,
+          "char_end": 9345,
+          "rule_key": "local-attachment-duplicated-doc-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Doc nº Doc",
+            "label_char_start": 9332,
+            "label_char_end": 9342
+          }
+        }
+      },
+      {
+        "source_prediction_number": 161,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "34820097",
+          "char_start": 8528,
+          "char_end": 8536,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Referência",
+            "label_char_start": 8516,
+            "label_char_end": 8526
+          }
+        }
+      },
+      {
+        "source_prediction_number": 162,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls 530",
+          "char_start": 987,
+          "char_end": 994,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls",
+            "label_char_start": 987,
+            "label_char_end": 990
+          }
+        }
+      },
+      {
+        "source_prediction_number": 163,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "129613997",
+          "char_start": 8164,
+          "char_end": 8173,
+          "rule_key": "reference-labelled-v4",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência",
+            "label_char_start": 8152,
+            "label_char_end": 8162
+          }
+        }
+      },
+      {
+        "source_prediction_number": 164,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "25 A",
+          "char_start": 2321,
+          "char_end": 2325,
+          "rule_key": "local-attachment-coordination-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "Doc nº Doc",
+            "label_char_start": 2305,
+            "label_char_end": 2315,
+            "coordination_cue": "e",
+            "preceding_value": "25"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 165,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "106904705",
+          "char_start": 7495,
+          "char_end": 7504,
+          "rule_key": "cited-reference-labelled-v3",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "referência citius",
+            "label_char_start": 7477,
+            "label_char_end": 7494
+          }
+        }
+      },
+      {
+        "source_prediction_number": 166,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº12",
+          "char_start": 243899,
+          "char_end": 243907,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 243899,
+            "label_char_end": 243905
+          }
+        }
+      },
+      {
+        "source_prediction_number": 167,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 857",
+          "char_start": 1184,
+          "char_end": 1192,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 1184,
+            "label_char_end": 1188
+          }
+        }
+      },
+      {
+        "source_prediction_number": 168,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 524",
+          "char_start": 977,
+          "char_end": 985,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 977,
+            "label_char_end": 981
+          }
+        }
+      },
+      {
+        "source_prediction_number": 169,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 570",
+          "char_start": 1006,
+          "char_end": 1014,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 1006,
+            "label_char_end": 1010
+          }
+        }
+      },
+      {
+        "source_prediction_number": 170,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "DOC Nº35",
+          "char_start": 3882,
+          "char_end": 3890,
+          "rule_key": "local-attachment-doc-v2",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "DOC Nº",
+            "label_char_start": 3882,
+            "label_char_end": 3888
+          }
+        }
+      },
+      {
+        "source_prediction_number": 171,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls.683",
+          "char_start": 1039,
+          "char_end": 1046,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 1039,
+            "label_char_end": 1043
+          }
+        }
+      },
+      {
+        "source_prediction_number": 172,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "fls. 502",
+          "char_start": 956,
+          "char_end": 964,
+          "rule_key": "physical-folio-fls-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "fls.",
+            "label_char_start": 956,
+            "label_char_end": 960
+          }
+        }
+      },
+      {
+        "source_prediction_number": 173,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo:\r\n\r\n702380056723040",
+          "char_start": 365,
+          "char_end": 392,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 365,
+            "label_char_end": 373
+          }
+        }
+      },
+      {
+        "source_prediction_number": 174,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo:\r\n\r\n702680056977093",
+          "char_start": 373,
+          "char_end": 400,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 373,
+            "label_char_end": 381
+          }
+        }
+      },
+      {
+        "source_prediction_number": 175,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "4",
+          "char_start": 117475,
+          "char_end": 117476,
+          "rule_key": "local-attachment-french-damaged-piece-v1",
+          "label_provenance": {
+            "kind": "inherited_from_damaged_table_label",
+            "source_label": "Nmr  piéce  ·",
+            "label_char_start": 117461,
+            "label_char_end": 117474
+          }
+        }
+      },
+      {
+        "source_prediction_number": 176,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo: 702680056977093",
+          "char_start": 572,
+          "char_end": 596,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 572,
+            "label_char_end": 580
+          }
+        }
+      },
+      {
+        "source_prediction_number": 177,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo n.° 1086/2014",
+          "char_start": 20892,
+          "char_end": 20913,
+          "rule_key": "external-register-numbered-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo n.°",
+            "label_char_start": 20892,
+            "label_char_end": 20903
+          }
+        }
+      },
+      {
+        "source_prediction_number": 178,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo:  702180042331960",
+          "char_start": 331,
+          "char_end": 356,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 331,
+            "label_char_end": 339
+          }
+        }
+      },
+      {
+        "source_prediction_number": 179,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "4",
+          "char_start": 129102,
+          "char_end": 129103,
+          "rule_key": "local-attachment-french-damaged-piece-v1",
+          "label_provenance": {
+            "kind": "inherited_from_damaged_table_label",
+            "source_label": "Nmr piéce ·",
+            "label_char_start": 129088,
+            "label_char_end": 129099
+          }
+        }
+      },
+      {
+        "source_prediction_number": 180,
+        "disposition": "expected_exact",
+        "passed": true,
+        "matched": {
+          "raw_value": "Registo: 702180042331960",
+          "char_start": 0,
+          "char_end": 24,
+          "rule_key": "external-register-colon-v1",
+          "label_provenance": {
+            "kind": "direct",
+            "source_label": "Registo:",
+            "label_char_start": 0,
+            "label_char_end": 8
+          }
+        }
+      },
+      {
+        "source_prediction_number": 75,
+        "disposition": "expected_recall_addition",
+        "passed": true,
+        "matched": {
+          "raw_value": "26v.",
+          "char_start": 23171,
+          "char_end": 23175,
+          "rule_key": "physical-folio-coordination-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "fls.",
+            "label_char_start": 23160,
+            "label_char_end": 23164,
+            "coordination_cue": "e",
+            "preceding_value": "25"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 116,
+        "disposition": "expected_recall_addition",
+        "passed": true,
+        "matched": {
+          "raw_value": "7",
+          "char_start": 23460,
+          "char_end": 23461,
+          "rule_key": "local-attachment-range-v1",
+          "label_provenance": {
+            "kind": "inherited_from_range_expression",
+            "source_label": "Doc nº",
+            "label_char_start": 23450,
+            "label_char_end": 23456,
+            "range_cue": "a",
+            "preceding_value": "1"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 141,
+        "disposition": "expected_recall_addition",
+        "passed": true,
+        "matched": {
+          "raw_value": "838",
+          "char_start": 1118,
+          "char_end": 1121,
+          "rule_key": "physical-folio-coordination-v1",
+          "label_provenance": {
+            "kind": "inherited_from_coordinated_expression",
+            "source_label": "fls.",
+            "label_char_start": 1104,
+            "label_char_end": 1108,
+            "coordination_cue": "e",
+            "preceding_value": "837"
+          }
+        }
+      },
+      {
+        "source_prediction_number": 142,
+        "disposition": "expected_recall_addition",
+        "passed": true,
+        "matched": {
+          "raw_value": "1103",
+          "char_start": 28040,
+          "char_end": 28044,
+          "rule_key": "physical-folio-compact-range-v1",
+          "label_provenance": {
+            "kind": "inherited_from_range_expression",
+            "source_label": "fls",
+            "label_char_start": 28031,
+            "label_char_end": 28034,
+            "range_cue": "/",
+            "preceding_value": "1055"
+          }
+        }
+      }
+    ],
+    "controls": [
+      {
+        "document_segment_id": 2501,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 3192,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2560,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 3074,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2567,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2610,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2936,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2787,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2932,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 3260,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 13,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1199,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 983,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 224,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 570,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 979,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 492,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 713,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 324,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 536,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1656,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1586,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2045,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1435,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1477,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1897,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1878,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1331,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 1319,
+        "prediction_count": 0,
+        "passed": true
+      },
+      {
+        "document_segment_id": 2216,
+        "prediction_count": 0,
+        "passed": true
+      }
+    ],
+    "summary": {
+      "cases_total": 184,
+      "cases_passed": 184,
+      "expected_exact_passed": 170,
+      "expected_absent_passed": 8,
+      "recall_additions_passed": 4,
+      "unscored_preserved_passed": 2,
+      "controls_passed": 30,
+      "controls_total": 30
+    }
+  },
+  "foundation": {
+    "fixture_path": "docs/evaluation/reference-extraction-foundation-fixture/annotations.json",
+    "fixture_sha256": "808ceffdb1b6dfc1e12cfd65abeec1fd355f001c02310acc4d76fd1d25269c46",
+    "summary": {
+      "positive_count": 18,
+      "exact": 18,
+      "missed": 0,
+      "prediction_count": 18,
+      "spurious": 0,
+      "negative_count": 15,
+      "negative_overlaps": 0,
+      "ambiguous_count": 0,
+      "ambiguous_overlaps": 0
+    }
+  },
+  "expansion": {
+    "fixture_path": "docs/evaluation/reference-extraction-expansion-v1/text-reviewed-fixture-v1.json",
+    "fixture_sha256": "2bbaee48b3753680b07c2297050c485d1c8142a114d34e4338fc377ea0fd7d11",
+    "summary": {
+      "positive_count": 93,
+      "exact": 93,
+      "missed": 0,
+      "prediction_count": 93,
+      "spurious": 0,
+      "negative_count": 35,
+      "negative_overlaps": 0,
+      "ambiguous_count": 3,
+      "ambiguous_overlaps": 0
+    }
+  },
+  "pending_original_pdf_verification": [
+    {
+      "source_prediction_number": 8,
+      "raw_value": "38477843-",
+      "scored": false
+    },
+    {
+      "source_prediction_number": 115,
+      "raw_value": "1606407299",
+      "scored": false
+    }
+  ],
+  "limitations": [
+    "This bounded result does not authorize corpus ingestion.",
+    "Unsupported families remain not evaluated.",
+    "Targets and relationships remain unresolved."
+  ],
+  "passed": true
+}

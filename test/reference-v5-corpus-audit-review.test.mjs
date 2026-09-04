@@ -22,6 +22,7 @@ test("completed v5 corpus audit preserves the frozen sample and failed gate", ()
   );
   assert.equal(new Set(review.prediction_reviews.map((item) => item.observation_key)).size, 180);
   const sessionObservationKeys = review.review_sessions
+    .filter((session) => session.session_id.startsWith("corpus-v5-guided-human-review-batch-"))
     .flatMap((session) => session.observation_keys ?? []);
   assert.deepEqual(sessionObservationKeys, sample.prediction_sample.map((item) => item.observation_key));
   const sessionControlIds = review.review_sessions
@@ -32,8 +33,8 @@ test("completed v5 corpus audit preserves the frozen sample and failed gate", ()
   );
 
   const decisions = Object.groupBy(review.prediction_reviews, (item) => item.decision);
-  assert.equal(decisions.confirmed.length, 163);
-  assert.equal(decisions.rejected.length, 15);
+  assert.equal(decisions.confirmed.length, 162);
+  assert.equal(decisions.rejected.length, 16);
   assert.equal(decisions.needs_original_pdf_verification.length, 2);
   for (const item of review.prediction_reviews) {
     assert.equal(item.target_resolution, "unresolved");
@@ -66,7 +67,7 @@ test("completed v5 corpus audit preserves the frozen sample and failed gate", ()
       && item.segment_char_end === item.representation_char_end,
   ));
 
-  assert.equal(review.summary.sampled_false_positive_rate, 15 / 180);
+  assert.equal(review.summary.sampled_false_positive_rate, 16 / 180);
   assert.equal(review.summary.human_gate_passed, false);
   assert.equal(review.summary.human_gate_state, "failed_complete_audit");
   assert.equal(review.summary.write_authorized, false);
