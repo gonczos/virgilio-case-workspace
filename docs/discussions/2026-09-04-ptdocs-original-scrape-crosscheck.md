@@ -1,5 +1,25 @@
 # Original upload and court scrape cross-check
 
+## Additional direct-download capture
+
+A subsequent directory check found the extracted
+`tribunais-direct-post-unique-docs-2026-08-30T01-29-21-405Z` capture, which was not
+included in the earlier 5,126-file snapshot below. All 1,310 saved responses were
+hashed and match `results.json`. The log records 1,274 successful captures and
+36 failed attempts. Every successful response hash already exists in the original
+upload; the additional response hashes are failure HTML, not recovered evidence
+documents. The result log SHA-256 is
+`f158ebda6bc776daf83b8db3647b9ad4fb17f8579677f3ad7353c8a9a95090e5`.
+
+All three unresolved April 2021 court identifiers appear in that log, but all
+three attempts returned HTML instead of image content, despite HTTP status 200.
+Consequently these records preserve failed retrieval provenance and do not link
+the recovered images to court identifiers. The occurrence mappings remain
+unresolved independently of the rendering-order limitation. The local derived
+artifact is `direct-download-crosscheck.json` in the audit output directory.
+
+## Initial upload and HTML comparison
+
 Read-only comparison of the extracted folders under
 `C:\repos\PTDocs\attila_originalScrapes` with the completed PTDocs package snapshot.
 The supplied spelling `attila\_originalScrapes` did not exist. All three archive files
