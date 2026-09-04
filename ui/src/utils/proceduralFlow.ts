@@ -81,3 +81,9 @@ export function bucketLabel(bucket: ProceduralFlowBucket) {
 export function yearGroupLabel(group: ProceduralYearGroup) {
   return `${group.process_number}\n${group.year}\n${group.bucket_count} bucket${group.bucket_count === 1 ? "" : "s"}`;
 }
+
+export function yearExpansionGrid(bucketCount: number) {
+  const columns = Math.min(12, Math.max(1, Math.round(Math.sqrt(bucketCount * 2))));
+  const rows = Math.max(1, Math.ceil(bucketCount / columns));
+  return { columns, rows, width: Math.max(260, columns * 46), height: Math.max(100, rows * 48) };
+}

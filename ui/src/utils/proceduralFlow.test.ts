@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { chronologicalEdges, chronologicalYearEdges, groupProceduralYears, positionProceduralBuckets,
   yearGroupLabel } from "./proceduralFlow";
+import { yearExpansionGrid } from "./proceduralFlow";
 
 const lanes = [
   { id: "case:1", case_file_id: 1, process_number: "P", parent_case_file_id: null, is_base_case: true },
@@ -35,5 +36,9 @@ describe("procedural flow positioning", () => {
     expect(groups.find((group) => group.id === "year:1:2020")?.bucket_count).toBe(2);
     expect(chronologicalYearEdges(groups)).toHaveLength(1);
     expect(yearGroupLabel(groups.find((group) => group.id === "year:1:2020")!)).toBe("P\n2020\n2 buckets");
+  });
+  it("sizes a revealed year into a bounded local grid", () => {
+    expect(yearExpansionGrid(1)).toEqual({ columns: 1, rows: 1, width: 260, height: 100 });
+    expect(yearExpansionGrid(80)).toEqual({ columns: 12, rows: 7, width: 552, height: 336 });
   });
 });

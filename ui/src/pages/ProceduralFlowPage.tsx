@@ -5,7 +5,8 @@ import { Link as RouterLink } from "react-router-dom";
 import { getProceduralBucketExpansion, getProceduralFlow, type ProceduralFlowGraphNode,
   type ProceduralFlowResponse } from "../api/consultation";
 import { bucketLabel, chronologicalEdges, chronologicalYearEdges, groupProceduralYears,
-  positionProceduralBuckets, yearGroupLabel, type PositionedBucket } from "../utils/proceduralFlow";
+  positionProceduralBuckets, yearExpansionGrid, yearGroupLabel,
+  type PositionedBucket } from "../utils/proceduralFlow";
 
 const expansionPosition = (focus: NodeSingular, index: number) => {
   const angle = (index % 8) * (Math.PI / 4);
@@ -34,7 +35,7 @@ export function ProceduralFlowPage() {
 
   useEffect(() => {
     if (!data || !container.current) return;
-    const positioned = positionProceduralBuckets(data.lanes, data.buckets, 1400);
+    const positioned = positionProceduralBuckets(data.lanes, data.buckets, 2400);
     positionedBuckets.current = new Map(positioned.map((bucket) => [bucket.bucket_id, bucket]));
     const years = groupProceduralYears(positioned);
     const cy = cytoscape({
@@ -64,7 +65,9 @@ export function ProceduralFlowPage() {
           "target-arrow-color": "#5f6d68", "target-arrow-shape": "triangle", "curve-style": "bezier" } },
         { selector: ":selected", style: { "border-width": 4, "border-color": "#9d5d2f" } },
       ],
-      layout: { name: "preset", fit: true, padding: 45 },
+      layout: { name: "preset", fit: false },
+      zoom: 1,
+      pan: { x: 30, y: 45 },
       minZoom: 0.08, maxZoom: 2.5,
     });
     cy.on("tap", "node", (event) => setSelected(event.target.data()));
@@ -79,6 +82,7 @@ export function ProceduralFlowPage() {
     const ids = Array.isArray(selected?.bucket_ids) ? selected.bucket_ids.map(Number) : [];
     const buckets = ids.map((id) => positionedBuckets.current.get(id))
       .filter((item): item is PositionedBucket => Boolean(item));
+    const revealedIds: string[] = [];
     for (const bucket of buckets) {
       const existing = cy.getElementById(bucket.id);
       const nodeData = { ...bucket, displayLabel: bucketLabel(bucket) };
@@ -88,11 +92,28 @@ export function ProceduralFlowPage() {
       } else {
         cy.add({ group: "nodes", data: nodeData, position: { x: bucket.x, y: bucket.y } });
       }
+      revealedIds.push(bucket.id);
     }
     cy.add(chronologicalEdges(buckets).filter((edge) => cy.getElementById(edge.data.id).empty()));
     cy.add(buckets.filter((bucket) => cy.getElementById(`year-member:${yearId}:${bucket.id}`).empty())
       .map((bucket) => ({ group: "edges" as const, data: { id: `year-member:${yearId}:${bucket.id}`,
         source: yearId, target: bucket.id, kind: "contains_occurrence", basis: "display_grouping" } })));
+    const yearNode = cy.getElementById(yearId);
+    const revealed = revealedIds.reduce((collection, id) => collection.union(cy.getElementById(id)), cy.collection());
+    const grid = yearExpansionGrid(revealed.length);
+    revealed.layout({
+      name: "grid",
+      fit: false,
+      avoidOverlap: true,
+      cols: grid.columns,
+      boundingBox: {
+        x1: yearNode.position("x") - grid.width / 2,
+        y1: yearNode.position("y") + 75,
+        w: grid.width,
+        h: grid.height,
+      },
+    }).run();
+    cy.animate({ fit: { eles: yearNode.union(revealed), padding: 90 }, duration: 300 });
     expandedYears.current.add(yearId);
     setSelected({ ...selected, revealed: true });
   };
