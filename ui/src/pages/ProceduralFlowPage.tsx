@@ -34,23 +34,24 @@ export function ProceduralFlowPage() {
 
   useEffect(() => {
     if (!data || !container.current) return;
-    const positioned = positionProceduralBuckets(data.lanes, data.buckets);
+    const positioned = positionProceduralBuckets(data.lanes, data.buckets, 1400);
     positionedBuckets.current = new Map(positioned.map((bucket) => [bucket.bucket_id, bucket]));
     const years = groupProceduralYears(positioned);
     const cy = cytoscape({
       container: container.current,
       elements: [
-        ...years.map((year) => ({ data: { ...year, displayLabel: yearGroupLabel(year) },
+        ...years.map((year) => ({ data: { ...year, label: `${year.process_number} · ${year.year}`,
+          displayLabel: yearGroupLabel(year) },
           position: { x: year.x, y: year.y } })),
         ...chronologicalYearEdges(years),
       ],
       style: [
         { selector: "node", style: { label: "data(displayLabel)", "text-wrap": "wrap", "text-max-width": "125px",
-          "font-size": "11px", "min-zoomed-font-size": 9, "text-valign": "bottom", "text-margin-y": 7,
+          "font-size": "11px", "text-valign": "bottom", "text-margin-y": 7,
           "background-color": "#1f4f5f", width: 28, height: 28 } },
         { selector: "node[file_availability = 'missing']", style: { "background-color": "#a6512d", shape: "diamond" } },
         { selector: "node[kind = 'year_group']", style: { "background-color": "#1f4f5f",
-          shape: "round-rectangle", width: 76, height: 44, "font-weight": 700,
+          shape: "round-rectangle", width: 86, height: 48, "font-size": "13px", "font-weight": 700,
           "text-max-width": "150px" } },
         { selector: "node[kind = 'source_document']", style: { "background-color": "#5d7c52", shape: "round-rectangle" } },
         { selector: "node[kind = 'binary']", style: { "background-color": "#555", shape: "hexagon" } },
