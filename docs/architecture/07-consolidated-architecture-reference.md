@@ -419,6 +419,12 @@ So `page_no` belongs as optional metadata where applicable, not as the core abst
 
 ## Compound / Container Material
 
+The [document binary candidates and attachment design](15-document-binary-candidates-and-attachments.md)
+records the agreed 2026-09-05 direction for document attachment membership and
+uncertain binary backing. It is not implemented. Membership is separate from
+physical containment; the general container-decomposition mechanism below remains
+future work.
+
 The model should leave room for compound/container material such as:
 
 - email with attachments

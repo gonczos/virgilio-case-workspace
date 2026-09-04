@@ -1,5 +1,9 @@
 # Isolated PTDocs enrichment review
 
+Agreed future extension: [document binary candidates and attachments](15-document-binary-candidates-and-attachments.md).
+That design separates possible binary backing from attachment membership; it is
+not implemented and does not change the staging-only boundary documented here.
+
 Status: implemented experimental review area, 4 September 2026. This extends the
 current PostgreSQL setup with staging only; it does not change canonical evidence,
 representation selection, court-record semantics, or application consultation.
