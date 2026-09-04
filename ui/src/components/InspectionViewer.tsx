@@ -269,12 +269,12 @@ export function InspectionViewer({
       <Stack direction="row" spacing={0.25} alignItems="center">
         <TextField value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void runSearch(); } }} size="small" fullWidth placeholder="Find across available views" />
         <Tooltip title="Search available extracted views"><span><IconButton size="small" aria-label="Search available inspection views" disabled={!canSearch || !searchDraft.trim() || searchingViews} onClick={() => void runSearch()} sx={{ fontSize: "0.9rem" }}>{searchingViews ? <CircularProgress size={16} /> : "🔍"}</IconButton></span></Tooltip>
-        {activeSearch ? <Typography variant="caption" sx={{ minWidth: 42, textAlign: "center" }}>{matches.length ? `${currentMatch + 1}/${matches.length}` : "0/0"}</Typography> : null}
         <Tooltip title="Previous match"><span><IconButton size="small" aria-label="Previous inspection match" disabled={!matches.length} onClick={() => moveMatch(-1)}>↑</IconButton></span></Tooltip>
         <Tooltip title="Next match"><span><IconButton size="small" aria-label="Next inspection match" disabled={!matches.length} onClick={() => moveMatch(1)}>↓</IconButton></span></Tooltip>
         <Tooltip title="Clear and collapse inspection"><IconButton size="small" aria-label="Clear and collapse inspection" onClick={() => { ++searchRequest.current; setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); setSearchMiss(false); onCloseInspection?.(); }}>×</IconButton></Tooltip>
       </Stack>
       {searchMiss ? <Typography variant="caption" color="text.secondary">No match in the available readable views.</Typography> : null}
+      <Stack direction="row" spacing={1} alignItems="center">
       <Autocomplete
         fullWidth
         size="small"
@@ -294,8 +294,10 @@ export function InspectionViewer({
             {option.representation ? <Typography variant="caption" color="text.secondary">{option.representation.processor_version}</Typography> : null}
           </Stack>
         </li>}
-        sx={{ mt: 1, mb: 1 }}
+        sx={{ mt: 1, mb: 1, flex: 1, minWidth: 0 }}
       />
+      {activeSearch ? <Typography variant="caption" color="text.secondary" sx={{ minWidth: 76, textAlign: "right" }}>{matches.length ? `${currentMatch + 1}/${matches.length} in view` : "0/0 in view"}</Typography> : null}
+      </Stack>
       {selectedOption?.representation ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pb: 1.5 }}>
         <Typography variant="caption" color="text.secondary">
           Created {new Date(selectedOption.representation.created_at).toLocaleString()}

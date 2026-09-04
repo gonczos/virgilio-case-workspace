@@ -1177,13 +1177,15 @@ clearing it never changes the main search. Enter or the search icon applies a
 case-insensitive literal search beginning with the current readable view. When
 that view has no match, the inspector checks each subsequent independently
 attributed textual or JSON view in selector order and switches directly to the
-first view containing a match. It stops after one complete cycle. The toolbar
-reports the current/total matches in the selected view and provides previous
-and next controls. Its `x` action clears the inspection search and collapses the
-pane. Switching views preserves the query and evaluates it against the newly
-loaded view. A rendered-Markdown option uses that same processor's raw-Markdown
-view while a search is active so exact matches can be highlighted without
-altering processor output or mislabelling the displayed format.
+first view containing a match. It stops after one complete cycle. Previous and
+next controls remain with the search field, while the current/total count is
+labelled `in view` and appears beside `Available views` because it describes
+only the selected representation, not the cross-view traversal. The `x` action
+clears the inspection search and collapses the pane. Switching views preserves
+the query and evaluates it against the newly loaded view. A rendered-Markdown
+option uses that same processor's raw-Markdown view while a search is active so
+exact matches can be highlighted without altering processor output or
+mislabelling the displayed format.
 
 The original PDF remains an available canonical-evidence view, but the canvas
 viewer has no reliable searchable text layer. Starting inspection search from
