@@ -8,6 +8,8 @@
     "import:package": "node ./app/import-package.mjs",
     "start:gateway": "node ./app/file-gateway.mjs",
     "start:consultation": "node ./app/consultation-api.mjs",
+    "start:mcp:text-consultation": "node ./app/text-consultation-mcp-server.mjs",
+    "start:mcp:text-consultation:http": "node ./app/text-consultation-mcp-http-server.mjs",
     "start:ui": "npm --prefix ./ui run dev",
     "build:ui": "npm --prefix ./ui run build",
     "test:c4.2": "npm --prefix ./ui run test",
@@ -37,6 +39,7 @@
     "search:pilot": "node ./app/reference-index-pilot.mjs search",
     "search:evaluate-full": "node ./app/evaluate-full-corpus-text-search.mjs",
     "test:reference-search": "node --test ./test/reference-search-store.test.mjs",
+    "test:mcp:text-consultation": "node --test ./test/text-consultation-mcp-tools.test.mjs ./test/text-consultation-mcp-server.test.mjs ./test/text-consultation-mcp-http-server.test.mjs",
     "reference:validate-expansion-text": "node ./app/validate-reference-expansion-text-fixture.mjs",
     "reference:build-expansion-metadata-review": "node ./app/build-reviewed-reference-expansion-metadata-fixture.mjs",
     "reference:validate-expansion-metadata": "node ./app/validate-reference-expansion-metadata-fixture.mjs",
@@ -46,6 +49,7 @@
     "reference:evaluate-expansion-metadata-v2": "node ./app/evaluate-reference-expansion-metadata-v2.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "pg": "^8.16.3"
   }
 }

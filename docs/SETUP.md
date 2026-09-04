@@ -334,6 +334,65 @@ npm run start:ui
 The UI dev server listens on `5173` by default and proxies requests to
 the local consultation API and binary gateway.
 
+### 6. Optional read-only text-consultation MCP (v1 MVP)
+
+The optional local stdio MCP exposes only existing text consultation through
+`search_document_text`, `get_binary_details`, and
+`get_representation_content`. It does not expose recorded-reference lookup,
+graphs, reviews, ingestion, or writes.
+
+Configure an MCP client to run this command from the repository root:
+
+```powershell
+npm run start:mcp:text-consultation
+```
+
+The process communicates over standard input/output and therefore does not
+listen on a TCP port. It loads the same `.env` PostgreSQL settings as the
+consultation API. Keep standard output reserved for MCP protocol messages;
+startup and query failures are written to standard error.
+
+This is a disposable v1 experiment. Its tool and response contracts may be
+replaced or removed, and it is not a foundation for write-oriented workflows.
+
+#### Private Streamable HTTP over Tailscale
+
+The same three tools can be served remotely through a private Streamable HTTP
+endpoint. The HTTP server binds to `127.0.0.1:8092` by default and requires a
+bearer token of at least 32 characters. Add these uncommitted secrets to the
+repository-root `.env`:
+
+```text
+TEXT_CONSULTATION_MCP_HTTP_TOKEN=<random secret of at least 32 characters>
+TEXT_CONSULTATION_MCP_HTTP_HOST=127.0.0.1
+TEXT_CONSULTATION_MCP_HTTP_PORT=8092
+TEXT_CONSULTATION_MCP_HTTP_ALLOWED_HOSTS=localhost,127.0.0.1,<device>.<tailnet>.ts.net
+```
+
+Start the private HTTP process:
+
+```powershell
+npm run start:mcp:text-consultation:http
+```
+
+The endpoint is `http://127.0.0.1:8092/mcp`. Do not bind it to `0.0.0.0` or
+expose this port through the public router. Use Tailscale Serve to publish that
+localhost endpoint as private tailnet HTTPS, and configure the allowed-host
+entry to match the generated `*.ts.net` hostname. The bearer token remains
+required in addition to Tailscale network access.
+
+On the remote Codex client, store the token in a local environment variable and
+register the private URL using that variable rather than embedding the token in
+the Codex configuration:
+
+```powershell
+codex.cmd mcp add virgilio-text-consultation --url https://<device>.<tailnet>.ts.net/mcp --bearer-token-env-var VIRGILIO_MCP_TOKEN
+```
+
+The host computer, PostgreSQL, HTTP MCP process, and Tailscale Serve must remain
+running while the remote client is using the tools. PostgreSQL and the binary
+gateway are not exposed to the tailnet by this setup.
+
 ## Current Processing Startup
 
 Processing is not part of normal consultation startup.
