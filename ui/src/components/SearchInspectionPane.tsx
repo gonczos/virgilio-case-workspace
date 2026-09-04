@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Chip,
-  CircularProgress, Divider, Paper, Stack, Typography,
+  Alert, Box, Button, Chip, CircularProgress, Divider, Paper, Stack, Typography,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -71,21 +70,6 @@ function BinaryInspection({ target, initialSearchTerm }: { target: Extract<Searc
   if (!detail) return <Stack alignItems="center" spacing={1.5} sx={{ py: 6 }}><CircularProgress /><Typography color="text.secondary">Loading document…</Typography></Stack>;
 
   return <Stack spacing={1.5} sx={{ minHeight: 0, flex: 1 }}>
-    <Box>
-      <Typography variant="h6">{detail.binary.display_name}</Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ overflowWrap: "anywhere" }}>{detail.binary.sha256}</Typography>
-    </Box>
-    <Accordion defaultExpanded disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", "&:before": { display: "none" } }}>
-      <AccordionSummary expandIcon={<span>›</span>}><Typography fontWeight={700}>Document context</Typography></AccordionSummary>
-      <AccordionDetails><Stack spacing={1}>
-        <Typography variant="body2">{detail.context.documents.length} source document{detail.context.documents.length === 1 ? "" : "s"} · {detail.context.buckets.length} recorded occurrence{detail.context.buckets.length === 1 ? "" : "s"}</Typography>
-        {detail.context.buckets.map((bucket) => <Box key={bucket.bucket_pk_id}>
-          <Typography variant="body2" fontWeight={600}>{bucket.processo} · occurrence {bucket.reference_number ?? bucket.bucket_id}</Typography>
-          <Typography variant="caption" display="block">{formatDate(bucket.bucket_date)} · {bucket.designation ?? "Designation unavailable"}</Typography>
-        </Box>)}
-        {detail.context.documents.map((document) => <Typography key={document.document_id} variant="caption">{document.document_name ?? `Source document ${document.document_id}`} · {formatDate(document.document_date)}</Typography>)}
-      </Stack></AccordionDetails>
-    </Accordion>
     <InspectionViewer
       key={detail.binary.sha256}
       interpretations={detail.representations.items}

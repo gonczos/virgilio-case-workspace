@@ -1161,13 +1161,14 @@ automatically expands a collapsed pane. Collapsing preserves its target,
 history, loaded binary, and selected representation; the collapsed state is a
 narrow vertical `Inspection` rail on the right.
 
-Binary inspection loads the existing binary-detail response and opens its
-recorded document context by default. That context shows all source documents
-and procedural occurrences associated with the SHA-256; a selected occurrence
-does not hide reuse elsewhere. A single searchable dropdown offers the original
-PDF as canonical evidence, followed by independently attributed evidence and
-interpretation representations. The pane also retains explicit new-tab actions
-for the complete binary-detail page and original file.
+Binary inspection loads the existing binary-detail response, including its
+recorded context, without permanently rendering duplicate document metadata
+above the viewer. The pane opens directly into a single searchable dropdown
+offering the original PDF as canonical evidence, followed by independently
+attributed evidence and interpretation representations. Procedural context is
+shown when selected as its own inspection target, while the complete binary-
+detail page remains available in a new tab. The pane also retains a direct
+new-tab action for the original file.
 
 The binary inspector includes a compact current-view search toolbar above the
 `Available views` selector. Its draft value initializes from the submitted main
