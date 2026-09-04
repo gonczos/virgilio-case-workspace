@@ -1146,6 +1146,41 @@ Document-text cards retain one deterministic processor-attributed matching
 excerpt, grouped binary identity, occurrence context, and expandable additional
 processor passages. Text result ordering affects only this section.
 
+#### Search inspection workspace
+
+The search form, coverage explanation, submitted-result heading, sorting, and
+results belong to one independently scrollable left workspace. On desktop the
+page is bounded to the viewport below the application header; page-level
+scrolling must not move the search controls or inspector out of their workspace.
+
+A persistent right inspection pane accepts three attributed targets: binary,
+recorded-reference lookup, and procedural/source-document context. Selecting a
+target does not replace the submitted search or navigate away from its results.
+The pane maintains local Back and Forward history. Selecting any inspect action
+automatically expands a collapsed pane. Collapsing preserves its target,
+history, loaded binary, and selected representation; the collapsed state is a
+narrow vertical `Inspection` rail on the right.
+
+Binary inspection loads the existing binary-detail response and opens its
+recorded document context by default. That context shows all source documents
+and procedural occurrences associated with the SHA-256; a selected occurrence
+does not hide reuse elsewhere. A single searchable dropdown offers the original
+PDF as canonical evidence, followed by independently attributed evidence and
+interpretation representations. The pane also retains explicit new-tab actions
+for the complete binary-detail page and original file.
+
+Related contexts are inspect actions rather than expanding a result row. A
+missing-file context remains inspectable as metadata but receives no invented
+binary action. Recorded-reference discovery likewise renders in the right pane
+and continues to describe observations and associations as unresolved. The pane
+does not edit classifications, reviews, or relationships.
+
+Only the left workspace and the right pane's content region scroll. Inspection
+navigation and collapse controls remain fixed. On narrow screens the regions
+may stack until a dedicated mobile drawer is implemented; this desktop
+checkpoint does not claim URL-addressable inspector state or mobile-drawer
+behavior.
+
 Every section renders its own counts, loading, failure, retry, pagination, and
 coverage-aware empty state. A recorded-reference no-match message uses the
 API's `result_state` and declared coverage; it does not say that a document is

@@ -1,7 +1,7 @@
 import { Fragment, FormEvent, useMemo, useRef, useState } from "react";
 import {
   Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Chip,
-  CircularProgress, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Stack,
+  CircularProgress, FormControl, InputLabel, MenuItem, Paper, Select, Stack,
   TextField, ToggleButton, ToggleButtonGroup, Typography,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
@@ -118,6 +118,7 @@ export function ReferenceSearchPage() {
   const [refs, setRefs] = useState<RefState>(emptyRefs);
   const [inspectionHistory, setInspectionHistory] = useState<SearchInspectionTarget[]>([]);
   const [inspectionIndex, setInspectionIndex] = useState(-1);
+  const [inspectionCollapsed, setInspectionCollapsed] = useState(false);
   const groups = useMemo(() => groupReferenceTextHits(text.data?.items ?? []), [text.data]);
   const inspected = inspectionIndex >= 0 ? inspectionHistory[inspectionIndex] ?? null : null;
   const currentText = (g: number, r: number) => isCurrentSectionRequest(generation.current, textRequest.current, g, r);
@@ -153,6 +154,7 @@ export function ReferenceSearchPage() {
   function inspect(target: SearchInspectionTarget) {
     setInspectionHistory((old) => [...old.slice(0, inspectionIndex + 1), target]);
     setInspectionIndex((old) => old + 1);
+    setInspectionCollapsed(false);
   }
 
   async function sortText(nextSort: Sort) {
@@ -186,8 +188,10 @@ export function ReferenceSearchPage() {
     } catch (error) { if (currentRef(submitted.generation, request)) setRefs((old) => ({ ...old, more: false, moreError: message(error) })); }
   }
 
-  return <Stack spacing={2.5}>
+  return <Stack spacing={1.5} sx={{ height: { xs: "auto", lg: "calc(100vh - 112px)" }, minHeight: 0, overflow: { lg: "hidden" } }}>
     <Box><Typography variant="h4" gutterBottom>Reference and text search</Typography><Typography color="text.secondary">Search extracted text and source-recorded references without merging their meanings.</Typography></Box>
+    <Box sx={{ display: { xs: "block", lg: "grid" }, gridTemplateColumns: inspectionCollapsed ? "minmax(0, 1fr) 48px" : "minmax(420px, 7fr) minmax(420px, 5fr)", gap: 2, minHeight: 0, flex: 1, transition: "grid-template-columns 180ms ease" }}>
+      <Box sx={{ minWidth: 0, minHeight: 0, overflowY: { lg: "auto" }, pr: { lg: 0.5 } }}><Stack spacing={2.5}>
     <Coverage />
     <Paper component="form" onSubmit={submit} elevation={0} sx={{ p: 2.5 }}><Stack spacing={2}>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}><TextField fullWidth value={query} onChange={(e) => setQuery(e.target.value)} label="Search terms or reference" helperText="Changes take effect when you select Search." /><Button type="submit" variant="contained" disabled={!query.trim()} sx={{ minWidth: 120, height: 56 }}>Search</Button></Stack>
@@ -199,8 +203,6 @@ export function ReferenceSearchPage() {
     </Stack></Paper>
     {submitted ? <Typography variant="h5">Results for “{submitted.query}” · {submitted.scope === "full" ? "Full corpus" : "Pilot"}</Typography> : null}
 
-    <Grid container spacing={2} alignItems="flex-start">
-      <Grid size={{ xs: 12, lg: 7 }}><Stack spacing={2.5}>
     {submitted && hasRefs(submitted.method) ? <Stack spacing={1.5}>
       <Typography variant="h6">Recorded references</Typography>
       {refs.status === "loading" ? <CircularProgress size={28} /> : null}
@@ -236,18 +238,20 @@ export function ReferenceSearchPage() {
       {text.moreError ? <Alert severity="error">Loading more text results failed: {text.moreError}. Existing results were preserved.</Alert> : null}
       {text.data && text.hasMore ? <Button variant="outlined" disabled={text.more || text.sorting} onClick={() => void moreText()} sx={{ alignSelf: "center" }}>{text.more ? <CircularProgress size={22} /> : "Load more document text"}</Button> : null}
     </Stack> : null}
-      </Stack></Grid>
-      <Grid size={{ xs: 12, lg: 5 }}>
+      </Stack></Box>
+      <Box sx={{ minWidth: 0, minHeight: { xs: 520, lg: 0 }, height: { xs: 620, lg: "100%" }, mt: { xs: 2, lg: 0 } }}>
         <SearchInspectionPane
           target={inspected}
+          collapsed={inspectionCollapsed}
           canBack={inspectionIndex > 0}
           canForward={inspectionIndex >= 0 && inspectionIndex < inspectionHistory.length - 1}
           onBack={() => setInspectionIndex((value) => Math.max(0, value - 1))}
           onForward={() => setInspectionIndex((value) => Math.min(inspectionHistory.length - 1, value + 1))}
           onClose={() => { setInspectionHistory([]); setInspectionIndex(-1); }}
+          onToggleCollapsed={() => setInspectionCollapsed((value) => !value)}
           onNavigate={inspect}
         />
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   </Stack>;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Alert, Box, Button, Chip, CircularProgress, Divider, Paper, Stack, Typography,
+  Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Chip,
+  CircularProgress, Divider, Paper, Stack, Typography,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -74,6 +75,17 @@ function BinaryInspection({ target }: { target: Extract<SearchInspectionTarget, 
       <Typography variant="h6">{detail.binary.display_name}</Typography>
       <Typography variant="caption" color="text.secondary" sx={{ overflowWrap: "anywhere" }}>{detail.binary.sha256}</Typography>
     </Box>
+    <Accordion defaultExpanded disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", "&:before": { display: "none" } }}>
+      <AccordionSummary expandIcon={<span>›</span>}><Typography fontWeight={700}>Document context</Typography></AccordionSummary>
+      <AccordionDetails><Stack spacing={1}>
+        <Typography variant="body2">{detail.context.documents.length} source document{detail.context.documents.length === 1 ? "" : "s"} · {detail.context.buckets.length} recorded occurrence{detail.context.buckets.length === 1 ? "" : "s"}</Typography>
+        {detail.context.buckets.map((bucket) => <Box key={bucket.bucket_pk_id}>
+          <Typography variant="body2" fontWeight={600}>{bucket.processo} · occurrence {bucket.reference_number ?? bucket.bucket_id}</Typography>
+          <Typography variant="caption" display="block">{formatDate(bucket.bucket_date)} · {bucket.designation ?? "Designation unavailable"}</Typography>
+        </Box>)}
+        {detail.context.documents.map((document) => <Typography key={document.document_id} variant="caption">{document.document_name ?? `Source document ${document.document_id}`} · {formatDate(document.document_date)}</Typography>)}
+      </Stack></AccordionDetails>
+    </Accordion>
     <InspectionViewer
       key={detail.binary.sha256}
       interpretations={detail.representations.items}
@@ -158,21 +170,30 @@ function ReferenceInspection({ target, onNavigate }: {
   </Stack>;
 }
 
-export function SearchInspectionPane({ target, canBack, canForward, onBack, onForward, onClose, onNavigate }: {
+export function SearchInspectionPane({ target, collapsed, canBack, canForward, onBack, onForward, onClose, onToggleCollapsed, onNavigate }: {
   target: SearchInspectionTarget | null;
+  collapsed: boolean;
   canBack: boolean;
   canForward: boolean;
   onBack: () => void;
   onForward: () => void;
   onClose: () => void;
+  onToggleCollapsed: () => void;
   onNavigate: (target: SearchInspectionTarget) => void;
 }) {
-  return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", p: 2, position: { lg: "sticky" }, top: { lg: 16 }, height: { lg: "calc(100vh - 32px)" }, minHeight: 520, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+  if (collapsed) {
+    return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", height: "100%", minHeight: 0, overflow: "hidden" }}>
+      <Button fullWidth onClick={onToggleCollapsed} aria-label="Expand inspection" sx={{ height: "100%", minWidth: 0, px: 0.5, writingMode: "vertical-rl", transform: "rotate(180deg)", gap: 1 }}>Inspection ‹</Button>
+    </Paper>;
+  }
+
+  return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", p: 2, height: "100%", minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
     <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 1.5 }}>
       <Typography variant="subtitle1" fontWeight={700} sx={{ flexGrow: 1 }}>Inspection</Typography>
       <Button size="small" disabled={!canBack} onClick={onBack}>Back</Button>
       <Button size="small" disabled={!canForward} onClick={onForward}>Forward</Button>
-      <Button size="small" disabled={!target} onClick={onClose}>Close</Button>
+      <Button size="small" onClick={onToggleCollapsed}>Collapse</Button>
+      <Button size="small" disabled={!target} onClick={onClose}>Clear</Button>
     </Stack>
     <Divider sx={{ mb: 2 }} />
     <Box sx={{ minHeight: 0, flex: 1, overflow: "auto" }}>
