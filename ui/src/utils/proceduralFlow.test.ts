@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { chronologicalEdges, chronologicalYearEdges, groupProceduralYears, positionProceduralBuckets,
   yearGroupLabel } from "./proceduralFlow";
-import { adjacentProceduralBuckets, yearExpansionGrid } from "./proceduralFlow";
+import { adjacentProceduralBuckets, isExpandableOccurrenceKind, yearExpansionGrid } from "./proceduralFlow";
 
 const lanes = [
   { id: "case:1", case_file_id: 1, process_number: "P", parent_case_file_id: null, is_base_case: true },
@@ -45,5 +45,10 @@ describe("procedural flow positioning", () => {
     const buckets = [bucket(1, 1, "2020-01-01"), bucket(2, 1, "2020-02-01"),
       bucket(3, 1, "2020-03-01"), bucket(4, 2, "2020-02-01")];
     expect(adjacentProceduralBuckets(buckets, 2).map((item) => item.bucket_id)).toEqual([1, 3]);
+  });
+  it("allows source and reused occurrence nodes to continue exploration", () => {
+    expect(isExpandableOccurrenceKind("bucket")).toBe(true);
+    expect(isExpandableOccurrenceKind("related_occurrence")).toBe(true);
+    expect(isExpandableOccurrenceKind("binary")).toBe(false);
   });
 });

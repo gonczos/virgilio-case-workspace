@@ -5,7 +5,7 @@ import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import { getProceduralBucketExpansion, getProceduralFlow, type ProceduralFlowGraphNode,
   type ProceduralFlowResponse } from "../api/consultation";
 import { adjacentProceduralBuckets, bucketLabel, chronologicalEdges, chronologicalYearEdges, groupProceduralYears,
-  positionProceduralBuckets, yearExpansionGrid, yearGroupLabel,
+  isExpandableOccurrenceKind, positionProceduralBuckets, yearExpansionGrid, yearGroupLabel,
   type PositionedBucket } from "../utils/proceduralFlow";
 
 const expansionPosition = (focus: NodeSingular, index: number) => {
@@ -25,6 +25,9 @@ export function ProceduralFlowPage() {
   const expandedBuckets = useRef(new Set<number>());
   const expandedYears = useRef(new Set<string>());
   const expandedTimeline = useRef(new Set<number>());
+  const cachedExpansionNodes = useRef(new Map<string, ProceduralFlowGraphNode>());
+  const cachedExpansionEdges = useRef(new Map<string, { id: string; source: string; target: string; kind: string; basis: "source_recorded" }>());
+  const expandedRelations = useRef(new Set<string>());
   const [data, setData] = useState<ProceduralFlowResponse | null>(null);
   const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
   const [loadingBucket, setLoadingBucket] = useState<number | null>(null);
@@ -44,6 +47,9 @@ export function ProceduralFlowPage() {
     expandedBuckets.current.clear();
     expandedYears.current.clear();
     expandedTimeline.current.clear();
+    cachedExpansionNodes.current.clear();
+    cachedExpansionEdges.current.clear();
+    expandedRelations.current.clear();
     setSelected(null);
     const positioned = positionProceduralBuckets(data.lanes, data.buckets, 2400);
     positionedBuckets.current = new Map(positioned.map((bucket) => [bucket.bucket_id, bucket]));
@@ -168,14 +174,16 @@ export function ProceduralFlowPage() {
     try {
       const result = await getProceduralBucketExpansion(bucketId);
       const focus = cy.getElementById(`bucket:${bucketId}`);
-      const newNodes = result.nodes.filter((node) => cy.getElementById(node.id).empty());
+      result.nodes.forEach((node) => cachedExpansionNodes.current.set(node.id, node));
+      result.edges.forEach((edge) => cachedExpansionEdges.current.set(edge.id, edge));
+      const documentEdges = result.edges.filter((edge) => edge.source === `bucket:${bucketId}` && edge.kind === "contains_document");
+      const documentNodes = documentEdges.map((edge) => cachedExpansionNodes.current.get(edge.target))
+        .filter((node): node is ProceduralFlowGraphNode => Boolean(node));
+      const newNodes = documentNodes.filter((node) => cy.getElementById(node.id).empty());
       const addedNodes = cy.add(newNodes.map((node, index) => ({ group: "nodes", data: { ...node,
-        displayLabel: node.kind === "binary" ? `PDF\n${String(node.sha256).slice(0, 8)}…`
-          : node.kind === "related_occurrence" ? `${node.occurrence_date ?? "Date unavailable"}\n${node.label}`
-            : node.label }, position: expansionPosition(focus, index) })));
-      const addedEdges = cy.add(result.edges.filter((edge) => cy.getElementById(edge.id).empty() &&
-        cy.getElementById(edge.source).nonempty() && cy.getElementById(edge.target).nonempty())
-        .map((edge) => ({ group: "edges", data: edge })));
+        displayLabel: node.label }, position: expansionPosition(focus, index) })));
+      const addedEdges = cy.add(documentEdges.filter((edge) => cy.getElementById(edge.id).empty() &&
+        cy.getElementById(edge.target).nonempty()).map((edge) => ({ group: "edges", data: edge })));
       if (addedNodes.nonempty()) {
         focus.lock();
         focus.union(addedNodes).union(addedEdges).layout({
@@ -195,12 +203,43 @@ export function ProceduralFlowPage() {
         }).run();
       }
       expandedBuckets.current.add(bucketId);
+      setSelected({ ...selected, documents_revealed: true });
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally { setLoadingBucket(null); }
   };
 
+  const revealSelectedRelations = (edgeKind: "represented_by" | "same_binary_occurs_in") => {
+    const cy = cyRef.current;
+    const sourceId = String(selected?.id ?? "");
+    const expansionKey = `${sourceId}:${edgeKind}`;
+    if (!cy || !sourceId || expandedRelations.current.has(expansionKey)) return;
+    const focus = cy.getElementById(sourceId);
+    const edges = [...cachedExpansionEdges.current.values()]
+      .filter((edge) => edge.source === sourceId && edge.kind === edgeKind);
+    const targets = edges.map((edge) => cachedExpansionNodes.current.get(edge.target))
+      .filter((node): node is ProceduralFlowGraphNode => Boolean(node));
+    const newNodes = targets.filter((node) => cy.getElementById(node.id).empty());
+    const addedNodes = cy.add(newNodes.map((node, index) => ({ group: "nodes", data: { ...node,
+      displayLabel: node.kind === "binary" ? `PDF\n${String(node.sha256).slice(0, 8)}…`
+        : `${node.occurrence_date ?? "Date unavailable"}\n${node.label}` },
+      position: expansionPosition(focus, index) })));
+    const addedEdges = cy.add(edges.filter((edge) => cy.getElementById(edge.id).empty() &&
+      cy.getElementById(edge.target).nonempty()).map((edge) => ({ group: "edges", data: edge })));
+    if (addedNodes.nonempty()) {
+      focus.lock();
+      focus.union(addedNodes).union(addedEdges).layout({ name: "cose", animate: false,
+        fit: false, randomize: false, nodeRepulsion: () => 8500, idealEdgeLength: () => 90,
+        gravity: 0.8, boundingBox: { x1: focus.position("x") - 240,
+          y1: focus.position("y") - 180, w: 480, h: 360 } }).run();
+      cy.animate({ fit: { eles: focus.union(addedNodes), padding: 100 }, duration: 300 });
+    }
+    expandedRelations.current.add(expansionKey);
+    setSelected({ ...selected, relations_revealed: true });
+  };
+
   const selectedKind = String(selected?.kind ?? "");
+  const selectedIsOccurrence = isExpandableOccurrenceKind(selectedKind);
   const openHref = (selected as ProceduralFlowGraphNode | null)?.open_action?.href;
   return <Stack spacing={2}>
     <Box><Typography variant="h4">Procedural flow</Typography>
@@ -235,13 +274,23 @@ export function ProceduralFlowPage() {
               disabled={expandedYears.current.has(String(selected.id))} variant="contained">
               {expandedYears.current.has(String(selected.id)) ? "Buckets revealed" : `Reveal ${String(selected.bucket_count)} buckets`}
             </Button>}
-            {selectedKind === "bucket" && <Button onClick={revealAdjacentBuckets}
+            {selectedIsOccurrence && <Button onClick={revealAdjacentBuckets}
               disabled={expandedTimeline.current.has(Number(selected.bucket_id))} variant="outlined">
               {expandedTimeline.current.has(Number(selected.bucket_id)) ? "Adjacent buckets added" : "Add previous and next buckets"}
             </Button>}
-            {selectedKind === "bucket" && Boolean(selected.expandable) && <Button onClick={expandSelected}
+            {selectedIsOccurrence && (selectedKind === "related_occurrence" || Boolean(selected.expandable)) && <Button onClick={expandSelected}
               disabled={loadingBucket === Number(selected.bucket_id) || expandedBuckets.current.has(Number(selected.bucket_id))}
-              variant="contained">{expandedBuckets.current.has(Number(selected.bucket_id)) ? "Relations added" : loadingBucket ? "Adding…" : "Add documents and reused files"}</Button>}
+              variant="contained">{expandedBuckets.current.has(Number(selected.bucket_id)) ? "Documents checked" : loadingBucket ? "Adding…" : "Add source documents"}</Button>}
+            {selectedKind === "source_document" && <Button variant="contained"
+              disabled={expandedRelations.current.has(`${String(selected.id)}:represented_by`)}
+              onClick={() => revealSelectedRelations("represented_by")}>
+              {expandedRelations.current.has(`${String(selected.id)}:represented_by`) ? "Linked PDFs checked" : "Add linked PDFs"}
+            </Button>}
+            {selectedKind === "binary" && <Button variant="contained"
+              disabled={expandedRelations.current.has(`${String(selected.id)}:same_binary_occurs_in`)}
+              onClick={() => revealSelectedRelations("same_binary_occurs_in")}>
+              {expandedRelations.current.has(`${String(selected.id)}:same_binary_occurs_in`) ? "Reused occurrences checked" : "Add reused occurrences"}
+            </Button>}
             {openHref && <Button component={RouterLink} to={openHref} target="_blank" rel="noopener noreferrer" variant="outlined">Open original PDF</Button>}
             <Box component="pre" sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", fontSize: 12, m: 0 }}>{JSON.stringify(selected, null, 2)}</Box>
           </Stack> : <Typography variant="body2" color="text.secondary" mt={2}>Process tracks share one date axis. Undated buckets appear at the end of their lane.</Typography>}

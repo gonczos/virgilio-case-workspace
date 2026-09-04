@@ -97,3 +97,7 @@ export function adjacentProceduralBuckets(allBuckets: ProceduralFlowBucket[], bu
   const index = lane.findIndex((bucket) => bucket.bucket_id === bucketId);
   return [lane[index - 1], lane[index + 1]].filter((bucket): bucket is ProceduralFlowBucket => Boolean(bucket));
 }
+
+export function isExpandableOccurrenceKind(kind: string) {
+  return kind === "bucket" || kind === "related_occurrence";
+}
