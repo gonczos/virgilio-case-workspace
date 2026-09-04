@@ -21,6 +21,13 @@ const recalls = [
 
 const expectedRule = (item) => item.rule_key === "reference-labelled-v3" ? "reference-labelled-v4"
   : item.rule_key === "local-attachment-doc-v1" ? "local-attachment-doc-v2" : item.rule_key;
+const canonicalProvenance = (item) => Object.fromEntries(Object.entries({
+  kind:item.label_provenance.kind, source_label:item.label_provenance.source_label,
+  label_char_start:item.label_provenance.representation_label_char_start??item.label_provenance.label_char_start,
+  label_char_end:item.label_provenance.representation_label_char_end??item.label_provenance.label_char_end,
+  coordination_cue:item.label_provenance.coordination_cue, range_cue:item.label_provenance.range_cue,
+  preceding_value:item.label_provenance.preceding_value,
+}).filter(([,value])=>value!==undefined));
 
 function nearest(text, raw, anchor) {
   const cp = [...text], needle = [...raw]; let best = -1, distance = Infinity;
@@ -44,11 +51,12 @@ export async function buildOracle(client) {
     if(decision.observation_key!==item.observation_key) throw new Error("AUDIT_ORDER_MISMATCH");
     const base={source_prediction_number:number,source_observation_key:item.observation_key,document_representation_id:item.document_representation_id,document_segment_id:item.document_segment_id,representation_content_sha256:item.representation_content_sha256,segment_content_sha256:item.segment_content_sha256};
     if(absent.has(number)){cases.push({...base,disposition:"expected_absent",rejected_raw_value:item.raw_value,rejected_char_start:item.char_start,rejected_char_end:item.char_end});continue;}
-    let raw=item.raw_value, span={char_start:item.char_start,char_end:item.char_end}, rule=expectedRule(item), parsed=item.parsed_candidate??{}, label=item.raw_label;
+    let raw=item.raw_value, span={char_start:item.char_start,char_end:item.char_end}, rule=expectedRule(item), parsed=item.parsed_candidate??{}, label=item.raw_label, labelProvenance=canonicalProvenance(item);
     if(namespaceNumbers.has(number)){
       raw=namespaceNumbers.get(number); span=nearest(text,raw,item.char_end); rule="reference-citius-qualified-v1";
       const labelStart=item.label_provenance.representation_label_char_start??item.label_provenance.label_char_start;
       label=[...text].slice(labelStart,span.char_start).join("").replace(/\s*:\s*$/u,"").trim();
+      labelProvenance={kind:"direct",source_label:label,label_char_start:labelStart,label_char_end:labelStart+cpLength(label)};
       parsed={};
     } else if(suffixCorrections.has(number)) {
       raw=suffixCorrections.get(number); span=nearest(text,raw,item.char_start); rule="local-attachment-doc-v2";
@@ -57,11 +65,13 @@ export async function buildOracle(client) {
     const replacement = namespaceNumbers.has(number) || suffixCorrections.has(number)
       ? { raw_value:item.raw_value, char_start:item.char_start, char_end:item.char_end, rule_key:item.rule_key }
       : undefined;
-    cases.push({...base,disposition:decision.decision==="needs_original_pdf_verification"?"unscored_preserved":"expected_exact",...(replacement?{replaces:replacement}:{}),expected:{raw_value:raw,char_start:span.char_start,char_end:span.char_end,rule_key:rule,raw_label:label,parsed_candidate:parsed,target_resolution:"unresolved",relationship_resolution:"unresolved"}});
+    cases.push({...base,disposition:decision.decision==="needs_original_pdf_verification"?"unscored_preserved":"expected_exact",...(replacement?{replaces:replacement}:{}),expected:{raw_value:raw,char_start:span.char_start,char_end:span.char_end,rule_key:rule,raw_label:label,label_provenance:labelProvenance,parsed_candidate:parsed,target_resolution:"unresolved",relationship_resolution:"unresolved"}});
   }
   for(const recall of recalls){
     const source=sample.prediction_sample[recall.source_prediction_number-1],text=texts.get(source.document_segment_id),span=nearest(text,recall.raw_value,source.char_end);
-    cases.push({source_prediction_number:recall.source_prediction_number,source_observation_key:source.observation_key,document_representation_id:source.document_representation_id,document_segment_id:source.document_segment_id,representation_content_sha256:source.representation_content_sha256,segment_content_sha256:source.segment_content_sha256,disposition:"expected_recall_addition",expected:{raw_value:recall.raw_value,...span,rule_key:recall.rule_key,raw_label:source.raw_label,parsed_candidate:recall.parsed_candidate,label_provenance_kind:recall.provenance_kind,coordination_cue:recall.cue,target_resolution:"unresolved",relationship_resolution:"unresolved"}});
+    const labelStart=source.label_provenance.representation_label_char_start??source.label_provenance.label_char_start;
+    const labelEnd=source.label_provenance.representation_label_char_end??source.label_provenance.label_char_end;
+    cases.push({source_prediction_number:recall.source_prediction_number,source_observation_key:source.observation_key,document_representation_id:source.document_representation_id,document_segment_id:source.document_segment_id,representation_content_sha256:source.representation_content_sha256,segment_content_sha256:source.segment_content_sha256,disposition:"expected_recall_addition",expected:{raw_value:recall.raw_value,...span,rule_key:recall.rule_key,raw_label:source.raw_label,label_provenance:{kind:recall.provenance_kind,source_label:source.raw_label,label_char_start:labelStart,label_char_end:labelEnd,...(recall.cue==="e"?{coordination_cue:recall.cue}:{range_cue:recall.cue}),preceding_value:source.parsed_candidate?.parsed_folio??source.parsed_candidate?.parsed_attachment_number??source.raw_value.match(/\d+/u)?.[0]},parsed_candidate:recall.parsed_candidate,target_resolution:"unresolved",relationship_resolution:"unresolved"}});
   }
   const result={schema_version:1,oracle_id:"labelled-reference-v6-corpus-audit-oracle-v1",source:{sample_path:SAMPLE,sample_sha256:sha256(sampleBytes),review_path:REVIEW,review_sha256:sha256(reviewBytes)},extractor_version:"labelled-reference-v6",offset_unit:"unicode_code_points_half_open",cases,no_prediction_controls:sample.no_prediction_segment_controls.map(x=>({document_representation_id:x.representation_id,document_segment_id:x.document_segment_id,segment_content_sha256:x.segment_content_sha256,expected_supported_v6_predictions:0})),protected_fixture_controls:sample.protected_fixture_controls,summary:{source_predictions:180,expected_exact:cases.filter(x=>x.disposition==="expected_exact").length,expected_absent:cases.filter(x=>x.disposition==="expected_absent").length,expected_recall_additions:4,unscored_preserved:2,no_prediction_controls:30,protected_negatives:50,protected_ambiguous:3},limitations:["The two original-PDF-dependent cases remain unscored and unchanged.","Targets and relationships remain unresolved.","Unsupported families remain not evaluated."]};
   return result;

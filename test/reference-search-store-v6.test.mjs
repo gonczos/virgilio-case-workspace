@@ -48,3 +48,9 @@ test("v5-only unrelated rules remain available",()=>{
   const items=extractLabelledReferences("sob a ref. 105398957; Registo: 702380056723040; fls.490");
   assert.deepEqual(items.map(x=>x.rule_key),["cited-reference-labelled-v3","external-register-colon-v1","physical-folio-fls-v1"]);
 });
+
+test("v6 emits Unicode code-point offsets after astral characters",()=>{
+  const [item]=extract("😀 Referência: AB-12");
+  assert.equal(item.char_start,14);assert.equal(item.char_end,19);
+  assert.equal(item.label_provenance.label_char_start,2);assert.equal(item.label_provenance.label_char_end,12);
+});

@@ -4,13 +4,13 @@
   "reproducible_command": "npm run reference:evaluate-v6",
   "oracle": {
     "path": "docs/evaluation/reference-v5-corpus-rollout/v6-audit-oracle-v1.json",
-    "sha256": "025531fcf96a0b8f1ef7c329eca31f3a886297f190316388796215582949ca9a",
+    "sha256": "ded63c7c4046f2561a06423c2f59e83904ed7cbd47ff0f76d1d59ce2ec9114db",
     "oracle_id": "labelled-reference-v6-corpus-audit-oracle-v1"
   },
   "extractor": {
     "key": "app/reference-search-store-v6.mjs",
     "version": "labelled-reference-v6",
-    "function_source_sha256": "96b76d7ba1f7c8cc1a4a519e63e00974b0796478b11198449cc7c9f3d7c8a456"
+    "function_source_sha256": "57291429714a5854be5e3e4ff4299ad72e164ed69a36ba39c195a46059376c87"
   },
   "audit": {
     "cases": [
@@ -23,6 +23,7 @@
           "char_start": 167606,
           "char_end": 167614,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -40,6 +41,7 @@
           "char_start": 2718,
           "char_end": 2726,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -57,6 +59,7 @@
           "char_start": 22030,
           "char_end": 22037,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -74,6 +77,7 @@
           "char_start": 55733,
           "char_end": 55744,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -91,6 +95,7 @@
           "char_start": 123662,
           "char_end": 123670,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -108,6 +113,7 @@
           "char_start": 81189,
           "char_end": 81197,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referência nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência nº",
@@ -125,6 +131,7 @@
           "char_start": 483,
           "char_end": 492,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -142,6 +149,7 @@
           "char_start": 32080,
           "char_end": 32089,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência",
@@ -159,6 +167,7 @@
           "char_start": 10717,
           "char_end": 10726,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -176,6 +185,7 @@
           "char_start": 3345,
           "char_end": 3353,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -193,6 +203,7 @@
           "char_start": 118657,
           "char_end": 118666,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -210,6 +221,7 @@
           "char_start": 42279,
           "char_end": 42287,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -227,6 +239,7 @@
           "char_start": 39804,
           "char_end": 39812,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -244,6 +257,7 @@
           "char_start": 9942,
           "char_end": 9949,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -261,6 +275,7 @@
           "char_start": 37966,
           "char_end": 37970,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -278,6 +293,7 @@
           "char_start": 34808,
           "char_end": 34816,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -300,6 +316,7 @@
           "char_start": 34391,
           "char_end": 34399,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -317,6 +334,7 @@
           "char_start": 9078,
           "char_end": 9085,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -334,6 +352,7 @@
           "char_start": 123374,
           "char_end": 123385,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -351,6 +370,7 @@
           "char_start": 4863,
           "char_end": 4871,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -368,6 +388,7 @@
           "char_start": 26954,
           "char_end": 26962,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -385,6 +406,7 @@
           "char_start": 38884,
           "char_end": 38891,
           "rule_key": "reference-citius-qualified-v1",
+          "raw_label": "Refº Citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Refº Citius",
@@ -402,6 +424,7 @@
           "char_start": 62938,
           "char_end": 62946,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -419,6 +442,7 @@
           "char_start": 1270,
           "char_end": 1278,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -436,6 +460,7 @@
           "char_start": 3167,
           "char_end": 3177,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -453,6 +478,7 @@
           "char_start": 24784,
           "char_end": 24795,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -470,6 +496,7 @@
           "char_start": 56189,
           "char_end": 56199,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -487,6 +514,7 @@
           "char_start": 1249,
           "char_end": 1257,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -504,6 +532,7 @@
           "char_start": 4378,
           "char_end": 4385,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -521,6 +550,7 @@
           "char_start": 72287,
           "char_end": 72295,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -543,6 +573,7 @@
           "char_start": 190182,
           "char_end": 190189,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -560,6 +591,7 @@
           "char_start": 25622,
           "char_end": 25631,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -577,6 +609,7 @@
           "char_start": 37766,
           "char_end": 37774,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -599,6 +632,7 @@
           "char_start": 27433,
           "char_end": 27440,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -616,6 +650,7 @@
           "char_start": 13079,
           "char_end": 13083,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -633,6 +668,7 @@
           "char_start": 338,
           "char_end": 346,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "REFª",
           "label_provenance": {
             "kind": "direct",
             "source_label": "REFª",
@@ -650,6 +686,7 @@
           "char_start": 76345,
           "char_end": 76356,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -667,6 +704,7 @@
           "char_start": 583,
           "char_end": 607,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -684,6 +722,7 @@
           "char_start": 11018,
           "char_end": 11028,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -701,6 +740,7 @@
           "char_start": 3393,
           "char_end": 3403,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -718,6 +758,7 @@
           "char_start": 82677,
           "char_end": 82685,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -735,6 +776,7 @@
           "char_start": 0,
           "char_end": 8,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -757,6 +799,7 @@
           "char_start": 3044,
           "char_end": 3052,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -774,6 +817,7 @@
           "char_start": 215703,
           "char_end": 215711,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência",
@@ -791,6 +835,7 @@
           "char_start": 308,
           "char_end": 316,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "REFª",
           "label_provenance": {
             "kind": "direct",
             "source_label": "REFª",
@@ -808,6 +853,7 @@
           "char_start": 1570,
           "char_end": 1577,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -825,6 +871,7 @@
           "char_start": 3008,
           "char_end": 3016,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência",
@@ -842,6 +889,7 @@
           "char_start": 7291,
           "char_end": 7299,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "REFª.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "REFª.",
@@ -859,6 +907,7 @@
           "char_start": 201135,
           "char_end": 201143,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -876,6 +925,7 @@
           "char_start": 155,
           "char_end": 159,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -893,6 +943,7 @@
           "char_start": 2605,
           "char_end": 2615,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -915,6 +966,7 @@
           "char_start": 97231,
           "char_end": 97242,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -932,6 +984,7 @@
           "char_start": 54086,
           "char_end": 54093,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -949,6 +1002,7 @@
           "char_start": 324,
           "char_end": 332,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -966,6 +1020,7 @@
           "char_start": 38512,
           "char_end": 38523,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -983,6 +1038,7 @@
           "char_start": 103328,
           "char_end": 103336,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1000,6 +1056,7 @@
           "char_start": 141751,
           "char_end": 141758,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1017,6 +1074,7 @@
           "char_start": 6593,
           "char_end": 6602,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -1034,6 +1092,7 @@
           "char_start": 9162,
           "char_end": 9169,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1051,6 +1110,7 @@
           "char_start": 2117,
           "char_end": 2125,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -1068,6 +1128,7 @@
           "char_start": 88512,
           "char_end": 88519,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1085,6 +1146,7 @@
           "char_start": 121349,
           "char_end": 121356,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1102,6 +1164,7 @@
           "char_start": 90668,
           "char_end": 90676,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1119,6 +1182,7 @@
           "char_start": 15226,
           "char_end": 15234,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -1136,6 +1200,7 @@
           "char_start": 53624,
           "char_end": 53631,
           "rule_key": "reference-citius-qualified-v1",
+          "raw_label": "Refº Citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Refº Citius",
@@ -1153,6 +1218,7 @@
           "char_start": 308,
           "char_end": 316,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "REFª",
           "label_provenance": {
             "kind": "direct",
             "source_label": "REFª",
@@ -1170,6 +1236,7 @@
           "char_start": 11296,
           "char_end": 11304,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -1187,6 +1254,7 @@
           "char_start": 80949,
           "char_end": 80960,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1204,6 +1272,7 @@
           "char_start": 419,
           "char_end": 428,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referencia",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referencia",
@@ -1221,6 +1290,7 @@
           "char_start": 23160,
           "char_end": 23167,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -1238,6 +1308,7 @@
           "char_start": 107541,
           "char_end": 107549,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC nº",
@@ -1260,6 +1331,7 @@
           "char_start": 79450,
           "char_end": 79456,
           "rule_key": "reference-citius-qualified-v1",
+          "raw_label": "Refº Citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Refº Citius",
@@ -1277,6 +1349,7 @@
           "char_start": 70325,
           "char_end": 70335,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1294,6 +1367,7 @@
           "char_start": 1566,
           "char_end": 1574,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "REFª.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "REFª.",
@@ -1311,6 +1385,7 @@
           "char_start": 243769,
           "char_end": 243780,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1328,6 +1403,7 @@
           "char_start": 87161,
           "char_end": 87171,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1345,6 +1421,7 @@
           "char_start": 14407,
           "char_end": 14415,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1362,6 +1439,7 @@
           "char_start": 84652,
           "char_end": 84660,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1379,6 +1457,7 @@
           "char_start": 14672,
           "char_end": 14680,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1396,6 +1475,7 @@
           "char_start": 0,
           "char_end": 7,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1413,6 +1493,7 @@
           "char_start": 487,
           "char_end": 496,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -1430,6 +1511,7 @@
           "char_start": 6507,
           "char_end": 6514,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1447,6 +1529,7 @@
           "char_start": 2896,
           "char_end": 2904,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1464,6 +1547,7 @@
           "char_start": 38610,
           "char_end": 38621,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1481,6 +1565,7 @@
           "char_start": 3261,
           "char_end": 3269,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1498,6 +1583,7 @@
           "char_start": 131256,
           "char_end": 131267,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1515,6 +1601,7 @@
           "char_start": 39035,
           "char_end": 39043,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1532,6 +1619,7 @@
           "char_start": 43,
           "char_end": 50,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1549,6 +1637,7 @@
           "char_start": 1212,
           "char_end": 1221,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -1566,6 +1655,7 @@
           "char_start": 60449,
           "char_end": 60457,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1583,6 +1673,7 @@
           "char_start": 140791,
           "char_end": 140799,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1600,6 +1691,7 @@
           "char_start": 841,
           "char_end": 851,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1617,6 +1709,7 @@
           "char_start": 90885,
           "char_end": 90893,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1634,6 +1727,7 @@
           "char_start": 3400,
           "char_end": 3410,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1651,6 +1745,7 @@
           "char_start": 2280,
           "char_end": 2289,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência nº",
@@ -1668,6 +1763,7 @@
           "char_start": 42298,
           "char_end": 42310,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1685,6 +1781,7 @@
           "char_start": 1238,
           "char_end": 1246,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -1702,6 +1799,7 @@
           "char_start": 70642,
           "char_end": 70650,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1719,6 +1817,7 @@
           "char_start": 1458,
           "char_end": 1467,
           "rule_key": "procedural-coordination-respectivamente-v1",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "referência citius",
@@ -1738,6 +1837,7 @@
           "char_start": 79716,
           "char_end": 79722,
           "rule_key": "reference-citius-qualified-v1",
+          "raw_label": "Refº Citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Refº Citius",
@@ -1755,6 +1855,7 @@
           "char_start": 5936,
           "char_end": 5944,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1772,6 +1873,7 @@
           "char_start": 101714,
           "char_end": 101722,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius nº",
@@ -1789,6 +1891,7 @@
           "char_start": 7751,
           "char_end": 7758,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1806,6 +1909,7 @@
           "char_start": 5480,
           "char_end": 5490,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1823,6 +1927,7 @@
           "char_start": 16611,
           "char_end": 16619,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1840,6 +1945,7 @@
           "char_start": 687,
           "char_end": 696,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -1857,6 +1963,7 @@
           "char_start": 3852,
           "char_end": 3862,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1879,6 +1986,7 @@
           "char_start": 334836,
           "char_end": 334846,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -1896,6 +2004,7 @@
           "char_start": 23450,
           "char_end": 23457,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -1913,6 +2022,7 @@
           "char_start": 75934,
           "char_end": 75944,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1930,6 +2040,7 @@
           "char_start": 126269,
           "char_end": 126277,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência",
@@ -1947,6 +2058,7 @@
           "char_start": 290,
           "char_end": 299,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -1964,6 +2076,7 @@
           "char_start": 67407,
           "char_end": 67415,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -1981,6 +2094,7 @@
           "char_start": 140277,
           "char_end": 140288,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -1998,6 +2112,7 @@
           "char_start": 401,
           "char_end": 410,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -2015,6 +2130,7 @@
           "char_start": 3115,
           "char_end": 3125,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -2032,6 +2148,7 @@
           "char_start": 27420,
           "char_end": 27430,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -2049,6 +2166,7 @@
           "char_start": 18273,
           "char_end": 18280,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -2066,6 +2184,7 @@
           "char_start": 134335,
           "char_end": 134345,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -2083,6 +2202,7 @@
           "char_start": 20560,
           "char_end": 20569,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Docnº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Docnº",
@@ -2100,6 +2220,7 @@
           "char_start": 1742,
           "char_end": 1749,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -2122,6 +2243,7 @@
           "char_start": 992,
           "char_end": 1001,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -2139,6 +2261,7 @@
           "char_start": 130,
           "char_end": 144,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Ref",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Ref",
@@ -2156,6 +2279,7 @@
           "char_start": 36734,
           "char_end": 36742,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -2173,6 +2297,7 @@
           "char_start": 8476,
           "char_end": 8486,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -2190,6 +2315,7 @@
           "char_start": 83970,
           "char_end": 83978,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referência nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência nº",
@@ -2207,6 +2333,7 @@
           "char_start": 27379,
           "char_end": 27387,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc  nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc  nº",
@@ -2224,6 +2351,7 @@
           "char_start": 2651,
           "char_end": 2658,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -2241,6 +2369,7 @@
           "char_start": 6493,
           "char_end": 6501,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -2258,6 +2387,7 @@
           "char_start": 7796,
           "char_end": 7804,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -2275,6 +2405,7 @@
           "char_start": 4164,
           "char_end": 4174,
           "rule_key": "local-attachment-anexo-v1",
+          "raw_label": "Anexo nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Anexo nº",
@@ -2292,6 +2423,7 @@
           "char_start": 16721,
           "char_end": 16728,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº",
@@ -2309,6 +2441,7 @@
           "char_start": 1104,
           "char_end": 1113,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2326,6 +2459,7 @@
           "char_start": 28031,
           "char_end": 28039,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -2343,6 +2477,7 @@
           "char_start": 2085,
           "char_end": 2094,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2360,6 +2495,7 @@
           "char_start": 28089,
           "char_end": 28094,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -2377,6 +2513,7 @@
           "char_start": 4196,
           "char_end": 4204,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -2394,6 +2531,7 @@
           "char_start": 112,
           "char_end": 136,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2411,6 +2549,7 @@
           "char_start": 6559,
           "char_end": 6563,
           "rule_key": "local-attachment-coordination-v1",
+          "raw_label": "Doc nº Doc",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "Doc nº Doc",
@@ -2430,6 +2569,7 @@
           "char_start": 793,
           "char_end": 800,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2447,6 +2587,7 @@
           "char_start": 4274,
           "char_end": 4283,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -2464,6 +2605,7 @@
           "char_start": 740,
           "char_end": 746,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2481,6 +2623,7 @@
           "char_start": 8408,
           "char_end": 8417,
           "rule_key": "procedural-coordination-respectivamente-v1",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "referência citius",
@@ -2500,6 +2643,7 @@
           "char_start": 18276,
           "char_end": 18285,
           "rule_key": "procedural-coordination-respectivamente-v1",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "referência citius",
@@ -2519,6 +2663,7 @@
           "char_start": 42069,
           "char_end": 42073,
           "rule_key": "local-attachment-coordination-v1",
+          "raw_label": "Doc nº Doc",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "Doc nº Doc",
@@ -2538,6 +2683,7 @@
           "char_start": 800,
           "char_end": 824,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2555,6 +2701,7 @@
           "char_start": 10345,
           "char_end": 10358,
           "rule_key": "local-attachment-duplicated-doc-v1",
+          "raw_label": "Doc nº Doc",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº Doc",
@@ -2572,6 +2719,7 @@
           "char_start": 5852,
           "char_end": 5873,
           "rule_key": "external-register-numbered-v1",
+          "raw_label": "Registo n.°",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo n.°",
@@ -2589,6 +2737,7 @@
           "char_start": 152,
           "char_end": 176,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2606,6 +2755,7 @@
           "char_start": 936,
           "char_end": 944,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2623,6 +2773,7 @@
           "char_start": 8082,
           "char_end": 8095,
           "rule_key": "local-attachment-duplicated-doc-v1",
+          "raw_label": "Doc nº Doc",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº Doc",
@@ -2640,6 +2791,7 @@
           "char_start": 9332,
           "char_end": 9345,
           "rule_key": "local-attachment-duplicated-doc-v1",
+          "raw_label": "Doc nº Doc",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Doc nº Doc",
@@ -2657,6 +2809,7 @@
           "char_start": 8528,
           "char_end": 8536,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "Referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Referência",
@@ -2674,6 +2827,7 @@
           "char_start": 987,
           "char_end": 994,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls",
@@ -2691,6 +2845,7 @@
           "char_start": 8164,
           "char_end": 8173,
           "rule_key": "reference-labelled-v4",
+          "raw_label": "referência",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência",
@@ -2708,6 +2863,7 @@
           "char_start": 2321,
           "char_end": 2325,
           "rule_key": "local-attachment-coordination-v1",
+          "raw_label": "Doc nº Doc",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "Doc nº Doc",
@@ -2727,6 +2883,7 @@
           "char_start": 7495,
           "char_end": 7504,
           "rule_key": "cited-reference-labelled-v3",
+          "raw_label": "referência citius",
           "label_provenance": {
             "kind": "direct",
             "source_label": "referência citius",
@@ -2744,6 +2901,7 @@
           "char_start": 243899,
           "char_end": 243907,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -2761,6 +2919,7 @@
           "char_start": 1184,
           "char_end": 1192,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2778,6 +2937,7 @@
           "char_start": 977,
           "char_end": 985,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2795,6 +2955,7 @@
           "char_start": 1006,
           "char_end": 1014,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2812,6 +2973,7 @@
           "char_start": 3882,
           "char_end": 3890,
           "rule_key": "local-attachment-doc-v2",
+          "raw_label": "DOC Nº",
           "label_provenance": {
             "kind": "direct",
             "source_label": "DOC Nº",
@@ -2829,6 +2991,7 @@
           "char_start": 1039,
           "char_end": 1046,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2846,6 +3009,7 @@
           "char_start": 956,
           "char_end": 964,
           "rule_key": "physical-folio-fls-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "direct",
             "source_label": "fls.",
@@ -2863,6 +3027,7 @@
           "char_start": 365,
           "char_end": 392,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2880,6 +3045,7 @@
           "char_start": 373,
           "char_end": 400,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2897,6 +3063,7 @@
           "char_start": 117475,
           "char_end": 117476,
           "rule_key": "local-attachment-french-damaged-piece-v1",
+          "raw_label": "Nmr  piéce  ·",
           "label_provenance": {
             "kind": "inherited_from_damaged_table_label",
             "source_label": "Nmr  piéce  ·",
@@ -2914,6 +3081,7 @@
           "char_start": 572,
           "char_end": 596,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2931,6 +3099,7 @@
           "char_start": 20892,
           "char_end": 20913,
           "rule_key": "external-register-numbered-v1",
+          "raw_label": "Registo n.°",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo n.°",
@@ -2948,6 +3117,7 @@
           "char_start": 331,
           "char_end": 356,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2965,6 +3135,7 @@
           "char_start": 129102,
           "char_end": 129103,
           "rule_key": "local-attachment-french-damaged-piece-v1",
+          "raw_label": "Nmr piéce ·",
           "label_provenance": {
             "kind": "inherited_from_damaged_table_label",
             "source_label": "Nmr piéce ·",
@@ -2982,6 +3153,7 @@
           "char_start": 0,
           "char_end": 24,
           "rule_key": "external-register-colon-v1",
+          "raw_label": "Registo:",
           "label_provenance": {
             "kind": "direct",
             "source_label": "Registo:",
@@ -2999,6 +3171,7 @@
           "char_start": 23171,
           "char_end": 23175,
           "rule_key": "physical-folio-coordination-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "fls.",
@@ -3018,6 +3191,7 @@
           "char_start": 23460,
           "char_end": 23461,
           "rule_key": "local-attachment-range-v1",
+          "raw_label": "Doc nº",
           "label_provenance": {
             "kind": "inherited_from_range_expression",
             "source_label": "Doc nº",
@@ -3037,6 +3211,7 @@
           "char_start": 1118,
           "char_end": 1121,
           "rule_key": "physical-folio-coordination-v1",
+          "raw_label": "fls.",
           "label_provenance": {
             "kind": "inherited_from_coordinated_expression",
             "source_label": "fls.",
@@ -3056,6 +3231,7 @@
           "char_start": 28040,
           "char_end": 28044,
           "rule_key": "physical-folio-compact-range-v1",
+          "raw_label": "fls",
           "label_provenance": {
             "kind": "inherited_from_range_expression",
             "source_label": "fls",
