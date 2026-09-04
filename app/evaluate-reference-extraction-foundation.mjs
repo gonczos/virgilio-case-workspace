@@ -9,7 +9,7 @@ import {
 
 export const DEFAULT_FIXTURE = "docs/evaluation/reference-extraction-foundation-fixture/annotations.json";
 export const DEFAULT_SCOPE = "representation-6038-chronological-entries-a-through-n-v1";
-export const DEFAULT_OUTPUT = "docs/evaluation/reference-extraction-foundation-deterministic-v4.json";
+export const DEFAULT_OUTPUT = "docs/evaluation/reference-extraction-foundation-deterministic-v5.json";
 
 const sha256 = (value) => crypto.createHash("sha256").update(value).digest("hex");
 const overlaps = (left, right) => left.char_start < right.char_end && right.char_start < left.char_end;
@@ -95,6 +95,11 @@ export async function runBaseline(options) {
     ...item,
     char_start: item.char_start + scope.char_start,
     char_end: item.char_end + scope.char_start,
+    label_provenance: {
+      ...item.label_provenance,
+      label_char_start: item.label_provenance.label_char_start + scope.char_start,
+      label_char_end: item.label_provenance.label_char_end + scope.char_start,
+    },
   }));
   const comparison = evaluatePredictions({ predictions, annotations });
   const result = {

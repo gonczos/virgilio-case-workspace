@@ -25,6 +25,12 @@ test("extracts labelled self and cited references with locations", () => {
   ]);
   assert.equal(text.slice(rows[0].char_start, rows[0].char_end), "33348144");
   assert.match(rows[1].context_text, /despacho/u);
+  for (const row of rows) {
+    assert.equal(
+      text.slice(row.label_provenance.label_char_start, row.label_provenance.label_char_end),
+      row.raw_label,
+    );
+  }
 });
 
 test("does not treat unlabelled numbers as references", () => {
@@ -213,4 +219,34 @@ test("extracts atomic coordinated attachments without repairing raw text", () =>
 test("narrow coordination and attachment rules do not recognize dates", () => {
   const dates = "26.10.2015 22/05/2017 15 /07/2017 4.04.2018 21/12/ 2018 21/07/ 2020 15-072020 10.9.2018 8.8.2018 22.03.2021 29.01.2020 10.02.2020";
   assert.deepEqual(extractLabelledReferences(dates), []);
+});
+
+test("v5 extracts only the reviewed structured folio, attachment, and register forms", () => {
+  const text = "fls.1 a fls 308; Anexo nº 13 - DOC Nº12; DOCNº19; Registo: 702380056723040; Registo n.° 1684/2020";
+  const rows = extractLabelledReferences(text);
+  assert.deepEqual(rows.map((row) => [row.raw_value, row.rule_key]), [
+    ["fls.1", "physical-folio-fls-v1"],
+    ["fls 308", "physical-folio-fls-v1"],
+    ["Anexo nº 13", "local-attachment-anexo-v1"],
+    ["DOC Nº12", "local-attachment-doc-v1"],
+    ["DOCNº19", "local-attachment-doc-v1"],
+    ["Registo: 702380056723040", "external-register-colon-v1"],
+    ["Registo n.° 1684/2020", "external-register-numbered-v1"],
+  ]);
+  for (const row of rows) assert.equal(text.slice(row.char_start, row.char_end), row.raw_value);
+  assert.ok(rows.every((row) => row.label_provenance.kind === "direct"));
+});
+
+test("v5 narrowly inherits the damaged French piece label", () => {
+  const text = "Nmr P.V. 01663 1 Année 2020 Nmr piéce · 4 Nº feuillet 1 / 1";
+  const rows = extractLabelledReferences(text);
+  assert.deepEqual(rows.map((row) => row.raw_value), ["4"]);
+  assert.equal(rows[0].rule_key, "local-attachment-french-damaged-piece-v1");
+  assert.equal(rows[0].parsed_attachment_number, "4");
+  assert.equal(rows[0].label_provenance.kind, "inherited_from_damaged_table_label");
+});
+
+test("v5 structured rules preserve protected negatives", () => {
+  const protectedText = "1 folha 1 folh 2/129 Nº feuillet 1 / 1 2020 69.* Esq.* 4.3ng/mL ponto III. deste requerimento; DOC N 12; Anexo n 13; DOC 14; Anexo 15";
+  assert.deepEqual(extractLabelledReferences(protectedText), []);
 });

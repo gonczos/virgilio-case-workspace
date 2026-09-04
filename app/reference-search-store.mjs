@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 
 export const REFERENCE_EXTRACTOR_KEY = "app/reference-search-store.mjs";
-export const REFERENCE_EXTRACTOR_VERSION = "labelled-reference-v4";
+export const REFERENCE_EXTRACTOR_VERSION = "labelled-reference-v5";
 
 export function normalizeReferenceValue(value) {
   return String(value ?? "").normalize("NFKC").trim().replace(/\s+/gu, " ").toUpperCase();
@@ -66,7 +66,7 @@ export function extractLabelledReferences(text) {
           kind: "direct",
           source_label: rawLabel,
           label_char_start: match.index,
-          label_char_end: match.index + match[1].length,
+          label_char_end: match.index + match[1].trimEnd().length,
         },
       });
     }
@@ -88,7 +88,7 @@ export function extractLabelledReferences(text) {
         kind: "inherited_from_coordinated_expression",
         source_label: rawLabel,
         label_char_start: match.index,
-        label_char_end: match.index + match[1].length,
+        label_char_end: match.index + match[1].trimEnd().length,
         coordination_cue: "respectivamente",
         preceding_value: match[2],
       },
@@ -144,6 +144,69 @@ export function extractLabelledReferences(text) {
       metadata: {
         reference_family: "local_attachment",
         parsed_reference_value: rawValue.replace(/\s+/gu, ""),
+      },
+    });
+  }
+
+  const directStructuredPatterns = [
+    { ruleKey: "physical-folio-fls-v1", role: "physical_folio_reference", family: "physical_folio", regex: /\b(fls\.?\s*)(\d+)\b/giu, parsedKey: "folio" },
+    { ruleKey: "local-attachment-anexo-v1", role: "local_attachment_reference", family: "local_attachment", regex: /\b(Anexo\s+n[.º°o]+\s*)(\d+[A-Z]?)\b/giu, parsedKey: "attachment_number" },
+    { ruleKey: "local-attachment-doc-v1", role: "local_attachment_reference", family: "local_attachment", regex: /\b(DOC\s*N[.º°O]+\s*)(\d+[A-Z]?)\b/giu, parsedKey: "attachment_number" },
+    { ruleKey: "external-register-colon-v1", role: "external_register_reference", family: "external_register", regex: /\b(Registo:\s*)(\d+)\b/giu, parsedKey: "identifier" },
+    { ruleKey: "external-register-numbered-v1", role: "external_register_reference", family: "external_register", regex: /\b(Registo\s+n\.°\s*)(\d+\/\d+)\b/giu, parsedKey: "identifier" },
+  ];
+  for (const { ruleKey, role, family, regex, parsedKey } of directStructuredPatterns) {
+    for (const match of source.matchAll(regex)) {
+      const rawValue = match[0];
+      const rawLabel = match[1].trim();
+      addObservation({
+        rawValue,
+        rawLabel,
+        role,
+        ruleKey,
+        charStart: match.index,
+        charEnd: match.index + rawValue.length,
+        labelProvenance: {
+          kind: "direct",
+          source_label: rawLabel,
+          label_char_start: match.index,
+          label_char_end: match.index + match[1].trimEnd().length,
+        },
+        metadata: {
+          reference_family: family,
+          [`parsed_${parsedKey}`]: match[2],
+          target_resolution: "unresolved",
+          document_identity: "unresolved",
+          binary_identity: "unresolved",
+        },
+      });
+    }
+  }
+
+  const damagedFrenchPiece = /\b(Nmr\s+pi[eèé]ce\s+·\s*)(\d+)\b/giu;
+  for (const match of source.matchAll(damagedFrenchPiece)) {
+    const rawLabel = match[1].trim();
+    const rawValue = match[2];
+    const charStart = match.index + match[0].lastIndexOf(match[2]);
+    addObservation({
+      rawValue,
+      rawLabel,
+      role: "local_attachment_reference",
+      ruleKey: "local-attachment-french-damaged-piece-v1",
+      charStart,
+      charEnd: charStart + rawValue.length,
+      labelProvenance: {
+        kind: "inherited_from_damaged_table_label",
+        source_label: rawLabel,
+        label_char_start: match.index,
+        label_char_end: match.index + match[1].trimEnd().length,
+      },
+      metadata: {
+        reference_family: "local_attachment",
+        parsed_attachment_number: rawValue,
+        target_resolution: "unresolved",
+        document_identity: "unresolved",
+        binary_identity: "unresolved",
       },
     });
   }
