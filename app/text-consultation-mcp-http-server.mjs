@@ -211,7 +211,7 @@ export async function main() {
     });
     process.once("SIGINT", () => { void shutdown().finally(() => { process.exitCode = 130; }); });
     process.once("SIGTERM", () => { void shutdown().finally(() => { process.exitCode = 143; }); });
-    operationalLogger.info("server_listening", { host, port, route: "/mcp", log_path: logPath });
+    operationalLogger.info("server_listening", { host, port, route: "/mcp" });
   } catch (error) {
     await shutdown();
     throw error;
