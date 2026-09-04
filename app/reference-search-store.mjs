@@ -236,6 +236,24 @@ export async function upsertReferenceObservation(client, observation) {
   const normalizedValue = normalizeReferenceValue(observation.raw_value);
   if (!normalizedValue) throw new Error("Reference observation value must not be blank");
   const row = { ...observation, normalized_value: normalizedValue };
+  if (!row.observation_key && row.observer_key === REFERENCE_EXTRACTOR_KEY
+      && row.observer_version === REFERENCE_EXTRACTOR_VERSION) {
+    const canonical = await client.query(`
+      SELECT * FROM casework.reference_observation
+      WHERE observer_key=$1 AND observer_version=$2 AND lifecycle_state='current'
+        AND file_binary_id IS NOT DISTINCT FROM $3
+        AND document_representation_id IS NOT DISTINCT FROM $4
+        AND document_segment_id IS NOT DISTINCT FROM $5
+        AND char_start IS NOT DISTINCT FROM $6 AND char_end IS NOT DISTINCT FROM $7
+        AND normalized_value=$8 AND raw_label IS NOT DISTINCT FROM $9
+        AND metadata_json->>'observation_identity_version'='reference-text-observation-identity-v1'
+      ORDER BY id LIMIT 2
+    `, [row.observer_key,row.observer_version,row.file_binary_id??null,row.document_representation_id??null,
+      row.document_segment_id??null,row.char_start??null,row.char_end??null,normalizedValue,row.raw_label??null]);
+    if (canonical.rows.length > 1) throw new Error("AMBIGUOUS_CANONICAL_V5_IDENTITY");
+    if (canonical.rows.length === 1) return canonical.rows[0];
+    if (row.require_canonical_identity_match) return null;
+  }
   row.observation_key ??= buildObservationKey(row);
   const result = await client.query(`
     INSERT INTO casework.reference_observation (

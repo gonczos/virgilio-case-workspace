@@ -1,0 +1,918 @@
+{
+  "schema_version": 1,
+  "kind": "labelled_reference_v5_ingestion_read_only_api_samples",
+  "generated_at": "2026-09-04T04:22:08.607Z",
+  "samples": [
+    {
+      "case": "direct_attachment",
+      "sample_scope": "canonical_frozen_v5_fixture_observations_only",
+      "request": {
+        "endpoint": "GET /api/consultation/references/lookup",
+        "value": "Anexo nº 13",
+        "scope": "full",
+        "lifecycle": "include_history",
+        "limit": 100,
+        "offset": 0
+      },
+      "result_state": "matches",
+      "coverage": {
+        "corpus_scope": "full",
+        "lifecycle_scope": "include_history",
+        "status": "incomplete",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
+            "message": "External-register and document-text observations remain pilot-scoped."
+          }
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": 6642,
+          "observation_key": "7bb85fffec0a6c6ac94e59e015e427023423bf448614f65451baff41bfe40e0a",
+          "reference": {
+            "raw_value": "Anexo nº 13",
+            "normalized_value": "ANEXO NO 13",
+            "raw_label": "Anexo nº",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "current",
+            "current_observation_key": "7bb85fffec0a6c6ac94e59e015e427023423bf448614f65451baff41bfe40e0a",
+            "events": [
+              {
+                "transition_kind": "created",
+                "from_state": null,
+                "to_state": "current",
+                "occurred_at": "2026-09-04T04:10:56.959Z",
+                "related_observation_key": null
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 810,
+            "document_representation_id": 821,
+            "document_segment_id": 819,
+            "page_no": null,
+            "char_start": 243885,
+            "char_end": 243896,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "pdf_literal_text",
+            "processor_version": "poppler-layout-v2-c5.3.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 220,
+              "bucket_document_id": 262,
+              "case_file_id": 1,
+              "bucket_id": 212,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "107018758",
+              "occurrence_date": "2017-05-24",
+              "document_reference": "3994056_130510277_22_9198898_7E6DDA5B-3C76-43EA-A675-C1B03F64E1F5",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "a74153f1d929db1a678436472a90000d0095c8d9d8677192aa8397e6dd5622bc"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 810,
+              "sha256": "a74153f1d929db1a678436472a90000d0095c8d9d8677192aa8397e6dd5622bc",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/a74153f1d929db1a678436472a90000d0095c8d9d8677192aa8397e6dd5622bc"
+              },
+              "contexts": [
+                {
+                  "document_id": 220,
+                  "bucket_document_id": 262,
+                  "case_file_id": 1,
+                  "bucket_id": 212
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "Anexo nº",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v5",
+            "normalization_identity": null,
+            "extraction": {
+              "observation_identity_version": "reference-text-observation-identity-v1",
+              "fixture_scope": "frozen-v5-expansion-and-foundation",
+              "representation_content_sha256": "2f2849cfe9a21f63c29682727f0e387f7f0d59489e04f6ae98c034b6c707fe59",
+              "segment_content_sha256": "2f2849cfe9a21f63c29682727f0e387f7f0d59489e04f6ae98c034b6c707fe59",
+              "rule_key": "local-attachment-anexo-v1",
+              "representation_span": {
+                "char_start": 243885,
+                "char_end": 243896
+              },
+              "segment_span": {
+                "char_start": 243885,
+                "char_end": 243896
+              },
+              "label_provenance": {
+                "kind": "direct",
+                "source_label": "Anexo nº",
+                "label_char_end": 243893,
+                "label_char_start": 243885
+              }
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "local_attachment_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": null
+        }
+      ]
+    },
+    {
+      "case": "physical_folio_reused_binary",
+      "sample_scope": "canonical_frozen_v5_fixture_observations_only",
+      "request": {
+        "endpoint": "GET /api/consultation/references/lookup",
+        "value": "fls.490",
+        "scope": "full",
+        "lifecycle": "include_history",
+        "limit": 100,
+        "offset": 0
+      },
+      "result_state": "matches",
+      "coverage": {
+        "corpus_scope": "full",
+        "lifecycle_scope": "include_history",
+        "status": "incomplete",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
+            "message": "External-register and document-text observations remain pilot-scoped."
+          }
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": 6644,
+          "observation_key": "43af817d3ed6068c989a9715421213cb10676a0ccff3e86ba675c616bb81d4e9",
+          "reference": {
+            "raw_value": "fls.490",
+            "normalized_value": "FLS.490",
+            "raw_label": "fls.",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "current",
+            "current_observation_key": "43af817d3ed6068c989a9715421213cb10676a0ccff3e86ba675c616bb81d4e9",
+            "events": [
+              {
+                "transition_kind": "created",
+                "from_state": null,
+                "to_state": "current",
+                "occurred_at": "2026-09-04T04:10:56.959Z",
+                "related_observation_key": null
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 911,
+            "document_representation_id": 6031,
+            "document_segment_id": 3546,
+            "page_no": null,
+            "char_start": 2387,
+            "char_end": 2394,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 1206,
+              "bucket_document_id": 1641,
+              "case_file_id": 1,
+              "bucket_id": 782,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "23917519",
+              "occurrence_date": "2023-08-20",
+              "document_reference": "3994056_174675931_90_5130623_037ECC94-422A-48F5-988E-3B0355AD6EC7",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "bb3e8d573c9aa5d4c073f6f9b9c2ec42b8464c7e129a87e9537852f665087a7e"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 911,
+              "sha256": "bb3e8d573c9aa5d4c073f6f9b9c2ec42b8464c7e129a87e9537852f665087a7e",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/bb3e8d573c9aa5d4c073f6f9b9c2ec42b8464c7e129a87e9537852f665087a7e"
+              },
+              "contexts": [
+                {
+                  "document_id": 1206,
+                  "bucket_document_id": 1641,
+                  "case_file_id": 1,
+                  "bucket_id": 782
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "fls.",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v5",
+            "normalization_identity": null,
+            "extraction": {
+              "observation_identity_version": "reference-text-observation-identity-v1",
+              "fixture_scope": "frozen-v5-expansion-and-foundation",
+              "representation_content_sha256": "480f5f83eb911ff2658ff7a90e112cd1f2b3d73d4f0da19b758a649f65416889",
+              "segment_content_sha256": "480f5f83eb911ff2658ff7a90e112cd1f2b3d73d4f0da19b758a649f65416889",
+              "rule_key": "physical-folio-fls-v1",
+              "representation_span": {
+                "char_start": 2387,
+                "char_end": 2394
+              },
+              "segment_span": {
+                "char_start": 2387,
+                "char_end": 2394
+              },
+              "label_provenance": {
+                "kind": "direct",
+                "source_label": "fls.",
+                "label_char_end": 2391,
+                "label_char_start": 2387
+              }
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "physical_folio_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": null
+        }
+      ]
+    },
+    {
+      "case": "register_colon",
+      "sample_scope": "canonical_frozen_v5_fixture_observations_only",
+      "request": {
+        "endpoint": "GET /api/consultation/references/lookup",
+        "value": "Registo: 702380056723040",
+        "scope": "full",
+        "lifecycle": "include_history",
+        "limit": 100,
+        "offset": 0
+      },
+      "result_state": "matches",
+      "coverage": {
+        "corpus_scope": "full",
+        "lifecycle_scope": "include_history",
+        "status": "incomplete",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
+            "message": "External-register and document-text observations remain pilot-scoped."
+          }
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": 6646,
+          "observation_key": "ab284cfa1a27b8c86fd2e6c4ea19ade4e17b0867f6f26678ac44d888aaf5ec19",
+          "reference": {
+            "raw_value": "Registo: 702380056723040",
+            "normalized_value": "REGISTO: 702380056723040",
+            "raw_label": "Registo:",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "current",
+            "current_observation_key": "ab284cfa1a27b8c86fd2e6c4ea19ade4e17b0867f6f26678ac44d888aaf5ec19",
+            "events": [
+              {
+                "transition_kind": "created",
+                "from_state": null,
+                "to_state": "current",
+                "occurred_at": "2026-09-04T04:10:56.959Z",
+                "related_observation_key": null
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 181,
+            "document_representation_id": 3893,
+            "document_segment_id": 1416,
+            "page_no": null,
+            "char_start": 152,
+            "char_end": 176,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "xberg",
+            "processor_version": "1.0.14-c5.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 205,
+              "bucket_document_id": 246,
+              "case_file_id": 1,
+              "bucket_id": 198,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "106712093",
+              "occurrence_date": "2017-05-08",
+              "document_reference": "3994056_130228650_19_9185790_79B43374-822E-43B7-8DFC-CC6B8BB0B875",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "229c01c70d034b36a9bacefa5f6b5ed2098d07618033392400a66e81a835aa6f"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 181,
+              "sha256": "229c01c70d034b36a9bacefa5f6b5ed2098d07618033392400a66e81a835aa6f",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/229c01c70d034b36a9bacefa5f6b5ed2098d07618033392400a66e81a835aa6f"
+              },
+              "contexts": [
+                {
+                  "document_id": 205,
+                  "bucket_document_id": 246,
+                  "case_file_id": 1,
+                  "bucket_id": 198
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "Registo:",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v5",
+            "normalization_identity": null,
+            "extraction": {
+              "observation_identity_version": "reference-text-observation-identity-v1",
+              "fixture_scope": "frozen-v5-expansion-and-foundation",
+              "representation_content_sha256": "19b677f68567fe0a3635a569a4a52ad85847f3d031ff9644d66855ad656dd795",
+              "segment_content_sha256": "19b677f68567fe0a3635a569a4a52ad85847f3d031ff9644d66855ad656dd795",
+              "rule_key": "external-register-colon-v1",
+              "representation_span": {
+                "char_start": 152,
+                "char_end": 176
+              },
+              "segment_span": {
+                "char_start": 152,
+                "char_end": 176
+              },
+              "label_provenance": {
+                "kind": "direct",
+                "source_label": "Registo:",
+                "label_char_end": 160,
+                "label_char_start": 152
+              }
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "external_register_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": null
+        }
+      ]
+    },
+    {
+      "case": "register_numbered",
+      "sample_scope": "canonical_frozen_v5_fixture_observations_only",
+      "request": {
+        "endpoint": "GET /api/consultation/references/lookup",
+        "value": "Registo n.° 1684/2020",
+        "scope": "full",
+        "lifecycle": "include_history",
+        "limit": 100,
+        "offset": 0
+      },
+      "result_state": "matches",
+      "coverage": {
+        "corpus_scope": "full",
+        "lifecycle_scope": "include_history",
+        "status": "incomplete",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
+            "message": "External-register and document-text observations remain pilot-scoped."
+          }
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": 6709,
+          "observation_key": "82be0cb7f7d4778036a114d2edbb6fff394a3421805d08c9be506bcba5bd05f2",
+          "reference": {
+            "raw_value": "Registo n.° 1684/2020",
+            "normalized_value": "REGISTO N.° 1684/2020",
+            "raw_label": "Registo n.°",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "current",
+            "current_observation_key": "82be0cb7f7d4778036a114d2edbb6fff394a3421805d08c9be506bcba5bd05f2",
+            "events": [
+              {
+                "transition_kind": "created",
+                "from_state": null,
+                "to_state": "current",
+                "occurred_at": "2026-09-04T04:10:56.959Z",
+                "related_observation_key": null
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 524,
+            "document_representation_id": 4233,
+            "document_segment_id": 1754,
+            "page_no": null,
+            "char_start": 5852,
+            "char_end": 5873,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "xberg",
+            "processor_version": "1.0.14-c5.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 666,
+              "bucket_document_id": 1006,
+              "case_file_id": 1,
+              "bucket_id": 543,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "17230987",
+              "occurrence_date": "2020-08-04",
+              "document_reference": "3994056_149952407_57_7832661_3723EA63-F0CA-4A54-A1DB-48C9C6537AFC",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "6e74c7e999501d5a9d99fea32df9f92e622bc60dc33ae037eaf70e25a7f726f2"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 524,
+              "sha256": "6e74c7e999501d5a9d99fea32df9f92e622bc60dc33ae037eaf70e25a7f726f2",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/6e74c7e999501d5a9d99fea32df9f92e622bc60dc33ae037eaf70e25a7f726f2"
+              },
+              "contexts": [
+                {
+                  "document_id": 666,
+                  "bucket_document_id": 1006,
+                  "case_file_id": 1,
+                  "bucket_id": 543
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "Registo n.°",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v5",
+            "normalization_identity": null,
+            "extraction": {
+              "observation_identity_version": "reference-text-observation-identity-v1",
+              "fixture_scope": "frozen-v5-expansion-and-foundation",
+              "representation_content_sha256": "5422f0437f876e264c306e92a9a28cf630fab9114731c58d9413b4e265573384",
+              "segment_content_sha256": "5422f0437f876e264c306e92a9a28cf630fab9114731c58d9413b4e265573384",
+              "rule_key": "external-register-numbered-v1",
+              "representation_span": {
+                "char_start": 5852,
+                "char_end": 5873
+              },
+              "segment_span": {
+                "char_start": 5852,
+                "char_end": 5873
+              },
+              "label_provenance": {
+                "kind": "direct",
+                "source_label": "Registo n.°",
+                "label_char_end": 5863,
+                "label_char_start": 5852
+              }
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "external_register_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": null
+        }
+      ]
+    },
+    {
+      "case": "damaged_french_inherited_label",
+      "sample_scope": "canonical_frozen_v5_fixture_observations_only",
+      "request": {
+        "endpoint": "GET /api/consultation/references/lookup",
+        "value": "4",
+        "scope": "full",
+        "lifecycle": "include_history",
+        "limit": 100,
+        "offset": 0
+      },
+      "result_state": "matches",
+      "coverage": {
+        "corpus_scope": "full",
+        "lifecycle_scope": "include_history",
+        "status": "incomplete",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
+            "message": "External-register and document-text observations remain pilot-scoped."
+          }
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": 6731,
+          "observation_key": "a5600d0544c0753911f6b895dabfddb5c14edc32b4c8d749b67ba0ad66fd32cb",
+          "reference": {
+            "raw_value": "4",
+            "normalized_value": "4",
+            "raw_label": "Nmr  piéce  ·",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "current",
+            "current_observation_key": "a5600d0544c0753911f6b895dabfddb5c14edc32b4c8d749b67ba0ad66fd32cb",
+            "events": [
+              {
+                "transition_kind": "created",
+                "from_state": null,
+                "to_state": "current",
+                "occurred_at": "2026-09-04T04:10:56.959Z",
+                "related_observation_key": null
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 553,
+            "document_representation_id": 5063,
+            "document_segment_id": 2578,
+            "page_no": null,
+            "char_start": 117475,
+            "char_end": 117476,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 907,
+              "bucket_document_id": 1313,
+              "case_file_id": 1,
+              "bucket_id": 633,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "19092184",
+              "occurrence_date": "2021-06-28",
+              "document_reference": "3994056_156753191_73_2963009_648511DD-E9EE-4F9B-B7E5-8C4667B55709",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "72b005fb854888b62f917b7a54838c49e2e9b51e861ccc3d48e9eb010c96e8c9"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 553,
+              "sha256": "72b005fb854888b62f917b7a54838c49e2e9b51e861ccc3d48e9eb010c96e8c9",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/72b005fb854888b62f917b7a54838c49e2e9b51e861ccc3d48e9eb010c96e8c9"
+              },
+              "contexts": [
+                {
+                  "document_id": 907,
+                  "bucket_document_id": 1313,
+                  "case_file_id": 1,
+                  "bucket_id": 633
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "Nmr  piéce  ·",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v5",
+            "normalization_identity": null,
+            "extraction": {
+              "observation_identity_version": "reference-text-observation-identity-v1",
+              "fixture_scope": "frozen-v5-expansion-and-foundation",
+              "representation_content_sha256": "8a2dffd1e4e03626779efab4caea11799e2a877749d629af7f6e1bb72f44a105",
+              "segment_content_sha256": "8a2dffd1e4e03626779efab4caea11799e2a877749d629af7f6e1bb72f44a105",
+              "rule_key": "local-attachment-french-damaged-piece-v1",
+              "representation_span": {
+                "char_start": 117475,
+                "char_end": 117476
+              },
+              "segment_span": {
+                "char_start": 117475,
+                "char_end": 117476
+              },
+              "label_provenance": {
+                "kind": "inherited_from_damaged_table_label",
+                "source_label": "Nmr  piéce  ·",
+                "label_char_end": 117474,
+                "label_char_start": 117461
+              }
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "local_attachment_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": null
+        }
+      ]
+    },
+    {
+      "case": "coordinated_procedural",
+      "sample_scope": "canonical_frozen_v5_fixture_observations_only",
+      "request": {
+        "endpoint": "GET /api/consultation/references/lookup",
+        "value": "122178618",
+        "scope": "full",
+        "lifecycle": "include_history",
+        "limit": 100,
+        "offset": 0
+      },
+      "result_state": "matches",
+      "coverage": {
+        "corpus_scope": "full",
+        "lifecycle_scope": "include_history",
+        "status": "incomplete",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_PILOT_ONLY",
+            "message": "External-register and document-text observations remain pilot-scoped."
+          }
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": 6739,
+          "observation_key": "367d261b5e9a83afa8b07b4166acde527edba5c7f4c182a215afe4078905af8d",
+          "reference": {
+            "raw_value": "122178618",
+            "normalized_value": "122178618",
+            "raw_label": "referência  citius",
+            "identifier_type": null
+          },
+          "origin": "document_text",
+          "lifecycle": {
+            "state": "current",
+            "current_observation_key": "367d261b5e9a83afa8b07b4166acde527edba5c7f4c182a215afe4078905af8d",
+            "events": [
+              {
+                "transition_kind": "created",
+                "from_state": null,
+                "to_state": "current",
+                "occurred_at": "2026-09-04T04:10:56.959Z",
+                "related_observation_key": null
+              }
+            ]
+          },
+          "direct_anchor": {
+            "kind": "document_text",
+            "case_file_id": null,
+            "bucket_id": null,
+            "document_id": null,
+            "bucket_document_id": null,
+            "file_binary_id": 121,
+            "document_representation_id": 6038,
+            "document_segment_id": 3553,
+            "page_no": null,
+            "char_start": 7146,
+            "char_end": 7155,
+            "process_number": null,
+            "occurrence_reference": null,
+            "occurrence_date": null,
+            "document_reference": null,
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "external_source_name": null,
+            "external_source_record_id": null
+          },
+          "associated_contexts": [
+            {
+              "document_id": 909,
+              "bucket_document_id": 1316,
+              "case_file_id": 1,
+              "bucket_id": 635,
+              "process_number": "13608/14.8T2SNT",
+              "occurrence_reference": "19142479",
+              "occurrence_date": "2021-07-06",
+              "document_reference": "3994056_156921011_67_5685656_BB82E258-CE0F-4C1A-B2B2-871B0AF19ACB",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              ]
+            },
+            {
+              "document_id": 909,
+              "bucket_document_id": 1789,
+              "case_file_id": 3,
+              "bucket_id": 842,
+              "process_number": "13608/14.8T2SNT-C",
+              "occurrence_reference": "133698460",
+              "occurrence_date": "2021-11-04",
+              "document_reference": "3994056_156921011_67_5685656_BB82E258-CE0F-4C1A-B2B2-871B0AF19ACB",
+              "file_availability": "available",
+              "binary_sha256s": [
+                "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              ]
+            }
+          ],
+          "binary_association_state": "all_associated_files_available",
+          "associated_binaries": [
+            {
+              "file_binary_id": 121,
+              "sha256": "17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691",
+              "availability": "available",
+              "open_action": {
+                "href": "/api/consultation/binaries/17eb40fa6ca2c37156d9c230640ff03efbddfa531111f09bb03a7152f9e4a691"
+              },
+              "contexts": [
+                {
+                  "document_id": 909,
+                  "bucket_document_id": 1316,
+                  "case_file_id": 1,
+                  "bucket_id": 635
+                },
+                {
+                  "document_id": 909,
+                  "bucket_document_id": 1789,
+                  "case_file_id": 3,
+                  "bucket_id": 842
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "observed_in_kind": "segment",
+            "source_field": "referência  citius",
+            "observer_key": "app/reference-search-store.mjs",
+            "observer_version": "labelled-reference-v5",
+            "normalization_identity": null,
+            "extraction": {
+              "observation_identity_version": "reference-text-observation-identity-v1",
+              "fixture_scope": "frozen-v5-expansion-and-foundation",
+              "representation_content_sha256": "a0799b74106cc7c9d60a648d48ea342952a1489e33b1cc4c878173487cb16bb4",
+              "segment_content_sha256": "a0799b74106cc7c9d60a648d48ea342952a1489e33b1cc4c878173487cb16bb4",
+              "rule_key": "procedural-coordination-respectivamente-v1",
+              "representation_span": {
+                "char_start": 7146,
+                "char_end": 7155
+              },
+              "segment_span": {
+                "char_start": 7146,
+                "char_end": 7155
+              },
+              "label_provenance": {
+                "kind": "inherited_from_coordinated_expression",
+                "source_label": "referência  citius",
+                "label_char_end": 7129,
+                "preceding_value": "122170551",
+                "coordination_cue": "respectivamente",
+                "label_char_start": 7111
+              }
+            }
+          },
+          "ingestion_assessment": {
+            "namespace_hint": null,
+            "role_hint": "coordinated_reference",
+            "target_candidates": [],
+            "confidence": "high",
+            "review_state": "unreviewed"
+          },
+          "human_review": null
+        }
+      ]
+    }
+  ],
+  "blocked_samples": [
+    {
+      "case": "current_vs_retained_reviewed_history",
+      "state": "blocked_no_authentic_source_row",
+      "reason": "The live database contains no reviewed historical segment observation. The lifecycle/review-preservation path is validated transactionally and rolled back; no sample is fabricated."
+    }
+  ]
+}

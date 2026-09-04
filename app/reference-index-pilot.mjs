@@ -284,6 +284,7 @@ async function addLiteralTextObservations(client, row, fixtureMetadata) {
         page_no: segment.page_no,
         observer_key: REFERENCE_EXTRACTOR_KEY,
         observer_version: REFERENCE_EXTRACTOR_VERSION,
+        require_canonical_identity_match: REFERENCE_EXTRACTOR_VERSION === "labelled-reference-v5",
         namespace_hint: null,
         target_candidates: [],
         confidence: "high",
@@ -303,14 +304,14 @@ async function addLiteralTextObservations(client, row, fixtureMetadata) {
   }
 }
 
-export async function seedReferencePilot(client) {
+export async function seedReferencePilot(client, { manageTransaction = true } = {}) {
   const fixture = await loadReferencePilotFixture();
   const distinctBinaries = new Set(fixture.selection.map((item) => item.sha256));
   if (distinctBinaries.size > fixture.maximum_distinct_binaries) {
     throw new Error(`Fixture exceeds hard ceiling: ${distinctBinaries.size} > ${fixture.maximum_distinct_binaries}`);
   }
   const resolved = [];
-  await client.query("BEGIN");
+  if (manageTransaction) await client.query("BEGIN");
   try {
     await client.query(`
       DELETE FROM casework.reference_observation
@@ -357,9 +358,9 @@ export async function seedReferencePilot(client) {
         metadata: { fixture_name: fixture.fixture_name, source_column: assertion.raw_label },
       });
     }
-    await client.query("COMMIT");
+    if (manageTransaction) await client.query("COMMIT");
   } catch (error) {
-    await client.query("ROLLBACK");
+    if (manageTransaction) await client.query("ROLLBACK");
     throw error;
   }
   const count = await client.query(`

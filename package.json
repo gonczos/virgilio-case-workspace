@@ -28,6 +28,8 @@
     "reference:evaluate-foundation": "node ./app/evaluate-reference-extraction-foundation.mjs",
     "reference:select-expansion": "node ./app/build-reference-expansion-selection.mjs",
     "reference:index:metadata": "node ./app/reference-metadata-ingestion.mjs",
+    "reference:index:v5-fixtures": "node ./app/reference-v5-ingestion.mjs",
+    "reference:save-v5-api-samples": "node ./app/save-reference-v5-ingestion-api-samples.mjs",
     "search:pilot": "node ./app/reference-index-pilot.mjs search",
     "search:evaluate-full": "node ./app/evaluate-full-corpus-text-search.mjs",
     "test:reference-search": "node --test ./test/reference-search-store.test.mjs",

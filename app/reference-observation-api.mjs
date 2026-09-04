@@ -294,6 +294,22 @@ export function buildRecordedReferenceObservation(row, contextRows = [], eventRo
       observer_key: row.observer_key,
       observer_version: row.observer_version,
       normalization_identity: row.normalization_identity ?? null,
+      extraction: origin === "document_text" ? {
+        observation_identity_version: row.metadata_json?.observation_identity_version ?? null,
+        fixture_scope: row.metadata_json?.fixture_scope ?? null,
+        representation_content_sha256: row.metadata_json?.representation_content_sha256 ?? null,
+        segment_content_sha256: row.metadata_json?.segment_content_sha256 ?? null,
+        rule_key: row.metadata_json?.extractor_rule_key ?? null,
+        representation_span: row.metadata_json?.representation_char_start == null ? null : {
+          char_start: row.metadata_json.representation_char_start,
+          char_end: row.metadata_json.representation_char_end,
+        },
+        segment_span: row.metadata_json?.segment_char_start == null ? null : {
+          char_start: row.metadata_json.segment_char_start,
+          char_end: row.metadata_json.segment_char_end,
+        },
+        label_provenance: row.metadata_json?.label_provenance ?? null,
+      } : null,
     },
     ingestion_assessment: {
       namespace_hint: row.namespace_hint ?? null,
