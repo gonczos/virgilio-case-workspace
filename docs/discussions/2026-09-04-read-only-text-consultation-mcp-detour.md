@@ -6,19 +6,25 @@ This is an explicitly disposable **v1 MVP experiment** for evaluating AI consult
 
 ## Boundary
 
-This temporary detour exposes only already-existing consultation reads:
+Round 1 exposed three existing consultation reads:
 
 1. `search_document_text`
 2. `get_binary_details`
 3. `get_representation_content`
 
-Recorded-reference lookup, extracted-reference observations as a standalone capability, v5/v6 ingestion, graph traversal, review/editing tools, and all writes are excluded. Search responses deliberately omit passage and contextual reference-observation payloads even though the existing internal search read model can provide them.
+Round 2 adds `query_court_records`, backed by the occurrence-centred read model
+defined in `docs/architecture/12-court-record-consultation-read-model.md`.
+Recorded-reference lookup, extracted-reference observations as a standalone
+capability, v5/v6 ingestion, graph traversal, review/editing tools, and all
+writes remain excluded. Search responses deliberately omit passage and
+contextual reference-observation payloads even though the existing internal
+search read model can provide them.
 
 The original binary remains canonical evidence. Representation content remains processor-attributed derived content and is never merged into a preferred or synthetic representation.
 
 ## Implemented dependency-free layer
 
-`app/text-consultation-mcp-tools.mjs` freezes the three tool schemas and supplies an injected read-only dispatcher over the existing consultation functions. It provides:
+`app/text-consultation-mcp-tools.mjs` defines the four MVP tool schemas and supplies an injected read-only dispatcher over the consultation functions. It provides:
 
 - full-corpus text scope by default, with optional pilot scope;
 - existing relevance and recorded-occurrence-date ordering;
@@ -43,7 +49,7 @@ For private remote evaluation, Round 1 also supplies a Streamable HTTP entry
 point backed by the identical tool dispatcher. It binds to localhost by
 default, requires a long bearer token, validates the request Host, limits JSON
 request bodies, and is intended to sit behind private Tailscale Serve HTTPS.
-This transport does not broaden the three-tool contract or make the MVP a
+This transport does not broaden the tool contract or make the MVP a
 public service. PostgreSQL remains private and is never exposed directly.
 
 The MCP binary-detail projection deliberately omits the consultation UI's local
@@ -52,8 +58,14 @@ it reports that original content is unavailable through this MCP while retaining
 the SHA-256 canonical-evidence identity. The underlying consultation API and
 local file gateway remain unchanged.
 
-## Round 2 is deferred
+## Round 2 metadata read model
 
-Consolidated document-record queries, APIs, reference lookup, graphs, and any expansion beyond the original three tools belong to a separately planned Round 2. None is designed or partially implemented here.
+Round 2 adds one read-only, occurrence-centred query over imported court-system
+metadata. It is exposed through both
+`GET /api/consultation/court-records` and the MCP tool
+`query_court_records`. The result keeps court, case, occurrence, source
+document, binary identity, and source-recorded structural relations explicit.
+It does not classify documents, resolve citations, infer relationships, expose
+filesystem paths, or make missing court files downloadable.
 
 Text-search coverage depends on existing indexed nonblank representations; a no-match result does not prove that a document or fact is absent.

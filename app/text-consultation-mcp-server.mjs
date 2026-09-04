@@ -34,6 +34,30 @@ const TOOL_CONFIGS = [
     },
   },
   {
+    name: "query_court_records",
+    description: "Query occurrence-centred court metadata with explicit court, case, bucket, source-document, binary, and recorded-relation identities.",
+    inputSchema: {
+      court_id: z.number().int().min(1).optional(),
+      case_file_id: z.number().int().min(1).optional(),
+      bucket_id: z.number().int().min(1).optional(),
+      bucket_document_id: z.number().int().min(1).optional(),
+      document_id: z.number().int().min(1).optional(),
+      file_binary_id: z.number().int().min(1).optional(),
+      process_number: z.string().trim().min(1).optional(),
+      occurrence_reference: z.string().trim().min(1).optional(),
+      source_bucket_id: z.string().trim().min(1).optional(),
+      source_document_reference: z.string().trim().min(1).optional(),
+      document_name_contains: z.string().trim().min(1).optional(),
+      document_type: z.string().trim().min(1).optional(),
+      date_from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u).optional(),
+      date_to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u).optional(),
+      binary_sha256: z.string().regex(/^[0-9a-fA-F]{64}$/u).optional(),
+      file_availability: z.enum(["available", "missing"]).optional(),
+      limit: z.number().int().min(1).max(100).default(20),
+      offset: z.number().int().min(0).max(1_000_000).default(0),
+    },
+  },
+  {
     name: "get_binary_details",
     description: "Get read-only identity, procedural context, available representations, evidence, and processing summary for one SHA-256 binary.",
     inputSchema: {
@@ -56,7 +80,8 @@ function safeToolError(error) {
   const safeCodes = new Set([
     "INVALID_ARGUMENTS", "UNKNOWN_ARGUMENT", "INVALID_ARGUMENT", "SEARCH_QUERY_REQUIRED",
     "INVALID_SEARCH_SCOPE", "INVALID_SEARCH_ORDER", "INVALID_SHA256",
-    "INVALID_REPRESENTATION_ID", "INVALID_REPRESENTATION_FORMAT", "NOT_FOUND",
+      "INVALID_REPRESENTATION_ID", "INVALID_REPRESENTATION_FORMAT", "NOT_FOUND",
+      "INVALID_COURT_RECORD_FILTER", "UNKNOWN_COURT_RECORD_FILTER",
     "UNKNOWN_TOOL", "representation_format_not_available", "invalid_representation_format",
   ]);
   const code = safeCodes.has(error?.code) ? error.code : "CONSULTATION_READ_FAILED";

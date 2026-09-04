@@ -31,6 +31,7 @@ import {
 } from "./reference-observation-api.mjs";
 import { getReferenceNeighbourhoodGraph, parseReferenceGraphOptions } from "./reference-graph-api.mjs";
 import { getBucketExpansion, getProceduralFlow } from "./procedural-flow-api.mjs";
+import { queryCourtRecords } from "./court-records-api.mjs";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -151,6 +152,20 @@ export function createConsultationHandler({ client, workspaceRoot = getWorkspace
       if (requestUrl.pathname === "/api/consultation/reports/extraction-coverage") {
         const payload = await getExtractionCoverageReport(client);
         sendJson(response, 200, payload);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/consultation/court-records") {
+        try {
+          const filters = Object.fromEntries(requestUrl.searchParams.entries());
+          sendJson(response, 200, await queryCourtRecords(client, filters));
+        } catch (error) {
+          if (error?.code === "INVALID_COURT_RECORD_FILTER" || error?.code === "UNKNOWN_COURT_RECORD_FILTER") {
+            sendContractError(response, error.code, error.message);
+            return;
+          }
+          throw error;
+        }
         return;
       }
 

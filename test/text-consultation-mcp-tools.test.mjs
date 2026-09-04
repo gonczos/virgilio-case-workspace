@@ -5,9 +5,9 @@ import { compactBinaryDetail, createTextConsultationMcpTools, TEXT_CONSULTATION_
 
 const sha256 = "a".repeat(64);
 
-test("publishes only the three bounded read-only text-consultation tools", () => {
+test("publishes the bounded read-only text and court-metadata consultation tools", () => {
   assert.deepEqual(TEXT_CONSULTATION_MCP_TOOLS.map((tool) => tool.name), [
-    "search_document_text", "get_binary_details", "get_representation_content",
+    "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
   ]);
 });
 
@@ -43,6 +43,22 @@ test("text search defaults to full scope and removes reference-observation paylo
   assert.equal(result.items[0].source_contexts[0].process_number, "P1");
   assert.equal("passage_reference_observations" in result.items[0], false);
   assert.equal(calls[0].params[2], null);
+});
+
+test("court-record tool delegates validated filters to the shared read model", async () => {
+  const calls = [];
+  const client = { query: async (sql, params) => {
+    calls.push({ sql, params });
+    return { rows: [] };
+  } };
+  const call = createTextConsultationMcpTools({ client, workspaceRoot: "C:/workspace" });
+  const result = await call("query_court_records", {
+    process_number: "13608/14.8T2SNT", file_availability: "missing", limit: 5,
+  });
+  assert.equal(result.read_model, "court_occurrence_document_records");
+  assert.equal(result.query.process_number, "13608/14.8T2SNT");
+  assert.equal(result.query.file_availability, "missing");
+  assert.equal(calls.length, 1);
 });
 
 test("representation content is Unicode-bounded and retains processor lineage", async () => {

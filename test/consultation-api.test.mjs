@@ -67,6 +67,27 @@ async function request(baseUrl, requestPath, { method = "GET" } = {}) {
   });
 }
 
+test("court-record endpoint exposes the shared occurrence-centred read model", async () => {
+  const client = { query: async () => ({ rows: [] }) };
+  await withServer({ client, workspaceRoot: "C:/workspace" }, async (baseUrl) => {
+    const response = await request(baseUrl, "/api/consultation/court-records?process_number=P1&limit=5");
+    assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
+    assert.equal(payload.read_model, "court_occurrence_document_records");
+    assert.equal(payload.query.process_number, "P1");
+    assert.equal(payload.pagination.total_matching, 0);
+  });
+});
+
+test("court-record endpoint rejects unknown filters with a stable error", async () => {
+  const client = { query: async () => { throw new Error("must not query"); } };
+  await withServer({ client, workspaceRoot: "C:/workspace" }, async (baseUrl) => {
+    const response = await request(baseUrl, "/api/consultation/court-records?unexpected=true");
+    assert.equal(response.statusCode, 400);
+    assert.equal(JSON.parse(response.body).error.code, "UNKNOWN_COURT_RECORD_FILTER");
+  });
+});
+
 async function withRealClient(fn) {
   return withClient("c4-1-test", async (client) => {
     await assertProcessingSchema(client);

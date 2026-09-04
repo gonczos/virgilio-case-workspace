@@ -96,7 +96,7 @@ test("HTTP MCP rejects oversized request bodies before protocol dispatch", async
   assert.equal(response.status, 413);
 });
 
-test("HTTP MCP connects and exposes exactly the Round 1 tools", async (context) => {
+test("HTTP MCP connects and exposes the implemented MVP tools", async (context) => {
   const server = await startTestServer();
   const client = new Client({ name: "http-mcp-test", version: "1.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(`${server.baseUrl}/mcp`), {
@@ -106,7 +106,7 @@ test("HTTP MCP connects and exposes exactly the Round 1 tools", async (context) 
   await client.connect(transport);
   const result = await client.listTools();
   assert.deepEqual(result.tools.map((tool) => tool.name), [
-    "search_document_text", "get_binary_details", "get_representation_content",
+    "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
   ]);
 });
 

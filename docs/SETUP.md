@@ -336,9 +336,10 @@ the local consultation API and binary gateway.
 
 ### 6. Optional read-only text-consultation MCP (v1 MVP)
 
-The optional local stdio MCP exposes only existing text consultation through
+The optional local stdio MCP exposes existing text consultation through
 `search_document_text`, `get_binary_details`, and
-`get_representation_content`. It does not expose recorded-reference lookup,
+`get_representation_content`, plus the occurrence-centred court metadata read
+model through `query_court_records`. It does not expose recorded-reference lookup,
 graphs, reviews, ingestion, writes, or original-binary downloads. Binary detail
 retains the canonical SHA-256 identity but omits the consultation UI's local
 download URL.
@@ -359,7 +360,7 @@ replaced or removed, and it is not a foundation for write-oriented workflows.
 
 #### Private Streamable HTTP over Tailscale
 
-The same three tools can be served remotely through a private Streamable HTTP
+The same four tools can be served remotely through a private Streamable HTTP
 endpoint. The HTTP server binds to `127.0.0.1:8092` by default and requires a
 bearer token of at least 32 characters. Add these uncommitted secrets to the
 repository-root `.env`:

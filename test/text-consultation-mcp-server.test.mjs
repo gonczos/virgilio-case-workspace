@@ -14,12 +14,12 @@ async function connectedPair(callTool) {
   return { client, server };
 }
 
-test("MCP initialize and tools/list expose exactly the frozen Round 1 tools", async (context) => {
+test("MCP initialize and tools/list expose the implemented MVP tools", async (context) => {
   const pair = await connectedPair(async () => ({}));
   context.after(async () => { await pair.client.close(); await pair.server.close(); });
   const response = await pair.client.listTools();
   assert.deepEqual(response.tools.map((tool) => tool.name), [
-    "search_document_text", "get_binary_details", "get_representation_content",
+    "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
   ]);
   assert.ok(response.tools.every((tool) => tool.annotations?.readOnlyHint === true));
 });

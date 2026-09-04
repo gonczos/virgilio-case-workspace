@@ -2,6 +2,7 @@ import { getWorkspaceRoot } from "./processing-common.mjs";
 import { getConsultationBinaryDetail, getRepresentationContent, isValidSha256 } from "./consultation-store.mjs";
 import { getRepresentationById } from "./processing-store.mjs";
 import { searchReferencePilot } from "./reference-index-pilot.mjs";
+import { queryCourtRecords } from "./court-records-api.mjs";
 
 const SEARCH_ORDERS = new Set(["relevance", "earliest_occurrence_asc", "latest_occurrence_desc"]);
 const SEARCH_SCOPES = new Set(["pilot", "full"]);
@@ -21,6 +22,34 @@ export const TEXT_CONSULTATION_MCP_TOOLS = [
         order: { type: "string", enum: [...SEARCH_ORDERS], default: "relevance" },
         limit: { type: "integer", minimum: 1, maximum: 20, default: 10 },
         offset: { type: "integer", minimum: 0, default: 0 },
+      },
+    },
+  },
+  {
+    name: "query_court_records",
+    description: "Query occurrence-centred court metadata with explicit court, case, bucket, source-document, binary, and recorded-relation identities.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        court_id: { type: "integer", minimum: 1 },
+        case_file_id: { type: "integer", minimum: 1 },
+        bucket_id: { type: "integer", minimum: 1 },
+        bucket_document_id: { type: "integer", minimum: 1 },
+        document_id: { type: "integer", minimum: 1 },
+        file_binary_id: { type: "integer", minimum: 1 },
+        process_number: { type: "string", minLength: 1 },
+        occurrence_reference: { type: "string", minLength: 1 },
+        source_bucket_id: { type: "string", minLength: 1 },
+        source_document_reference: { type: "string", minLength: 1 },
+        document_name_contains: { type: "string", minLength: 1 },
+        document_type: { type: "string", minLength: 1 },
+        date_from: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+        date_to: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+        binary_sha256: { type: "string", pattern: "^[0-9a-fA-F]{64}$" },
+        file_availability: { type: "string", enum: ["available", "missing"] },
+        limit: { type: "integer", minimum: 1, maximum: 100, default: 20 },
+        offset: { type: "integer", minimum: 0, maximum: 1000000, default: 0 },
       },
     },
   },
@@ -172,6 +201,10 @@ export function createTextConsultationMcpTools({ client, workspaceRoot = getWork
       const sha256 = String(args.sha256 ?? "").toLowerCase();
       if (!isValidSha256(sha256)) throw toolError("INVALID_SHA256", "sha256 must contain 64 hexadecimal characters");
       return compactBinaryDetail(await getConsultationBinaryDetail(client, sha256, { workspaceRoot }));
+    }
+
+    if (name === "query_court_records") {
+      return queryCourtRecords(client, args);
     }
 
     if (name === "get_representation_content") {
