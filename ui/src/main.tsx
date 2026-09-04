@@ -109,7 +109,7 @@ function App() {
               <MuiLink component={Link} to="/reference-graph/105398957" underline="hover" color="text.secondary">
                 Graph spike
               </MuiLink>
-              <MuiLink component={Link} to="/procedural-flow" underline="hover" color="text.secondary">
+              <MuiLink component={Link} to="/procedural-flow?reference=85759502" underline="hover" color="text.secondary">
                 Procedural flow
               </MuiLink>
               <MuiLink

@@ -87,3 +87,13 @@ export function yearExpansionGrid(bucketCount: number) {
   const rows = Math.max(1, Math.ceil(bucketCount / columns));
   return { columns, rows, width: Math.max(260, columns * 46), height: Math.max(100, rows * 48) };
 }
+
+export function adjacentProceduralBuckets(allBuckets: ProceduralFlowBucket[], bucketId: number) {
+  const selected = allBuckets.find((bucket) => bucket.bucket_id === bucketId);
+  if (!selected) return [];
+  const lane = allBuckets.filter((bucket) => bucket.case_file_id === selected.case_file_id)
+    .sort((a, b) => (a.occurrence_date ?? "9999-99-99").localeCompare(b.occurrence_date ?? "9999-99-99")
+      || a.bucket_id - b.bucket_id);
+  const index = lane.findIndex((bucket) => bucket.bucket_id === bucketId);
+  return [lane[index - 1], lane[index + 1]].filter((bucket): bucket is ProceduralFlowBucket => Boolean(bucket));
+}
