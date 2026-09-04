@@ -1,7 +1,7 @@
 # Labelled-reference-v5 corpus audit and ceiling gate
 
-Status: frozen selection and acceptance contract pending human audit. This
-checkpoint does not authorize corpus ingestion or database writes.
+Status: human audit complete; frozen write gate failed. This checkpoint does
+not authorize corpus ingestion or database writes.
 
 The only authorized inventory input is
 `docs/evaluation/reference-v5-corpus-rollout/inventory-v1.json` with
@@ -54,6 +54,25 @@ Acceptance requires:
 Both the rate and count limits apply. Any systematic error, even within the
 numeric allowance, blocks ingestion and returns to a versioned extractor or
 sampling decision. Human review does not resolve targets or modify evidence.
+
+## Completed audit result
+
+The attributable audit recorded in
+`docs/evaluation/reference-v5-corpus-rollout/audit-review-v1.json` reviewed all
+180 sampled predictions and all 30 no-prediction segment controls. It found:
+
+- 163 confirmed predictions;
+- 15 rejected predictions, an 8.33% sampled false-positive rate;
+- two predictions requiring original-PDF verification;
+- 30 controls with no confirmed missed in-scope v5 surface form; and
+- four separate recall/error-analysis observations found beside valid sampled
+  predictions.
+
+The no-prediction control criterion passes, but both frozen false-positive
+limits fail. The audit also records future-family and flattened-layout
+diagnostics without scoring them as supported-v5 misses. Corpus ingestion is
+therefore not authorized. The next checkpoint must analyze the completed error
+profile before proposing a versioned extractor or sampling decision.
 
 ## Hard operational ceilings
 
