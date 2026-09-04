@@ -11,6 +11,19 @@ import type {
   RepresentationContentResult,
 } from "../types/consultation";
 
+export interface ReferenceGraphNode {
+  id: string; kind: string; label: string | null; sha256?: string;
+  open_action?: { href: string }; [key: string]: unknown;
+}
+export interface ReferenceGraphEdge {
+  id: string; source: string; target: string; kind: string; basis: "observed" | "source_recorded";
+}
+export interface ReferenceGraphResponse {
+  fixture: { reference_value: string; normalized_value: string; scope: string; lifecycle: string; depth: number; limits: { nodes: number; edges: number }; truncated: boolean };
+  nodes: ReferenceGraphNode[]; edges: ReferenceGraphEdge[];
+  coverage: { status: string }; limitations: string[];
+}
+
 async function expectJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let payload: unknown = null;
@@ -104,6 +117,11 @@ export async function lookupRecordedReferences(
   });
   const response = await fetch(`/api/consultation/references/lookup?${params.toString()}`);
   return expectJson<RecordedReferenceLookupResponse>(response);
+}
+
+export async function getReferenceGraph(value: string): Promise<ReferenceGraphResponse> {
+  const response = await fetch(`/api/consultation/graphs/references/${encodeURIComponent(value)}?scope=pilot&lifecycle=current`);
+  return expectJson<ReferenceGraphResponse>(response);
 }
 
 export async function searchText(

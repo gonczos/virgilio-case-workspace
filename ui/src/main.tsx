@@ -17,6 +17,7 @@ import { BinariesPage } from "./pages/BinariesPage";
 import { BinaryDetailPage } from "./pages/BinaryDetailPage";
 import { ExtractionCoveragePage } from "./pages/ExtractionCoveragePage";
 import { ReferenceSearchPage } from "./pages/ReferenceSearchPage";
+import { ReferenceGraphPage } from "./pages/ReferenceGraphPage";
 
 const theme = createTheme({
   palette: {
@@ -104,6 +105,9 @@ function App() {
               <MuiLink component={Link} to="/reference-search" underline="hover" color="text.secondary">
                 Reference search
               </MuiLink>
+              <MuiLink component={Link} to="/reference-graph/105398957" underline="hover" color="text.secondary">
+                Graph spike
+              </MuiLink>
               <MuiLink
                 href="http://localhost:8055"
                 target="_blank"
@@ -122,6 +126,7 @@ function App() {
               <Route path="/binaries/:sha256" element={<BinaryDetailPage />} />
               <Route path="/reports/extraction-coverage" element={<ExtractionCoveragePage />} />
               <Route path="/reference-search" element={<ReferenceSearchPage />} />
+              <Route path="/reference-graph/:value" element={<ReferenceGraphPage />} />
             </Routes>
           </Container>
         </Box>
