@@ -6,6 +6,9 @@ phase.
 
 Date: 2026-09-03
 
+Updated: 2026-09-04 after the guided text-range and metadata-assertion review
+experiments.
+
 ## Why this note exists
 
 The current legal-reference annotation experiment is still in progress. The
@@ -134,6 +137,50 @@ as `Investigate`, `Propose classification`, `Review proposal`, `Accept with
 limitations`, and `Leave unresolved` better reflect the intended authority
 boundaries.
 
+### Dedicated human-review interface
+
+The guided fixture reviews showed that a dedicated human interface would be
+useful if this work becomes repetitive. Conversation was effective for
+discovering the review model and resolving taxonomy boundaries, but it required
+the reviewer to repeatedly inspect long textual descriptions and manually
+confirm groups of observations. That is appropriate for an experiment, not an
+efficient long-term review workflow.
+
+A bounded review interface could present one observation or assertion at a
+time with:
+
+* the original PDF and exact extracted passage side by side when available;
+* the raw value, offsets, representation, processor, and provenance;
+* source metadata, procedural occurrences, reuse context, and file
+  availability;
+* deterministic and AI proposals as separately attributed inputs;
+* controls to confirm, correct, reject, or leave a decision unresolved;
+* separate fields for classification, transcription, target resolution,
+  relationship resolution, and remaining verification;
+* previous decisions and immutable review history;
+* progress, filters, and keyboard navigation for bounded review sets; and
+* validation and export of a new versioned fixture or review event.
+
+The interface should record decisions rather than make them. Extractor and AI
+outputs remain attributed proposals. Every human action becomes a separate
+review event with reviewer identity, timestamp, decision, rationale, and review
+scope. Confirming a classification must not silently resolve a target,
+relationship, document, or binary identity.
+
+The smallest possible first slice would operate on versioned fixture files:
+
+1. load an immutable reviewed or provisional fixture;
+2. display its evidence and attributed proposal;
+3. record an attributable human decision without overwriting proposal history;
+4. preserve unresolved dimensions and earlier review events; and
+5. export and validate a new fixture version.
+
+A later version could use database observations and APIs after their state and
+write contracts are deliberately designed. This sequencing would test the
+human experience without prematurely creating a corpus-wide curation system.
+The recently completed guided reviews provide concrete acceptance examples,
+but they do not by themselves authorize UI implementation.
+
 ## Relationship to the current experiment
 
 The legal-reference fixture remains useful even if the project favors MCP and
@@ -165,13 +212,19 @@ its review states, scope, sequence, or acceptance criteria.
   identifiers?
 * Should the investigation workspace live in the custom UI, Directus, or a
   deliberately small combination of both?
+* Should a fixture-backed human-review interface precede a database-backed
+  workflow, and which fields from the guided reviews are essential in its
+  first slice?
+* How should reviewer authentication and attributable identity work outside a
+  local test environment?
 * Which parts of deterministic extraction remain valuable before an MCP/AI
   experiment: high-structure recognition, candidate generation, or both?
 
 ## Decision boundary
 
-No MCP, proposal store, review workflow, classification editor, or automatic
-resolver is authorized by this note. After the ongoing experiment finishes,
-the next discussion should decide whether to test a narrow read-only MCP
-investigation surface against the reviewed fixture, and define a separate
-implementation contract if that direction is accepted.
+No MCP, proposal store, review workflow, classification editor, dedicated
+review interface, or automatic resolver is authorized by this note. After the
+ongoing experiment finishes, the next discussion should decide whether to test
+a narrow read-only MCP investigation surface, a fixture-backed human-review
+interface, or a deliberately bounded combination of both against the reviewed
+fixtures. Any accepted direction requires a separate implementation contract.
