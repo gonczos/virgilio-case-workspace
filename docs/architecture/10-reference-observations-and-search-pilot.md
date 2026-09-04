@@ -1194,12 +1194,13 @@ the content currently visible: it initially identifies the original PDF when
 that view is shown and follows every automatic cross-view transition to the
 exact processor and format containing the selected match.
 
-The original PDF remains an available canonical-evidence view, but the canvas
-viewer has no reliable searchable text layer. Starting inspection search from
-the PDF therefore moves through the attributed readable views rather than
-claiming a PDF match. The UI must not imply PDF-page matching or navigation from
-an extracted-text match. Searching procedural context or the original PDF
-itself is outside this checkpoint.
+The original PDF remains an available canonical-evidence view and the search
+inspection pane embeds the browser's native PDF viewer for its navigation,
+zoom, selection, and built-in PDF-search facilities. Inspector cross-view search
+still moves through the attributed readable views rather than claiming a
+reliable programmatic search of the embedded PDF. The UI must not imply PDF-page
+matching or navigation from an extracted-text match. Searching procedural
+context or the original PDF itself is outside this checkpoint.
 
 Related contexts are inspect actions rather than expanding a result row. A
 missing-file context remains inspectable as metadata but receives no invented

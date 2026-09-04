@@ -9,7 +9,7 @@ import type {
   BinaryDetailResponse, RecordedReferenceContext, RecordedReferenceObservation,
   RecordedReferenceScope, ReferenceSourceContext,
 } from "../types/consultation";
-import { getShortSha, isPdfBinary, normalizeStableId, prefersNativePdfViewer } from "../utils/consultation";
+import { getShortSha, isPdfBinary, normalizeStableId } from "../utils/consultation";
 import { InspectionViewer } from "./InspectionViewer";
 
 export interface SearchInspectionContext {
@@ -76,7 +76,7 @@ function BinaryInspection({ target, initialSearchTerm, onCollapse }: { target: E
       evidence={detail.evidence?.items ?? []}
       effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id)}
       initialCategory={isPdfBinary(detail) ? "original" : "evidence"}
-      originalPdf={isPdfBinary(detail) ? { url: detail.binary.original_binary_url, preferNativeViewer: prefersNativePdfViewer(detail) } : undefined}
+      originalPdf={isPdfBinary(detail) ? { url: detail.binary.original_binary_url, preferNativeViewer: true } : undefined}
       height="100%"
       onViewedRepresentationChange={ignoreViewedRepresentation}
       initialSearchTerm={initialSearchTerm}
