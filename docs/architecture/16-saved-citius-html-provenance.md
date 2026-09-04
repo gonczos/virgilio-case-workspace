@@ -1,5 +1,9 @@
 # Saved Citius HTML provenance
 
+Field documentation is split into the [source data and storage dictionary](17-citius-source-data-dictionary.md)
+and [adaptation to the workspace model](18-citius-system-adaptation.md). This page
+describes the operational capture contract.
+
 Status: implemented 2026-09-05. This is an offline source-observation import,
 not a new scraper or a canonical-record correction operation.
 

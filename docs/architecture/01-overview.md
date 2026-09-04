@@ -1,5 +1,8 @@
 # Architecture Notes
 
+For saved Citius metadata, see the [source/storage field dictionary](17-citius-source-data-dictionary.md)
+and the separate [system adaptation mapping](18-citius-system-adaptation.md).
+
 Last updated: 2026-09-03
 
 For the bounded reference-observation and text-search foundation, see
