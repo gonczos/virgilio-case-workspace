@@ -23,6 +23,12 @@ mapping is not a completed correction. Capture 1 is the earlier portable-package
 provenance; capture 2 is the saved-HTML registration. Different captures remain
 independent evidence, even when they describe the same records.
 
+Capture 2 identifies its JSON interpretation using
+`metadata_json.adapter = {"key":"citius-saved-html","version":"1"}`. This is
+descriptive metadata plus a format check, not a general adapter framework. The
+source JSON remains unchanged. Search and display gaps are deferred; recording
+the adapter does not promote fields or alter existing queries.
+
 ## Identity and relationships
 
 | Our table | Source-to-system meaning | Identity / boundary |

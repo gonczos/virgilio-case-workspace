@@ -5,11 +5,13 @@ import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 import {createDbClient,loadDotEnv,getWorkspaceRoot} from './processing-common.mjs';
 import {sourceTimeFromLabel} from './import-execution.mjs';
+import {CITIUS_HTML_ADAPTER,validateCitiusPayloadAdapter} from './citius-html-payload.mjs';
 
 const [snapshotPath,reportPath]=process.argv.slice(2);
 assert(snapshotPath && reportPath,'Usage: node app/citius-html-import.mjs <snapshot.json> <report.json>');
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const bytes=await fs.readFile(snapshotPath); const snapshot=JSON.parse(bytes);
+validateCitiusPayloadAdapter({},snapshot.items);
 for(const r of snapshot.items) {const raw=Buffer.from(r.raw_base64,'base64');assert.equal(hash(raw),r.sha256);assert.equal(raw.length,r.size);}
 loadDotEnv(path.join(getWorkspaceRoot(),'.env'));
 // Create after loading configuration; never print connection parameters.
@@ -70,11 +72,11 @@ try {
   report.summary={};for(const r of report.comparisons){const k=r.kind+':'+r.field+':'+r.assessment;report.summary[k]=(report.summary[k]??0)+1;}
   const key='saved-html:'+snapshot.manifest_sha256;
   let cap=(await db.query("SELECT id,metadata_json FROM casework.source_capture WHERE capture_kind='manual_source_capture' AND source_system='tribunais_org_pt' AND capture_key=$1",[key])).rows[0];
-  if(cap){assert.equal(cap.metadata_json.snapshot_sha256,report.snapshot_sha256,'Same capture with changed parsing; use a deliberate new processor snapshot identity');report.reused=true;}
+  if(cap){assert.equal(cap.metadata_json.snapshot_sha256,report.snapshot_sha256,'Same capture with changed parsing; use a deliberate new processor snapshot identity');validateCitiusPayloadAdapter(cap.metadata_json,snapshot.items);report.reused=true;}
   else {
     const time=sourceTimeFromLabel(snapshot.source_label);
     cap=(await db.query(`INSERT INTO casework.source_capture(source_system,capture_kind,capture_key,external_source_label,captured_at,capture_time_basis,source_locator,metadata_json)
-      VALUES('tribunais_org_pt','manual_source_capture',$1,$2,$4,$5,$2,$3) RETURNING id`,[key,snapshot.source_label,JSON.stringify({snapshot_sha256:report.snapshot_sha256,extractor_sha256:report.extractor_sha256,loader_sha256:report.loader_sha256,
+      VALUES('tribunais_org_pt','manual_source_capture',$1,$2,$4,$5,$2,$3) RETURNING id`,[key,snapshot.source_label,JSON.stringify({adapter:CITIUS_HTML_ADAPTER,snapshot_sha256:report.snapshot_sha256,extractor_sha256:report.extractor_sha256,loader_sha256:report.loader_sha256,
         captured_at_semantics:'Source run start inferred from label when available; not verified per-row capture time',source_time_evidence:snapshot.source_label,order_policy:snapshot.order_policy}),time.started_at,time.basis])).rows[0];
     const bypath=new Map(links.map(x=>[x.path,x]));
     for(const r of snapshot.items){
@@ -94,6 +96,11 @@ try {
   const stored=(await db.query('SELECT payload_json FROM casework.source_observation WHERE source_capture_id=$1 AND observation_key<>$2',[cap.id,'coverage-report'])).rows;
   assert.equal(stored.length,snapshot.items.length);
   for(const {payload_json:r} of stored)assert.equal(hash(Buffer.from(r.raw_base64,'base64')),r.sha256);
+  validateCitiusPayloadAdapter(cap.metadata_json??{adapter:CITIUS_HTML_ADAPTER},stored.map(x=>x.payload_json));
+  if(report.reused && !Object.hasOwn(cap.metadata_json,'adapter')) {
+    await db.query("UPDATE casework.source_capture SET metadata_json=metadata_json || $2::jsonb WHERE id=$1 AND NOT (metadata_json ? 'adapter')",
+      [cap.id,JSON.stringify({adapter:CITIUS_HTML_ADAPTER})]);
+  }
   assert.equal(Number((await db.query('SELECT count(*) FROM casework.source_observation_link l JOIN casework.source_observation o ON o.id=l.source_observation_id WHERE o.source_capture_id=$1',[cap.id])).rows[0].count),links.length);
   report.persisted_html_hashes_verified=stored.length;report.links=links.length;
   await db.query(`UPDATE casework.import_execution SET source_capture_id=$2,status='succeeded',finished_at=clock_timestamp(),reused_capture=$3,counts_json=$4 WHERE id=$1`,

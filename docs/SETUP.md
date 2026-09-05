@@ -582,6 +582,16 @@ as observations only; the site rendering order was not stable.
 
 ### Saved Citius HTML provenance import
 
+The importer records `metadata_json.adapter` (`citius-saved-html`, version `1`)
+on the source capture. Reusing a verified legacy capture adds only that missing
+descriptor; no schema migration is needed for this addition. The configured login
+needs UPDATE on `source_capture` for this metadata backfill. Unknown existing
+adapter identities are rejected. Focused validation:
+
+```powershell
+node --test app/citius-html-payload.test.mjs
+```
+
 Before running the HTML importer against an existing database, apply the execution
 header/source-time migration once (replay is supported):
 

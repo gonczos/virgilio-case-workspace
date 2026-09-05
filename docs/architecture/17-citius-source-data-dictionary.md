@@ -145,11 +145,15 @@ The original saved-HTML registration is `source_capture.id = 2`.
 | `capture_time_basis` | `inferred_run_label` for this run; timestamp is not verified per-row time |
 | `scraper_key`, `scraper_version` | Null; original scraper implementation identity not invented |
 | `source_locator` | Run directory label, not its absolute local path |
-| `metadata_json` | `snapshot_sha256`, `extractor_sha256`, `loader_sha256`, `captured_at_semantics`, `order_policy` |
+| `metadata_json` | `adapter`, `snapshot_sha256`, `extractor_sha256`, `loader_sha256`, `captured_at_semantics`, `order_policy`, plus time-evidence/history annotations where present |
 | `created_at` | Database insertion timestamp |
 
 The manifest hashes ordered relative paths, sizes and file hashes. The snapshot
 hash covers the serialized snapshot; extractor/loader hashes identify processors.
+`adapter` is `{"key":"citius-saved-html","version":"1"}` for this capture.
+It identifies how to interpret HTML payloads below, not the derived coverage report.
+The [capture contract](16-saved-citius-html-provenance.md) defines versioning and
+validation. It is stored once per capture, not copied into every object.
 The original run time encoded in the label is stored as inferred source run start,
 not verified row time. Original registration time is preserved in import history.
 

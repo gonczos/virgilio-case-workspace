@@ -7,6 +7,31 @@ describes the operational capture contract.
 Status: implemented 2026-09-05. This is an offline source-observation import,
 not a new scraper or a canonical-record correction operation.
 
+## Payload interpretation identity
+
+The capture's existing `metadata_json.adapter` is
+`{"key":"citius-saved-html","version":"1"}`. This identifies the saved payload
+contract documented in the source dictionary, not the original scraper or an
+executable loaded from metadata. No adapter registry or dynamic dispatch is added.
+Version 1 describes `case_row`, `bucket_row`, `document_row` and full-table
+`artifact` payloads with raw bytes, hash/path, context, rows and elements. The
+`coverage-report` observation is derived output, explicitly excluded from HTML
+payload validation and not an original source artifact.
+
+`app/citius-html-payload.mjs` checks this known identity and minimum shape; the
+existing importer separately verifies byte hashes. Unknown adapter identities
+are rejected, not overwritten. Existing capture 2 was labelled after verification
+on reuse; only the capture metadata gained the descriptor. Raw observations,
+processor hashes and earlier reports remain unchanged. New captures receive it
+at creation. Other sources/captures are not assigned the Citius descriptor.
+
+An incompatible change to payload interpretation requires a new version and an
+explicit migration/reprocessing decision. Importer code hashes continue identifying
+exact executions independently of this stable format version. Interpretations or
+enrichment must not be silently inserted into the original source payload; retain
+separate attributed observations/findings. Existing searches and displays continue
+using their current fields; the descriptor does not make raw metadata searchable.
+
 The existing `casework.source_capture`, `source_observation` and
 `source_observation_link` tables accommodate saved HTML without a migration.
 `app/citius-html-snapshot.py` snapshots all HTML in a specified extracted audit
@@ -19,7 +44,8 @@ the output must be a new path outside the source directory.
 `app/citius-html-import.mjs` verifies snapshot byte hashes, reads current court
 records and appends a capture, observations, exact-key links and a coverage report
 in one transaction. It issues no changes to case, bucket, document, binary,
-representation or existing provenance rows. It uses the configured DB credential,
+representation or existing observation/link rows. On reuse it can label a verified
+legacy capture missing adapter metadata. It uses the configured DB credential,
 not the read-only `ptdocs_reviewer` role, because provenance insertion is required.
 No grants or roles are changed. This is an application-scoped write boundary, not
 a new database-enforced restricted credential.
