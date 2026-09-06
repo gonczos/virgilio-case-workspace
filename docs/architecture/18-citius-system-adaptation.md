@@ -31,6 +31,11 @@ the adapter does not promote fields or alter existing queries.
 
 ## Identity and relationships
 
+The [entity-specific identifier collection design](20-entity-specific-external-identifiers.md)
+records the agreed future separation of internal identity from source-system,
+authority and stakeholder references. It is not implemented; current keys and
+column mappings below remain unchanged.
+
 | Our table | Source-to-system meaning | Identity / boundary |
 | --- | --- | --- |
 | `country` | Package jurisdiction, e.g. PT | Not extracted from these HTML rows |
