@@ -1,6 +1,6 @@
 # Consultation V1 Read-only Online Service Package
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 ## Status
 
@@ -35,16 +35,16 @@ Internet clients
   v
 Cloudflare DNS, TLS, and Tunnel
   |
-  +--> consultation public site
-  +--> consultation API
+  +--> consultation public site and authenticated browser API/BFF
+  +--> authenticated programmatic consultation API
   +--> read-only remote MCP
   +--> public Keycloak login endpoints
 
 Private Docker network
   |
   +--> consultation UI
-  +--> consultation API
-  +--> binary gateway
+  +--> consultation API/BFF
+  +--> private binary gateway
   +--> consultation MCP
   +--> consultation PostgreSQL snapshot
   +--> Keycloak
@@ -99,16 +99,29 @@ A later release may replace v1 only through an explicit promotion procedure:
 Read-only operation is enforced in layers:
 
 1. Public site behavior exposes consultation operations only.
-2. The public API permits only the agreed safe read methods and routes.
-3. The MCP publishes only tools marked and implemented as read-only.
-4. API, gateway, and MCP database credentials have `SELECT` access only to the
+2. Every endpoint returning consultation data requires authentication and the
+   `consultation.read` scope. This includes search, court metadata, references,
+   document and representation content, binary metadata, and original-binary
+   delivery.
+3. The public API permits only the agreed safe read methods and routes.
+4. The MCP publishes only tools marked and implemented as read-only.
+5. API, gateway, and MCP database credentials have `SELECT` access only to the
    required consultation objects.
-5. The deployment does not run importers, processors, migration runners, or
+6. The deployment does not run importers, processors, migration runners, or
    administrative database tools.
-6. Original binaries and packaged evidence storage are mounted read-only where
+7. Original binaries and packaged evidence storage are mounted read-only where
    the runtime permits it.
-7. Authentication, access audit, and operational logs write to stores separate
+8. Authentication, access audit, and operational logs write to stores separate
    from the canonical corpus.
+
+The only unauthenticated HTTP surfaces are static site assets, login initiation
+and callbacks, standards-required OAuth/OIDC/MCP discovery metadata, and a
+minimal health endpoint that discloses no corpus or infrastructure details.
+
+The binary gateway has no public ingress route. Browser binary requests pass
+through the authenticated API/BFF, which checks the session and scope before
+retrieving the binary from the gateway over the private Docker network. A URL
+or SHA-256 value alone never grants access to an original court document.
 
 The Keycloak database is necessarily writable because it owns accounts,
 credentials, sessions, and authentication events. That does not weaken the
@@ -136,7 +149,7 @@ single universal access token must not grant access to every surface.
 
 | Consumer | Authentication pattern | Resource/audience direction |
 | --- | --- | --- |
-| Site | Authorization Code with PKCE, preferably terminating in a server-side session/BFF | consultation web client |
+| Site | Authorization Code with PKCE terminating in a BFF-managed browser session | consultation web client |
 | API | Bearer access token | consultation API resource |
 | MCP | OAuth 2.1 bearer token plus MCP protected-resource metadata | consultation MCP resource |
 | Administration | Separate restricted client with mandatory MFA | identity/application administration |
@@ -149,26 +162,51 @@ registration or another standards-compliant client onboarding mechanism must
 be tested with ChatGPT and at least one independent MCP client before the
 authentication design is frozen.
 
+The browser-facing site and data routes share one public origin. The browser
+loads static assets, completes login at Keycloak, and receives a `Secure`,
+`HttpOnly` session cookie from the consultation API/BFF. Browser JavaScript
+continues to call relative `/api/...` and `/binary/...` URLs; it does not store
+OAuth tokens in `localStorage` or other script-readable storage. The API/BFF
+authenticates every data request and performs the binary-gateway call itself.
+
+The v1 BFF owns ephemeral session state in process memory and gives the browser
+only an opaque, unguessable session identifier. A BFF restart invalidates these
+sessions and requires users to authenticate again. This deliberately avoids a
+persistent writable application-session store in the single-instance v1
+deployment. The cookie is `Secure`, `HttpOnly`, and configured with an
+appropriate `SameSite` policy; the BFF also validates request origins. A later
+multi-instance deployment must introduce an explicit shared session store with
+separate ownership, backup, and lifecycle rules.
+
+A separately published programmatic API accepts OAuth bearer tokens. It
+does not weaken or bypass the same `consultation.read` authorization policy.
+The MCP accepts OAuth bearer tokens for its own resource audience.
+
+Consultation v1 uses short-lived access tokens with a target maximum lifetime
+of five minutes. Disabling an account or revoking its sessions prevents token
+renewal; an already issued access token can remain usable until it expires. The
+maximum accepted revocation latency is therefore five minutes. Offline access
+tokens are not permitted. Refresh-token rotation is enabled where the client
+supports it. Resource servers fail closed when they cannot validate a token.
+
 Cloudflare Access may add protection to administration endpoints. It is not the
 MCP authorization protocol and must not make the MCP dependent on a particular
 AI client or vendor.
 
 ## Identity And Application Authorization
 
-Authentication and domain authorization remain separate:
-
-- Keycloak establishes who the caller is and supplies broad roles/scopes.
-- The consultation application determines which cases or workspaces the caller
-  may access.
-- Case-specific grants belong in application data, not in Keycloak realm
-  configuration.
+Keycloak establishes who the caller is and supplies the v1 role and scope. The
+first release contains one invited-user corpus: every enabled user with the
+`consultation_user` role and `consultation.read` scope may consult that corpus.
+Consultation v1 does not persist an application-user mapping or case-specific
+access grants and therefore does not require a writable application
+authorization store.
 
 Applications consume a provider-neutral principal contract conceptually shaped
 as:
 
 ```text
 AuthenticatedPrincipal
-  internal_user_id
   issuer
   subject
   display_name
@@ -178,10 +216,9 @@ AuthenticatedPrincipal
 ```
 
 The durable external identity key is `(issuer, subject)`. Display names and
-email addresses are mutable attributes and are not identity keys. If the first
-release contains only one corpus, explicit case-access tables may be deferred,
-but authorization middleware must not assume that every authenticated user will
-always be entitled to every future case.
+email addresses are mutable attributes and are not identity keys. Access and
+operational logs may record the issuer and subject in a store separate from the
+corpus database.
 
 Initial broad roles/scopes are deliberately small:
 
@@ -190,6 +227,13 @@ Initial broad roles/scopes are deliberately small:
 - `consultation.read` for the public consultation resources.
 
 Additional write, review, or case-management permissions are outside v1.
+
+When a later release requires different users to see different cases or
+workspaces, it must add an explicit application-authorization store and
+administration path. That future store may map `(issuer, subject)` to an
+internal user and case grants, but it must remain separate from the canonical
+court corpus and must have its own writable owner, audit, backup, and lifecycle
+rules. This deferred capability must not be inferred from the v1 role model.
 
 ## User Administration
 
@@ -206,8 +250,8 @@ Administrative responsibilities are separated:
 
 - a bootstrap/recovery administrator is reserved for emergencies;
 - a delegated realm administrator manages users and authentication policy;
-- an application administrator manages case access when that capability is
-  introduced.
+- a future application administrator may manage case access after a separate
+  application-authorization store is deliberately introduced.
 
 Routine accounts do not receive unrestricted master-realm administration.
 Administrator MFA is mandatory. The administration hostname is separately
@@ -326,6 +370,8 @@ use observed idle, login, search, and concurrent-request measurements.
   release;
 - audit the current UI, API, binary gateway, and four MCP tool contracts;
 - record compatibility rules and version identifiers;
+- inventory every route that returns consultation data and classify it as an
+  authenticated browser, programmatic API, or MCP surface;
 - inventory all runtime writes and remove or isolate corpus mutations.
 
 ### V1.2: Package the read-only runtime
@@ -334,6 +380,8 @@ use observed idle, login, search, and concurrent-request measurements.
 - create the production Compose topology and persistent-volume contract;
 - exclude import and processing dependencies from the online runtime;
 - create read-only database roles and storage mounts;
+- keep the binary gateway private and route browser binary delivery through the
+  authenticated API/BFF;
 - add health checks and bounded resource configuration.
 
 ### V1.3: Establish shared identity
@@ -341,7 +389,11 @@ use observed idle, login, search, and concurrent-request measurements.
 - deploy pinned Keycloak and its separate PostgreSQL database;
 - create secret-free, versioned realm/client configuration;
 - implement the provider-neutral principal adapter;
-- protect the API, site, and MCP with distinct clients/audiences;
+- implement the site's BFF-managed ephemeral session and protect every
+  consultation-data route;
+- protect the programmatic API and MCP with distinct clients/audiences;
+- configure a five-minute maximum access-token lifetime, prohibit offline
+  access, and enable refresh-token rotation where supported;
 - configure invite-only administration, recovery, MFA, session, and audit
   policies.
 
@@ -351,8 +403,10 @@ use observed idle, login, search, and concurrent-request measurements.
 - publish through Cloudflare Tunnel;
 - test OAuth/MCP interoperability using the owner's ChatGPT account and an
   independent MCP client;
-- test direct site and API access, revocation, expired tokens, wrong audiences,
-  and insufficient scopes.
+- test direct site and API access, session-cookie security, bounded revocation,
+  expired tokens, wrong audiences, and insufficient scopes;
+- test that anonymous and unauthorized requests cannot retrieve metadata,
+  search results, representations, binary metadata, or original binaries.
 
 ### V1.5: Release and hand off
 
@@ -372,9 +426,15 @@ Consultation v1 is ready only when all of the following are evidenced:
 - the site supports the agreed search and document consultation flow;
 - the API and MCP expose only the frozen read contract;
 - an authenticated user can use both the site and a remote MCP client;
+- every endpoint returning consultation data requires authentication and the
+  correct scope;
+- original binaries can be reached only through an authenticated consultation
+  route, and the binary gateway has no public ingress route;
 - unauthenticated, expired, wrong-audience, insufficient-scope, and disabled-user
-  requests fail correctly;
-- revoking the user's sessions prevents subsequent access;
+  requests fail according to the documented token-lifetime policy;
+- disabling an account or revoking its sessions prevents token renewal, and
+  any previously issued access token stops working within five minutes;
+- v1 has no writable application identity or case-grant store;
 - runtime service database roles cannot mutate canonical or derived corpus data;
 - neither APIs, MCP responses, logs, nor UI expose local filesystem paths or
   secrets;
@@ -403,6 +463,8 @@ Consultation v1 is ready only when all of the following are evidenced:
   <https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/serving/authorization.md>
 - Keycloak server administration guide:
   <https://www.keycloak.org/docs/latest/server_admin/>
+- Keycloak OpenID Connect endpoints and token validation guidance:
+  <https://www.keycloak.org/securing-apps/oidc-layers>
 - Keycloak production container guidance:
   <https://www.keycloak.org/server/containers>
 - Cloudflare Tunnel documentation:
