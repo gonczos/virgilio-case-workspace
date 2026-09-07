@@ -135,7 +135,9 @@ state. Metrics, diagnostics, and administration endpoints remain private.
 Keycloak is the selected shared identity provider for the site, API, MCP, and
 future services. It runs as a pinned production-mode container with its own
 PostgreSQL database. Application code must not implement password storage,
-login sessions, OAuth token issuance, recovery, or MFA.
+primary authentication, identity-provider SSO sessions, OAuth token issuance,
+credential recovery, or MFA. The consultation BFF owns only the relying-party
+browser session described below.
 
 The shared identity service provides:
 
@@ -169,14 +171,28 @@ continues to call relative `/api/...` and `/binary/...` URLs; it does not store
 OAuth tokens in `localStorage` or other script-readable storage. The API/BFF
 authenticates every data request and performs the binary-gateway call itself.
 
-The v1 BFF owns ephemeral session state in process memory and gives the browser
-only an opaque, unguessable session identifier. A BFF restart invalidates these
-sessions and requires users to authenticate again. This deliberately avoids a
-persistent writable application-session store in the single-instance v1
-deployment. The cookie is `Secure`, `HttpOnly`, and configured with an
-appropriate `SameSite` policy; the BFF also validates request origins. A later
-multi-instance deployment must introduce an explicit shared session store with
-separate ownership, backup, and lifecycle rules.
+The v1 BFF owns an ephemeral relying-party session in process memory and gives
+the browser only an opaque, unguessable session identifier. The corresponding
+server-side record contains the issuer, subject, current access token and its
+expiry, current refresh token and its lifecycle state, and BFF idle and absolute
+expiry times. Token material is never placed in the browser cookie or logs.
+
+Every browser data request must be authorized by an unexpired Keycloak access
+token held in that BFF session. The BFF attempts renewal before token expiry,
+replaces rotated refresh tokens atomically, and destroys the session when
+renewal fails. Refreshes for one session are serialized so concurrent requests
+cannot reuse a rotated refresh token. BFF idle and absolute expiry times cannot
+extend authorization beyond the corresponding Keycloak token/session
+lifecycle. Keycloak backchannel logout may destroy the BFF session sooner, but
+the five-minute bound does not depend on that optional acceleration.
+
+A BFF restart invalidates all in-memory sessions and requires users to
+authenticate again. This deliberately avoids a persistent writable
+application-session store in the single-instance v1 deployment. The cookie is
+`Secure`, `HttpOnly`, and configured with an appropriate `SameSite` policy; the
+BFF also validates request origins. A later multi-instance deployment must
+introduce an explicit shared session store with separate ownership, backup, and
+lifecycle rules.
 
 A separately published programmatic API accepts OAuth bearer tokens. It
 does not weaken or bypass the same `consultation.read` authorization policy.
@@ -220,13 +236,15 @@ email addresses are mutable attributes and are not identity keys. Access and
 operational logs may record the issuer and subject in a store separate from the
 corpus database.
 
-Initial broad roles/scopes are deliberately small:
+The v1 application authority is deliberately small:
 
-- `consultation_user`;
-- `system_administrator` for the identity/application operators;
+- `consultation_user` as the application role;
 - `consultation.read` for the public consultation resources.
 
 Additional write, review, or case-management permissions are outside v1.
+Keycloak administration uses delegated Keycloak administrative permissions,
+not an application role emitted in consultation tokens. Bootstrap/recovery
+administration remains separate from routine realm administration.
 
 When a later release requires different users to see different cases or
 workspaces, it must add an explicit application-authorization store and
@@ -391,6 +409,8 @@ use observed idle, login, search, and concurrent-request measurements.
 - implement the provider-neutral principal adapter;
 - implement the site's BFF-managed ephemeral session and protect every
   consultation-data route;
+- bind each BFF session to current Keycloak access/refresh token state,
+  serialize refresh-token rotation, and destroy sessions on failed renewal;
 - protect the programmatic API and MCP with distinct clients/audiences;
 - configure a five-minute maximum access-token lifetime, prohibit offline
   access, and enable refresh-token rotation where supported;
@@ -405,6 +425,8 @@ use observed idle, login, search, and concurrent-request measurements.
   independent MCP client;
 - test direct site and API access, session-cookie security, bounded revocation,
   expired tokens, wrong audiences, and insufficient scopes;
+- test account disabling and session revocation through both a browser cookie
+  and bearer-token clients, including the five-minute maximum delay;
 - test that anonymous and unauthorized requests cannot retrieve metadata,
   search results, representations, binary metadata, or original binaries.
 
@@ -434,6 +456,10 @@ Consultation v1 is ready only when all of the following are evidenced:
   requests fail according to the documented token-lifetime policy;
 - disabling an account or revoking its sessions prevents token renewal, and
   any previously issued access token stops working within five minutes;
+- every browser data request is backed by an unexpired Keycloak access token;
+  failed renewal destroys the BFF session, and its idle or absolute lifetime
+  never extends Keycloak authorization;
+- Keycloak administrative permissions are absent from consultation tokens;
 - v1 has no writable application identity or case-grant store;
 - runtime service database roles cannot mutate canonical or derived corpus data;
 - neither APIs, MCP responses, logs, nor UI expose local filesystem paths or
