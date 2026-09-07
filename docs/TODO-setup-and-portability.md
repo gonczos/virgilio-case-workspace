@@ -1,6 +1,6 @@
 # TODO Setup And Portability
 
-Last updated: 2026-09-01
+Last updated: 2026-09-07
 
 ## Authority
 
@@ -22,6 +22,13 @@ installation and portability story.
 
 Current verified development/runtime behavior remains the hybrid
 host-plus-Docker setup documented in `docs/SETUP.md`.
+
+The agreed release target for closing the current phase is defined in
+`docs/architecture/21-consultation-v1-read-only-online-service-package.md`.
+It packages the frozen corpus as a read-only online site, API, binary gateway,
+and vendor-neutral MCP with shared Keycloak authentication and configurable
+public URLs. That document is a target and acceptance contract; none of its
+unverified deployment capabilities should be read as current setup behavior.
 
 That means today:
 
