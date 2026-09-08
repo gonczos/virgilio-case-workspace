@@ -105,7 +105,7 @@ export function BinariesPage() {
             <CircularProgress />
             <Typography color="text.secondary">Loading binaries...</Typography>
           </Stack>
-        ) : items.length === 0 ? (
+        ) : error ? null : items.length === 0 ? (
           <Stack alignItems="center" justifyContent="center" spacing={2} sx={{ py: 12 }}>
             <Typography variant="h6">No binaries found</Typography>
             <Typography color="text.secondary">The consultation API returned an empty result.</Typography>

@@ -710,6 +710,17 @@ production volumes, secrets, hostnames, and Compose project name separate from
 development. See
 `deploy/consultation-v1/README.md` for secret rotation and backup boundaries.
 
+### UI proxy after API replacement
+
+The UI nginx upstream resolves `api` through Docker's embedded DNS
+(`127.0.0.11`, five-second validity), so replacing the API container does not
+leave the UI proxy using its old address. This uses nginx's
+[dynamic upstream resolution](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#resolve)
+supported by the pinned nginx version. Deploy proxy configuration changes by
+rebuilding and recreating `ui`; check `/api/v1/health` through the UI proxy,
+not only directly against the API. The latter can succeed while the proxy
+returns 502.
+
 ### Keycloak subject claim
 
 The custom Keycloak `consultation.read` scope must include the standard
