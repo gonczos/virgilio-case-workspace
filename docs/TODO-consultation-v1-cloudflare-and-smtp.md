@@ -17,7 +17,7 @@ Known starting state:
 - [x] A Cloudflare account exists.
 - [x] Transfer of the intended domain to Cloudflare has been initiated.
 - [x] A Google app password was generated for SMTP testing.
-- [ ] The previously shared Google app password has been revoked and replaced.
+- [x] The previously shared Google app password has been revoked and replaced.
 
 The replacement is required because the earlier credential was exposed in a
 conversation. Record only that rotation was completed.
@@ -140,8 +140,8 @@ SMTP authentication=enabled
 - [ ] Choose the dedicated Google mailbox that will send Consultation V1
       identity email.
 - [ ] Confirm 2-Step Verification is enabled for that Google account.
-- [ ] Revoke the app password previously shared in conversation.
-- [ ] Generate a new app password at
+- [x] Revoke the app password previously shared in conversation.
+- [x] Generate a new app password at
       <https://myaccount.google.com/apppasswords>.
 - [ ] Put only the replacement credential in the ignored file
       `deploy/consultation-v1/secrets/smtp_password.txt`.
