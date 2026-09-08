@@ -721,6 +721,14 @@ rebuilding and recreating `ui`; check `/api/v1/health` through the UI proxy,
 not only directly against the API. The latter can succeed while the proxy
 returns 502.
 
+### PDF worker delivery
+
+The UI nginx MIME table explicitly maps `.mjs` to `text/javascript`. The PDF.js
+worker is a JavaScript module; serving it as `application/octet-stream` prevents
+browser loading and produces a PDF preview worker error. After rebuilding and
+recreating `ui`, verify the worker asset's public `Content-Type` as well as its
+HTTP status. Keep `X-Content-Type-Options: nosniff` enabled.
+
 ### Keycloak subject claim
 
 The custom Keycloak `consultation.read` scope must include the standard
