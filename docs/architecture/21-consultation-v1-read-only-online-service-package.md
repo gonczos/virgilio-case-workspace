@@ -212,9 +212,11 @@ maximum accepted revocation latency is therefore five minutes. Offline access
 tokens are not permitted. Refresh-token rotation is enabled where the client
 supports it. Resource servers fail closed when they cannot validate a token.
 
-Cloudflare Access may add protection to administration endpoints. It is not the
-MCP authorization protocol and must not make the MCP dependent on a particular
-AI client or vendor.
+Keycloak administration is bound to a loopback-only host port and is not
+published through Cloudflare. The public authentication hostname blocks the
+`/admin` and `/realms/master` path prefixes at the Cloudflare edge because
+Keycloak's separate administration URL controls generated URLs but does not
+disable the administration API on its frontend listener.
 
 ## Identity And Application Authorization
 
@@ -279,8 +281,9 @@ Administrative responsibilities are separated:
   application-authorization store is deliberately introduced.
 
 Routine accounts do not receive unrestricted master-realm administration.
-Administrator MFA is mandatory. The administration hostname is separately
-protected and is not advertised as part of the public consultation product.
+Administrator MFA is mandatory. The administration console is available only
+through a loopback-bound local URL on the deployment host and is absent from
+public DNS and Tunnel routes.
 
 ## Transactional Email
 
@@ -299,29 +302,28 @@ can later be replaced without an application-code change.
 ## Configurable Public URLs
 
 No real domain, hostname, redirect URI, issuer URL, or origin is compiled into
-application code, realm exports, or container images. The target configuration
-contract uses explicit URLs such as:
+application code, realm exports, or container images. The implemented
+configuration contract uses explicit URLs such as:
 
 ```env
-PUBLIC_BASE_DOMAIN=example.invalid
-
 SITE_PUBLIC_URL=https://consultation.example.invalid
 API_PUBLIC_URL=https://api.example.invalid
-MCP_PUBLIC_URL=https://mcp.example.invalid
+MCP_PUBLIC_URL=https://mcp.example.invalid/mcp/v1
 AUTH_PUBLIC_URL=https://auth.example.invalid
-AUTH_ADMIN_PUBLIC_URL=https://identity-admin.example.invalid
+AUTH_ADMIN_LOCAL_PORT=8088
 
 OIDC_ISSUER=https://auth.example.invalid/realms/consultation
 ```
 
-These names describe the intended configuration surface; they are not yet
-implemented variables. Implementation may refine the names, but it must retain
-the same explicit and portable semantics.
+These variables retain explicit and portable URL semantics. Public hostnames
+are deployment values; the Keycloak administration port remains loopback-only.
 
 OAuth redirect URIs, post-logout redirect URIs, allowed origins, token
 audiences, MCP resource identifiers, and Cloudflare Tunnel host mappings are
 configured explicitly. Production must use exact HTTPS origins and redirect
-URIs rather than permissive wildcards.
+URIs rather than permissive wildcards. The local administration URL is the only
+HTTP URL and is permitted only because its published port is bound to
+`127.0.0.1`.
 
 Secrets are supplied separately from this public-URL configuration and remain
 outside Git and exported realm configuration.
@@ -486,6 +488,8 @@ use observed idle, login, search, and concurrent-request measurements.
 ### V1.4: Publish a candidate environment
 
 - configure domain-independent public URLs and exact redirect/origin lists;
+- bind Keycloak administration to loopback only and block the `/admin` and
+  `/realms/master` path prefixes on the public authentication hostname;
 - retain the application login-admission limits and optionally apply a stricter
   Cloudflare edge limit to `/api/v1/auth/login`;
 - publish through Cloudflare Tunnel;
@@ -538,6 +542,8 @@ Consultation v1 is ready only when all of the following are evidenced:
   failed renewal destroys the BFF session, and its idle or absolute lifetime
   never extends Keycloak authorization;
 - Keycloak administrative permissions are absent from consultation tokens;
+- Keycloak administration and master-realm endpoints are unreachable through
+  public ingress;
 - v1 has no writable application identity or case-grant store;
 - runtime service database roles cannot mutate canonical or derived corpus data;
 - neither APIs, MCP responses, logs, nor UI expose local filesystem paths or

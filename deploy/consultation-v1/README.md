@@ -4,8 +4,9 @@ This directory implements the local, unexposed V1.2/V1.3 package. It restores
 the frozen V1.1 `casework` snapshot into a dedicated PostgreSQL volume, serves
 only the versioned read surfaces, and uses a separate Keycloak database.
 
-No service declares a host port. The `cloudflared` service is disabled unless
-the `publish` profile is selected; publication belongs to V1.4.
+Only Keycloak declares a host port, bound to the loopback address for local
+administration. The `cloudflared` service is disabled unless the `publish`
+profile is selected; publication belongs to V1.4.
 
 ## Prepare
 
@@ -41,6 +42,14 @@ later create invited users and grant `consultation_user`. All users must enroll
 TOTP on first login. Access tokens last at most five minutes, refresh-token
 reuse is zero, and the application accepts only `consultation.read` plus the
 correct API or MCP audience.
+
+Keycloak administration is local-only at
+`http://localhost:${AUTH_ADMIN_LOCAL_PORT:-8088}/admin/`. The port binds to
+`127.0.0.1`; do not change it to a wildcard or LAN address. The public
+Cloudflare authentication route must block the `/admin` and `/realms/master`
+path prefixes because Keycloak's admin hostname changes generated URLs but does
+not itself disable administration through the frontend listener. The public
+Tunnel has no administration hostname or route.
 
 ## Login admission settings
 

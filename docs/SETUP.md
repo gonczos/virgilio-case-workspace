@@ -680,6 +680,12 @@ Within Compose, API and MCP reach Keycloak through the private
 `http://keycloak:8080` backchannel while retaining the exact public issuer for
 token validation and browser authorization. This lets the unexposed topology
 become healthy before Cloudflare Tunnel starts.
+Keycloak administration is available only from the deployment host at
+`http://localhost:8088/admin/` by default. Compose binds that port to
+`127.0.0.1`; it is not a general local API profile and must not be rebound to a
+LAN or wildcard address. Public Cloudflare ingress exposes only the Keycloak
+login/account surface and must block the `/admin` and `/realms/master` path
+prefixes on the authentication hostname.
 The login-admission and BFF-capacity settings in `.env.example` have validated
 defaults. Invalid combinations stop API startup. The origin must remain
 reachable only through the tunnel because the API accepts Cloudflare's
@@ -693,10 +699,11 @@ docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/
 docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml ps
 ```
 
-The base topology maps no host ports. It restores the `casework` snapshot only
-on first creation of its dedicated volume and imports the secret-free Keycloak
-realm only when the realm is absent. Keep production volumes, secrets,
-hostnames, and Compose project name separate from development. See
+The base topology maps only the loopback Keycloak administration port. It
+restores the `casework` snapshot only on first creation of its dedicated volume
+and imports the secret-free Keycloak realm only when the realm is absent. Keep
+production volumes, secrets, hostnames, and Compose project name separate from
+development. See
 `deploy/consultation-v1/README.md` for secret rotation and backup boundaries.
 
 ### Remaining setup gaps

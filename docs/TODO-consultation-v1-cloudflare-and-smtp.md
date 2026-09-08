@@ -34,14 +34,14 @@ on a certificate for `*.virgilio.asiloveit.com`.
 | Direct programmatic API | `api-virgilio.asiloveit.com` |
 | Remote MCP | `mcp-virgilio.asiloveit.com` |
 | Keycloak login and account pages | `auth-virgilio.asiloveit.com` |
-| Restricted Keycloak administration | `identity-admin-virgilio.asiloveit.com` |
 
 Requirements:
 
 - [x] Every final hostname is under the intended Cloudflare-managed zone.
 - [x] Each hostname is distinct.
 - [x] No hostname is already used by another service. Verified on 2026-09-08:
-      public DNS returned no A, AAAA, or CNAME record; both authoritative
+      public DNS returned no A, AAAA, or CNAME record for the four selected
+      names; both authoritative
       Cloudflare nameservers returned no A or CNAME answer; and a random
       hostname confirmed that no wildcard DNS record occupies them.
 - [x] The site, API, MCP, issuer, audiences, redirects, and tunnel routes will
@@ -56,8 +56,8 @@ authentication hostname later changes the OIDC issuer identity.
 - [ ] Confirm the authoritative nameservers and zone DNS are managed by the
       intended Cloudflare account.
 - [ ] Review the imported DNS records and remove or correct stale conflicts for
-      the five chosen hostnames.
-- [ ] Confirm Cloudflare can issue edge certificates for all five hostnames.
+      the four chosen hostnames.
+- [ ] Confirm Cloudflare can issue edge certificates for all four hostnames.
 - [ ] Confirm the deployment machine can make outbound connections required by
       `cloudflared`; do not add inbound router or firewall port forwarding.
 - [ ] Enable strong MFA for the Cloudflare account and retain recovery access in
@@ -85,7 +85,6 @@ this deployment.
 | `api-virgilio.asiloveit.com` | `http://api:8091` |
 | `mcp-virgilio.asiloveit.com` | `http://mcp:8092` |
 | `auth-virgilio.asiloveit.com` | `http://keycloak:8080` |
-| `identity-admin-virgilio.asiloveit.com` | `http://keycloak:8080` |
 
 - [ ] Confirm Cloudflare created proxied DNS records for all published routes.
 - [ ] Do not create a public route to `gateway`, either PostgreSQL database, or
@@ -104,7 +103,6 @@ Create a Cache Rule whose action is **Bypass cache** with this expression:
 (http.host eq "api-virgilio.asiloveit.com") or
 (http.host eq "mcp-virgilio.asiloveit.com") or
 (http.host eq "auth-virgilio.asiloveit.com") or
-(http.host eq "identity-admin-virgilio.asiloveit.com") or
 ((http.host eq "virgilio.asiloveit.com") and
  starts_with(http.request.uri.path, "/api/v1/"))
 ```
@@ -115,12 +113,21 @@ traffic out of Cloudflare's shared cache.
 
 - [ ] Deploy the cache-bypass rule.
 - [ ] Check rule ordering so a later rule cannot make these requests cacheable.
-- [ ] Do not create a Cache Everything rule for the five service hostnames.
+- [ ] Do not create a Cache Everything rule for the four service hostnames.
 - [ ] If the current Cloudflare plan supports a suitable rate-limit rule, an
       edge limit may be added to `/api/v1/auth/login`. The application limit is
       already mandatory, so this edge rule is optional.
-- [ ] Create a Cloudflare Access self-hosted application for only the identity
-      administration hostname and restrict it to the owner/operator identity.
+- [ ] Create a Cloudflare custom rule with action **Block** for this expression:
+
+      ```text
+      (http.host eq "auth-virgilio.asiloveit.com") and
+      (starts_with(http.request.uri.path, "/admin") or
+       starts_with(http.request.uri.path, "/realms/master"))
+      ```
+
+      Keycloak documents that its administration hostname changes generated
+      URLs but does not remove the Admin REST API from the frontend listener.
+      See <https://www.keycloak.org/server/hostname>.
 - [ ] Do not put Cloudflare Access in front of the public authentication, site,
       API, or MCP hostnames; doing so would add a second authentication protocol
       that can break OIDC and MCP clients.
@@ -176,7 +183,7 @@ When Sections 1-5 are complete, provide or record these non-secret values:
 | `API_PUBLIC_URL` | `https://api-virgilio.asiloveit.com` |
 | `MCP_PUBLIC_URL` | `https://mcp-virgilio.asiloveit.com/mcp/v1` |
 | `AUTH_PUBLIC_URL` | `https://auth-virgilio.asiloveit.com` |
-| `AUTH_ADMIN_PUBLIC_URL` | `https://identity-admin-virgilio.asiloveit.com` |
+| `AUTH_ADMIN_LOCAL_PORT` | `8088` |
 | `OIDC_ISSUER` | `https://auth-virgilio.asiloveit.com/realms/consultation` |
 | `API_AUDIENCE` | `https://api-virgilio.asiloveit.com/api/v1` |
 | `MCP_AUDIENCE` | `https://mcp-virgilio.asiloveit.com/mcp/v1` |
@@ -204,10 +211,12 @@ Cloudflare and SMTP are ready for `.env` work when all of these statements are
 true:
 
 - [ ] The Cloudflare zone is Active.
-- [x] The five exact hostnames are recorded.
-- [ ] The remotely managed tunnel and five routes exist.
+- [x] The four exact public hostnames are recorded.
+- [ ] The remotely managed tunnel and four routes exist.
 - [ ] The tunnel token is present only in its ignored secret file.
-- [ ] Cache bypass and identity-admin Access rules are configured.
+- [ ] Cache bypass and public Keycloak administration-block rules are configured.
+- [ ] Keycloak administration works through the loopback-only local URL and no
+      public administration hostname or Tunnel route exists.
 - [ ] No direct public origin port or gateway/database route exists.
 - [ ] The replacement Google app password is present only in its ignored secret
       file.
