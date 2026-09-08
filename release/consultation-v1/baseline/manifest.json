@@ -1,0 +1,309 @@
+{
+  "application_contract_version": "v1",
+  "database": {
+    "assertions": {
+      "binary_state": [
+        {
+          "integrity_check_status": "validated_by_qpdf",
+          "retention_status": "local_artifact_retained",
+          "row_count": 1238,
+          "total_bytes": 509420710
+        }
+      ],
+      "import_batches": [
+        {
+          "case_count": 5,
+          "created_at_source": "2026-08-30T05:26:59.693Z",
+          "document_count": 1293,
+          "file_binary_count": 1238,
+          "imported_at": "2026-09-02T01:03:45.458Z",
+          "package_id": "tribunais-portable-case-package-13608-14-8t2snt-2026-08-30T05-26-33-368Z",
+          "package_kind": "portable_case_corpus_v1",
+          "producer": "virgilio-court-docs/scripts/node/tribunais-build-portable-case-package.mjs",
+          "schema_version": "1.0.0",
+          "source_system": "tribunais_org_pt"
+        }
+      ],
+      "import_executions": [
+        {
+          "counts_json": {
+            "observations": 3874
+          },
+          "execution_key": "historical-html-registration:2",
+          "finished_at": null,
+          "id": 1,
+          "import_batch_id": null,
+          "importer_key": "citius-html-import",
+          "importer_version": "2a93c9f8723314c6898e407f4dc2c11f59ec03c5e443e92625a43ab4d7f3f29e",
+          "input_sha256": "82a7a1b6c34613c4be00aefc155a35323df34eedb4f8877f497892560a79ea53",
+          "reused_capture": false,
+          "source_label": "tribunais-multicase-audit-2026-08-29T22-50-36-257Z",
+          "started_at": "2026-09-04T23:34:28.381Z",
+          "status": "historical_completed"
+        },
+        {
+          "counts_json": {
+            "coverage": {
+              "buckets": 897,
+              "cases": 5,
+              "current_buckets_not_in_capture": [],
+              "current_cases_not_in_capture": [],
+              "current_occurrences_not_in_capture": [],
+              "document_occurrences": 2070
+            },
+            "html_artifacts": 3873,
+            "links": 2976
+          },
+          "execution_key": null,
+          "finished_at": "2026-09-04T23:54:18.837Z",
+          "id": 2,
+          "import_batch_id": null,
+          "importer_key": "citius-html-import",
+          "importer_version": "820f38601ebbd198e496070cc7dbce8f55b84e8f3449ecce55f47269c65dd720",
+          "input_sha256": "82a7a1b6c34613c4be00aefc155a35323df34eedb4f8877f497892560a79ea53",
+          "reused_capture": true,
+          "source_label": "tribunais-multicase-audit-2026-08-29T22-50-36-257Z",
+          "started_at": "2026-09-04T23:54:18.659Z",
+          "status": "succeeded"
+        },
+        {
+          "counts_json": {},
+          "execution_key": null,
+          "finished_at": "2026-09-04T23:54:54.782Z",
+          "id": 3,
+          "import_batch_id": null,
+          "importer_key": "citius-html-import",
+          "importer_version": "820f38601ebbd198e496070cc7dbce8f55b84e8f3449ecce55f47269c65dd720",
+          "input_sha256": "8e73946ed8e6570f6c6d6516cf7dc4d9a6921959500f38b3f6acff1fdc146fbc",
+          "reused_capture": false,
+          "source_label": "tribunais-multicase-audit-2026-08-29T22-50-36-257Z",
+          "started_at": "2026-09-04T23:54:54.687Z",
+          "status": "failed"
+        },
+        {
+          "counts_json": {
+            "coverage": {
+              "buckets": 897,
+              "cases": 5,
+              "current_buckets_not_in_capture": [],
+              "current_cases_not_in_capture": [],
+              "current_occurrences_not_in_capture": [],
+              "document_occurrences": 2070
+            },
+            "html_artifacts": 3873,
+            "links": 2976
+          },
+          "execution_key": null,
+          "finished_at": "2026-09-05T00:23:14.853Z",
+          "id": 4,
+          "import_batch_id": null,
+          "importer_key": "citius-html-import",
+          "importer_version": "6544854aceeb697051a8dd4e1db6f6465aabb0d35e74a6542782180bdda33d91",
+          "input_sha256": "82a7a1b6c34613c4be00aefc155a35323df34eedb4f8877f497892560a79ea53",
+          "reused_capture": true,
+          "source_label": "tribunais-multicase-audit-2026-08-29T22-50-36-257Z",
+          "started_at": "2026-09-05T00:23:14.684Z",
+          "status": "succeeded"
+        }
+      ],
+      "processing_state": [
+        {
+          "row_count": 6183,
+          "status": "completed"
+        },
+        {
+          "row_count": 27,
+          "status": "failed"
+        }
+      ],
+      "reference_state": [
+        {
+          "observed_in_kind": "metadata_row",
+          "observer_key": "document-register-csv",
+          "observer_version": "2026-09-03-supplied-snapshot",
+          "review_state": "needs_review",
+          "row_count": 4
+        },
+        {
+          "observed_in_kind": "segment",
+          "observer_key": "app/reference-search-store.mjs",
+          "observer_version": "labelled-reference-v5",
+          "review_state": "unreviewed",
+          "row_count": 178
+        },
+        {
+          "observed_in_kind": "source_record",
+          "observer_key": "app/reference-metadata-ingestion.mjs",
+          "observer_version": "v1",
+          "review_state": "unreviewed",
+          "row_count": 2200
+        },
+        {
+          "observed_in_kind": "source_record",
+          "observer_key": "virgilio-imported-source-record",
+          "observer_version": "v1",
+          "review_state": "unreviewed",
+          "row_count": 38
+        }
+      ],
+      "representation_state": [
+        {
+          "binary_count": 1238,
+          "processor_key": "docling",
+          "processor_version": "2.123.1-c5.2",
+          "representation_kind": "extracted_document_bundle",
+          "row_count": 1238
+        },
+        {
+          "binary_count": 1,
+          "processor_key": "docling",
+          "processor_version": "2.123.1-c5.2-retry-success-test",
+          "representation_kind": "extracted_document_bundle",
+          "row_count": 1
+        },
+        {
+          "binary_count": 1229,
+          "processor_key": "xberg",
+          "processor_version": "1.0.14-c5.2",
+          "representation_kind": "extracted_document_bundle",
+          "row_count": 1229
+        },
+        {
+          "binary_count": 1238,
+          "processor_key": "pdf_literal_text",
+          "processor_version": "poppler-layout-v2-c5.3.2",
+          "representation_kind": "pdf_literal_text",
+          "row_count": 1238
+        },
+        {
+          "binary_count": 1238,
+          "processor_key": "pdf_signature_metadata",
+          "processor_version": "qpdf-signature-v1-c5.3.1",
+          "representation_kind": "pdf_signature_metadata",
+          "row_count": 1238
+        },
+        {
+          "binary_count": 1238,
+          "processor_key": "pdf_structure_inventory",
+          "processor_version": "qpdf-structure-v2-c5.3.2",
+          "representation_kind": "pdf_structure_inventory",
+          "row_count": 1238
+        }
+      ],
+      "segment_state": [
+        {
+          "nonempty_count": 3638,
+          "representation_count": 3706,
+          "row_count": 3706,
+          "segment_kind": "document_text"
+        }
+      ],
+      "table_counts": [
+        {
+          "row_count": 897,
+          "table_name": "bucket"
+        },
+        {
+          "row_count": 2070,
+          "table_name": "bucket_document"
+        },
+        {
+          "row_count": 5,
+          "table_name": "case_file"
+        },
+        {
+          "row_count": 1,
+          "table_name": "case_workspace"
+        },
+        {
+          "row_count": 1293,
+          "table_name": "document"
+        },
+        {
+          "row_count": 1257,
+          "table_name": "document_binary"
+        },
+        {
+          "row_count": 6182,
+          "table_name": "document_representation"
+        },
+        {
+          "row_count": 3706,
+          "table_name": "document_segment"
+        },
+        {
+          "row_count": 1238,
+          "table_name": "file_binary"
+        },
+        {
+          "row_count": 1,
+          "table_name": "import_batch"
+        },
+        {
+          "row_count": 4,
+          "table_name": "import_execution"
+        },
+        {
+          "row_count": 6210,
+          "table_name": "processing_job"
+        },
+        {
+          "row_count": 2420,
+          "table_name": "reference_observation"
+        },
+        {
+          "row_count": 0,
+          "table_name": "reference_observation_review"
+        },
+        {
+          "row_count": 2,
+          "table_name": "source_capture"
+        },
+        {
+          "row_count": 6926,
+          "table_name": "source_observation"
+        }
+      ]
+    },
+    "input_snapshot": {
+      "path": "data/releases/consultation-v1/consultation-v1-input.dump",
+      "sha256": "8d4f7f917c9b038a3c47a4678710c5e7a4d9db513c926cc9af89ace8a3ff9d10",
+      "size_bytes": 11123553
+    },
+    "normalized_schema_sha256": "5c598b52751c8567c9635ba36a85b1bb4f16f1e3893e6b20e62161a1ae444de1",
+    "query_definition_sha256": "e59bf76a1448ef3ef0f66ccf2c161d5ee25aa274b99e166f64b5d5340e283b9b"
+  },
+  "generator": {
+    "path": "app/release-v1-inventory.mjs",
+    "sha256": "01c293c7ba4fc9d550d1b8960a66467b11481f0a1bd96019b8abbaa7c4330684"
+  },
+  "inventories": {
+    "contracts": {
+      "bytes": 78776,
+      "file": "contracts.json",
+      "files": 3,
+      "sha256": "9f5eda6cebad586550be614fc7e47fcaa5fbb5527ffb053da374d040a5fa31c9"
+    },
+    "representation_artifacts": {
+      "bytes": 156742695,
+      "file": "representation_artifacts.json",
+      "files": 16058,
+      "sha256": "f792351ab190aa0c3283f301a45a063a72ba437cf644f341da1b8887d2134472"
+    },
+    "schema_files": {
+      "bytes": 109226,
+      "file": "schema_files.json",
+      "files": 16,
+      "sha256": "b3f5a562d16fa1c7fb1bb9af2b3d0d4c9590727c6cbafa7d0a380ada192408ce"
+    },
+    "source_package": {
+      "bytes": 512126512,
+      "file": "source_package.json",
+      "files": 1250,
+      "sha256": "6fd98a00cc4ffd1ad4af6b1f424653d8a71f34fd57e11a544206f30e3ac38c56"
+    }
+  },
+  "manifest_kind": "consultation_v1_release_input",
+  "manifest_version": "1.0.0",
+  "source_git_commit": "eaa391f414f91ed08f5478f65bb9a9d6d6ea0481"
+}

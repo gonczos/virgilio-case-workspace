@@ -1,0 +1,17 @@
+[
+  {
+    "path": "release/consultation-v1/contracts/golden-v1.json",
+    "sha256": "9e8babcd167837a685d964ecefdf43a0b6a4da01337154aebfb485cb1d3f2e26",
+    "size_bytes": 57099
+  },
+  {
+    "path": "release/consultation-v1/contracts/mcp-v1.json",
+    "sha256": "72fd24110642e6cd5b09760e1e730b4dac4e05d591d5f0ff19c679607f4050ce",
+    "size_bytes": 6577
+  },
+  {
+    "path": "release/consultation-v1/contracts/openapi-v1.yaml",
+    "sha256": "b7bbf4934e65fa5d2318808465b6717c76540cf76e724d1175d76b660d81aab7",
+    "size_bytes": 15100
+  }
+]

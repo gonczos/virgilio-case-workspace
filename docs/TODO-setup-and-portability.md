@@ -32,10 +32,10 @@ unverified deployment capabilities should be read as current setup behavior.
 
 The audited V1.1 corpus, runtime, UI, API, binary, and MCP baseline is recorded
 in `docs/architecture/22-consultation-v1-contract-and-runtime-baseline.md`.
-That note fixes the release product boundary. V1.1 still requires the
-deterministic full-payload/database inventory and hashed HTTP/MCP wire contracts
-defined there before V1.2 may begin. The production package remains
-unimplemented.
+That note fixes the release product boundary. The deterministic
+full-payload/database inventory and hashed HTTP/MCP wire contracts have been
+generated and verified under `release/consultation-v1/`; V1.1 is complete and
+V1.2 may begin. The production package remains unimplemented.
 
 That means today:
 

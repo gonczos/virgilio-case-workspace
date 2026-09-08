@@ -1,7 +1,7 @@
 {
   "manifest_kind": "consultation_v1_inventory_baseline",
-  "manifest_version": "1.1.0",
-  "status": "inventory_baseline_incomplete_for_release_freeze",
+  "manifest_version": "1.2.0",
+  "status": "superseded_by_generated_v1_1_release_input",
   "observed_at": "2026-09-08T00:41:42.7457909Z",
   "git_commit": "27d13f89ea6cadfd5886993ecfa8eb0cf074c5f5",
   "corpus_package": {
@@ -68,18 +68,22 @@
       "sha256": "9e76d94116d1bc4a3ff831ba030a69e5572360f5c259a0a34af66d9f915f8f44"
     }
   ],
-  "release_artifacts_pending": {
-    "deterministic_generator_git_identity": null,
-    "query_definition_sha256": null,
-    "normalized_schema_sha256": null,
-    "source_package_payload_inventory_sha256": null,
-    "representation_artifact_inventory_sha256": null,
-    "v1_1_input_database_snapshot_sha256": null,
+  "release_artifacts": {
+    "deterministic_generator_git_identity": "eaa391f414f91ed08f5478f65bb9a9d6d6ea0481",
+    "query_definition_sha256": "e59bf76a1448ef3ef0f66ccf2c161d5ee25aa274b99e166f64b5d5340e283b9b",
+    "normalized_schema_sha256": "5c598b52751c8567c9635ba36a85b1bb4f16f1e3893e6b20e62161a1ae444de1",
+    "source_package_payload_inventory_sha256": "6fd98a00cc4ffd1ad4af6b1f424653d8a71f34fd57e11a544206f30e3ac38c56",
+    "representation_artifact_inventory_sha256": "f792351ab190aa0c3283f301a45a063a72ba437cf644f341da1b8887d2134472",
+    "v1_1_input_database_snapshot_sha256": "8d4f7f917c9b038a3c47a4678710c5e7a4d9db513c926cc9af89ace8a3ff9d10",
     "final_release_backup_sha256": null,
-    "http_openapi_sha256": null,
-    "mcp_contract_sha256": null,
+    "http_openapi_sha256": "b7bbf4934e65fa5d2318808465b6717c76540cf76e724d1175d76b660d81aab7",
+    "mcp_contract_sha256": "72fd24110642e6cd5b09760e1e730b4dac4e05d591d5f0ff19c679607f4050ce",
     "application_release_tag": null,
     "container_image_digests": null,
     "acceptance_report": null
+  },
+  "generated_release_input": {
+    "path": "release/consultation-v1/baseline/manifest.json",
+    "sha256": "e766d9e0c8e70e4d937bc0f6068446b7780440c9630108cb999513495740fc61"
   }
 }

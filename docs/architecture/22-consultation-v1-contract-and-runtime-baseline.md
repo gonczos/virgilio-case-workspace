@@ -10,9 +10,11 @@ observed development baseline at Git commit
 `27d13f89ea6cadfd5886993ecfa8eb0cf074c5f5` and defines which existing
 consultation capabilities will be promoted into Consultation v1.
 
-V1.1 remains incomplete until the deterministic full-payload inventory,
-immutable input database snapshot identity, and hashed HTTP/MCP wire contracts
-required below exist and verify. This explicit gate incorporates the
+V1.1 was completed on 2026-09-08 by the generated and repeatably verified
+release input under `release/consultation-v1/baseline/`. It inventories the
+full payload and contracts and identifies the immutable input database
+snapshot. The generated manifest's source commit is
+`eaa391f414f91ed08f5478f65bb9a9d6d6ea0481`. This gate incorporates the
 independent plan review completed on 2026-09-08.
 
 This is a release input, not a claim that the authenticated online package has
@@ -227,9 +229,9 @@ source-data time from import-execution time and is part of the baseline. The
 current `db/init/001-bootstrap.sql` SHA-256 is
 `9e76d94116d1bc4a3ff831ba030a69e5572360f5c259a0a34af66d9f915f8f44`.
 
-The current companion manifest is an inventory baseline. It is not yet a
-cryptographic release freeze because it hashes the package descriptor rather
-than every payload and has no database snapshot identity.
+The earlier companion manifest under `docs/architecture/` records the initial
+inventory. The generated manifest under `release/consultation-v1/baseline/` is
+the cryptographic V1.1 release input and supersedes it for verification.
 
 Before V1.2, a deterministic repository generator/verifier must own the exact
 read-only SQL definitions and produce a machine-readable manifest containing:
@@ -275,9 +277,9 @@ consume the compatible V1 backend contract.
 
 ## V1.2 Entry Conditions
 
-V1.2 must not begin until the deterministic release inventory and the hashed
-HTTP and MCP wire contracts described above exist and verify successfully.
-After that gate passes, V1.2 must build a
+The deterministic release inventory and hashed HTTP and MCP wire contracts
+described above were generated and verified successfully on 2026-09-08. V1.2
+may therefore begin. It must build a
 production-only Compose topology and images, create separate read-only database
 roles, mount evidence read-only, package only the three included UI flows, add
 the `/api/v1` adapter and versioned binary-content operation, and keep all public
