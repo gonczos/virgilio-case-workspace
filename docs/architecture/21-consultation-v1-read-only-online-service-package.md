@@ -115,20 +115,24 @@ Read-only operation is enforced in layers:
    from the canonical corpus.
 
 The only unauthenticated HTTP surfaces are static site assets, login initiation
-and callbacks, standards-required OAuth/OIDC/MCP discovery metadata, and a
-minimal health endpoint that discloses no corpus or infrastructure details.
+and callbacks, standards-required OAuth/OIDC/MCP discovery metadata, and
+versioned minimal health endpoints that disclose no corpus or infrastructure
+details.
 
-The binary gateway has no public ingress route. Browser binary requests pass
-through the authenticated API/BFF, which checks the session and scope before
-retrieving the binary from the gateway over the private Docker network. A URL
-or SHA-256 value alone never grants access to an original court document.
+The binary gateway has no public ingress route. Browser and programmatic binary
+requests use `/api/v1/binaries/:sha256/content`. The authenticated API/BFF
+checks the session or bearer token and scope before retrieving the binary from
+the gateway over its private `/internal/v1/binaries/:sha256/content` route. A
+URL or SHA-256 value alone never grants access to an original court document.
 
 The Keycloak database is necessarily writable because it owns accounts,
 credentials, sessions, and authentication events. That does not weaken the
 read-only status of the court corpus.
 
-Health checks should be unauthenticated only when they return no sensitive
-state. Metrics, diagnostics, and administration endpoints remain private.
+Application health checks declare V1: `/api/v1/health` for the consultation
+API, `/mcp/v1/health` for MCP, and `/internal/v1/health` for private services.
+They may be unauthenticated only when they return no sensitive state. Metrics,
+diagnostics, and administration endpoints remain private.
 
 ## Shared Authentication Foundation
 
@@ -167,9 +171,10 @@ authentication design is frozen.
 The browser-facing site and data routes share one public origin. The browser
 loads static assets, completes login at Keycloak, and receives a `Secure`,
 `HttpOnly` session cookie from the consultation API/BFF. Browser JavaScript
-continues to call relative `/api/...` and `/binary/...` URLs; it does not store
-OAuth tokens in `localStorage` or other script-readable storage. The API/BFF
-authenticates every data request and performs the binary-gateway call itself.
+calls relative `/api/v1/...` URLs, including the versioned binary-content
+operation; it does not store OAuth tokens in `localStorage` or other
+script-readable storage. The API/BFF authenticates every data request and
+performs the private binary-gateway call itself.
 
 The v1 BFF owns an ephemeral relying-party session in process memory and gives
 the browser only an opaque, unguessable session identifier. The corresponding
@@ -321,6 +326,23 @@ outside Git and exported realm configuration.
 
 ## Public Contract Policy
 
+Every application-owned machine interface declares its major contract version
+in its route. Consultation HTTP operations use `/api/v1/...`, the remote MCP
+transport uses `/mcp/v1`, and the private binary-gateway interface uses
+`/internal/v1/...`. Published OpenAPI and MCP server metadata also declare V1.
+The standards-defined MCP protocol version is negotiated separately from this
+application contract version.
+
+Application-owned browser-session operations also live under V1, including
+`/api/v1/auth/login`, `/api/v1/auth/callback`, `/api/v1/auth/logout`, and
+`/api/v1/auth/session`. The exact login and callback behavior is part of the
+HTTP contract. The OpenAPI document is published at `/api/v1/openapi.json`.
+
+Static UI routes are human navigation rather than APIs. Standards-defined
+OAuth/OIDC/MCP discovery locations retain their specification-required names
+and are the only route-versioning exceptions. They return no consultation
+data. Application-owned health routes remain versioned.
+
 The current text-consultation MCP is documented as a disposable experiment and
 its private HTTP transport uses a static bearer token. It is therefore an input
 to the v1 contract audit, not yet the released public contract.
@@ -332,11 +354,19 @@ The current candidate MCP surface contains:
 - `get_binary_details`;
 - `get_representation_content`.
 
-Before release, schemas, response limits, pagination, error envelopes,
-canonical-versus-derived semantics, and tool descriptions must be reviewed and
-recorded as the v1 contract. Once frozen, compatible fixes may be released
-under v1; breaking changes require a new versioned API/MCP surface or a new
-major consultation release.
+Before V1.2 implementation, schemas, response limits, pagination, error
+envelopes, canonical-versus-derived semantics, and tool descriptions must be
+reviewed, recorded, and hashed as the V1 contract. HTTP uses a checked OpenAPI
+description and representative golden fixtures. MCP uses checked input/output
+JSON Schemas, error definitions, content-encoding rules, and representative
+golden fixtures. Once frozen, compatible fixes may be released under V1;
+breaking changes require a new versioned API/MCP surface or a new major
+consultation release.
+
+MCP V1 is selected through `/mcp/v1` and a server identity that declares the
+Consultation V1 application contract. A future breaking MCP contract uses a
+different major route, such as `/mcp/v2`; both routes may coexist during a
+documented migration period.
 
 The site may evolve independently inside the stable backend contract. The API
 and MCP must never expose local filesystem paths, database credentials,
@@ -358,12 +388,24 @@ boundaries:
 
 The release manifest must identify at least:
 
-- schema/migration version;
+- bootstrap, schema, and migration file hashes plus a normalized restored-schema
+  fingerprint;
 - corpus/import identity and source-data time where available;
-- binary counts, byte totals, and integrity-check results;
-- representation and indexed-segment coverage;
+- a sorted relative-path, byte-size, and SHA-256 inventory for every source
+  package file and released original binary;
+- a sorted relative-path, byte-size, and SHA-256 inventory for every released
+  representation artifact;
+- the immutable V1.1 input database snapshot hash and exact snapshot procedure;
+- the final release backup hash produced after candidate configuration;
+- binary counts, byte totals, integrity-check results, representation coverage,
+  and indexed-segment coverage;
 - reference/search projection version;
 - application release identifier.
+
+The manifest is generated and verified by a deterministic, versioned repository
+tool. That tool owns the exact read-only SQL assertions and records its own Git
+identity. Hand-maintained counts are explanatory documentation and do not
+constitute a release freeze.
 
 The database and evidence storage must be backed up together at a consistent
 release point. Restore verification is an acceptance requirement, not only an
@@ -376,12 +418,16 @@ The online package must provide:
 - pinned Docker images and one documented Compose entry point;
 - persistent volumes with explicit backup ownership;
 - restart policies and dependency health checks;
-- structured, redaction-safe operational logging;
+- structured operational logging that removes bearer tokens, credentials,
+  Windows paths, POSIX paths, container mount paths, and internal stack traces;
 - authentication and administrator event retention;
 - resource limits suitable for the selected host;
 - database connections restricted by service role;
 - no public origin ports other than traffic entering through the chosen HTTPS
   ingress;
+- `Cache-Control: no-store, private` or an equally strict reviewed policy on
+  authenticated consultation responses and original documents, plus Cloudflare
+  rules that bypass cache for `/api/v1/**` and `/mcp/v1`;
 - a procedure to rotate secrets without rebuilding application images;
 - a documented update, backup, restore, and rollback procedure.
 
@@ -405,6 +451,10 @@ use observed idle, login, search, and concurrent-request measurements.
 - inventory every route that returns consultation data and classify it as an
   authenticated browser, programmatic API, or MCP surface;
 - inventory all runtime writes and remove or isolate corpus mutations.
+- generate and verify complete source-package, binary, representation-artifact,
+  bootstrap, migration, restored-schema, and immutable input-database-snapshot
+  identities;
+- freeze and hash the HTTP OpenAPI contract and MCP input/output/error fixtures.
 
 ### V1.2: Package the read-only runtime
 
@@ -413,7 +463,7 @@ use observed idle, login, search, and concurrent-request measurements.
 - exclude import and processing dependencies from the online runtime;
 - create read-only database roles and storage mounts;
 - keep the binary gateway private and route browser binary delivery through the
-  authenticated API/BFF;
+  authenticated `/api/v1/binaries/:sha256/content` operation;
 - add health checks and bounded resource configuration.
 
 ### V1.3: Establish shared identity
@@ -442,11 +492,15 @@ use observed idle, login, search, and concurrent-request measurements.
 - test account disabling and session revocation through both a browser cookie
   and bearer-token clients, including the five-minute maximum delay;
 - test that anonymous and unauthorized requests cannot retrieve metadata,
-  search results, representations, binary metadata, or original binaries.
+  search results, representations, binary metadata, or original binaries;
+- verify authenticated responses and original documents are marked private and
+  non-cacheable and are never served from Cloudflare cache to another session.
 
 ### V1.5: Release and hand off
 
 - create and verify backups and a clean restore;
+- record the final configured release-backup hash separately from the immutable
+  V1.1 input snapshot;
 - run corpus integrity, contract, authorization, and smoke tests;
 - tag the immutable release and record image digests;
 - publish the operator and user runbooks;
@@ -458,6 +512,10 @@ use observed idle, login, search, and concurrent-request measurements.
 Consultation v1 is ready only when all of the following are evidenced:
 
 - a clean host can start the package from the documented release inputs;
+- all application APIs declare their major version through `/api/v1`,
+  `/mcp/v1`, or the private `/internal/v1` namespace;
+- the complete package, original-binary, representation-artifact, schema, and
+  database-snapshot identities verify against the release manifest;
 - the data snapshot restores successfully and passes integrity checks;
 - the site supports the agreed search and document consultation flow;
 - the API and MCP expose only the frozen read contract;
@@ -478,6 +536,8 @@ Consultation v1 is ready only when all of the following are evidenced:
 - runtime service database roles cannot mutate canonical or derived corpus data;
 - neither APIs, MCP responses, logs, nor UI expose local filesystem paths or
   secrets;
+- authenticated API responses and original documents are never stored in a
+  shared browser, proxy, or Cloudflare cache;
 - production and development deployments can run without sharing databases,
   storage, secrets, or hostnames;
 - backup, restore, update, and rollback procedures have been exercised;

@@ -4,15 +4,21 @@ Last updated: 2026-09-08
 
 ## Status
 
-This document completes the V1.1 inventory and contract-boundary decision from
+This document records the V1.1 inventory and contract-boundary decision from
 `21-consultation-v1-read-only-online-service-package.md`. It records the
 observed development baseline at Git commit
 `27d13f89ea6cadfd5886993ecfa8eb0cf074c5f5` and defines which existing
 consultation capabilities will be promoted into Consultation v1.
 
+V1.1 remains incomplete until the deterministic full-payload inventory,
+immutable input database snapshot identity, and hashed HTTP/MCP wire contracts
+required below exist and verify. This explicit gate incorporates the
+independent plan review completed on 2026-09-08.
+
 This is a release input, not a claim that the authenticated online package has
-already been implemented. The production data snapshot and container-image
-digests will be assigned when the release candidate is built.
+already been implemented. V1.1 assigns the immutable input database snapshot.
+The final configured release-backup hash and container-image digests are
+assigned after the release candidate is built.
 
 The machine-readable companion is
 `docs/architecture/consultation-v1-baseline-manifest.json`.
@@ -25,7 +31,12 @@ case user. Its site contains:
 - a paginated document/binary list;
 - document detail, source context, extracted representations, and original-PDF
   access;
-- full-corpus text and reference search with document inspection.
+- full-corpus text search and court-metadata reference lookup with document
+  inspection.
+
+Text-extracted reference observations currently cover a reviewed pilot subset.
+The site must describe this partial coverage rather than imply that extracted
+references cover every document.
 
 The following development capabilities are not public V1 product surfaces:
 
@@ -116,9 +127,18 @@ credential.
 
 All included data routes require an authenticated principal and
 `consultation.read` in the release package. `GET` and `HEAD` are the only data
-methods. Stable public routes use an `/api/v1` prefix; current
+methods. Every stable public application API uses an `/api/v1` prefix; current
 `/api/consultation` routes are development inputs and receive no public
 compatibility promise.
+
+The BFF's application-owned login, callback, logout, and session routes are
+`/api/v1/auth/login`, `/api/v1/auth/callback`, `/api/v1/auth/logout`, and
+`/api/v1/auth/session`. The versioned OpenAPI document is
+`/api/v1/openapi.json`. Standards-defined identity-provider and MCP discovery
+locations retain the paths required by their specifications.
+
+Application-owned health routes also declare V1: `/api/v1/health`,
+`/mcp/v1/health`, and `/internal/v1/health`. They return minimal liveness only.
 
 | Current route | V1 contract | Disposition |
 | --- | --- | --- |
@@ -128,25 +148,27 @@ compatibility promise.
 | `/api/consultation/court-records` | `/api/v1/court-records` | Include |
 | `/api/consultation/references/lookup` | `/api/v1/references/lookup` | Include |
 | `/api/consultation/reference-pilot/search` | `/api/v1/search` | Include; remove experimental naming |
-| `/binary/:sha256` | same-origin authenticated browser binary route | Include through BFF only |
+| `/binary/:sha256` | `/api/v1/binaries/:sha256/content` | Replace; accept a browser session or API bearer token |
 | `/api/consultation/reports/extraction-coverage` | none | Exclude |
 | `/api/consultation/graphs/**` | none | Exclude |
 | `/api/consultation/reference-pilot/references/:value` | none | Exclude |
 
-The separately authenticated programmatic API must also provide an authorized
-binary-content operation under the V1 API contract. It must not depend on the
-browser cookie route.
+The same versioned binary-content contract supports an authenticated browser
+session and a separately authenticated programmatic bearer client. The private
+gateway operation is `/internal/v1/binaries/:sha256/content` and has no public
+ingress.
 
 The existing response shapes and query semantics used by the included UI and
-MCP operations are the implementation source for the first `/api/v1` adapter.
-Before release tagging, contract tests must snapshot their success envelopes,
-pagination, validation errors, not-found behavior, content types, byte-range or
-streaming behavior where supported, and maximum response limits. Local paths
-and internal errors are never contract fields.
+MCP operations are inputs to the first `/api/v1` contract. Before V1.2 begins,
+a checked and hashed OpenAPI description plus representative golden fixtures
+must freeze success envelopes, pagination, validation errors, not-found
+behavior, content types, binary streaming/range behavior, and response limits.
+Local paths and internal errors are never contract fields.
 
 ## MCP V1 Contract
 
-The V1 MCP retains exactly four tools:
+The V1 MCP is published at `/mcp/v1`, declares the Consultation V1 application
+contract in server metadata, and retains exactly four tools:
 
 | Tool | Purpose | Mutation |
 | --- | --- | --- |
@@ -155,23 +177,29 @@ The V1 MCP retains exactly four tools:
 | `get_binary_details` | Retrieve structured details for one SHA-256 identity | None |
 | `get_representation_content` | Read bounded text, Markdown, complete-text, or native JSON representation content | None |
 
-Their current argument schemas, bounded pagination, and sanitized error
-behavior are the V1 input contract. The released server must preserve the
-`readOnlyHint`, expose no arbitrary SQL/filesystem operation, and omit original
-binary bytes. Original files remain available through the authenticated HTTP
-API/site flow.
+Their current argument schemas, bounded pagination, and error behavior are
+inputs to the V1 contract. Before V1.2, checked and hashed input/output JSON
+Schemas, error definitions, content-encoding rules, and representative golden
+fixtures must freeze the wire contract. The released server preserves the
+`readOnlyHint`, exposes no arbitrary SQL/filesystem operation, and omits
+original binary bytes. Original files remain available through the
+authenticated HTTP API/site flow.
 
 The current HTTP MCP transport is a local experiment: it binds to loopback,
 uses one static bearer secret, authenticates its health endpoint, and accepts
 `POST /mcp`. It is not the release transport. V1 replaces the static token with
-the Keycloak/OAuth resource-server contract defined in architecture note 21.
+the Keycloak/OAuth resource-server contract defined in architecture note 21
+and publishes `POST /mcp/v1` as the V1 application endpoint. A breaking V2 uses
+`/mcp/v2`; both major versions may coexist during a documented migration.
 
 ## Runtime Write Audit
 
 The currently exercised consultation API, binary gateway, and MCP tool handlers
 perform database reads. `LocalBinaryStore` reads canonical artifacts and does
-not modify them. The operational logger creates a directory and appends a
-redaction-safe log outside the corpus.
+not modify them. The operational logger writes outside the corpus, but its
+current redaction does not cover POSIX/container paths. The production logger
+must redact credentials, tokens, Windows paths, POSIX paths, container mounts,
+and stack traces before V1 release.
 
 Two imported support modules also contain mutation functions:
 
@@ -195,17 +223,35 @@ It remains development configuration and must not be promoted as V1.
 
 The baseline schema is repository bootstrap state plus migrations
 `2026-08-30-001` through `2026-09-05-015`, inclusive. Migration 015 separates
-source-data time from import-execution time and is part of the baseline.
+source-data time from import-execution time and is part of the baseline. The
+current `db/init/001-bootstrap.sql` SHA-256 is
+`9e76d94116d1bc4a3ff831ba030a69e5572360f5c259a0a34af66d9f915f8f44`.
 
-The release build must generate a machine-readable manifest containing the Git
-commit, migration filenames and SHA-256 values, package identity and manifest
-hash, database snapshot identity, row-count assertions above, application
-image digests, and the reference/search projection identity. A restored
-candidate must reproduce the assertions before promotion.
+The current companion manifest is an inventory baseline. It is not yet a
+cryptographic release freeze because it hashes the package descriptor rather
+than every payload and has no database snapshot identity.
+
+Before V1.2, a deterministic repository generator/verifier must own the exact
+read-only SQL definitions and produce a machine-readable manifest containing:
+
+- the generator Git identity and query-definition hash;
+- every bootstrap and migration filename and SHA-256 value;
+- a normalized restored-schema fingerprint;
+- a sorted relative-path, size, and SHA-256 inventory for the complete source
+  package, all original binaries, and every released representation artifact;
+- the immutable V1.1 input database snapshot hash and procedure;
+- reproducible row-count and coverage assertions;
+- the reference/search projection identity.
+
+The final release backup is a distinct artifact created after candidate
+configuration; it does not replace or retroactively redefine the V1.1 input
+snapshot. Its hash, application image digests, and acceptance results are added
+to the release manifest later. A restored candidate must reproduce all
+applicable assertions before promotion.
 
 ## Compatibility Rules
 
-Within `/api/v1` and MCP V1, compatible changes may add optional response
+Within `/api/v1` and `/mcp/v1`, compatible changes may add optional response
 fields, improve documentation, correct implementation defects without changing
 document identity, and add newly recognized enum values when clients are
 required to tolerate unknown values.
@@ -221,14 +267,19 @@ The following require a new version or an explicitly coordinated migration:
 - exposing previously excluded experimental or administrative operations as if
   they were part of V1.
 
+A future breaking HTTP or MCP contract uses a new major route. MCP V2 therefore
+uses `/mcp/v2` and may coexist with `/mcp/v1` during a documented migration.
+
 UI implementation may change without a protocol version when it continues to
 consume the compatible V1 backend contract.
 
 ## V1.2 Entry Conditions
 
-The next implementation slice may begin from this baseline. It must build a
+V1.2 must not begin until the deterministic release inventory and the hashed
+HTTP and MCP wire contracts described above exist and verify successfully.
+After that gate passes, V1.2 must build a
 production-only Compose topology and images, create separate read-only database
 roles, mount evidence read-only, package only the three included UI flows, add
-the `/api/v1` adapter and programmatic binary operation, and keep all public
+the `/api/v1` adapter and versioned binary-content operation, and keep all public
 origin ports behind the future ingress. Authentication is added in V1.3; until
 then the V1.2 package is candidate infrastructure and must not be published.

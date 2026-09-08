@@ -1,7 +1,7 @@
 {
   "manifest_kind": "consultation_v1_inventory_baseline",
-  "manifest_version": "1.0.0",
-  "status": "release_input",
+  "manifest_version": "1.1.0",
+  "status": "inventory_baseline_incomplete_for_release_freeze",
   "observed_at": "2026-09-08T00:41:42.7457909Z",
   "git_commit": "27d13f89ea6cadfd5886993ecfa8eb0cf074c5f5",
   "corpus_package": {
@@ -62,8 +62,22 @@
     { "name": "2026-09-04-014-ptdocs-review.sql", "sha256": "00305b501eef776ac9643c7225c7656ce61337cfea6af9f1407d1f42d54bf104" },
     { "name": "2026-09-05-015-import-execution.sql", "sha256": "2a64f61be87f0a15feac990ff91572fea118feb480e364d098e2bf87d0a6c028" }
   ],
+  "schema_bootstrap": [
+    {
+      "name": "001-bootstrap.sql",
+      "sha256": "9e76d94116d1bc4a3ff831ba030a69e5572360f5c259a0a34af66d9f915f8f44"
+    }
+  ],
   "release_artifacts_pending": {
-    "database_snapshot_sha256": null,
+    "deterministic_generator_git_identity": null,
+    "query_definition_sha256": null,
+    "normalized_schema_sha256": null,
+    "source_package_payload_inventory_sha256": null,
+    "representation_artifact_inventory_sha256": null,
+    "v1_1_input_database_snapshot_sha256": null,
+    "final_release_backup_sha256": null,
+    "http_openapi_sha256": null,
+    "mcp_contract_sha256": null,
     "application_release_tag": null,
     "container_image_digests": null,
     "acceptance_report": null
