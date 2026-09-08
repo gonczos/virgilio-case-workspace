@@ -17,6 +17,12 @@ snapshot. The generated manifest's source commit is
 `eaa391f414f91ed08f5478f65bb9a9d6d6ea0481`. This gate incorporates the
 independent plan review completed on 2026-09-08.
 
+The recorded source commit is historical freeze provenance. Verification on a
+later release commit preserves that value while recomputing and comparing the
+generator, schema, contracts, database state and snapshot, source package, and
+representation artifacts. It does not replace the frozen source commit with
+the current release-branch HEAD.
+
 This is a release input, not a claim that the authenticated online package has
 already been implemented. V1.1 assigns the immutable input database snapshot.
 The final configured release-backup hash and container-image digests are

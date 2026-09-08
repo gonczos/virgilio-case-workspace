@@ -1,0 +1,241 @@
+name: virgilio-consultation-v1
+
+x-app-base: &app-base
+  build:
+    context: ../..
+    dockerfile: deploy/consultation-v1/Dockerfile.app
+  restart: unless-stopped
+  read_only: true
+  tmpfs: ["/tmp:size=64m,mode=1777"]
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: ["ALL"]
+
+services:
+  consultation-db:
+    image: postgres:17.11-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: consultation_v1
+      POSTGRES_USER: consultation_v1_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/consultation_db_password
+    secrets: [consultation_db_password, api_db_password, mcp_db_password, gateway_db_password]
+    volumes:
+      - consultation-db:/var/lib/postgresql/data
+      - ${RELEASE_SNAPSHOT_HOST_PATH:?set RELEASE_SNAPSHOT_HOST_PATH}:/release-input/consultation-v1-input.dump:ro
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    networks: [corpus]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U consultation_v1_owner -d consultation_v1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    deploy:
+      resources:
+        limits: { memory: 640M, cpus: "1.00" }
+
+  gateway:
+    <<: *app-base
+    command: ["node", "app/file-gateway-v1.mjs"]
+    environment:
+      FILE_GATEWAY_HOST: 0.0.0.0
+      PGHOST: consultation-db
+      PGDATABASE: consultation_v1
+      PGUSER: consultation_v1_gateway
+      PGPASSWORD_SECRET: gateway_db_password
+    secrets: [gateway_db_password, internal_gateway_token]
+    volumes:
+      - ${SOURCE_PACKAGE_HOST_PATH:?set SOURCE_PACKAGE_HOST_PATH}:/srv/virgilio/data/imports/tribunais-portable-case-package-13608-14-8t2snt-2026-08-30T05-26-33-368Z:ro
+    networks: [corpus]
+    depends_on:
+      consultation-db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8090/internal/v1/health').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    deploy:
+      resources:
+        limits: { memory: 128M, cpus: "0.50" }
+
+  api:
+    <<: *app-base
+    command: ["node", "app/consultation-v1-api.mjs"]
+    environment:
+      CONSULTATION_API_HOST: 0.0.0.0
+      PGHOST: consultation-db
+      PGDATABASE: consultation_v1
+      PGUSER: consultation_v1_api
+      PGPASSWORD_SECRET: api_db_password
+      SITE_PUBLIC_URL: ${SITE_PUBLIC_URL:?set SITE_PUBLIC_URL}
+      OIDC_ISSUER: ${OIDC_ISSUER:?set OIDC_ISSUER}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-consultation-web}
+      OIDC_REDIRECT_URI: ${SITE_PUBLIC_URL:?set SITE_PUBLIC_URL}/api/v1/auth/callback
+      OIDC_API_AUDIENCE: ${API_AUDIENCE:?set API_AUDIENCE}
+      OIDC_MCP_AUDIENCE: ${MCP_AUDIENCE:?set MCP_AUDIENCE}
+      OIDC_REQUIRED_SCOPE: consultation.read
+      OIDC_REQUIRED_ROLE: consultation_user
+      INTERNAL_GATEWAY_URL: http://gateway:8090
+    secrets: [api_db_password, internal_gateway_token, oidc_client_secret]
+    volumes:
+      - ${REPRESENTATIONS_HOST_PATH:?set REPRESENTATIONS_HOST_PATH}:/srv/virgilio/data/exports/processing:ro
+    networks: [corpus, edge]
+    depends_on:
+      consultation-db: { condition: service_healthy }
+      gateway: { condition: service_healthy }
+      keycloak: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8091/api/v1/health').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    deploy:
+      resources:
+        limits: { memory: 256M, cpus: "0.75" }
+
+  mcp:
+    <<: *app-base
+    command: ["node", "app/text-consultation-mcp-v1-http-server.mjs"]
+    environment:
+      MCP_HOST: 0.0.0.0
+      PGHOST: consultation-db
+      PGDATABASE: consultation_v1
+      PGUSER: consultation_v1_mcp
+      PGPASSWORD_SECRET: mcp_db_password
+      MCP_PUBLIC_URL: ${MCP_PUBLIC_URL:?set MCP_PUBLIC_URL}
+      MCP_ALLOWED_HOSTS: ${MCP_ALLOWED_HOSTS:?set MCP_ALLOWED_HOSTS}
+      OIDC_ISSUER: ${OIDC_ISSUER:?set OIDC_ISSUER}
+      OIDC_CLIENT_ID: consultation-mcp
+      OIDC_API_AUDIENCE: ${API_AUDIENCE:?set API_AUDIENCE}
+      OIDC_MCP_AUDIENCE: ${MCP_AUDIENCE:?set MCP_AUDIENCE}
+      OIDC_REQUIRED_SCOPE: consultation.read
+      OIDC_REQUIRED_ROLE: consultation_user
+      MCP_LOG_PATH: /tmp/consultation-mcp-v1.log
+    secrets: [mcp_db_password]
+    volumes:
+      - ${REPRESENTATIONS_HOST_PATH:?set REPRESENTATIONS_HOST_PATH}:/srv/virgilio/data/exports/processing:ro
+    networks: [corpus, edge]
+    depends_on:
+      consultation-db: { condition: service_healthy }
+      keycloak: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8092/mcp/v1/health',{headers:{Host:process.env.MCP_ALLOWED_HOSTS}}).then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    deploy:
+      resources:
+        limits: { memory: 256M, cpus: "0.75" }
+
+  ui:
+    build:
+      context: ../..
+      dockerfile: deploy/consultation-v1/Dockerfile.ui
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ["/var/cache/nginx:size=32m", "/var/run:size=4m"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    cap_add: ["CHOWN", "SETGID", "SETUID", "NET_BIND_SERVICE"]
+    networks: [edge]
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    deploy:
+      resources:
+        limits: { memory: 64M, cpus: "0.25" }
+
+  keycloak-db:
+    image: postgres:17.11-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD_FILE: /run/secrets/keycloak_db_password
+    secrets: [keycloak_db_password]
+    volumes: ["keycloak-db:/var/lib/postgresql/data"]
+    networks: [identity]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    deploy:
+      resources:
+        limits: { memory: 384M, cpus: "0.75" }
+
+  keycloak:
+    build:
+      context: ../..
+      dockerfile: deploy/consultation-v1/Dockerfile.keycloak
+    restart: unless-stopped
+    command: ["start", "--import-realm", "--health-enabled=true", "--http-enabled=true", "--proxy-headers=xforwarded"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_HOSTNAME: ${AUTH_PUBLIC_URL:?set AUTH_PUBLIC_URL}
+      KC_HOSTNAME_ADMIN: ${AUTH_ADMIN_PUBLIC_URL:?set AUTH_ADMIN_PUBLIC_URL}
+      KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
+      SITE_PUBLIC_URL: ${SITE_PUBLIC_URL:?set SITE_PUBLIC_URL}
+      API_AUDIENCE: ${API_AUDIENCE:?set API_AUDIENCE}
+      MCP_AUDIENCE: ${MCP_AUDIENCE:?set MCP_AUDIENCE}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_FROM: ${SMTP_FROM:?set SMTP_FROM}
+      SMTP_FROM_DISPLAY_NAME: ${SMTP_FROM_DISPLAY_NAME:-Virgilio Consultation}
+      SMTP_USER: ${SMTP_USER:?set SMTP_USER}
+    secrets: [keycloak_db_password, keycloak_bootstrap_password, oidc_client_secret, smtp_password]
+    volumes: ["./keycloak:/opt/keycloak/data/import:ro"]
+    networks: [identity, edge]
+    depends_on:
+      keycloak-db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/9000; printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3; grep -q '200 OK' <&3"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+    deploy:
+      resources:
+        limits: { memory: 768M, cpus: "1.00" }
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.8.3
+    profiles: ["publish"]
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN_FILE: /run/secrets/cloudflare_tunnel_token
+    secrets: [cloudflare_tunnel_token]
+    networks: [edge]
+    depends_on:
+      ui: { condition: service_healthy }
+      mcp: { condition: service_healthy }
+      keycloak: { condition: service_healthy }
+    deploy:
+      resources:
+        limits: { memory: 128M, cpus: "0.25" }
+
+networks:
+  corpus: { internal: true }
+  identity: { internal: true }
+  edge: {}
+
+volumes:
+  consultation-db: {}
+  keycloak-db: {}
+
+secrets:
+  consultation_db_password: { file: ./secrets/consultation_db_password.txt }
+  api_db_password: { file: ./secrets/api_db_password.txt }
+  mcp_db_password: { file: ./secrets/mcp_db_password.txt }
+  gateway_db_password: { file: ./secrets/gateway_db_password.txt }
+  internal_gateway_token: { file: ./secrets/internal_gateway_token.txt }
+  keycloak_db_password: { file: ./secrets/keycloak_db_password.txt }
+  keycloak_bootstrap_password: { file: ./secrets/keycloak_bootstrap_password.txt }
+  oidc_client_secret: { file: ./secrets/oidc_client_secret.txt }
+  smtp_password: { file: ./secrets/smtp_password.txt }
+  cloudflare_tunnel_token: { file: "${CLOUDFLARE_TUNNEL_TOKEN_FILE:-./secrets/cloudflare_tunnel_token.txt}" }

@@ -26,3 +26,11 @@ test("operational logger writes JSON Lines without raw local paths or bearer val
   assert.match(record.error_message, /Bearer <redacted>/u);
   assert.doesNotMatch(line, /private-token|secret\\document/u);
 });
+
+test("operational logger removes container paths and credential query values", () => {
+  const fields = errorFields(new Error(
+    "failed at /workspace/data/private/document.pdf?client_secret=hidden and /tmp/output.log",
+  ));
+  assert.doesNotMatch(fields.error_message, /workspace|private\/document|tmp\/output|hidden/u);
+  assert.match(fields.error_message, /<local-path>/u);
+});

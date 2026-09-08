@@ -321,7 +321,8 @@ async function writeGenerated({ outputRoot, inventories, manifest }) {
 
 async function verifyGenerated(generated) {
   const expected = JSON.parse(await fs.readFile(path.join(generated.outputRoot, "manifest.json"), "utf8"));
-  if (jsonText(expected) !== jsonText(generated.manifest)) throw new Error("release input manifest differs");
+  const comparable = { ...generated.manifest, source_git_commit: expected.source_git_commit };
+  if (jsonText(expected) !== jsonText(comparable)) throw new Error("release input manifest differs");
   for (const [name, value] of Object.entries(generated.inventories)) {
     const expectedInventory = JSON.parse(await fs.readFile(path.join(generated.outputRoot, `${name}.json`), "utf8"));
     if (jsonText(expectedInventory) !== jsonText(value)) throw new Error(`${name} inventory differs`);

@@ -4,10 +4,11 @@ Last updated: 2026-09-08
 
 ## Status
 
-Agreed target architecture for the final Consultation v1 phase. This document
-defines the package boundary and the conditions for calling it ready. It does
-not claim that public hosting, Docker-first packaging, shared authentication,
-or clean-machine deployment is implemented yet.
+Authoritative architecture and acceptance contract for the final Consultation
+v1 phase. V1.1 through V1.3 are implemented on the release branch: the frozen
+inputs, local Docker package, versioned read services, and shared authentication
+foundation exist. Public hosting, client interoperability, release backup,
+capacity measurement, and final handoff remain V1.4/V1.5 work.
 
 The verified current setup remains documented in `docs/SETUP.md`. Unresolved
 setup and portability work remains tracked in

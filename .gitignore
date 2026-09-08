@@ -11,3 +11,10 @@ __pycache__/
 /data/releases/
 /.env
 /tmp/worker-logs-*/
+/tmp/v1-focused-tests.log
+/tmp/ui-audit.json
+/tmp/docker-config-v1/
+/tmp/npm-audit-cache/
+/tmp/npm-install-cache/
+/deploy/consultation-v1/.env
+/deploy/consultation-v1/secrets/

@@ -629,9 +629,10 @@ This command does not update canonical court fields. See the
 
 ### Consultation V1 release-input verification
 
-The future online Consultation V1 package is not yet the current runtime. Its
-secret-free contracts and deterministic release-input tooling live under
-`release/consultation-v1/`.
+The Consultation V1 frozen inputs and contracts live under
+`release/consultation-v1/`. The unexposed Docker runtime and identity package
+lives under `deploy/consultation-v1/`; it is separate from the development
+runtime described above.
 
 Create a PostgreSQL custom-format backup of the `casework` schema and keep it in
 the ignored `data/releases/consultation-v1/` directory. Then generate and verify
@@ -649,6 +650,39 @@ The database account used by these commands needs `SELECT` access to the
 isolated `ptdocs_review` schema or identity-provider data. The backup itself is
 not committed. Its size and SHA-256 identity are recorded in the generated
 manifest.
+
+### Consultation V1 unexposed Docker package
+
+V1.2/V1.3 require Docker Engine with Compose. They do not require the host
+Node, Python, PDF, OCR, Directus, importer, processor, or model-cache runtime.
+The pinned images are Node 24.19.0 Bookworm slim, nginx 1.28.3 Alpine,
+PostgreSQL 17.11 Bookworm, Keycloak 26.7.3, and cloudflared 2026.8.3. The
+cloudflared service remains disabled until the V1.4 `publish` profile is used.
+
+Prepare configuration and secret files from the repository root:
+
+```powershell
+Copy-Item deploy/consultation-v1/.env.example deploy/consultation-v1/.env
+./deploy/consultation-v1/generate-secrets.ps1
+```
+
+Edit the ignored `.env` with exact public URLs and existing read-only host
+paths. Put the SMTP credential in the generated ignored
+`deploy/consultation-v1/secrets/smtp_password.txt`. The immutable database dump
+remains `data/releases/consultation-v1/consultation-v1-input.dump` by default.
+Then build and start without public ingress:
+
+```powershell
+docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml build
+docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml up -d
+docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml ps
+```
+
+The base topology maps no host ports. It restores the `casework` snapshot only
+on first creation of its dedicated volume and imports the secret-free Keycloak
+realm only when the realm is absent. Keep production volumes, secrets,
+hostnames, and Compose project name separate from development. See
+`deploy/consultation-v1/README.md` for secret rotation and backup boundaries.
 
 ### Remaining setup gaps
 

@@ -1,0 +1,135 @@
+{
+  "realm": "consultation",
+  "enabled": true,
+  "displayName": "Virgilio Consultation",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": true,
+  "resetPasswordAllowed": true,
+  "verifyEmail": true,
+  "rememberMe": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "maxDeltaTimeSeconds": 43200,
+  "passwordPolicy": "length(12) and digits(1) and lowerCase(1) and upperCase(1) and specialChars(1) and notUsername(undefined)",
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 300,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+  "offlineSessionMaxLifespanEnabled": true,
+  "offlineSessionMaxLifespan": 1,
+  "roles": {
+    "realm": [
+      { "name": "consultation_user", "description": "May use the read-only Consultation V1 corpus" }
+    ]
+  },
+  "clientScopes": [
+    {
+      "name": "consultation.read",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "true" },
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": { "multivalued": "true", "user.attribute": "foo", "claim.name": "realm_access.roles", "jsonType.label": "String", "access.token.claim": "true", "id.token.claim": "true" }
+        },
+        {
+          "name": "preferred username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "username", "claim.name": "preferred_username", "jsonType.label": "String", "access.token.claim": "true", "id.token.claim": "true" }
+        }
+      ]
+    },
+    {
+      "name": "consultation-api-audience",
+      "protocol": "openid-connect",
+      "protocolMappers": [{
+        "name": "consultation-api-audience",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-audience-mapper",
+        "consentRequired": false,
+        "config": { "included.custom.audience": "${API_AUDIENCE}", "access.token.claim": "true", "introspection.token.claim": "true" }
+      }]
+    },
+    {
+      "name": "consultation-mcp-audience",
+      "protocol": "openid-connect",
+      "protocolMappers": [{
+        "name": "consultation-mcp-audience",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-audience-mapper",
+        "consentRequired": false,
+        "config": { "included.custom.audience": "${MCP_AUDIENCE}", "access.token.claim": "true", "introspection.token.claim": "true" }
+      }]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "consultation-web",
+      "name": "Consultation V1 web BFF",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${OIDC_CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "redirectUris": ["${SITE_PUBLIC_URL}/api/v1/auth/callback"],
+      "webOrigins": ["${SITE_PUBLIC_URL}"],
+      "defaultClientScopes": ["consultation.read", "consultation-api-audience"]
+    },
+    {
+      "clientId": "consultation-api",
+      "name": "Consultation V1 programmatic API",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [],
+      "webOrigins": [],
+      "defaultClientScopes": ["consultation.read", "consultation-api-audience"]
+    },
+    {
+      "clientId": "consultation-mcp",
+      "name": "Consultation V1 MCP resource client",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [],
+      "webOrigins": [],
+      "defaultClientScopes": ["consultation.read", "consultation-mcp-audience"]
+    }
+  ],
+  "smtpServer": {
+    "host": "${SMTP_HOST}",
+    "port": "${SMTP_PORT}",
+    "from": "${SMTP_FROM}",
+    "fromDisplayName": "${SMTP_FROM_DISPLAY_NAME}",
+    "auth": "true",
+    "user": "${SMTP_USER}",
+    "password": "${SMTP_PASSWORD}",
+    "starttls": "true",
+    "ssl": "false"
+  },
+  "eventsEnabled": true,
+  "eventsListeners": ["jboss-logging"],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
+  "requiredActions": [
+    { "alias": "VERIFY_EMAIL", "name": "Verify Email", "providerId": "VERIFY_EMAIL", "enabled": true, "defaultAction": false, "priority": 50, "config": {} },
+    { "alias": "UPDATE_PASSWORD", "name": "Update Password", "providerId": "UPDATE_PASSWORD", "enabled": true, "defaultAction": false, "priority": 30, "config": {} },
+    { "alias": "CONFIGURE_TOTP", "name": "Configure OTP", "providerId": "CONFIGURE_TOTP", "enabled": true, "defaultAction": true, "priority": 10, "config": {} }
+  ]
+}

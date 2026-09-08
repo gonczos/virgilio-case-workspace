@@ -10,10 +10,6 @@ export default defineConfig({
         target: "http://127.0.0.1:8091",
         changeOrigin: true,
       },
-      "/binary": {
-        target: "http://127.0.0.1:8090",
-        changeOrigin: true,
-      },
     },
   },
   test: {

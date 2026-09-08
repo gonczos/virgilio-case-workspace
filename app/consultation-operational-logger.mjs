@@ -5,6 +5,8 @@ function safeErrorMessage(error) {
   const message = String(error?.message ?? "unexpected error");
   return message
     .replace(/[A-Za-z]:[\\/][^\s"']+/gu, "<local-path>")
+    .replace(/\/(?:workspace|app|data|tmp|var|home|srv|opt|run|mnt|usr|etc)(?:\/[^\s"']*)?/gu, "<local-path>")
+    .replace(/([?&](?:access_token|refresh_token|client_secret|password)=)[^&\s"']+/giu, "$1<redacted>")
     .replace(/(?:Bearer\s+)[^\s"']+/giu, "Bearer <redacted>");
 }
 

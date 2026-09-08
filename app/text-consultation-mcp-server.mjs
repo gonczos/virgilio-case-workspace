@@ -99,11 +99,16 @@ function textResult(payload, isError = false) {
   };
 }
 
-export function createTextConsultationMcpServer({ callTool, operationalLogger = null }) {
+export function createTextConsultationMcpServer({
+  callTool,
+  operationalLogger = null,
+  serverName = "virgilio-text-consultation",
+  serverVersion = "0.1.0",
+}) {
   if (typeof callTool !== "function") throw new TypeError("callTool function is required");
   const server = new McpServer({
-    name: "virgilio-text-consultation",
-    version: "0.1.0",
+    name: serverName,
+    version: serverVersion,
   });
   for (const tool of TOOL_CONFIGS) {
     server.registerTool(tool.name, {

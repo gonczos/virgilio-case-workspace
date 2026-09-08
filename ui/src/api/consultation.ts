@@ -11,6 +11,9 @@ import type {
   RepresentationContentResult,
 } from "../types/consultation";
 
+const releaseMode = import.meta.env.VITE_CONSULTATION_V1 === "true";
+const consultationBase = releaseMode ? "/api/v1" : "/api/consultation";
+
 export interface ReferenceGraphNode {
   id: string; kind: string; label: string | null; sha256?: string;
   open_action?: { href: string }; [key: string]: unknown;
@@ -55,6 +58,11 @@ export interface BucketExpansionResponse {
 }
 
 async function expectJson<T>(response: Response): Promise<T> {
+  if (response.status === 401 && typeof window !== "undefined" && !window.location.pathname.startsWith("/api/")) {
+    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    window.location.assign(`/api/v1/auth/login?return_to=${encodeURIComponent(returnTo)}`);
+    throw new Error("Authentication required");
+  }
   if (!response.ok) {
     let payload: unknown = null;
     try {
@@ -112,16 +120,18 @@ export function normalizeBinaryDetailResponse(detail: NormalizableBinaryDetailRe
 }
 
 export async function listBinaries(limit = 100, offset = 0): Promise<BinaryCatalogueResponse> {
-  const response = await fetch(`/api/consultation/binaries?limit=${limit}&offset=${offset}`);
+  const response = await fetch(`${consultationBase}/binaries?limit=${limit}&offset=${offset}`);
   return expectJson<BinaryCatalogueResponse>(response);
 }
 
 export async function getExtractionCoverageReport(): Promise<ExtractionCoverageReport> {
+  if (import.meta.env.VITE_CONSULTATION_V1 === "true") throw new Error("Not available in Consultation V1");
   const response = await fetch("/api/consultation/reports/extraction-coverage");
   return expectJson<ExtractionCoverageReport>(response);
 }
 
 export async function lookupPilotReference(value: string): Promise<ReferenceLookupResponse> {
+  if (import.meta.env.VITE_CONSULTATION_V1 === "true") throw new Error("Not available in Consultation V1");
   const response = await fetch(
     `/api/consultation/reference-pilot/references/${encodeURIComponent(value)}`,
   );
@@ -145,20 +155,23 @@ export async function lookupRecordedReferences(
   const params = new URLSearchParams({
     value, scope, lifecycle, limit: String(limit), offset: String(offset),
   });
-  const response = await fetch(`/api/consultation/references/lookup?${params.toString()}`);
+  const response = await fetch(`${consultationBase}/references/lookup?${params.toString()}`);
   return expectJson<RecordedReferenceLookupResponse>(response);
 }
 
 export async function getReferenceGraph(value: string): Promise<ReferenceGraphResponse> {
+  if (import.meta.env.VITE_CONSULTATION_V1 === "true") throw new Error("Not available in Consultation V1");
   const response = await fetch(`/api/consultation/graphs/references/${encodeURIComponent(value)}?scope=pilot&lifecycle=current`);
   return expectJson<ReferenceGraphResponse>(response);
 }
 
 export async function getProceduralFlow(): Promise<ProceduralFlowResponse> {
+  if (import.meta.env.VITE_CONSULTATION_V1 === "true") throw new Error("Not available in Consultation V1");
   return expectJson<ProceduralFlowResponse>(await fetch("/api/consultation/graphs/procedural-flow"));
 }
 
 export async function getProceduralBucketExpansion(bucketId: number): Promise<BucketExpansionResponse> {
+  if (import.meta.env.VITE_CONSULTATION_V1 === "true") throw new Error("Not available in Consultation V1");
   return expectJson<BucketExpansionResponse>(await fetch(
     `/api/consultation/graphs/procedural-flow/buckets/${bucketId}`,
   ));
@@ -179,12 +192,13 @@ export async function searchText(
   } = {},
 ): Promise<ReferenceTextSearchResponse> {
   const params = new URLSearchParams({ q: query, limit: String(limit), offset: String(offset), scope, sort });
-  const response = await fetch(`/api/consultation/reference-pilot/search?${params.toString()}`);
+  const searchPath = releaseMode ? "search" : "reference-pilot/search";
+  const response = await fetch(`${consultationBase}/${searchPath}?${params.toString()}`);
   return expectJson<ReferenceTextSearchResponse>(response);
 }
 
 export async function getBinaryDetail(sha256: string): Promise<BinaryDetailResponse> {
-  const response = await fetch(`/api/consultation/binaries/${sha256}`);
+  const response = await fetch(`${consultationBase}/binaries/${sha256}`);
   const payload = await expectJson<BinaryDetailResponse>(response);
   return normalizeBinaryDetailResponse(payload);
 }
@@ -194,7 +208,7 @@ export async function getRepresentationContent(
   format: string,
 ): Promise<RepresentationContentResult> {
   const response = await fetch(
-    `/api/consultation/representations/${representationId}/content?format=${encodeURIComponent(format)}`,
+    `${consultationBase}/representations/${representationId}/content?format=${encodeURIComponent(format)}`,
   );
   if (!response.ok) {
     let payload: unknown = null;

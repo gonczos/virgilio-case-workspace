@@ -275,7 +275,7 @@
   },
   "generator": {
     "path": "app/release-v1-inventory.mjs",
-    "sha256": "01c293c7ba4fc9d550d1b8960a66467b11481f0a1bd96019b8abbaa7c4330684"
+    "sha256": "3b78fe63acccacd32cdbf136870a1e64da729e87066388974b6bde3aacab8f5e"
   },
   "inventories": {
     "contracts": {

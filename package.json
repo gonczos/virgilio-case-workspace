@@ -10,6 +10,9 @@
     "start:consultation": "node ./app/consultation-api.mjs",
     "start:mcp:text-consultation": "node ./app/text-consultation-mcp-server.mjs",
     "start:mcp:text-consultation:http": "node ./app/text-consultation-mcp-http-server.mjs",
+    "start:v1:gateway": "node ./app/file-gateway-v1.mjs",
+    "start:v1:api": "node ./app/consultation-v1-api.mjs",
+    "start:v1:mcp": "node ./app/text-consultation-mcp-v1-http-server.mjs",
     "start:ui": "npm --prefix ./ui run dev",
     "build:ui": "npm --prefix ./ui run build",
     "release:v1:inventory": "node ./app/release-v1-inventory.mjs generate",
@@ -53,6 +56,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "pg": "^8.16.3"
+    "jose": "6.2.12",
+    "pg": "^8.16.3",
+    "yaml": "2.9.0"
   }
 }

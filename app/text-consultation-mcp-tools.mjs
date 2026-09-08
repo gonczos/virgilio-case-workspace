@@ -1,7 +1,7 @@
 import { getWorkspaceRoot } from "./processing-common.mjs";
 import { getConsultationBinaryDetail, getRepresentationContent, isValidSha256 } from "./consultation-store.mjs";
 import { getRepresentationById } from "./processing-store.mjs";
-import { searchReferencePilot } from "./reference-index-pilot.mjs";
+import { searchReferencePilot } from "./reference-consultation-read.mjs";
 import { queryCourtRecords } from "./court-records-api.mjs";
 
 const SEARCH_ORDERS = new Set(["relevance", "earliest_occurrence_asc", "latest_occurrence_desc"]);

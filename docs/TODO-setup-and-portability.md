@@ -27,15 +27,17 @@ The agreed release target for closing the current phase is defined in
 `docs/architecture/21-consultation-v1-read-only-online-service-package.md`.
 It packages the frozen corpus as a read-only online site, API, binary gateway,
 and vendor-neutral MCP with shared Keycloak authentication and configurable
-public URLs. That document is a target and acceptance contract; none of its
-unverified deployment capabilities should be read as current setup behavior.
+public URLs. V1.2/V1.3 now implement the unexposed Docker package and identity
+foundation; publication and final release acceptance remain unverified.
 
 The audited V1.1 corpus, runtime, UI, API, binary, and MCP baseline is recorded
 in `docs/architecture/22-consultation-v1-contract-and-runtime-baseline.md`.
 That note fixes the release product boundary. The deterministic
 full-payload/database inventory and hashed HTTP/MCP wire contracts have been
-generated and verified under `release/consultation-v1/`; V1.1 is complete and
-V1.2 may begin. The production package remains unimplemented.
+generated and verified under `release/consultation-v1/`; V1.1 is complete.
+The local V1.2/V1.3 package builds, restores the snapshot, imports the identity
+realm, and enforces read-only roles. V1.4 public ingress and client
+interoperability testing have not started.
 
 That means today:
 

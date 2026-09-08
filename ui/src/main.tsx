@@ -65,6 +65,7 @@ const theme = createTheme({
 });
 
 function App() {
+  const releaseMode = import.meta.env.VITE_CONSULTATION_V1 === "true";
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -98,21 +99,21 @@ function App() {
                 Virgilio Consultation
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
-                Corpus consultation MVP
+                {releaseMode ? "Consultation V1" : "Corpus consultation MVP"}
               </Typography>
-              <MuiLink component={Link} to="/reports/extraction-coverage" underline="hover" color="text.secondary">
+              {!releaseMode && <MuiLink component={Link} to="/reports/extraction-coverage" underline="hover" color="text.secondary">
                 Extraction coverage
-              </MuiLink>
+              </MuiLink>}
               <MuiLink component={Link} to="/reference-search" underline="hover" color="text.secondary">
                 Reference search
               </MuiLink>
-              <MuiLink component={Link} to="/reference-graph/105398957" underline="hover" color="text.secondary">
+              {!releaseMode && <MuiLink component={Link} to="/reference-graph/105398957" underline="hover" color="text.secondary">
                 Graph spike
-              </MuiLink>
-              <MuiLink component={Link} to="/procedural-flow?reference=85759502" underline="hover" color="text.secondary">
+              </MuiLink>}
+              {!releaseMode && <MuiLink component={Link} to="/procedural-flow?reference=85759502" underline="hover" color="text.secondary">
                 Procedural flow
-              </MuiLink>
-              <MuiLink
+              </MuiLink>}
+              {!releaseMode && <MuiLink
                 href="http://localhost:8055"
                 target="_blank"
                 rel="noreferrer"
@@ -120,7 +121,7 @@ function App() {
                 color="text.secondary"
               >
                 Directus
-              </MuiLink>
+              </MuiLink>}
             </Toolbar>
           </AppBar>
           <Container maxWidth={false} sx={{ py: 3 }}>
@@ -128,10 +129,10 @@ function App() {
               <Route path="/" element={<Navigate to="/binaries" replace />} />
               <Route path="/binaries" element={<BinariesPage />} />
               <Route path="/binaries/:sha256" element={<BinaryDetailPage />} />
-              <Route path="/reports/extraction-coverage" element={<ExtractionCoveragePage />} />
+              {!releaseMode && <Route path="/reports/extraction-coverage" element={<ExtractionCoveragePage />} />}
               <Route path="/reference-search" element={<ReferenceSearchPage />} />
-              <Route path="/reference-graph/:value" element={<ReferenceGraphPage />} />
-              <Route path="/procedural-flow" element={<ProceduralFlowPage />} />
+              {!releaseMode && <Route path="/reference-graph/:value" element={<ReferenceGraphPage />} />}
+              {!releaseMode && <Route path="/procedural-flow" element={<ProceduralFlowPage />} />}
             </Routes>
           </Container>
         </Box>

@@ -1,0 +1,10 @@
+.git
+.env
+.venv-processing
+data
+node_modules
+tmp
+ui/dist
+ui/node_modules
+deploy/consultation-v1/.env
+deploy/consultation-v1/secrets

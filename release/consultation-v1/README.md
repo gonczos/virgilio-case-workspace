@@ -1,7 +1,8 @@
 # Consultation V1 Release Inputs
 
-This directory contains versioned, secret-free release inputs for Consultation
-V1. It is not a deployable package by itself.
+This directory contains the versioned, secret-free release inputs for
+Consultation V1. The corresponding V1.2/V1.3 deployment package is under
+`deploy/consultation-v1/`.
 
 ## Contracts
 
