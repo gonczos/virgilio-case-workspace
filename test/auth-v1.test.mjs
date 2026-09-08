@@ -32,6 +32,7 @@ async function withOidc(work) {
       response.end(JSON.stringify({
         issuer,
         authorization_endpoint: `${issuer}/auth`,
+        end_session_endpoint: `${issuer}/logout`,
         token_endpoint: `${issuer}/token`,
         jwks_uri: `${issuer}/jwks`,
       }));
@@ -231,6 +232,22 @@ test("V1 login binds the ID-token subject to the access-token subject", async ()
       (error) => error.code === "INVALID_ID_TOKEN" && /identity token is invalid/u.test(error.message),
     );
     assert.deepEqual(failures, ["subject_mismatch"]);
+    const nextLogin = new URL(await auth.beginLogin("/binaries"));
+    const validId = await new SignJWT({ nonce: nextLogin.searchParams.get("nonce") })
+      .setProtectedHeader(common).setIssuer(issuer).setAudience(clientId)
+      .setSubject("access-user").setIssuedAt(now).setExpirationTime(now + 300).sign(privateKey);
+    issue({ access_token: accessToken, id_token: validId, refresh_token: "refresh" });
+    const completed = await auth.completeLogin({ code: "code", state: nextLogin.searchParams.get("state") });
+    const request = { headers: { cookie: sessionCookie(completed.sessionId).split(";")[0] } };
+    await auth.authenticate(request);
+    const logout = new URL(auth.beginLogout(request));
+    assert.equal(logout.origin, issuer);
+    assert.equal(logout.pathname, "/logout");
+    assert.equal(logout.searchParams.get("client_id"), clientId);
+    assert.equal(logout.searchParams.get("post_logout_redirect_uri"), "https://consultation.example.test/signed-out");
+    assert.equal(logout.searchParams.has("id_token_hint"), false);
+    await assert.rejects(() => auth.authenticate(request), (error) => error.code === "UNAUTHORIZED");
+    assert.equal(auth.beginLogout({ headers: {} }), logout.toString());
   });
 });
 

@@ -145,6 +145,16 @@ The BFF's application-owned login, callback, logout, and session routes are
 `/api/v1/openapi.json`. Standards-defined identity-provider and MCP discovery
 locations retain the paths required by their specifications.
 
+Browser logout uses a same-origin POST, clears the BFF session and cookie, and
+returns 303 to the discovered OIDC end-session endpoint with `client_id` and
+the fixed `/signed-out` return URL. It works without a live BFF session.
+Keycloak confirms logout before ending the current browser SSO session; no
+tokens are placed in the logout URL. With `Accept: application/json`, the API
+returns 200 and `logout_url`; the UI navigates there directly, avoiding
+cross-origin form redirects under the site's form-action CSP.
+The signed-out route does not start login
+automatically. Other browser/device sessions are outside this logout's scope.
+
 Application-owned health routes also declare V1: `/api/v1/health`,
 `/mcp/v1/health`, and `/internal/v1/health`. They return minimal liveness only.
 

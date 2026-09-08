@@ -442,7 +442,15 @@ export async function createBffAuth({
     if (sessionId) sessions.delete(sessionId);
   }
 
-  return { beginLogin, completeLogin, authenticate, destroy, metadata, validateAccessToken };
+  function beginLogout(request) {
+    const url = new URL(requiredString(metadata.end_session_endpoint, "OIDC end-session endpoint"));
+    url.searchParams.set("client_id", config.clientId);
+    url.searchParams.set("post_logout_redirect_uri", new URL("/signed-out", config.redirectUri).toString());
+    destroy(request);
+    return url.toString();
+  }
+
+  return { beginLogin, completeLogin, authenticate, destroy, beginLogout, metadata, validateAccessToken };
 }
 
 export async function createBearerAuth({ config, audience, fetchImpl = fetch }) {

@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import {
   AppBar,
+  Alert,
+  Button,
   Box,
   Container,
   CssBaseline,
@@ -11,7 +13,7 @@ import {
   Typography,
   createTheme,
 } from "@mui/material";
-import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { BinariesPage } from "./pages/BinariesPage";
 import { BinaryDetailPage } from "./pages/BinaryDetailPage";
@@ -65,6 +67,37 @@ const theme = createTheme({
   },
 });
 
+const appTitle = import.meta.env.VITE_APP_TITLE?.trim() || "Virgilio Consultation - beta v1";
+document.title = appTitle;
+
+function LogoutControl() {
+  const location = useLocation();
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  React.useEffect(() => {
+    const onLogout = (event: StorageEvent) => {
+      if (event.key === "consultation-logout" && event.newValue) window.location.replace("/signed-out");
+    };
+    window.addEventListener("storage", onLogout);
+    return () => window.removeEventListener("storage", onLogout);
+  }, []);
+  if (location.pathname === "/signed-out") return null;
+  return <Box>
+    <Button variant="outlined" disabled={busy} sx={{ whiteSpace: "nowrap" }} onClick={async () => {
+      setBusy(true); setError(false);
+      try {
+        const response = await fetch("/api/v1/auth/logout", { method: "POST", headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error("Logout failed");
+        const result = await response.json();
+        if (typeof result.logout_url !== "string") throw new Error("Missing logout URL");
+        try { localStorage.setItem("consultation-logout", String(Date.now())); } catch { /* Logout also works with browser storage disabled. */ }
+        window.location.replace(result.logout_url);
+      } catch { setError(true); setBusy(false); }
+    }}>{busy ? "Logging out…" : "Log out"}</Button>
+    {error && <Alert severity="error">Logout could not finish. Please try again.</Alert>}
+  </Box>;
+}
+
 function App() {
   const releaseMode = import.meta.env.VITE_CONSULTATION_V1 === "true";
   return (
@@ -97,10 +130,10 @@ function App() {
                   textDecoration: "none",
                 }}
               >
-                Virgilio Consultation
+                {appTitle}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
-                {releaseMode ? "Consultation V1" : "Corpus consultation MVP"}
+                {releaseMode ? "" : "Corpus consultation MVP"}
               </Typography>
               {!releaseMode && <MuiLink component={Link} to="/reports/extraction-coverage" underline="hover" color="text.secondary">
                 Extraction coverage
@@ -123,10 +156,12 @@ function App() {
               >
                 Directus
               </MuiLink>}
+              {releaseMode && <LogoutControl />}
             </Toolbar>
           </AppBar>
           <Container maxWidth={false} sx={{ py: 3 }}>
             <Routes>
+              <Route path="/signed-out" element={<Box><Typography variant="h4" gutterBottom>Session ended</Typography><Typography sx={{ mb: 2 }}>To access documents again, sign in.</Typography><Button variant="contained" href="/api/v1/auth/login?return_to=%2Fbinaries">Sign in</Button></Box>} />
               <Route path="/" element={<Navigate to="/binaries" replace />} />
               <Route path="/binaries" element={<BinariesPage />} />
               <Route path="/binaries/:sha256" element={<BinaryDetailPage />} />

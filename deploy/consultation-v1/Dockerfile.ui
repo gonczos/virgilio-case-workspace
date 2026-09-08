@@ -4,6 +4,8 @@ COPY ui/package.json ui/package-lock.json ./
 RUN npm ci --ignore-scripts
 COPY ui/ ./
 ENV VITE_CONSULTATION_V1=true
+ARG VITE_APP_TITLE="Virgilio Consultation - beta v1"
+ENV VITE_APP_TITLE=$VITE_APP_TITLE
 RUN npm run build
 
 FROM nginx:1.28.3-alpine

@@ -159,9 +159,13 @@ export function createConsultationV1Handler({
           errorResponse(response, request, 403, "ORIGIN_NOT_ALLOWED", "request origin is not allowed");
           return;
         }
-        await auth.authenticate(request);
-        auth.destroy(request);
-        response.writeHead(204, { "Set-Cookie": sessionCookie("", { clear: true }), "Cache-Control": PRIVATE_CACHE_CONTROL });
+        const logoutUrl = auth.beginLogout(request);
+        if (String(request.headers.accept ?? "").includes("application/json")) {
+          response.setHeader("Set-Cookie", sessionCookie("", { clear: true }));
+          json(response, request, 200, { logout_url: logoutUrl });
+          return;
+        }
+        response.writeHead(303, { Location: logoutUrl, "Set-Cookie": sessionCookie("", { clear: true }), "Cache-Control": PRIVATE_CACHE_CONTROL, "Referrer-Policy": "no-referrer" });
         response.end();
         return;
       }

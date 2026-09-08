@@ -57,10 +57,12 @@ paths:
   /api/v1/auth/logout:
     post:
       operationId: logoutV1
-      security: [{ browserSession: [] }]
+      description: Same-origin browser POST clears the app session and redirects to identity-provider logout confirmation, even when the app session is absent or expired.
+      security: []
       responses:
-        "204": { description: Local session destroyed. }
-        "401": { $ref: "#/components/responses/Unauthorized" }
+        "200": { description: With Accept application/json, local session cleared and logout_url returned for browser navigation. }
+        "303": { description: Local session cleared; continue logout at the Location URL. }
+        "403": { description: Request origin is not allowed. }
   /api/v1/auth/session:
     get:
       operationId: getSessionV1

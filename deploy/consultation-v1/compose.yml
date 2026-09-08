@@ -139,6 +139,8 @@ services:
     build:
       context: ../..
       dockerfile: deploy/consultation-v1/Dockerfile.ui
+      args:
+        VITE_APP_TITLE: ${VITE_APP_TITLE:-Virgilio Consultation - beta v1}
     restart: unless-stopped
     read_only: true
     tmpfs: ["/var/cache/nginx:size=32m", "/var/run:size=4m"]

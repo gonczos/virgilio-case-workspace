@@ -22,6 +22,27 @@ async function serve(handler, work) {
   finally { await new Promise((resolve) => server.close(resolve)); }
 }
 
+test("logout requires same-origin POST but works without a live app session", async () => {
+  let calls = 0;
+  const auth = { beginLogout: () => { calls++; return "https://auth.example.test/logout"; } };
+  await serve(apiHandler(auth), async (base) => {
+    assert.equal((await fetch(`${base}/api/v1/auth/logout`)).status, 405);
+    assert.equal((await fetch(`${base}/api/v1/auth/logout`, { method: "POST", headers: { Origin: "https://evil.example" } })).status, 403);
+    assert.equal(calls, 0);
+    const response = await fetch(`${base}/api/v1/auth/logout`, { method: "POST", headers: { Origin: "https://consultation.example.test" }, redirect: "manual" });
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("location"), "https://auth.example.test/logout");
+    assert.match(response.headers.get("set-cookie"), /Max-Age=0/u);
+    assert.equal(response.headers.get("cache-control"), "private, no-store");
+    assert.equal(calls, 1);
+    const jsonResponse = await fetch(`${base}/api/v1/auth/logout`, { method: "POST", headers: { Origin: "https://consultation.example.test", Accept: "application/json" } });
+    assert.equal(jsonResponse.status, 200);
+    assert.deepEqual(await jsonResponse.json(), { logout_url: "https://auth.example.test/logout" });
+    assert.match(jsonResponse.headers.get("set-cookie"), /Max-Age=0/u);
+    assert.equal(calls, 2);
+  });
+});
+
 function apiHandler(auth) {
   return createConsultationV1Handler({
     client: { query: async () => ({ rows: [] }) },

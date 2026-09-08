@@ -91,6 +91,7 @@
       "serviceAccountsEnabled": false,
       "publicClient": false,
       "redirectUris": ["${SITE_PUBLIC_URL}/api/v1/auth/callback"],
+      "attributes": { "post.logout.redirect.uris": "${SITE_PUBLIC_URL}/signed-out" },
       "webOrigins": ["${SITE_PUBLIC_URL}"],
       "defaultClientScopes": ["consultation.read", "consultation-api-audience"]
     },

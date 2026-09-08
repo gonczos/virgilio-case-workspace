@@ -735,6 +735,23 @@ reusing responses cached before the MIME correction. Static UI responses use
 HTML entry point after deployment. This allows storage but requires validation;
 it does not change the API's private, no-store policy.
 
+### Browser logout and application title
+
+The `consultation-web` Keycloak client must allow exactly
+`${SITE_PUBLIC_URL}/signed-out` in its `post.logout.redirect.uris` attribute.
+The realm template includes this setting; existing realms require the same
+live client update because startup import does not modify existing clients.
+The header's Log out button submits a same-origin POST and redirects to
+Keycloak's logout confirmation. Completing it ends that browser's SSO session
+and returns to `/signed-out`, which offers an explicit Sign in button.
+Logout remains available after BFF expiry or restart. Same-origin tabs receive
+a storage event to leave document views where browser storage is available;
+server-side logout does not depend on storage events.
+
+Set `VITE_APP_TITLE` in the deployment `.env` to configure the header and browser
+tab title. It defaults to `Virgilio Consultation - beta v1`. This is a UI build
+argument: rebuild and recreate `ui` after changing it.
+
 ### Keycloak subject claim
 
 The custom Keycloak `consultation.read` scope must include the standard
