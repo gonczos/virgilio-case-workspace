@@ -8,5 +8,6 @@ __pycache__/
 /data/exports/
 /data/imports/
 /data/processing-runtime/
+/data/releases/
 /.env
 /tmp/worker-logs-*/

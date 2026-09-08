@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract": "virgilio-consultation-mcp-v1",
+  "application_version": "v1",
+  "endpoint": "/mcp/v1",
+  "health_endpoint": "/mcp/v1/health",
+  "transport": "streamable-http",
+  "authorization": {
+    "type": "oauth2_bearer",
+    "required_scope": "consultation.read",
+    "audience": "consultation-mcp"
+  },
+  "content_encoding": "Each successful or failed tool call returns one MCP text content item containing compact UTF-8 JSON conforming to the selected output or error schema.",
+  "tools": {
+    "search_document_text": {
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "input": {
+        "type": "object", "additionalProperties": false, "required": ["query"],
+        "properties": {
+          "query": { "type": "string", "minLength": 1 },
+          "scope": { "type": "string", "enum": ["full", "pilot"], "default": "full" },
+          "order": { "type": "string", "enum": ["relevance", "earliest_occurrence_asc", "latest_occurrence_desc"], "default": "relevance" },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 20, "default": 10 },
+          "offset": { "type": "integer", "minimum": 0, "default": 0 }
+        }
+      },
+      "output": {
+        "type": "object", "additionalProperties": false,
+        "required": ["query", "result_summary", "items", "coverage"],
+        "properties": {
+          "query": { "type": "object" }, "result_summary": { "type": "object" },
+          "items": { "type": "array", "items": { "type": "object" } }, "coverage": { "type": "object" }
+        }
+      }
+    },
+    "query_court_records": {
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "input": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "court_id": { "type": "integer", "minimum": 1 }, "case_file_id": { "type": "integer", "minimum": 1 },
+          "bucket_id": { "type": "integer", "minimum": 1 }, "bucket_document_id": { "type": "integer", "minimum": 1 },
+          "document_id": { "type": "integer", "minimum": 1 }, "file_binary_id": { "type": "integer", "minimum": 1 },
+          "process_number": { "type": "string", "minLength": 1 }, "occurrence_reference": { "type": "string", "minLength": 1 },
+          "source_bucket_id": { "type": "string", "minLength": 1 }, "source_document_reference": { "type": "string", "minLength": 1 },
+          "document_name_contains": { "type": "string", "minLength": 1 }, "document_type": { "type": "string", "minLength": 1 },
+          "date_from": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "date_to": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "binary_sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+          "file_availability": { "type": "string", "enum": ["available", "missing"] },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 },
+          "offset": { "type": "integer", "minimum": 0, "maximum": 1000000, "default": 0 }
+        }
+      },
+      "output": {
+        "type": "object", "additionalProperties": false,
+        "required": ["schema_version", "read_model", "query", "pagination", "coverage", "semantics", "items"],
+        "properties": {
+          "schema_version": { "type": "integer", "const": 1 }, "read_model": { "type": "string", "const": "court_occurrence_document_records" },
+          "query": { "type": "object" }, "pagination": { "type": "object" },
+          "coverage": { "type": "object" }, "semantics": { "type": "object" },
+          "items": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    },
+    "get_binary_details": {
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "input": {
+        "type": "object", "additionalProperties": false, "required": ["sha256"],
+        "properties": { "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" } }
+      },
+      "output": {
+        "type": "object", "additionalProperties": false,
+        "required": ["binary", "context", "representations", "evidence", "processing_summary", "attention", "provenance", "semantics"],
+        "properties": {
+          "binary": { "type": "object" }, "context": { "type": "object" }, "representations": { "type": "object" },
+          "evidence": { "type": "object" }, "processing_summary": { "type": "object" }, "attention": { "type": "object" },
+          "provenance": { "type": "object" }, "semantics": { "type": "object" }
+        }
+      }
+    },
+    "get_representation_content": {
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "input": {
+        "type": "object", "additionalProperties": false, "required": ["representation_id", "format"],
+        "properties": {
+          "representation_id": { "type": "integer", "minimum": 1 },
+          "format": { "type": "string", "enum": ["text", "markdown", "complete-text", "native-json"] },
+          "offset": { "type": "integer", "minimum": 0, "default": 0 },
+          "max_characters": { "type": "integer", "minimum": 1, "maximum": 50000, "default": 12000 }
+        }
+      },
+      "output": {
+        "type": "object", "additionalProperties": false,
+        "required": ["representation", "format", "content_type", "content", "total_characters", "returned_offset", "returned_characters", "truncated", "next_offset", "offset_unit", "semantics"],
+        "properties": {
+          "representation": { "type": "object" }, "format": { "type": "string" }, "content_type": { "type": "string" },
+          "content": { "type": "string" }, "total_characters": { "type": "integer", "minimum": 0 },
+          "returned_offset": { "type": "integer", "minimum": 0 }, "returned_characters": { "type": "integer", "minimum": 0 },
+          "truncated": { "type": "boolean" }, "next_offset": { "type": ["integer", "null"] },
+          "offset_unit": { "type": "string", "const": "unicode_code_points" }, "semantics": { "type": "object" }
+        }
+      }
+    }
+  },
+  "error": {
+    "type": "object", "additionalProperties": false, "required": ["error"],
+    "properties": {
+      "error": {
+        "type": "object", "additionalProperties": false, "required": ["code", "message"],
+        "properties": { "code": { "type": "string" }, "message": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Setup
 
-Last updated: 2026-09-03
+Last updated: 2026-09-08
 
 ## Authority
 
@@ -626,6 +626,29 @@ same capture; changed parsing for the same manifest is rejected. Raw HTML bytes
 are retained in PostgreSQL as base64 and in the local snapshot; back up both.
 This command does not update canonical court fields. See the
 [provenance contract](architecture/16-saved-citius-html-provenance.md) for scope.
+
+### Consultation V1 release-input verification
+
+The future online Consultation V1 package is not yet the current runtime. Its
+secret-free contracts and deterministic release-input tooling live under
+`release/consultation-v1/`.
+
+Create a PostgreSQL custom-format backup of the `casework` schema and keep it in
+the ignored `data/releases/consultation-v1/` directory. Then generate and verify
+the complete source-package, representation-artifact, schema, contract, and
+database inventories:
+
+```powershell
+npm run release:v1:contracts
+npm run release:v1:inventory -- --database-snapshot data/releases/consultation-v1/consultation-v1-input.dump
+npm run release:v1:verify -- --database-snapshot data/releases/consultation-v1/consultation-v1-input.dump
+```
+
+The database account used by these commands needs `SELECT` access to the
+`casework` schema. The snapshot must contain `casework` only; do not include the
+isolated `ptdocs_review` schema or identity-provider data. The backup itself is
+not committed. Its size and SHA-256 identity are recorded in the generated
+manifest.
 
 ### Remaining setup gaps
 

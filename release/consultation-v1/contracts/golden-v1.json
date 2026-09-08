@@ -1,0 +1,1626 @@
+{
+  "application_contract_version": "v1",
+  "fixture_kind": "consultation_v1_wire_contract_golden",
+  "fixture_version": "1.0.0",
+  "http": {
+    "GET /api/v1/binaries/02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e": {
+      "attention": {
+        "reason_codes": [
+          "representation_disagreement"
+        ],
+        "reasons": [
+          {
+            "detail": {
+              "comparison_id": "3",
+              "disagreement_level": "high"
+            },
+            "reason_code": "representation_disagreement"
+          }
+        ],
+        "review_needed": true
+      },
+      "binary": {
+        "display_name": "Petição",
+        "file_binary_id": "13",
+        "file_extension": ".pdf",
+        "machine_readability_status": "image_only_pdf",
+        "mime_type": "application/pdf",
+        "original_binary_url": "/api/v1/binaries/02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e/content",
+        "page_count": 11,
+        "sha256": "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e",
+        "size_bytes": 1240108
+      },
+      "comparisons": [
+        {
+          "comparator_key": "app/processing-comparison.mjs",
+          "comparator_version": "v1",
+          "comparison_id": "3",
+          "comparison_kind": "normalized_text",
+          "created_at": {},
+          "disagreement_level": "high",
+          "left_representation_id": "3731",
+          "right_representation_id": "4950",
+          "summary": {
+            "char_length_ratio": 0.904991,
+            "disagreement_level": "high",
+            "exact_normalized_match": false,
+            "first_different_line": {
+              "left": "Tu",
+              "line_no": 1,
+              "right": "SECRETARIE GERAL"
+            },
+            "important_tokens_only": {
+              "docling": [
+                "17h00",
+                "20122013",
+                "26.6.2012",
+                "26.6.2014",
+                "2711o-Le",
+                "278681484",
+                "83",
+                "85040"
+              ],
+              "xberg": [
+                "0",
+                "0033604044898-mae",
+                "0033616590886",
+                "08",
+                "1/3",
+                "1086120",
+                "17H00",
+                "1953",
+                "2/3",
+                "201",
+                "2012/2013",
+                "2032",
+                "2042",
+                "23",
+                "263740/2014",
+                "2TRER",
+                "2a",
+                "3/3",
+                "4.9",
+                "436",
+                "45",
+                "502268402",
+                "505040650",
+                "516",
+                "605"
+              ]
+            },
+            "labels": [
+              "xberg",
+              "docling"
+            ],
+            "normalized_char_count": {
+              "docling": 18584,
+              "xberg": 20535
+            },
+            "normalized_sha256": {
+              "docling": "3ce09125fa99e453d08c548a4828fae2e9bf082ea9021c7a7729b9ab7cf47187",
+              "xberg": "d11c5b9d5743fbd92661edf96ccb26be1cceebc3341f8724c550de3cb041cb4b"
+            },
+            "normalized_token_count": {
+              "docling": 2908,
+              "xberg": 3295
+            },
+            "token_jaccard": 0.549596
+          }
+        }
+      ],
+      "context": {
+        "buckets": [
+          {
+            "bucket_date": {},
+            "bucket_id": "8389040",
+            "bucket_pk_id": "1",
+            "case_file_id": "1",
+            "designation": "Petição",
+            "presenter": "Virgílio Manuel Lourenço Holbeche Fino",
+            "processo": "13608/14.8T2SNT",
+            "reference_number": "8389040"
+          },
+          {
+            "bucket_date": {},
+            "bucket_id": "116323638",
+            "bucket_pk_id": "376",
+            "case_file_id": "1",
+            "designation": "Insistência por cumprimento de ofício",
+            "presenter": null,
+            "processo": "13608/14.8T2SNT",
+            "reference_number": "116323638"
+          }
+        ],
+        "cases": [
+          {
+            "case_file_id": "1",
+            "case_workspace_id": "1",
+            "data_autuacao": {},
+            "especie": "(fm) Regulação das Responsabilidades Parentais",
+            "estado": "Processo Pendente",
+            "idprocesso": "3354063",
+            "processo": "13608/14.8T2SNT"
+          }
+        ],
+        "documents": [
+          {
+            "document_date": {},
+            "document_id": "1264",
+            "document_identity_class": "imported_source_keyed",
+            "document_name": "Petição",
+            "document_type": "PDF",
+            "is_primary_binary": true,
+            "source_observation_count": 1
+          }
+        ],
+        "workspaces": [
+          {
+            "case_workspace_id": "1",
+            "lifecycle_status": "active",
+            "title": "13608/14.8T2SNT",
+            "workspace_code": "tribunais_org_pt:13608/14.8T2SNT"
+          }
+        ]
+      },
+      "evidence": {
+        "items": [
+          {
+            "available_formats": [
+              "text",
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "pdf_literal_text",
+            "processor_version": "poppler-layout-v2-c5.3.2",
+            "produced_by_job_id": "37",
+            "produced_by_job_status": "completed",
+            "representation_id": "13",
+            "representation_kind": "pdf_literal_text",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          },
+          {
+            "available_formats": [
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "pdf_signature_metadata",
+            "processor_version": "qpdf-signature-v1-c5.3.1",
+            "produced_by_job_id": "38",
+            "produced_by_job_status": "completed",
+            "representation_id": "1253",
+            "representation_kind": "pdf_signature_metadata",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          },
+          {
+            "available_formats": [
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "pdf_structure_inventory",
+            "processor_version": "qpdf-structure-v2-c5.3.2",
+            "produced_by_job_id": "39",
+            "produced_by_job_status": "completed",
+            "representation_id": "2219",
+            "representation_kind": "pdf_structure_inventory",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          }
+        ]
+      },
+      "processing": {
+        "jobs": [
+          {
+            "attempt_count": 1,
+            "completed_at": {},
+            "error_code": null,
+            "error_message": null,
+            "max_attempts": 1,
+            "processing_job_id": "4961",
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "produced_representation_id": "4950",
+            "requested_at": {},
+            "requested_by": "selective-docling-2026-09-02",
+            "stage_key": "EXTRACT_STRUCTURE",
+            "started_at": {},
+            "status": "completed"
+          },
+          {
+            "attempt_count": 1,
+            "completed_at": {},
+            "error_code": null,
+            "error_message": null,
+            "max_attempts": 1,
+            "processing_job_id": "3727",
+            "processor_key": "xberg",
+            "processor_version": "1.0.14-c5.2",
+            "produced_representation_id": "3731",
+            "requested_at": {},
+            "requested_by": "temporary-bulk-enqueue",
+            "stage_key": "EXTRACT_STRUCTURE",
+            "started_at": {},
+            "status": "completed"
+          },
+          {
+            "attempt_count": 1,
+            "completed_at": {},
+            "error_code": null,
+            "error_message": null,
+            "max_attempts": 1,
+            "processing_job_id": "39",
+            "processor_key": "pdf_structure_inventory",
+            "processor_version": "qpdf-structure-v2-c5.3.2",
+            "produced_representation_id": "2219",
+            "requested_at": {},
+            "requested_by": "temporary-bulk-enqueue",
+            "stage_key": "EXTRACT_STRUCTURE",
+            "started_at": {},
+            "status": "completed"
+          },
+          {
+            "attempt_count": 1,
+            "completed_at": {},
+            "error_code": null,
+            "error_message": null,
+            "max_attempts": 1,
+            "processing_job_id": "38",
+            "processor_key": "pdf_signature_metadata",
+            "processor_version": "qpdf-signature-v1-c5.3.1",
+            "produced_representation_id": "1253",
+            "requested_at": {},
+            "requested_by": "temporary-bulk-enqueue",
+            "stage_key": "EXTRACT_STRUCTURE",
+            "started_at": {},
+            "status": "completed"
+          },
+          {
+            "attempt_count": 1,
+            "completed_at": {},
+            "error_code": null,
+            "error_message": null,
+            "max_attempts": 1,
+            "processing_job_id": "37",
+            "processor_key": "pdf_literal_text",
+            "processor_version": "poppler-layout-v2-c5.3.2",
+            "produced_representation_id": "13",
+            "requested_at": {},
+            "requested_by": "temporary-bulk-enqueue",
+            "stage_key": "EXTRACT_STRUCTURE",
+            "started_at": {},
+            "status": "completed"
+          }
+        ],
+        "summary": {
+          "last_processed_at": {},
+          "processor_keys": [
+            "docling",
+            "pdf_literal_text",
+            "pdf_signature_metadata",
+            "pdf_structure_inventory",
+            "xberg"
+          ],
+          "status_counts": {
+            "completed": 5
+          },
+          "total_jobs": 5
+        }
+      },
+      "provenance": {
+        "effective_representation_id": "4950",
+        "explicit_selection_id": null,
+        "selection_source": "automatic_policy"
+      },
+      "representations": {
+        "effective": {
+          "processor_key": "docling",
+          "processor_version": "2.123.1-c5.2",
+          "representation_id": "4950",
+          "representation_source_kind": "machine_generated"
+        },
+        "effective_selection_reason": "automatic_policy",
+        "explicit_selection": null,
+        "items": [
+          {
+            "available_formats": [
+              "text",
+              "complete-text",
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "xberg",
+            "processor_version": "1.0.14-c5.2",
+            "produced_by_job_id": "3727",
+            "produced_by_job_status": "completed",
+            "representation_id": "3731",
+            "representation_kind": "extracted_document_bundle",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          },
+          {
+            "available_formats": [
+              "text",
+              "markdown",
+              "complete-text",
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": true,
+            "is_explicitly_selected": false,
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "produced_by_job_id": "4961",
+            "produced_by_job_status": "completed",
+            "representation_id": "4950",
+            "representation_kind": "extracted_document_bundle",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          }
+        ]
+      },
+      "technical_details": {
+        "binary_id": "13",
+        "comparison_ids": [
+          "3"
+        ],
+        "evidence_representation_ids": [
+          "13",
+          "1253",
+          "2219"
+        ],
+        "interpretation_representation_ids": [
+          "3731",
+          "4950"
+        ],
+        "representation_ids": [
+          "13",
+          "1253",
+          "2219",
+          "3731",
+          "4950"
+        ]
+      }
+    },
+    "GET /api/v1/binaries?limit=1&offset=0": {
+      "items": [
+        {
+          "available_representations": [
+            {
+              "available_formats": [
+                "text",
+                "complete-text",
+                "native-json"
+              ],
+              "based_on_representation_id": null,
+              "created_at": {},
+              "format_family": "pdf",
+              "is_effective": false,
+              "is_explicitly_selected": false,
+              "processor_key": "xberg",
+              "processor_version": "1.0.14-c5.2",
+              "produced_by_job_id": "4417",
+              "produced_by_job_status": "completed",
+              "representation_id": "4413",
+              "representation_kind": "extracted_document_bundle",
+              "representation_source_kind": "machine_generated",
+              "representation_variant_key": ""
+            },
+            {
+              "available_formats": [
+                "text",
+                "markdown",
+                "complete-text",
+                "native-json"
+              ],
+              "based_on_representation_id": null,
+              "created_at": {},
+              "format_family": "pdf",
+              "is_effective": true,
+              "is_explicitly_selected": false,
+              "processor_key": "docling",
+              "processor_version": "2.123.1-c5.2",
+              "produced_by_job_id": "5103",
+              "produced_by_job_status": "completed",
+              "representation_id": "5087",
+              "representation_kind": "extracted_document_bundle",
+              "representation_source_kind": "machine_generated",
+              "representation_variant_key": ""
+            }
+          ],
+          "bucket_count": 3,
+          "case_count": 1,
+          "display_name": "Acórdão",
+          "document_count": 1,
+          "effective_representation": {
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "representation_id": "5087",
+            "representation_source_kind": "machine_generated"
+          },
+          "effective_selection_reason": "automatic_policy",
+          "file_binary_id": "703",
+          "file_extension": ".pdf",
+          "last_processed_at": {},
+          "linked_case_refs": [
+            "13608/14.8T2SNT"
+          ],
+          "linked_document_names": [
+            "Acórdão"
+          ],
+          "mime_type": "application/pdf",
+          "processing_summary": {
+            "last_processed_at": {},
+            "processor_keys": [
+              "docling",
+              "pdf_literal_text",
+              "pdf_signature_metadata",
+              "pdf_structure_inventory",
+              "xberg"
+            ],
+            "status_counts": {
+              "completed": 5
+            },
+            "total_jobs": 5
+          },
+          "review_needed": true,
+          "review_reason_codes": [
+            "representation_disagreement"
+          ],
+          "sha256": "922d4ab87f16cf1bf288af338eab2aca6fa4c4c34ad76461931baf3bd68d6333",
+          "size_bytes": 598710
+        }
+      ],
+      "limit": 1,
+      "offset": 0,
+      "total_count": 1238
+    },
+    "GET /api/v1/court-records?case_file_id=1&limit=1&offset=0": {
+      "coverage": {
+        "no_match_does_not_prove_absence_from_the_original_court_file": true,
+        "scope": "all imported bucket-document associations matching the query",
+        "source": "imported court-system metadata"
+      },
+      "items": [
+        {
+          "binaries": [
+            {
+              "details_tool": "get_binary_details",
+              "document_binary_id": 1256,
+              "file_binary_id": 13,
+              "file_extension": ".pdf",
+              "integrity_check_status": "validated_by_qpdf",
+              "is_primary": true,
+              "machine_readability_status": "image_only_pdf",
+              "match_confidence": "observed_stable_binary",
+              "mime_type": "application/pdf",
+              "retention_status": "local_artifact_retained",
+              "sha256": "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e",
+              "size_bytes": 1240108,
+              "source_observation_count": 1
+            }
+          ],
+          "case": {
+            "canonical_confidence": "observed_stable",
+            "case_file_id": 1,
+            "classification": "(fm) Regulação das Responsabilidades Parentais",
+            "decision_date": null,
+            "is_base_case": true,
+            "parent_case_file_id": null,
+            "process_number": "13608/14.8T2SNT",
+            "registration_date": "2017-01-01",
+            "scope_status": "in_scope",
+            "source_process_id": "3354063",
+            "source_system": "tribunais_org_pt",
+            "status": "Processo Pendente"
+          },
+          "court": {
+            "canonical_confidence": "observed_stable",
+            "country_id": "PT",
+            "court_id": 1,
+            "name": "Tribunal Judicial da Comarca de Lisboa Oeste",
+            "source_client_id": "4",
+            "source_court_id": "2677103",
+            "source_system": "tribunais_org_pt",
+            "source_unit_id": "3994056",
+            "unit": "Sintra - Juízo Fam. Menores - Juiz 6"
+          },
+          "document": {
+            "canonical_confidence": "observed_stable",
+            "claimed_size_bytes": 1240108,
+            "document_id": 1264,
+            "identity_class": "imported_source_keyed",
+            "occurrence_link": {
+              "canonical_confidence": "observed_stable",
+              "has_intra_bucket_duplication": false,
+              "source_observation_count": 1
+            },
+            "recorded_document_date": "2014-07-10",
+            "source_anchor_title": null,
+            "source_document_reference": "3994056_54615052_15_7380127_E2D7DEC0-A30B-47FF-9118-1B5A1E277355",
+            "source_name": "Petição",
+            "source_system": "tribunais_org_pt",
+            "source_type": "PDF",
+            "source_type_attribute": null
+          },
+          "file_state": {
+            "basis": "one_or_more_source-associated binaries",
+            "status": "available"
+          },
+          "occurrence": {
+            "bucket_id": 1,
+            "canonical_confidence": "observed_stable",
+            "date_semantics": "source-recorded procedural occurrence date",
+            "designation": "Petição",
+            "modal_title": "PETIÇÃO",
+            "presenter": "Virgílio Manuel Lourenço Holbeche Fino",
+            "recorded_date": "2014-07-10",
+            "reference": "8389040",
+            "source_bucket_id": "8389040",
+            "source_document_count": 1,
+            "source_system": "tribunais_org_pt"
+          },
+          "record_identity": {
+            "bucket_document_id": 1,
+            "source_system": "tribunais_org_pt"
+          },
+          "relationships": [
+            {
+              "basis": "source_recorded",
+              "kind": "has_occurrence",
+              "relation_id": "has_occurrence:case_file:1:bucket:1",
+              "resolution_state": "recorded_not_independently_verified",
+              "source": {
+                "id": 1,
+                "kind": "case_file"
+              },
+              "target": {
+                "id": 1,
+                "kind": "bucket"
+              }
+            },
+            {
+              "basis": "source_recorded",
+              "kind": "contains",
+              "relation_id": "contains:bucket:1:source_document:1264",
+              "resolution_state": "recorded_not_independently_verified",
+              "source": {
+                "id": 1,
+                "kind": "bucket"
+              },
+              "target": {
+                "id": 1264,
+                "kind": "source_document"
+              }
+            },
+            {
+              "basis": "source_recorded",
+              "kind": "represented_by",
+              "relation_id": "represented_by:source_document:1264:binary:13",
+              "resolution_state": "recorded_not_independently_verified",
+              "source": {
+                "id": 1264,
+                "kind": "source_document"
+              },
+              "target": {
+                "id": 13,
+                "kind": "binary"
+              }
+            }
+          ]
+        }
+      ],
+      "pagination": {
+        "has_more": true,
+        "limit": 1,
+        "next_offset": 1,
+        "offset": 0,
+        "returned": 1,
+        "total_matching": 1718,
+        "unit": "bucket_document_occurrence_records"
+      },
+      "query": {
+        "binary_sha256": null,
+        "bucket_document_id": null,
+        "bucket_id": null,
+        "case_file_id": 1,
+        "court_id": null,
+        "date_from": null,
+        "date_to": null,
+        "document_id": null,
+        "document_name_contains": null,
+        "document_type": null,
+        "file_availability": null,
+        "file_binary_id": null,
+        "limit": 1,
+        "occurrence_reference": null,
+        "offset": 0,
+        "process_number": null,
+        "source_bucket_id": null,
+        "source_document_reference": null
+      },
+      "read_model": "court_occurrence_document_records",
+      "schema_version": 1,
+      "semantics": {
+        "missing_binary_is_not_extraction_failure": true,
+        "occurrence_is_not_binary_identity": true,
+        "relationships_are_recorded_structure_not_resolved_legal_meaning": true,
+        "result_unit": "one source document associated with one procedural occurrence",
+        "source_labels_are_not_verified_document_classifications": true
+      }
+    },
+    "GET /api/v1/health": {
+      "body": {
+        "contract_version": "v1",
+        "service": "virgilio-consultation-api",
+        "status": "ok"
+      },
+      "headers": {
+        "cache-control": "private, no-store",
+        "content-type": "application/json; charset=utf-8"
+      },
+      "status": 200
+    },
+    "GET /api/v1/references/lookup?value=13608%2F14.8T2SNT&scope=full&lifecycle=current&limit=1&offset=0": {
+      "coverage": {
+        "corpus_scope": "full",
+        "included_origins": [
+          "court_metadata",
+          "external_register",
+          "document_text"
+        ],
+        "lifecycle_scope": "current",
+        "limitations": [
+          {
+            "code": "NON_COURT_METADATA_COVERAGE_IS_BOUNDED",
+            "message": "Court metadata is corpus-wide. External-register observations remain pilot-scoped; document-text observations include the legacy pilot and the frozen labelled-reference-v5 expansion and foundation fixtures only."
+          }
+        ],
+        "status": "incomplete"
+      },
+      "observations": [
+        {
+          "associated_binaries": [],
+          "associated_contexts": [],
+          "binary_association_state": "no_direct_binary_association",
+          "direct_anchor": {
+            "bucket_document_id": null,
+            "bucket_id": null,
+            "case_file_id": 1,
+            "char_end": null,
+            "char_start": null,
+            "document_id": null,
+            "document_reference": null,
+            "document_representation_id": null,
+            "document_segment_id": null,
+            "external_source_name": null,
+            "external_source_record_id": null,
+            "file_binary_id": null,
+            "kind": "case_file",
+            "occurrence_date": null,
+            "occurrence_reference": null,
+            "page_no": null,
+            "process_number": "13608/14.8T2SNT",
+            "processor_key": null,
+            "processor_version": null
+          },
+          "human_review": null,
+          "ingestion_assessment": {
+            "confidence": "high",
+            "namespace_hint": "process_number",
+            "review_state": "unreviewed",
+            "role_hint": "source_recorded_identifier",
+            "target_candidates": []
+          },
+          "lifecycle": {
+            "current_observation_key": "de919235b09a46aa641119d10474e82229c5fcb909060d2c1986cbdfb0f66a7a",
+            "events": [],
+            "state": "current"
+          },
+          "observation_id": 3800,
+          "observation_key": "de919235b09a46aa641119d10474e82229c5fcb909060d2c1986cbdfb0f66a7a",
+          "origin": "court_metadata",
+          "provenance": {
+            "extraction": null,
+            "normalization_identity": "reference-normalization-nfkc-upper-v1",
+            "observed_in_kind": "source_record",
+            "observer_key": "app/reference-metadata-ingestion.mjs",
+            "observer_version": "v1",
+            "source_field": "case_file.processo"
+          },
+          "reference": {
+            "identifier_type": "process_number",
+            "normalized_value": "13608/14.8T2SNT",
+            "raw_label": "case_file.processo",
+            "raw_value": "13608/14.8T2SNT"
+          }
+        }
+      ],
+      "pagination": {
+        "has_more": false,
+        "limit": 1,
+        "next_offset": null,
+        "offset": 0,
+        "returned": 1,
+        "unit": "observations"
+      },
+      "query": {
+        "lifecycle": "current",
+        "normalized_value": "13608/14.8T2SNT",
+        "raw_value": "13608/14.8T2SNT",
+        "scope": "full"
+      },
+      "result_state": "matches"
+    },
+    "GET /api/v1/representations/1/content?format=text": {
+      "content_sha256": "10233446bccfb604973d78d0349ced34b0c8d8edc1b5dd6138d08e248a4fefda",
+      "content_type": "text/plain; charset=utf-8",
+      "status": 200,
+      "utf8_bytes": 12
+    },
+    "GET /api/v1/search?q=tribunal&scope=full&sort=relevance&limit=1&offset=0": {
+      "fixture": {
+        "distinct_binary_count": 15,
+        "missing_binary_record_count": 2,
+        "name": "citius-reference-index-pilot",
+        "version": 1
+      },
+      "items": [
+        {
+          "binary_relevance_rank": 18.7,
+          "char_end": 106846,
+          "char_start": 0,
+          "contextual_reference_observations": [],
+          "document_representation_id": "6167",
+          "earliest_occurrence_date": {},
+          "file_binary_id": "499",
+          "headline": "[[tribunal]] Português ao [[tribunal]] Francês!!!!!, como se o [[tribunal]] português não conheça",
+          "latest_occurrence_date": {},
+          "location": {
+            "kind": "document_level",
+            "pdf_page": null
+          },
+          "location_kind": "document_level",
+          "page_no": null,
+          "passage_reference_observations": [],
+          "processor_key": "docling",
+          "processor_version": "2.123.1-c5.2",
+          "rank": 18.7,
+          "representation_kind": "extracted_document_bundle",
+          "segment_id": "3682",
+          "segment_kind": "document_text",
+          "sequence_no": 1,
+          "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+          "source_contexts": [
+            {
+              "bucket_document_id": 120,
+              "designation": "Requerimento",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2016-01-11",
+              "occurrence_reference": "5374027",
+              "process_number": "13608/14.8T2SNT"
+            },
+            {
+              "bucket_document_id": 519,
+              "designation": "Insistência por cumprimento de ofício",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2018-11-23",
+              "occurrence_reference": "116323638",
+              "process_number": "13608/14.8T2SNT"
+            }
+          ]
+        },
+        {
+          "binary_relevance_rank": 18.7,
+          "char_end": 108401,
+          "char_start": 0,
+          "contextual_reference_observations": [],
+          "document_representation_id": "4206",
+          "earliest_occurrence_date": {},
+          "file_binary_id": "499",
+          "headline": "[[tribunal]] Português ao [[tribunal]] Francês!!!!!, como se o \r\n[[tribunal]] português não conheça",
+          "latest_occurrence_date": {},
+          "location": {
+            "kind": "document_level",
+            "pdf_page": null
+          },
+          "location_kind": "document_level",
+          "page_no": null,
+          "passage_reference_observations": [],
+          "processor_key": "xberg",
+          "processor_version": "1.0.14-c5.2",
+          "rank": 18.6,
+          "representation_kind": "extracted_document_bundle",
+          "segment_id": "1728",
+          "segment_kind": "document_text",
+          "sequence_no": 1,
+          "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+          "source_contexts": [
+            {
+              "bucket_document_id": 120,
+              "designation": "Requerimento",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2016-01-11",
+              "occurrence_reference": "5374027",
+              "process_number": "13608/14.8T2SNT"
+            },
+            {
+              "bucket_document_id": 519,
+              "designation": "Insistência por cumprimento de ofício",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2018-11-23",
+              "occurrence_reference": "116323638",
+              "process_number": "13608/14.8T2SNT"
+            }
+          ]
+        },
+        {
+          "binary_relevance_rank": 18.7,
+          "char_end": 131193,
+          "char_start": 0,
+          "contextual_reference_observations": [],
+          "document_representation_id": "508",
+          "earliest_occurrence_date": {},
+          "file_binary_id": "499",
+          "headline": "[[tribunal]] Português ao [[tribunal]] Francês!!!!!, como se o\r\n           [[tribunal]] português não conheça",
+          "latest_occurrence_date": {},
+          "location": {
+            "kind": "document_level",
+            "pdf_page": null
+          },
+          "location_kind": "document_level",
+          "page_no": null,
+          "passage_reference_observations": [],
+          "processor_key": "pdf_literal_text",
+          "processor_version": "poppler-layout-v2-c5.3.2",
+          "rank": 18.5,
+          "representation_kind": "pdf_literal_text",
+          "segment_id": "508",
+          "segment_kind": "document_text",
+          "sequence_no": 1,
+          "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+          "source_contexts": [
+            {
+              "bucket_document_id": 120,
+              "designation": "Requerimento",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2016-01-11",
+              "occurrence_reference": "5374027",
+              "process_number": "13608/14.8T2SNT"
+            },
+            {
+              "bucket_document_id": 519,
+              "designation": "Insistência por cumprimento de ofício",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2018-11-23",
+              "occurrence_reference": "116323638",
+              "process_number": "13608/14.8T2SNT"
+            }
+          ]
+        }
+      ],
+      "query": {
+        "limit": 1,
+        "offset": 0,
+        "scope": "full",
+        "sort": "relevance",
+        "text": "tribunal"
+      },
+      "result_summary": {
+        "binary_limit": 1,
+        "capped": true,
+        "distinct_binary_count": 1,
+        "has_more": true,
+        "next_offset": 1,
+        "pagination_unit": "binary",
+        "requested_offset": 0,
+        "returned_passage_count": 3
+      },
+      "semantics": {
+        "contextual_references_are_not_observed_in_the_matching_passage": true,
+        "location_kinds": [
+          "document_level",
+          "processor_page_unverified",
+          "verified_pdf_page"
+        ],
+        "passage_references_are_exact_segment_observations": true,
+        "search_scope": "full"
+      }
+    },
+    "error forbidden": {
+      "body": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "consultation.read is required"
+        }
+      },
+      "status": 403
+    },
+    "error invalid sha256": {
+      "body": {
+        "error": {
+          "code": "INVALID_SHA256",
+          "message": "sha256 must contain 64 hexadecimal characters"
+        }
+      },
+      "status": 400
+    },
+    "error not found": {
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "message": "requested object was not found"
+        }
+      },
+      "status": 404
+    },
+    "error unauthorized": {
+      "body": {
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "authentication required"
+        }
+      },
+      "status": 401
+    }
+  },
+  "mcp": {
+    "error_invalid_sha256": {
+      "error": {
+        "code": "INVALID_SHA256",
+        "message": "sha256 must contain 64 hexadecimal characters"
+      }
+    },
+    "error_unknown_argument": {
+      "error": {
+        "code": "UNKNOWN_ARGUMENT",
+        "message": "unknown argument: extra"
+      }
+    },
+    "get_binary_details": {
+      "attention": {
+        "reason_codes": [
+          "representation_disagreement"
+        ],
+        "reasons": [
+          {
+            "detail": {
+              "comparison_id": "3",
+              "disagreement_level": "high"
+            },
+            "reason_code": "representation_disagreement"
+          }
+        ],
+        "review_needed": true
+      },
+      "binary": {
+        "display_name": "Petição",
+        "file_binary_id": "13",
+        "file_extension": ".pdf",
+        "machine_readability_status": "image_only_pdf",
+        "mime_type": "application/pdf",
+        "page_count": 11,
+        "sha256": "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e",
+        "size_bytes": 1240108
+      },
+      "context": {
+        "buckets": [
+          {
+            "bucket_date": {},
+            "bucket_id": "8389040",
+            "bucket_pk_id": "1",
+            "case_file_id": "1",
+            "designation": "Petição",
+            "presenter": "Virgílio Manuel Lourenço Holbeche Fino",
+            "processo": "13608/14.8T2SNT",
+            "reference_number": "8389040"
+          },
+          {
+            "bucket_date": {},
+            "bucket_id": "116323638",
+            "bucket_pk_id": "376",
+            "case_file_id": "1",
+            "designation": "Insistência por cumprimento de ofício",
+            "presenter": null,
+            "processo": "13608/14.8T2SNT",
+            "reference_number": "116323638"
+          }
+        ],
+        "cases": [
+          {
+            "case_file_id": "1",
+            "case_workspace_id": "1",
+            "data_autuacao": {},
+            "especie": "(fm) Regulação das Responsabilidades Parentais",
+            "estado": "Processo Pendente",
+            "idprocesso": "3354063",
+            "processo": "13608/14.8T2SNT"
+          }
+        ],
+        "documents": [
+          {
+            "document_date": {},
+            "document_id": "1264",
+            "document_identity_class": "imported_source_keyed",
+            "document_name": "Petição",
+            "document_type": "PDF",
+            "is_primary_binary": true,
+            "source_observation_count": 1
+          }
+        ],
+        "workspaces": [
+          {
+            "case_workspace_id": "1",
+            "lifecycle_status": "active",
+            "title": "13608/14.8T2SNT",
+            "workspace_code": "tribunais_org_pt:13608/14.8T2SNT"
+          }
+        ]
+      },
+      "evidence": {
+        "items": [
+          {
+            "available_formats": [
+              "text",
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "pdf_literal_text",
+            "processor_version": "poppler-layout-v2-c5.3.2",
+            "produced_by_job_id": "37",
+            "produced_by_job_status": "completed",
+            "representation_id": "13",
+            "representation_kind": "pdf_literal_text",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          },
+          {
+            "available_formats": [
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "pdf_signature_metadata",
+            "processor_version": "qpdf-signature-v1-c5.3.1",
+            "produced_by_job_id": "38",
+            "produced_by_job_status": "completed",
+            "representation_id": "1253",
+            "representation_kind": "pdf_signature_metadata",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          },
+          {
+            "available_formats": [
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "pdf_structure_inventory",
+            "processor_version": "qpdf-structure-v2-c5.3.2",
+            "produced_by_job_id": "39",
+            "produced_by_job_status": "completed",
+            "representation_id": "2219",
+            "representation_kind": "pdf_structure_inventory",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          }
+        ]
+      },
+      "processing_summary": {
+        "last_processed_at": {},
+        "processor_keys": [
+          "docling",
+          "pdf_literal_text",
+          "pdf_signature_metadata",
+          "pdf_structure_inventory",
+          "xberg"
+        ],
+        "status_counts": {
+          "completed": 5
+        },
+        "total_jobs": 5
+      },
+      "provenance": {
+        "effective_representation_id": "4950",
+        "explicit_selection_id": null,
+        "selection_source": "automatic_policy"
+      },
+      "representations": {
+        "effective": {
+          "processor_key": "docling",
+          "processor_version": "2.123.1-c5.2",
+          "representation_id": "4950",
+          "representation_source_kind": "machine_generated"
+        },
+        "effective_selection_reason": "automatic_policy",
+        "explicit_selection": null,
+        "items": [
+          {
+            "available_formats": [
+              "text",
+              "complete-text",
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": false,
+            "is_explicitly_selected": false,
+            "processor_key": "xberg",
+            "processor_version": "1.0.14-c5.2",
+            "produced_by_job_id": "3727",
+            "produced_by_job_status": "completed",
+            "representation_id": "3731",
+            "representation_kind": "extracted_document_bundle",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          },
+          {
+            "available_formats": [
+              "text",
+              "markdown",
+              "complete-text",
+              "native-json"
+            ],
+            "based_on_representation_id": null,
+            "created_at": {},
+            "format_family": "pdf",
+            "is_effective": true,
+            "is_explicitly_selected": false,
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "produced_by_job_id": "4961",
+            "produced_by_job_status": "completed",
+            "representation_id": "4950",
+            "representation_kind": "extracted_document_bundle",
+            "representation_source_kind": "machine_generated",
+            "representation_variant_key": ""
+          }
+        ]
+      },
+      "semantics": {
+        "original_binary_content_available_through_this_mcp": false,
+        "original_binary_is_canonical": true,
+        "representations_are_not_merged": true,
+        "representations_are_processor_attributed_derivations": true
+      }
+    },
+    "get_representation_content": {
+      "content": "DOC Nº 6\r\n\f",
+      "content_type": "text/plain; charset=utf-8",
+      "format": "text",
+      "next_offset": null,
+      "offset_unit": "unicode_code_points",
+      "representation": {
+        "based_on_representation_id": null,
+        "file_binary_id": 1,
+        "processor_key": "pdf_literal_text",
+        "processor_version": "poppler-layout-v2-c5.3.2",
+        "produced_by_job_id": "1",
+        "representation_id": 1,
+        "representation_kind": "pdf_literal_text",
+        "representation_source_kind": "machine_generated",
+        "representation_variant_key": ""
+      },
+      "returned_characters": 11,
+      "returned_offset": 0,
+      "semantics": {
+        "native_json_serialization": null,
+        "not_canonical_evidence": true,
+        "processor_attributed_derived_content": true
+      },
+      "total_characters": 11,
+      "truncated": false
+    },
+    "query_court_records": {
+      "coverage": {
+        "no_match_does_not_prove_absence_from_the_original_court_file": true,
+        "scope": "all imported bucket-document associations matching the query",
+        "source": "imported court-system metadata"
+      },
+      "items": [
+        {
+          "binaries": [
+            {
+              "details_tool": "get_binary_details",
+              "document_binary_id": 1256,
+              "file_binary_id": 13,
+              "file_extension": ".pdf",
+              "integrity_check_status": "validated_by_qpdf",
+              "is_primary": true,
+              "machine_readability_status": "image_only_pdf",
+              "match_confidence": "observed_stable_binary",
+              "mime_type": "application/pdf",
+              "retention_status": "local_artifact_retained",
+              "sha256": "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e",
+              "size_bytes": 1240108,
+              "source_observation_count": 1
+            }
+          ],
+          "case": {
+            "canonical_confidence": "observed_stable",
+            "case_file_id": 1,
+            "classification": "(fm) Regulação das Responsabilidades Parentais",
+            "decision_date": null,
+            "is_base_case": true,
+            "parent_case_file_id": null,
+            "process_number": "13608/14.8T2SNT",
+            "registration_date": "2017-01-01",
+            "scope_status": "in_scope",
+            "source_process_id": "3354063",
+            "source_system": "tribunais_org_pt",
+            "status": "Processo Pendente"
+          },
+          "court": {
+            "canonical_confidence": "observed_stable",
+            "country_id": "PT",
+            "court_id": 1,
+            "name": "Tribunal Judicial da Comarca de Lisboa Oeste",
+            "source_client_id": "4",
+            "source_court_id": "2677103",
+            "source_system": "tribunais_org_pt",
+            "source_unit_id": "3994056",
+            "unit": "Sintra - Juízo Fam. Menores - Juiz 6"
+          },
+          "document": {
+            "canonical_confidence": "observed_stable",
+            "claimed_size_bytes": 1240108,
+            "document_id": 1264,
+            "identity_class": "imported_source_keyed",
+            "occurrence_link": {
+              "canonical_confidence": "observed_stable",
+              "has_intra_bucket_duplication": false,
+              "source_observation_count": 1
+            },
+            "recorded_document_date": "2014-07-10",
+            "source_anchor_title": null,
+            "source_document_reference": "3994056_54615052_15_7380127_E2D7DEC0-A30B-47FF-9118-1B5A1E277355",
+            "source_name": "Petição",
+            "source_system": "tribunais_org_pt",
+            "source_type": "PDF",
+            "source_type_attribute": null
+          },
+          "file_state": {
+            "basis": "one_or_more_source-associated binaries",
+            "status": "available"
+          },
+          "occurrence": {
+            "bucket_id": 1,
+            "canonical_confidence": "observed_stable",
+            "date_semantics": "source-recorded procedural occurrence date",
+            "designation": "Petição",
+            "modal_title": "PETIÇÃO",
+            "presenter": "Virgílio Manuel Lourenço Holbeche Fino",
+            "recorded_date": "2014-07-10",
+            "reference": "8389040",
+            "source_bucket_id": "8389040",
+            "source_document_count": 1,
+            "source_system": "tribunais_org_pt"
+          },
+          "record_identity": {
+            "bucket_document_id": 1,
+            "source_system": "tribunais_org_pt"
+          },
+          "relationships": [
+            {
+              "basis": "source_recorded",
+              "kind": "has_occurrence",
+              "relation_id": "has_occurrence:case_file:1:bucket:1",
+              "resolution_state": "recorded_not_independently_verified",
+              "source": {
+                "id": 1,
+                "kind": "case_file"
+              },
+              "target": {
+                "id": 1,
+                "kind": "bucket"
+              }
+            },
+            {
+              "basis": "source_recorded",
+              "kind": "contains",
+              "relation_id": "contains:bucket:1:source_document:1264",
+              "resolution_state": "recorded_not_independently_verified",
+              "source": {
+                "id": 1,
+                "kind": "bucket"
+              },
+              "target": {
+                "id": 1264,
+                "kind": "source_document"
+              }
+            },
+            {
+              "basis": "source_recorded",
+              "kind": "represented_by",
+              "relation_id": "represented_by:source_document:1264:binary:13",
+              "resolution_state": "recorded_not_independently_verified",
+              "source": {
+                "id": 1264,
+                "kind": "source_document"
+              },
+              "target": {
+                "id": 13,
+                "kind": "binary"
+              }
+            }
+          ]
+        }
+      ],
+      "pagination": {
+        "has_more": true,
+        "limit": 1,
+        "next_offset": 1,
+        "offset": 0,
+        "returned": 1,
+        "total_matching": 1718,
+        "unit": "bucket_document_occurrence_records"
+      },
+      "query": {
+        "binary_sha256": null,
+        "bucket_document_id": null,
+        "bucket_id": null,
+        "case_file_id": 1,
+        "court_id": null,
+        "date_from": null,
+        "date_to": null,
+        "document_id": null,
+        "document_name_contains": null,
+        "document_type": null,
+        "file_availability": null,
+        "file_binary_id": null,
+        "limit": 1,
+        "occurrence_reference": null,
+        "offset": 0,
+        "process_number": null,
+        "source_bucket_id": null,
+        "source_document_reference": null
+      },
+      "read_model": "court_occurrence_document_records",
+      "schema_version": 1,
+      "semantics": {
+        "missing_binary_is_not_extraction_failure": true,
+        "occurrence_is_not_binary_identity": true,
+        "relationships_are_recorded_structure_not_resolved_legal_meaning": true,
+        "result_unit": "one source document associated with one procedural occurrence",
+        "source_labels_are_not_verified_document_classifications": true
+      }
+    },
+    "search_document_text": {
+      "coverage": {
+        "indexed_text_only": true,
+        "no_match_does_not_mean_document_absence": true,
+        "scope": "full"
+      },
+      "items": [
+        {
+          "binary_detail": {
+            "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+            "tool": "get_binary_details"
+          },
+          "binary_relevance_rank": 18.7,
+          "headline": "[[tribunal]] Português ao [[tribunal]] Francês!!!!!, como se o [[tribunal]] português não conheça",
+          "location": {
+            "kind": "document_level",
+            "pdf_page": null
+          },
+          "occurrence_date_bounds": {
+            "earliest": {},
+            "latest": {},
+            "semantics": "recorded procedural occurrence dates; not necessarily document-written or signed dates"
+          },
+          "rank": 18.7,
+          "representation": {
+            "content_tool": "get_representation_content",
+            "processor_key": "docling",
+            "processor_version": "2.123.1-c5.2",
+            "representation_id": 6167,
+            "representation_kind": "extracted_document_bundle"
+          },
+          "segment": {
+            "char_end": 106846,
+            "char_start": 0,
+            "segment_id": 3682,
+            "segment_kind": "document_text",
+            "sequence_no": 1
+          },
+          "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+          "source_contexts": [
+            {
+              "bucket_document_id": 120,
+              "designation": "Requerimento",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2016-01-11",
+              "occurrence_reference": "5374027",
+              "process_number": "13608/14.8T2SNT"
+            },
+            {
+              "bucket_document_id": 519,
+              "designation": "Insistência por cumprimento de ofício",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2018-11-23",
+              "occurrence_reference": "116323638",
+              "process_number": "13608/14.8T2SNT"
+            }
+          ]
+        },
+        {
+          "binary_detail": {
+            "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+            "tool": "get_binary_details"
+          },
+          "binary_relevance_rank": 18.7,
+          "headline": "[[tribunal]] Português ao [[tribunal]] Francês!!!!!, como se o \r\n[[tribunal]] português não conheça",
+          "location": {
+            "kind": "document_level",
+            "pdf_page": null
+          },
+          "occurrence_date_bounds": {
+            "earliest": {},
+            "latest": {},
+            "semantics": "recorded procedural occurrence dates; not necessarily document-written or signed dates"
+          },
+          "rank": 18.6,
+          "representation": {
+            "content_tool": "get_representation_content",
+            "processor_key": "xberg",
+            "processor_version": "1.0.14-c5.2",
+            "representation_id": 4206,
+            "representation_kind": "extracted_document_bundle"
+          },
+          "segment": {
+            "char_end": 108401,
+            "char_start": 0,
+            "segment_id": 1728,
+            "segment_kind": "document_text",
+            "sequence_no": 1
+          },
+          "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+          "source_contexts": [
+            {
+              "bucket_document_id": 120,
+              "designation": "Requerimento",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2016-01-11",
+              "occurrence_reference": "5374027",
+              "process_number": "13608/14.8T2SNT"
+            },
+            {
+              "bucket_document_id": 519,
+              "designation": "Insistência por cumprimento de ofício",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2018-11-23",
+              "occurrence_reference": "116323638",
+              "process_number": "13608/14.8T2SNT"
+            }
+          ]
+        },
+        {
+          "binary_detail": {
+            "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+            "tool": "get_binary_details"
+          },
+          "binary_relevance_rank": 18.7,
+          "headline": "[[tribunal]] Português ao [[tribunal]] Francês!!!!!, como se o\r\n           [[tribunal]] português não conheça",
+          "location": {
+            "kind": "document_level",
+            "pdf_page": null
+          },
+          "occurrence_date_bounds": {
+            "earliest": {},
+            "latest": {},
+            "semantics": "recorded procedural occurrence dates; not necessarily document-written or signed dates"
+          },
+          "rank": 18.5,
+          "representation": {
+            "content_tool": "get_representation_content",
+            "processor_key": "pdf_literal_text",
+            "processor_version": "poppler-layout-v2-c5.3.2",
+            "representation_id": 508,
+            "representation_kind": "pdf_literal_text"
+          },
+          "segment": {
+            "char_end": 131193,
+            "char_start": 0,
+            "segment_id": 508,
+            "segment_kind": "document_text",
+            "sequence_no": 1
+          },
+          "sha256": "6753d9d8c0df426488874e4bee11392694f8414a9c43933bb52b2abe2548225c",
+          "source_contexts": [
+            {
+              "bucket_document_id": 120,
+              "designation": "Requerimento",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2016-01-11",
+              "occurrence_reference": "5374027",
+              "process_number": "13608/14.8T2SNT"
+            },
+            {
+              "bucket_document_id": 519,
+              "designation": "Insistência por cumprimento de ofício",
+              "document_id": 106,
+              "document_name": "Requerimento",
+              "document_reference": "3994056_120423162_19_8481735_369F1DFC-BE6F-4996-ADBB-21C8CF8582A2",
+              "occurrence_date": "2018-11-23",
+              "occurrence_reference": "116323638",
+              "process_number": "13608/14.8T2SNT"
+            }
+          ]
+        }
+      ],
+      "query": {
+        "limit": 1,
+        "offset": 0,
+        "scope": "full",
+        "sort": "relevance",
+        "text": "tribunal"
+      },
+      "result_summary": {
+        "binary_limit": 1,
+        "capped": true,
+        "distinct_binary_count": 1,
+        "has_more": true,
+        "next_offset": 1,
+        "pagination_unit": "binary",
+        "requested_offset": 0,
+        "returned_passage_count": 3
+      }
+    }
+  },
+  "sample_identity": {
+    "case_file_id": 1,
+    "representation_id": 1,
+    "sha256": "02c8e7cee7eca2f83b98d64aa2dd64b1b888039210a8cbf5c2133322d1b1757e"
+  }
+}

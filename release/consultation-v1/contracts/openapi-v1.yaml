@@ -1,0 +1,343 @@
+openapi: 3.1.0
+info:
+  title: Virgilio Consultation API
+  version: 1.0.0
+  description: Frozen read-only Consultation V1 HTTP contract.
+servers:
+  - url: https://consultation.example.invalid
+security:
+  - browserSession: []
+  - oauth2: [consultation.read]
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealthV1
+      security: []
+      responses:
+        "200":
+          description: Minimal liveness response.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+  /api/v1/openapi.json:
+    get:
+      operationId: getOpenApiV1
+      security: []
+      responses:
+        "200":
+          description: This OpenAPI contract as JSON.
+          content:
+            application/json:
+              schema: { type: object }
+  /api/v1/auth/login:
+    get:
+      operationId: beginLoginV1
+      security: []
+      parameters:
+        - in: query
+          name: return_to
+          schema: { type: string, default: / }
+      responses:
+        "302": { description: Redirect to the configured OIDC authorization endpoint. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /api/v1/auth/callback:
+    get:
+      operationId: completeLoginV1
+      security: []
+      parameters:
+        - { in: query, name: code, required: true, schema: { type: string } }
+        - { in: query, name: state, required: true, schema: { type: string } }
+      responses:
+        "302": { description: Establish an opaque browser session and redirect to the validated return path. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /api/v1/auth/logout:
+    post:
+      operationId: logoutV1
+      security: [{ browserSession: [] }]
+      responses:
+        "204": { description: Local session destroyed. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /api/v1/auth/session:
+    get:
+      operationId: getSessionV1
+      security: [{ browserSession: [] }]
+      responses:
+        "200":
+          description: Current provider-neutral principal.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Session" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /api/v1/binaries:
+    get:
+      operationId: listBinariesV1
+      parameters:
+        - { $ref: "#/components/parameters/ListLimit" }
+        - { $ref: "#/components/parameters/ListOffset" }
+      responses:
+        "200":
+          description: Paginated binary list.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedItems" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/binaries/{sha256}:
+    get:
+      operationId: getBinaryDetailsV1
+      parameters: [{ $ref: "#/components/parameters/Sha256" }]
+      responses:
+        "200":
+          description: Binary identity, procedural context, representations, evidence, and provenance.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BinaryDetails" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/binaries/{sha256}/content:
+    get:
+      operationId: getBinaryContentV1
+      parameters: [{ $ref: "#/components/parameters/Sha256" }]
+      responses:
+        "200":
+          description: Original immutable binary bytes.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+            Content-Length: { schema: { type: integer, minimum: 0 } }
+            Content-Disposition: { schema: { type: string } }
+          content:
+            application/pdf: { schema: { type: string, contentMediaType: application/pdf, contentEncoding: binary } }
+            application/octet-stream: { schema: { type: string, contentEncoding: binary } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    head:
+      operationId: headBinaryContentV1
+      parameters: [{ $ref: "#/components/parameters/Sha256" }]
+      responses:
+        "200": { description: Original-binary headers without a body. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/representations/{representation_id}/content:
+    get:
+      operationId: getRepresentationContentV1
+      parameters:
+        - { $ref: "#/components/parameters/RepresentationId" }
+        - in: query
+          name: format
+          schema: { type: string, enum: [text, markdown, complete-text, native-json], default: text }
+      responses:
+        "200":
+          description: One processor-attributed representation.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            text/plain: { schema: { type: string } }
+            text/markdown: { schema: { type: string } }
+            application/json: { schema: {} }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/court-records:
+    get:
+      operationId: queryCourtRecordsV1
+      parameters:
+        - { in: query, name: court_id, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: case_file_id, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: bucket_id, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: bucket_document_id, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: document_id, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: file_binary_id, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: process_number, schema: { type: string, minLength: 1 } }
+        - { in: query, name: occurrence_reference, schema: { type: string, minLength: 1 } }
+        - { in: query, name: source_bucket_id, schema: { type: string, minLength: 1 } }
+        - { in: query, name: source_document_reference, schema: { type: string, minLength: 1 } }
+        - { in: query, name: document_name_contains, schema: { type: string, minLength: 1 } }
+        - { in: query, name: document_type, schema: { type: string, minLength: 1 } }
+        - { in: query, name: date_from, schema: { type: string, format: date } }
+        - { in: query, name: date_to, schema: { type: string, format: date } }
+        - { in: query, name: binary_sha256, schema: { type: string, pattern: "^[0-9a-fA-F]{64}$" } }
+        - { in: query, name: file_availability, schema: { type: string, enum: [available, missing] } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 1000000, default: 0 } }
+      responses:
+        "200":
+          description: Occurrence-centred court records.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedItems" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/references/lookup:
+    get:
+      operationId: lookupReferencesV1
+      parameters:
+        - { in: query, name: value, required: true, schema: { type: string, minLength: 1 } }
+        - { in: query, name: scope, schema: { type: string, enum: [full, pilot], default: full } }
+        - { in: query, name: lifecycle, schema: { type: string, enum: [current, include_history], default: current } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: Recorded reference observations and resolution state.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReferenceLookup" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/search:
+    get:
+      operationId: searchDocumentTextV1
+      parameters:
+        - { in: query, name: q, required: true, schema: { type: string, minLength: 1 } }
+        - { in: query, name: scope, schema: { type: string, enum: [full, pilot], default: full } }
+        - { in: query, name: sort, schema: { type: string, enum: [relevance, earliest_occurrence_asc, latest_occurrence_desc], default: relevance } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: Indexed text passages with exact representation and source lineage.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/PrivateNoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SearchResults" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+components:
+  securitySchemes:
+    browserSession:
+      type: apiKey
+      in: cookie
+      name: __Host-consultation_v1
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.invalid/realms/consultation/protocol/openid-connect/auth
+          tokenUrl: https://auth.example.invalid/realms/consultation/protocol/openid-connect/token
+          scopes:
+            consultation.read: Read the frozen consultation corpus.
+  headers:
+    PrivateNoStore:
+      schema: { type: string, const: "private, no-store" }
+  parameters:
+    ListLimit: { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 500, default: 200 } }
+    ListOffset: { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 1000000, default: 0 } }
+    Sha256: { in: path, name: sha256, required: true, schema: { type: string, pattern: "^[0-9a-f]{64}$" } }
+    RepresentationId: { in: path, name: representation_id, required: true, schema: { type: integer, minimum: 1 } }
+  responses:
+    BadRequest:
+      description: Invalid request.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Unauthorized:
+      description: Authentication required or expired.
+      headers: { WWW-Authenticate: { schema: { type: string } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Forbidden:
+      description: Required audience, role, or scope is absent.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Requested object was not found.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status, service, contract_version]
+      properties:
+        status: { type: string, const: ok }
+        service: { type: string }
+        contract_version: { type: string, const: v1 }
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+    Session:
+      type: object
+      additionalProperties: false
+      required: [principal]
+      properties:
+        principal:
+          type: object
+          additionalProperties: false
+          required: [issuer, subject, display_name, roles, scopes, authenticated_at]
+          properties:
+            issuer: { type: string, format: uri }
+            subject: { type: string }
+            display_name: { type: [string, "null"] }
+            roles: { type: array, items: { type: string } }
+            scopes: { type: array, items: { type: string } }
+            authenticated_at: { type: string, format: date-time }
+    PaginatedItems:
+      type: object
+      required: [limit, offset, items]
+      properties:
+        total_count: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1 }
+        offset: { type: integer, minimum: 0 }
+        items: { type: array, items: { type: object } }
+    BinaryDetails:
+      type: object
+      additionalProperties: false
+      required: [binary, context, processing, representations, evidence, comparisons, attention, provenance, technical_details]
+      properties:
+        binary: { type: object }
+        context: { type: object }
+        processing: { type: object }
+        representations: { type: object }
+        evidence: { type: object }
+        comparisons: { type: array, items: { type: object } }
+        attention: { type: object }
+        provenance: { type: object }
+        technical_details: { type: object }
+    ReferenceLookup:
+      type: object
+      additionalProperties: false
+      required: [query, result_state, coverage, pagination, observations]
+      properties:
+        query: { type: object }
+        result_state: { type: string }
+        coverage: { type: object }
+        pagination: { type: object }
+        observations: { type: array, items: { type: object } }
+    SearchResults:
+      type: object
+      additionalProperties: false
+      required: [fixture, query, result_summary, semantics, items]
+      properties:
+        fixture: { type: object }
+        query: { type: object }
+        result_summary: { type: object }
+        semantics: { type: object }
+        items: { type: array, items: { type: object } }
