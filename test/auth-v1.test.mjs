@@ -117,7 +117,6 @@ test("V1 authentication configuration rejects unsafe duration values", () => {
   assert.throws(() => loadAuthV1Config({ ...base, BFF_SESSION_IDLE_SECONDS: "60", BFF_SESSION_ABSOLUTE_SECONDS: "30" }), /must not exceed/u);
   assert.throws(() => loadAuthV1Config({ ...base, OIDC_BACKCHANNEL_BASE_URL: "http://keycloak:8080/path" }), /without a path/u);
   assert.throws(() => loadAuthV1Config({ ...base, LOGIN_RATE_LIMIT_PER_CLIENT: "61" }), /must not exceed LOGIN_RATE_LIMIT_GLOBAL/u);
-  assert.throws(() => loadAuthV1Config({ ...base, LOGIN_RATE_LIMIT_MAX_CLIENTS: "59" }), /must be at least LOGIN_RATE_LIMIT_GLOBAL/u);
   assert.throws(() => loadAuthV1Config({ ...base, BFF_MAX_PENDING_LOGINS: "100" }), /can exceed BFF_MAX_PENDING_LOGINS/u);
 });
 
@@ -150,6 +149,24 @@ test("V1 login limiter enforces client and global windows and reports retry timi
   assert.throws(() => limiter.admit(request("203.0.113.3")), (error) => error.code === "LOGIN_RATE_LIMITED");
   timestamp = 60_000;
   assert.doesNotThrow(() => limiter.admit(request("203.0.113.3")));
+});
+
+test("V1 login limiter evicts the oldest client window when global and client windows overlap", () => {
+  let timestamp = 0;
+  const limiter = createLoginRateLimiter({
+    windowSeconds: 60,
+    perClientMax: 1,
+    globalMax: 3,
+    maxTrackedClients: 3,
+    now: () => timestamp,
+  });
+  const request = (address) => ({ headers: { "cf-connecting-ip": address }, socket: { remoteAddress: "127.0.0.1" } });
+  timestamp = 59_000;
+  limiter.admit(request("203.0.113.1"));
+  limiter.admit(request("203.0.113.2"));
+  limiter.admit(request("203.0.113.3"));
+  timestamp = 60_000;
+  assert.doesNotThrow(() => limiter.admit(request("203.0.113.4")));
 });
 
 test("V1 pending login state is bounded", async () => {

@@ -90,7 +90,10 @@ export function createLoginRateLimiter({
       const key = clientAddress(request);
       let client = clients.get(key);
       if (!client) {
-        if (clients.size >= maxTrackedClients) throw loginRateLimitError(retryAfter(globalWindow.startedAt, timestamp));
+        if (clients.size >= maxTrackedClients) {
+          const oldestKey = clients.keys().next().value;
+          clients.delete(oldestKey);
+        }
         client = { startedAt: timestamp, count: 0 };
         clients.set(key, client);
       }
@@ -179,9 +182,6 @@ export function loadAuthV1Config(env = process.env) {
   }
   if (config.loginRateLimitPerClient > config.loginRateLimitGlobal) {
     throw new Error("LOGIN_RATE_LIMIT_PER_CLIENT must not exceed LOGIN_RATE_LIMIT_GLOBAL");
-  }
-  if (config.loginRateLimitMaxClients < config.loginRateLimitGlobal) {
-    throw new Error("LOGIN_RATE_LIMIT_MAX_CLIENTS must be at least LOGIN_RATE_LIMIT_GLOBAL");
   }
   const maximumAdmissionsDuringLoginTtl = config.loginRateLimitGlobal
     * (Math.ceil(LOGIN_STATE_TTL_SECONDS / config.loginRateLimitWindowSeconds) + 1);
