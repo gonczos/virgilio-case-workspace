@@ -52,13 +52,13 @@ authentication hostname later changes the OIDC issuer identity.
 
 ## 2. Finish The Cloudflare Domain Prerequisites
 
-- [ ] Wait until the domain appears as **Active** in Cloudflare.
-- [ ] Confirm the authoritative nameservers and zone DNS are managed by the
+- [x] Wait until the domain appears as **Active** in Cloudflare.
+- [x] Confirm the authoritative nameservers and zone DNS are managed by the
       intended Cloudflare account.
-- [ ] Review the imported DNS records and remove or correct stale conflicts for
+- [x] Review the imported DNS records and remove or correct stale conflicts for
       the four chosen hostnames.
-- [ ] Confirm Cloudflare can issue edge certificates for all four hostnames.
-- [ ] Confirm the deployment machine can make outbound connections required by
+- [x] Confirm Cloudflare can issue edge certificates for all four hostnames.
+- [x] Confirm the deployment machine can make outbound connections required by
       `cloudflared`; do not add inbound router or firewall port forwarding.
 - [ ] Enable strong MFA for the Cloudflare account and retain recovery access in
       the operator's password manager.
@@ -69,14 +69,14 @@ Use a remotely managed tunnel. The repository already contains the pinned
 `cloudflared` Compose service, so do not install a separate system service for
 this deployment.
 
-- [ ] In Cloudflare, open **Networking > Tunnels** and create a tunnel named for
+- [x] In Cloudflare, open **Networking > Tunnels** and create a tunnel named for
       this deployment, for example `virgilio-consultation-v1`.
-- [ ] Copy the tunnel token once into the ignored file
+- [x] Copy the tunnel token once into the ignored file
       `deploy/consultation-v1/secrets/cloudflare_tunnel_token.txt`.
-- [ ] Restrict that file to the deployment operator.
-- [ ] Do not put the token itself in `.env`; `.env` contains only
+- [x] Restrict that file to the deployment operator.
+- [x] Do not put the token itself in `.env`; `.env` contains only
       `CLOUDFLARE_TUNNEL_TOKEN_FILE`.
-- [ ] Add the following published-application routes. These service names are
+- [x] Add the following published-application routes. These service names are
       resolved inside the Compose `edge` network.
 
 | Public hostname | Tunnel service URL |
@@ -86,10 +86,10 @@ this deployment.
 | `mcp-virgilio.asiloveit.com` | `http://mcp:8092` |
 | `auth-virgilio.asiloveit.com` | `http://keycloak:8080` |
 
-- [ ] Confirm Cloudflare created proxied DNS records for all published routes.
-- [ ] Do not create a public route to `gateway`, either PostgreSQL database, or
+- [x] Confirm Cloudflare created proxied DNS records for all published routes.
+- [x] Do not create a public route to `gateway`, either PostgreSQL database, or
       any Docker/host management endpoint.
-- [ ] Leave the tunnel stopped until the `.env`, secrets, and local health
+- [x] Leave the tunnel stopped until the `.env`, secrets, and local health
       checks are complete.
 
 Cloudflare's current dashboard procedure is documented in
@@ -111,13 +111,13 @@ This permits the website's versioned static files to use their origin cache
 headers while keeping authenticated data, documents, OAuth responses, and MCP
 traffic out of Cloudflare's shared cache.
 
-- [ ] Deploy the cache-bypass rule.
-- [ ] Check rule ordering so a later rule cannot make these requests cacheable.
-- [ ] Do not create a Cache Everything rule for the four service hostnames.
+- [x] Deploy the cache-bypass rule.
+- [x] Check rule ordering so a later rule cannot make these requests cacheable.
+- [x] Do not create a Cache Everything rule for the four service hostnames.
 - [ ] If the current Cloudflare plan supports a suitable rate-limit rule, an
       edge limit may be added to `/api/v1/auth/login`. The application limit is
       already mandatory, so this edge rule is optional.
-- [ ] Create a Cloudflare custom rule with action **Block** for this expression:
+- [x] Create a Cloudflare custom rule with action **Block** for this expression:
 
       ```text
       (http.host eq "auth-virgilio.asiloveit.com") and
@@ -128,7 +128,7 @@ traffic out of Cloudflare's shared cache.
       Keycloak documents that its administration hostname changes generated
       URLs but does not remove the Admin REST API from the frontend listener.
       See <https://www.keycloak.org/server/hostname>.
-- [ ] Do not put Cloudflare Access in front of the public authentication, site,
+- [x] Do not put Cloudflare Access in front of the public authentication, site,
       API, or MCP hostnames; doing so would add a second authentication protocol
       that can break OIDC and MCP clients.
 
@@ -168,25 +168,31 @@ SMTP transport=STARTTLS
 SMTP authentication=enabled
 ```
 
-- [ ] Choose the dedicated Google mailbox that will send Consultation V1
+- [x] Choose the dedicated Google mailbox that will send Consultation V1
       identity email.
-- [ ] Confirm 2-Step Verification is enabled for that Google account.
+- [x] Confirm 2-Step Verification is enabled for that Google account.
 - [x] Revoke the app password previously shared in conversation.
 - [x] Generate a new app password at
       <https://myaccount.google.com/apppasswords>.
-- [ ] Put only the replacement credential in the ignored file
+- [x] Put only the replacement credential in the ignored file
       `deploy/consultation-v1/secrets/smtp_password.txt`.
-- [ ] Record the full mailbox address as the future `SMTP_USER` value.
-- [ ] Use the same mailbox for `SMTP_FROM` during initial testing. Use a
+- [x] Record the full mailbox address as the future `SMTP_USER` value.
+- [x] Use the same mailbox for `SMTP_FROM` during initial testing. Use a
       different From address only after Google is configured to permit that
       sender identity.
-- [ ] Choose the sender display name; the default is `Virgilio Consultation`.
-- [ ] Choose a test recipient controlled by the operator.
+- [x] Choose the sender display name; the default is `Virgilio Consultation`.
+- [x] Choose a test recipient controlled by the operator. The sending mailbox
+      itself is the initial self-test recipient.
 - [ ] Record the app-password creation/rotation date in the password manager.
 
 Google notes that app passwords require 2-Step Verification and are revoked
 when the Google Account password changes. See
 <https://support.google.com/accounts/answer/185833>.
+
+SMTP authentication with the configured mailbox and replacement app password
+was first verified over STARTTLS on 2026-09-08 without sending a message. Gmail
+then accepted one self-test message to the sending mailbox. The same settings
+were applied to the existing `consultation` Keycloak realm.
 
 For a fresh production identity database, SMTP and public URL values must be
 correct before Keycloak first imports the realm. If the realm already exists,
@@ -231,21 +237,53 @@ into `.env` or this checklist:
 Cloudflare and SMTP are ready for `.env` work when all of these statements are
 true:
 
-- [ ] The Cloudflare zone is Active.
+- [x] The Cloudflare zone is Active.
 - [x] The four exact public hostnames are recorded.
-- [ ] The remotely managed tunnel and four routes exist.
-- [ ] The tunnel token is present only in its ignored secret file.
-- [ ] Cache bypass and public Keycloak administration-block rules are configured.
-- [ ] Keycloak local maintenance mode has been tested end to end: public ingress
+- [x] The remotely managed tunnel and four routes exist.
+- [x] The tunnel token is present only in its ignored secret file.
+- [x] Cache bypass and public Keycloak administration-block rules are configured.
+- [x] Keycloak local maintenance mode has been tested end to end: public ingress
       stops, the loopback console login works, normal public identity settings
       are restored, and no public administration hostname or Tunnel route exists.
-- [ ] No direct public origin port or gateway/database route exists.
-- [ ] The replacement Google app password is present only in its ignored secret
+- [x] No direct public origin port or gateway/database route exists.
+- [x] The replacement Google app password is present only in its ignored secret
       file.
-- [ ] SMTP username, From address, and display name are recorded.
-- [ ] No secret value appears in `.env`, Git, this document, or operational
+- [x] SMTP username, From address, and display name are recorded.
+- [x] No secret value appears in `.env`, Git, this document, or operational
       notes.
 
 After this gate passes, complete `deploy/consultation-v1/.env`, validate the
 Compose rendering, start the unexposed services, test Keycloak email, and only
 then start the `publish` profile.
+
+## 8. Deployment Verification Record
+
+The candidate was published and checked on 2026-09-08:
+
+- [x] `.env` contains the four approved HTTPS public URLs, the exact OIDC
+      issuer, the API and MCP audiences, and the allowed MCP host.
+- [x] The existing Keycloak realm contains the public browser callback and
+      origin, plus the matching API and MCP audience mappers.
+- [x] Normal operation exposes no host ports. The UI, API, MCP, binary gateway,
+      Keycloak, and both PostgreSQL services report healthy.
+- [x] The `publish` profile runs the pinned `cloudflared` image, receives the
+      remotely managed ingress configuration, and established four QUIC tunnel
+      connections after all connectivity pre-checks passed.
+- [x] HTTPS succeeds on all four public hostnames. The site, API health, MCP
+      health and protected-resource metadata, and OIDC discovery endpoints
+      respond successfully.
+- [x] OIDC discovery reports the exact public issuer. The website login route
+      redirects to a usable Keycloak login form with the approved public
+      callback, API audience, PKCE, state, and nonce parameters.
+- [x] Unauthenticated consultation API and MCP requests are rejected. The MCP
+      challenge points to the public protected-resource metadata endpoint.
+- [x] Authenticated-data and identity responses use private/no-store cache
+      controls and Cloudflare reports dynamic handling rather than a cache hit.
+- [x] Public requests to `/admin` and `/realms/master` on the identity hostname
+      are blocked with HTTP 403.
+
+The two remaining unchecked items in this document are operator account
+hygiene: Cloudflare account MFA/recovery storage and recording the Google app
+password rotation date in the password manager. The optional edge login rate
+limit is not a publication blocker because the application already enforces its
+own bounded login-start limit.
