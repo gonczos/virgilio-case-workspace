@@ -146,8 +146,8 @@ export function BinaryDetailPage() {
           </Stack>
           <Stack spacing={1} alignItems={{ xs: "flex-start", md: "flex-end" }}>
             <Button
-              component="a"
-              href={detail.binary.original_binary_url}
+              component={RouterLink}
+              to={`/open-original/${detail.binary.sha256}`}
               target="_blank"
               rel="noreferrer"
               variant="outlined"
@@ -173,8 +173,8 @@ export function BinaryDetailPage() {
                     <Typography variant="h6">Original file</Typography>
                     <Alert severity="info">Preview not available for this file type.</Alert>
                     <Button
-                      component="a"
-                      href={detail.binary.original_binary_url}
+                      component={RouterLink}
+                      to={`/open-original/${detail.binary.sha256}`}
                       target="_blank"
                       rel="noreferrer"
                       variant="outlined"

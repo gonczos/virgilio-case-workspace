@@ -19,6 +19,7 @@ import { ExtractionCoveragePage } from "./pages/ExtractionCoveragePage";
 import { ReferenceSearchPage } from "./pages/ReferenceSearchPage";
 import { ReferenceGraphPage } from "./pages/ReferenceGraphPage";
 import { ProceduralFlowPage } from "./pages/ProceduralFlowPage";
+import { OpenOriginalPage } from "./pages/OpenOriginalPage";
 
 const theme = createTheme({
   palette: {
@@ -129,6 +130,7 @@ function App() {
               <Route path="/" element={<Navigate to="/binaries" replace />} />
               <Route path="/binaries" element={<BinariesPage />} />
               <Route path="/binaries/:sha256" element={<BinaryDetailPage />} />
+              <Route path="/open-original/:sha256" element={<OpenOriginalPage />} />
               {!releaseMode && <Route path="/reports/extraction-coverage" element={<ExtractionCoveragePage />} />}
               <Route path="/reference-search" element={<ReferenceSearchPage />} />
               {!releaseMode && <Route path="/reference-graph/:value" element={<ReferenceGraphPage />} />}

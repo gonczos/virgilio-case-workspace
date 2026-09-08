@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { exportJWK, generateKeyPair, SignJWT } from "jose";
 
-import { bearerChallenge, createBffAuth, createTokenValidator, loadAuthV1Config, oauthProtectedResourceMetadata, sessionCookie } from "../app/auth-v1.mjs";
+import { bearerChallenge, createBffAuth, createTokenValidator, loadAuthV1Config, oauthProtectedResourceMetadata, oidcBackchannelUrl, sessionCookie } from "../app/auth-v1.mjs";
 
 async function withJwks(work) {
   const { publicKey, privateKey } = await generateKeyPair("RS256");
@@ -115,6 +115,17 @@ test("V1 authentication configuration rejects unsafe duration values", () => {
   assert.throws(() => loadAuthV1Config({ ...base, OIDC_ACCESS_TOKEN_MAX_SECONDS: "not-a-number" }), /positive integer/u);
   assert.throws(() => loadAuthV1Config({ ...base, OIDC_ACCESS_TOKEN_MAX_SECONDS: "301" }), /no greater than 300/u);
   assert.throws(() => loadAuthV1Config({ ...base, BFF_SESSION_IDLE_SECONDS: "60", BFF_SESSION_ABSOLUTE_SECONDS: "30" }), /must not exceed/u);
+  assert.throws(() => loadAuthV1Config({ ...base, OIDC_BACKCHANNEL_BASE_URL: "http://keycloak:8080/path" }), /without a path/u);
+});
+
+test("V1 OIDC backchannel retains public paths on the internal Keycloak origin", () => {
+  assert.equal(
+    oidcBackchannelUrl(
+      "https://auth.example.test/realms/consultation/protocol/openid-connect/token",
+      "http://keycloak:8080",
+    ),
+    "http://keycloak:8080/realms/consultation/protocol/openid-connect/token",
+  );
 });
 
 test("V1 pending login state is bounded", async () => {

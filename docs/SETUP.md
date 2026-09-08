@@ -673,6 +673,10 @@ remains `data/releases/consultation-v1/consultation-v1-input.dump` by default.
 The API uses `API_PUBLIC_URL` and OIDC discovery to materialize its served
 OpenAPI document. Invalid, nonpositive, or excessive token/session duration
 settings stop the API or MCP process at startup.
+Within Compose, API and MCP reach Keycloak through the private
+`http://keycloak:8080` backchannel while retaining the exact public issuer for
+token validation and browser authorization. This lets the unexposed topology
+become healthy before Cloudflare Tunnel starts.
 Then build and start without public ingress:
 
 ```powershell

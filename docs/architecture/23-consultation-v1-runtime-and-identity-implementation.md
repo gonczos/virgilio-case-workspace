@@ -66,6 +66,12 @@ Secure, HttpOnly, SameSite=Lax opaque cookie. Refresh is serialized per session
 and a failed refresh destroys it. Pending logins and sessions have fixed
 capacity bounds. A restart invalidates sessions.
 
+API and MCP containers perform discovery, token exchange, refresh, and JWKS
+retrieval through the Docker-internal Keycloak origin. They still validate the
+public issuer exactly, and discovery continues to publish the public browser
+authorization endpoint. This avoids a tunnel startup dependency cycle without
+weakening issuer or audience validation.
+
 The MCP endpoint publishes RFC 9728 protected-resource metadata, returns the
 metadata URI in bearer challenges, and requires the exact MCP audience. The
 server is a resource server and does not issue tokens.
@@ -80,6 +86,11 @@ SMTP password, database password, client secret, or tunnel token.
 The served OpenAPI document retains the frozen portable contract but replaces
 its example server and OAuth URLs at startup with `API_PUBLIC_URL` and the
 authorization and token endpoints returned by OIDC discovery.
+
+Original-file links open a same-origin UI route that checks the current session
+and performs a protected `HEAD` request before navigating the new tab to the
+original content URL. The embedded native PDF viewer uses the same preflight.
+Development retains both `/api` and `/binary` Vite proxies.
 
 The deployment and rotation procedure is in
 `deploy/consultation-v1/README.md`. Google app-password management remains

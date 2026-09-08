@@ -31,6 +31,22 @@ function positiveIntegerSetting(value, name, fallback, { maximum = Number.MAX_SA
   return parsed;
 }
 
+function optionalOrigin(value, name) {
+  const normalized = String(value ?? "").trim();
+  if (!normalized) return null;
+  const parsed = new URL(normalized);
+  if (!new Set(["http:", "https:"]).has(parsed.protocol) || parsed.pathname !== "/" || parsed.search || parsed.hash) {
+    throw new Error(`${name} must be an HTTP(S) origin without a path, query, or fragment`);
+  }
+  return parsed.origin;
+}
+
+export function oidcBackchannelUrl(publicUrl, backchannelOrigin) {
+  if (!backchannelOrigin) return publicUrl;
+  const target = new URL(publicUrl);
+  return new URL(`${target.pathname}${target.search}`, `${backchannelOrigin}/`).toString();
+}
+
 function base64Url(bytes) {
   return Buffer.from(bytes).toString("base64url");
 }
@@ -82,6 +98,7 @@ export function loadAuthV1Config(env = process.env) {
     mcpAudience: requiredString(env.OIDC_MCP_AUDIENCE, "OIDC_MCP_AUDIENCE"),
     requiredScope: env.OIDC_REQUIRED_SCOPE?.trim() || "consultation.read",
     requiredRole: env.OIDC_REQUIRED_ROLE?.trim() || "consultation_user",
+    backchannelOrigin: optionalOrigin(env.OIDC_BACKCHANNEL_BASE_URL, "OIDC_BACKCHANNEL_BASE_URL"),
     accessTokenMaxSeconds: positiveIntegerSetting(
       env.OIDC_ACCESS_TOKEN_MAX_SECONDS,
       "OIDC_ACCESS_TOKEN_MAX_SECONDS",
@@ -97,8 +114,8 @@ export function loadAuthV1Config(env = process.env) {
   return config;
 }
 
-export async function discoverOidc(issuer, fetchImpl = fetch) {
-  const response = await fetchImpl(`${issuer}/.well-known/openid-configuration`, {
+export async function discoverOidc(issuer, fetchImpl = fetch, discoveryUrl = `${issuer}/.well-known/openid-configuration`) {
+  const response = await fetchImpl(discoveryUrl, {
     headers: { Accept: "application/json" },
   });
   if (!response.ok) throw new Error(`OIDC discovery failed with status ${response.status}`);
@@ -184,16 +201,22 @@ export async function createBffAuth({
 }) {
   requiredString(config.clientSecret, "OIDC_CLIENT_SECRET");
   requiredString(config.redirectUri, "OIDC_REDIRECT_URI");
-  const metadata = await discoverOidc(config.issuer, fetchImpl);
+  const metadata = await discoverOidc(
+    config.issuer,
+    fetchImpl,
+    oidcBackchannelUrl(`${config.issuer}/.well-known/openid-configuration`, config.backchannelOrigin),
+  );
+  const tokenEndpoint = oidcBackchannelUrl(metadata.token_endpoint, config.backchannelOrigin);
+  const jwksUri = oidcBackchannelUrl(metadata.jwks_uri, config.backchannelOrigin);
   const validateAccessToken = createTokenValidator({
     issuer: config.issuer,
     audience: config.apiAudience,
     requiredScope: config.requiredScope,
     requiredRole: config.requiredRole,
     maximumLifetimeSeconds: config.accessTokenMaxSeconds,
-    jwksUri: metadata.jwks_uri,
+    jwksUri,
   });
-  const idTokenJwks = createRemoteJWKSet(new URL(metadata.jwks_uri));
+  const idTokenJwks = createRemoteJWKSet(new URL(jwksUri));
   const pending = new Map();
   const sessions = new Map();
 
@@ -234,7 +257,7 @@ export async function createBffAuth({
     pending.delete(String(state));
     if (!pendingLogin || pendingLogin.expiresAt <= now()) throw authError("INVALID_LOGIN_STATE", "login state is invalid or expired", 400);
     if (sessions.size >= maxSessions) throw authError("AUTH_CAPACITY_REACHED", "authentication capacity is temporarily exhausted", 503);
-    const tokens = await tokenRequest(metadata.token_endpoint, config, {
+    const tokens = await tokenRequest(tokenEndpoint, config, {
       grant_type: "authorization_code",
       code: requiredString(code, "authorization code"),
       redirect_uri: config.redirectUri,
@@ -274,7 +297,7 @@ export async function createBffAuth({
     if (session.refreshPromise) return session.refreshPromise;
     session.refreshPromise = (async () => {
       try {
-        const tokens = await tokenRequest(metadata.token_endpoint, config, {
+        const tokens = await tokenRequest(tokenEndpoint, config, {
           grant_type: "refresh_token",
           refresh_token: session.refreshToken,
           resource: config.apiAudience,
@@ -321,14 +344,18 @@ export async function createBffAuth({
 }
 
 export async function createBearerAuth({ config, audience, fetchImpl = fetch }) {
-  const metadata = await discoverOidc(config.issuer, fetchImpl);
+  const metadata = await discoverOidc(
+    config.issuer,
+    fetchImpl,
+    oidcBackchannelUrl(`${config.issuer}/.well-known/openid-configuration`, config.backchannelOrigin),
+  );
   const validate = createTokenValidator({
     issuer: config.issuer,
     audience,
     requiredScope: config.requiredScope,
     requiredRole: config.requiredRole,
     maximumLifetimeSeconds: config.accessTokenMaxSeconds,
-    jwksUri: metadata.jwks_uri,
+    jwksUri: oidcBackchannelUrl(metadata.jwks_uri, config.backchannelOrigin),
   });
   return {
     metadata,

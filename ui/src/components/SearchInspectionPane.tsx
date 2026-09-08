@@ -84,7 +84,7 @@ function BinaryInspection({ target, initialSearchTerm, onCollapse }: { target: E
     /></Box>
     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ flexShrink: 0 }}>
       <Button component={RouterLink} to={`/binaries/${detail.binary.sha256}`} target="_blank" rel="noopener noreferrer" size="small">Open full document detail</Button>
-      <Button component="a" href={detail.binary.original_binary_url} target="_blank" rel="noreferrer" size="small">Open file in new tab</Button>
+      <Button component={RouterLink} to={`/open-original/${detail.binary.sha256}`} target="_blank" rel="noopener noreferrer" size="small">Open file in new tab</Button>
     </Stack>
   </Stack>;
 }
