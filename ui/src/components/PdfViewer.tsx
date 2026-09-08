@@ -13,7 +13,8 @@ import { GlobalWorkerOptions, getDocument, type PDFDocumentProxy } from "pdfjs-d
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { requireAuthenticatedResponse } from "../api/consultation";
 
-GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+// Use a new URL after correcting the deployed worker's cached MIME type.
+GlobalWorkerOptions.workerSrc = `${pdfWorkerUrl}?delivery=javascript-v1`;
 
 interface PdfViewerProps {
   url: string;

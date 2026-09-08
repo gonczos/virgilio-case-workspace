@@ -729,6 +729,12 @@ browser loading and produces a PDF preview worker error. After rebuilding and
 recreating `ui`, verify the worker asset's public `Content-Type` as well as its
 HTTP status. Keep `X-Content-Type-Options: nosniff` enabled.
 
+The UI requests the worker with a delivery-version query parameter to avoid
+reusing responses cached before the MIME correction. Static UI responses use
+`Cache-Control: no-cache` so browsers revalidate before reuse, including the
+HTML entry point after deployment. This allows storage but requires validation;
+it does not change the API's private, no-store policy.
+
 ### Keycloak subject claim
 
 The custom Keycloak `consultation.read` scope must include the standard
