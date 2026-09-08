@@ -1,0 +1,19 @@
+{
+  "clientId": "consultation-chatgpt",
+  "name": "Virgilio Consultation - ChatGPT",
+  "protocol": "openid-connect",
+  "enabled": true,
+  "clientAuthenticatorType": "client-secret",
+  "publicClient": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "consentRequired": true,
+  "fullScopeAllowed": false,
+  "redirectUris": ["https://chatgpt.com/connector_platform_oauth_redirect"],
+  "webOrigins": [],
+  "attributes": { "pkce.code.challenge.method": "S256" },
+  "defaultClientScopes": ["consultation.read", "consultation-mcp-audience"],
+  "optionalClientScopes": []
+}

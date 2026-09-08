@@ -735,6 +735,26 @@ reusing responses cached before the MIME correction. Static UI responses use
 HTML entry point after deployment. This allows storage but requires validation;
 it does not change the API's private, no-store policy.
 
+### ChatGPT MCP client registration
+
+Use **User-Defined OAuth Client** in ChatGPT. Anonymous dynamic registration
+remains restricted by Keycloak's Trusted Hosts policy. The dedicated client
+template is `deploy/consultation-v1/keycloak/chatgpt-client.json`; create it in
+the `consultation` realm through authenticated administration, then add only
+the `consultation_user` realm role to its role scope mappings. The template is
+not automatically imported with the realm. Keycloak generates its client
+secret; keep it in the operator's ignored `secrets/` directory and enter it
+only in ChatGPT's Client Secret field.
+
+Client ID: `consultation-chatgpt`. Callback allowlist:
+`https://chatgpt.com/connector_platform_oauth_redirect`, confirmed by the app
+creator. Set default OAuth scopes to `openid consultation.read`. The client
+requires S256 PKCE, user consent and the existing invited-user login; it grants
+the MCP audience, not the API audience. Password grants and service accounts
+are disabled. Standard refresh tokens follow the realm's session limits;
+this configuration does not request offline access. A changed callback URL
+requires an explicit client allowlist update.
+
 ### Browser logout and application title
 
 The `consultation-web` Keycloak client must allow exactly
