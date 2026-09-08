@@ -1,6 +1,6 @@
 # TODO Setup And Portability
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 ## Authority
 
@@ -29,6 +29,11 @@ It packages the frozen corpus as a read-only online site, API, binary gateway,
 and vendor-neutral MCP with shared Keycloak authentication and configurable
 public URLs. That document is a target and acceptance contract; none of its
 unverified deployment capabilities should be read as current setup behavior.
+
+The audited V1.1 corpus, runtime, UI, API, binary, and MCP baseline is recorded
+in `docs/architecture/22-consultation-v1-contract-and-runtime-baseline.md`.
+That note fixes the release product boundary; the production package remains
+unimplemented.
 
 That means today:
 

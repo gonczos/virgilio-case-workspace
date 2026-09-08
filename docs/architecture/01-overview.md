@@ -1,5 +1,9 @@
 # Architecture Notes
 
+Consultation v1 inventory and public contract boundary:
+[Consultation v1 contract and runtime baseline](22-consultation-v1-contract-and-runtime-baseline.md)
+(documented, not implemented).
+
 Agreed final-phase target: [Consultation v1 read-only online service package](21-consultation-v1-read-only-online-service-package.md)
 (documented, not implemented).
 
@@ -9,7 +13,7 @@ Agreed future design: [entity-specific external identifier collections](20-entit
 For saved Citius metadata, see the [source/storage field dictionary](17-citius-source-data-dictionary.md)
 and the separate [system adaptation mapping](18-citius-system-adaptation.md).
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 For the bounded reference-observation and text-search foundation, see
 `10-reference-observations-and-search-pilot.md`.

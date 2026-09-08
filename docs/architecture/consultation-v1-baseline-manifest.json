@@ -1,0 +1,71 @@
+{
+  "manifest_kind": "consultation_v1_inventory_baseline",
+  "manifest_version": "1.0.0",
+  "status": "release_input",
+  "observed_at": "2026-09-08T00:41:42.7457909Z",
+  "git_commit": "27d13f89ea6cadfd5886993ecfa8eb0cf074c5f5",
+  "corpus_package": {
+    "package_id": "tribunais-portable-case-package-13608-14-8t2snt-2026-08-30T05-26-33-368Z",
+    "package_kind": "portable_case_corpus_v1",
+    "schema_version": "1.0.0",
+    "package_json_sha256": "923ef1fe8df032bac9a6e26f66998c4eb80a1cea25ff4619d6a025ef0edaa827",
+    "created_at": "2026-08-30T05:26:59.693Z",
+    "imported_at": "2026-09-02T01:03:45.458Z",
+    "binary_file_count": 1238,
+    "binary_total_bytes": 509420710
+  },
+  "database_counts": {
+    "case_workspace": 1,
+    "case_file": 5,
+    "bucket": 897,
+    "document": 1293,
+    "bucket_document": 2070,
+    "file_binary": 1238,
+    "document_binary": 1257,
+    "processing_job": 6210,
+    "document_representation": 6182,
+    "document_segment": 3706,
+    "reference_observation": 2420,
+    "reference_observation_review": 0,
+    "source_capture": 2,
+    "source_observation": 6926,
+    "import_batch": 1,
+    "import_execution": 4
+  },
+  "processing": {
+    "completed_jobs": 6183,
+    "failed_jobs": 27,
+    "pending_jobs": 0,
+    "represented_binary_count": 1238,
+    "segments_with_nonempty_text": 3638
+  },
+  "binary_state": {
+    "retention_status": "local_artifact_retained",
+    "retention_status_count": 1238,
+    "integrity_check_status": "validated_by_qpdf",
+    "integrity_check_status_count": 1238
+  },
+  "schema_migrations": [
+    { "name": "2026-08-30-001-consultation-views.sql", "sha256": "e0fcc3b899a0dbf6f6e754cd48257223ed1d3203b1034e40ed46437a61cd086c" },
+    { "name": "2026-08-30-002-file-gateway.sql", "sha256": "fe1354d71d997e6875622d345606d46111da259f791b006e05d3666c133f1ebd" },
+    { "name": "2026-08-30-003-phase-a1-case-workspace.sql", "sha256": "eaaec32ee658457085b422d1f152a8b074d784a338d05c978d7c7a78f959c011" },
+    { "name": "2026-08-30-004-phase-a2a-workspace-reference-document.sql", "sha256": "10a93650278306acdd54271cbb404daa438146f370e160fe3233b32a46052b90" },
+    { "name": "2026-08-30-005-phase-a2b-document-origin.sql", "sha256": "fda91ba8268720be4daca26091fa7e524fa3775f025677868ed3163a6d9b106b" },
+    { "name": "2026-08-30-006-phase-a2c-workgroup-notes.sql", "sha256": "fcb50b3ef08fe7f0a04bc91598c7a346cdd75bce6946b87d2492c261344e3dad" },
+    { "name": "2026-08-31-007-phase-b-source-provenance.sql", "sha256": "8b6794ae7148f78f81fc6b041e0613cd024d5589e3d0662a9ffab8ad6ce976db" },
+    { "name": "2026-08-31-008-phase-c-processing-core.sql", "sha256": "95bf809bcd4d97a803ef8536a9eb363818aa4f62ef18c64b27bc0681cf4cbc0f" },
+    { "name": "2026-08-31-009-phase-c3-async-selection.sql", "sha256": "8245b4620843cb5802fd51bbcd0356df6793ec6c056e9c8ab1d4b08a0fa1b63b" },
+    { "name": "2026-09-03-010-reference-observations-and-text-search.sql", "sha256": "0382880a9a9bcfc57b191558d1c4eea8f4abba1ca25b3acb414272d9e12ad0bf" },
+    { "name": "2026-09-03-011-reference-observation-reviews.sql", "sha256": "bf91d33eea66c375ae80b85e96a9c23572ad045e6ecb9ba801aaa1d2fe76c952" },
+    { "name": "2026-09-03-012-reference-resolution-state.sql", "sha256": "09d57a3eba08e997e6c9f5866e28d77402a1aa5af401ec1a67d7cea693a17a99" },
+    { "name": "2026-09-03-013-reference-metadata-lifecycle.sql", "sha256": "692b34542b979f3f36e3a35e8e99c31da5f0d13b00a7b12df0b4481806dbbd3e" },
+    { "name": "2026-09-04-014-ptdocs-review.sql", "sha256": "00305b501eef776ac9643c7225c7656ce61337cfea6af9f1407d1f42d54bf104" },
+    { "name": "2026-09-05-015-import-execution.sql", "sha256": "2a64f61be87f0a15feac990ff91572fea118feb480e364d098e2bf87d0a6c028" }
+  ],
+  "release_artifacts_pending": {
+    "database_snapshot_sha256": null,
+    "application_release_tag": null,
+    "container_image_digests": null,
+    "acceptance_report": null
+  }
+}
