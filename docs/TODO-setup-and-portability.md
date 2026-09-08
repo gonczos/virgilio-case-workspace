@@ -40,6 +40,10 @@ realm, enforces read-only roles, and provides validated application login
 limits. V1.4 public ingress, edge-policy verification, and client
 interoperability testing have not started.
 
+The practical Cloudflare and SMTP prerequisites for V1.4 are tracked in
+`docs/TODO-consultation-v1-cloudflare-and-smtp.md`. Complete its dependency-ready
+gate before finalizing the deployment `.env`.
+
 That means today:
 
 * Docker Compose runs PostgreSQL, Directus, and the binary gateway;

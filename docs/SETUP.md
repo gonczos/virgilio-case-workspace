@@ -658,6 +658,9 @@ Node, Python, PDF, OCR, Directus, importer, processor, or model-cache runtime.
 The pinned images are Node 24.19.0 Bookworm slim, nginx 1.28.3 Alpine,
 PostgreSQL 17.11 Bookworm, Keycloak 26.7.3, and cloudflared 2026.8.3. The
 cloudflared service remains disabled until the V1.4 `publish` profile is used.
+Complete the dedicated
+[Cloudflare and SMTP setup checklist](TODO-consultation-v1-cloudflare-and-smtp.md)
+before finalizing the candidate environment's `.env` and enabling that profile.
 
 Prepare configuration and secret files from the repository root:
 

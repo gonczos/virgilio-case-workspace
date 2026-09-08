@@ -9,6 +9,10 @@ the `publish` profile is selected; publication belongs to V1.4.
 
 ## Prepare
 
+Complete the repository's
+[`Cloudflare and SMTP setup checklist`](../../docs/TODO-consultation-v1-cloudflare-and-smtp.md)
+before finalizing the candidate environment's `.env` or enabling public ingress.
+
 1. Copy `.env.example` to `.env` and replace every `example.invalid` value.
 2. Set the three host paths to the frozen source package, representation
    artifacts, and the V1.1 custom-format database snapshot.
