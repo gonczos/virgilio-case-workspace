@@ -66,6 +66,14 @@ Secure, HttpOnly, SameSite=Lax opaque cookie. Refresh is serialized per session
 and a failed refresh destroys it. Pending logins and sessions have fixed
 capacity bounds. A restart invalidates sessions.
 
+Provider error callbacks accept the standard `error`, `error_description`, and
+`error_uri` parameters. They consume valid pending state and return a generic
+`LOGIN_FAILED` response without exchanging tokens or reflecting provider text.
+ID-token rejection remains fail-closed; server diagnostics record only a bounded
+failure category (such as nonce/subject mismatch or a JOSE verification code),
+never tokens or claim values. These diagnostics distinguish causes that the
+public `INVALID_ID_TOKEN` response deliberately does not expose.
+
 Before allocating login state, the BFF applies fixed-window admission limits
 per Cloudflare client address and globally. The configured global rate and
 window are validated against the five-minute pending-state lifetime and the

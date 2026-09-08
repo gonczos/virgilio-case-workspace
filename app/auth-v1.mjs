@@ -278,6 +278,7 @@ export async function createBffAuth({
   now = () => Date.now(),
   maxPendingLogins = config.maxPendingLogins ?? DEFAULT_MAX_PENDING_LOGINS,
   maxSessions = config.maxSessions ?? DEFAULT_MAX_SESSIONS,
+  onIdTokenFailure = (reason) => console.error("[consultation-auth] ID-token validation failed:", reason),
 }) {
   requiredString(config.clientSecret, "OIDC_CLIENT_SECRET");
   requiredString(config.redirectUri, "OIDC_REDIRECT_URI");
@@ -339,11 +340,12 @@ export async function createBffAuth({
     return url.toString();
   }
 
-  async function completeLogin({ code, state }) {
+  async function completeLogin({ code, state, error: providerError }) {
     cleanup();
     const pendingLogin = pending.get(String(state));
     pending.delete(String(state));
     if (!pendingLogin || pendingLogin.expiresAt <= now()) throw authError("INVALID_LOGIN_STATE", "login state is invalid or expired", 400);
+    if (providerError) throw authError("LOGIN_FAILED", "identity provider did not complete login; start a new login", 401);
     if (sessions.size >= maxSessions) throw authError("AUTH_CAPACITY_REACHED", "authentication capacity is temporarily exhausted", 503);
     const tokens = await tokenRequest(tokenEndpoint, config, {
       grant_type: "authorization_code",
@@ -354,15 +356,24 @@ export async function createBffAuth({
     }, fetchImpl);
     const access = await validateAccessToken(tokens.access_token);
     if (!tokens.id_token) throw authError("INVALID_ID_TOKEN", "identity token is missing");
+    let failureReason = "verification_failed";
     try {
       const verifiedId = await jwtVerify(tokens.id_token, idTokenJwks, {
         issuer: config.issuer,
         audience: config.clientId,
         clockTolerance: CLOCK_TOLERANCE_SECONDS,
       });
-      if (verifiedId.payload.nonce !== pendingLogin.nonce) throw new Error("nonce mismatch");
-      if (!verifiedId.payload.sub || verifiedId.payload.sub !== access.payload.sub) throw new Error("subject mismatch");
-    } catch {
+      if (verifiedId.payload.nonce !== pendingLogin.nonce) {
+        failureReason = "nonce_mismatch";
+        throw new Error("nonce mismatch");
+      }
+      if (!verifiedId.payload.sub || verifiedId.payload.sub !== access.payload.sub) {
+        failureReason = "subject_mismatch";
+        throw new Error("subject mismatch");
+      }
+    } catch (error) {
+      const safeCodes = new Set(["ERR_JWT_EXPIRED", "ERR_JWT_CLAIM_VALIDATION_FAILED", "ERR_JWS_SIGNATURE_VERIFICATION_FAILED", "ERR_JWKS_NO_MATCHING_KEY", "ERR_JWKS_TIMEOUT"]);
+      onIdTokenFailure(safeCodes.has(error.code) ? error.code : failureReason);
       throw authError("INVALID_ID_TOKEN", "identity token is invalid");
     }
     if (!tokens.refresh_token) throw authError("REFRESH_TOKEN_REQUIRED", "identity provider did not issue a refresh token");

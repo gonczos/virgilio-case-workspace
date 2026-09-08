@@ -208,7 +208,8 @@ test("V1 login binds the ID-token subject to the access-token subject", async ()
       clientSecret: "secret",
       redirectUri: "https://consultation.example.test/api/v1/auth/callback",
     };
-    const auth = await createBffAuth({ config });
+    const failures = [];
+    const auth = await createBffAuth({ config, onIdTokenFailure: (reason) => failures.push(reason) });
     const login = new URL(await auth.beginLogin("/binaries"));
     const now = Math.floor(Date.now() / 1000);
     const common = { alg: "RS256", kid: "test" };
@@ -225,5 +226,20 @@ test("V1 login binds the ID-token subject to the access-token subject", async ()
       () => auth.completeLogin({ code: "code", state: login.searchParams.get("state") }),
       (error) => error.code === "INVALID_ID_TOKEN" && /identity token is invalid/u.test(error.message),
     );
+    assert.deepEqual(failures, ["subject_mismatch"]);
+  });
+});
+
+test("V1 provider errors consume valid login state without exchanging tokens", async () => {
+  await withOidc(async ({ issuer }) => {
+    const config = { ...loadAuthV1Config({
+      OIDC_ISSUER: issuer, OIDC_CLIENT_ID: "consultation-web",
+      OIDC_API_AUDIENCE: "consultation-api", OIDC_MCP_AUDIENCE: "consultation-mcp",
+    }), clientSecret: "secret", redirectUri: "https://consultation.example.test/api/v1/auth/callback" };
+    const auth = await createBffAuth({ config });
+    const login = new URL(await auth.beginLogin("/"));
+    const callback = { state: login.searchParams.get("state"), error: "access_denied" };
+    await assert.rejects(() => auth.completeLogin(callback), (error) => error.code === "LOGIN_FAILED");
+    await assert.rejects(() => auth.completeLogin(callback), (error) => error.code === "INVALID_LOGIN_STATE");
   });
 });

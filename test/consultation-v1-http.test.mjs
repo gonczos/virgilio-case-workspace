@@ -79,6 +79,26 @@ test("V1 login admission failures return 429 with Retry-After", async () => {
   });
 });
 
+test("V1 callback accepts provider error fields without reflecting their contents", async () => {
+  let received;
+  const auth = {
+    metadata: { issuer: "https://auth.example.test/realms/consultation" },
+    completeLogin: async (parameters) => {
+      received = parameters;
+      throw Object.assign(new Error("identity provider did not complete login; start a new login"), { code: "LOGIN_FAILED", statusCode: 401 });
+    },
+  };
+  await serve(apiHandler(auth), async (base) => {
+    const response = await fetch(`${base}/api/v1/auth/callback?state=state&error=access_denied&error_description=private-detail&error_uri=https%3A%2F%2Fexample.invalid`, { redirect: "manual" });
+    assert.equal(response.status, 401);
+    const body = await response.json();
+    assert.equal(body.error.code, "LOGIN_FAILED");
+    assert.doesNotMatch(JSON.stringify(body), /private-detail|example.invalid/u);
+    assert.deepEqual(received, { code: null, state: "state", error: "access_denied" });
+    assert.equal(response.headers.get("set-cookie"), null);
+  });
+});
+
 test("MCP V1 publishes protected-resource metadata and challenges unauthenticated calls", async () => {
   const handler = createMcpV1HttpHandler({
     callTool: async () => ({}),

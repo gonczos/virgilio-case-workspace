@@ -139,11 +139,11 @@ export function createConsultationV1Handler({
         return;
       }
       if (requestUrl.pathname === "/api/v1/auth/callback" && request.method === "GET") {
-        requireOnly(requestUrl.searchParams, new Set(["code", "state", "session_state", "iss"]));
+        requireOnly(requestUrl.searchParams, new Set(["code", "state", "session_state", "iss", "error", "error_description", "error_uri"]));
         if (requestUrl.searchParams.has("iss") && requestUrl.searchParams.get("iss") !== auth.metadata.issuer) {
           throw Object.assign(new Error("authorization response issuer mismatch"), { code: "INVALID_LOGIN_ISSUER", statusCode: 400 });
         }
-        const completed = await auth.completeLogin({ code: requestUrl.searchParams.get("code"), state: requestUrl.searchParams.get("state") });
+        const completed = await auth.completeLogin({ code: requestUrl.searchParams.get("code"), state: requestUrl.searchParams.get("state"), error: requestUrl.searchParams.get("error") });
         response.writeHead(302, { Location: completed.returnTo, "Set-Cookie": sessionCookie(completed.sessionId), "Cache-Control": PRIVATE_CACHE_CONTROL });
         response.end();
         return;
