@@ -183,6 +183,9 @@ export function loadAuthV1Config(env = process.env) {
   if (config.loginRateLimitPerClient > config.loginRateLimitGlobal) {
     throw new Error("LOGIN_RATE_LIMIT_PER_CLIENT must not exceed LOGIN_RATE_LIMIT_GLOBAL");
   }
+  if (config.loginRateLimitMaxClients < config.loginRateLimitGlobal * 2) {
+    throw new Error("LOGIN_RATE_LIMIT_MAX_CLIENTS must be at least twice LOGIN_RATE_LIMIT_GLOBAL");
+  }
   const maximumAdmissionsDuringLoginTtl = config.loginRateLimitGlobal
     * (Math.ceil(LOGIN_STATE_TTL_SECONDS / config.loginRateLimitWindowSeconds) + 1);
   if (maximumAdmissionsDuringLoginTtl > config.maxPendingLogins) {

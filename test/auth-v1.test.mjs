@@ -117,6 +117,7 @@ test("V1 authentication configuration rejects unsafe duration values", () => {
   assert.throws(() => loadAuthV1Config({ ...base, BFF_SESSION_IDLE_SECONDS: "60", BFF_SESSION_ABSOLUTE_SECONDS: "30" }), /must not exceed/u);
   assert.throws(() => loadAuthV1Config({ ...base, OIDC_BACKCHANNEL_BASE_URL: "http://keycloak:8080/path" }), /without a path/u);
   assert.throws(() => loadAuthV1Config({ ...base, LOGIN_RATE_LIMIT_PER_CLIENT: "61" }), /must not exceed LOGIN_RATE_LIMIT_GLOBAL/u);
+  assert.throws(() => loadAuthV1Config({ ...base, LOGIN_RATE_LIMIT_MAX_CLIENTS: "119" }), /must be at least twice LOGIN_RATE_LIMIT_GLOBAL/u);
   assert.throws(() => loadAuthV1Config({ ...base, BFF_MAX_PENDING_LOGINS: "100" }), /can exceed BFF_MAX_PENDING_LOGINS/u);
 });
 

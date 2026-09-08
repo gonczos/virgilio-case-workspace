@@ -54,7 +54,7 @@ requires different bounds:
 | `LOGIN_RATE_LIMIT_WINDOW_SECONDS` | 60 | Positive integer, at most 3,600 |
 | `LOGIN_RATE_LIMIT_PER_CLIENT` | 10 | No greater than the global limit |
 | `LOGIN_RATE_LIMIT_GLOBAL` | 60 | Positive integer, at most 10,000 |
-| `LOGIN_RATE_LIMIT_MAX_CLIENTS` | 256 | Positive integer, at most 100,000; the oldest active client window is evicted when this bound is reached |
+| `LOGIN_RATE_LIMIT_MAX_CLIENTS` | 256 | At least twice the global limit and at most 100,000; the oldest active client window is evicted only as a defensive fallback |
 | `BFF_MAX_PENDING_LOGINS` | 512 | Must cover the maximum admitted requests during the five-minute state lifetime |
 | `BFF_MAX_SESSIONS` | 2,048 | Positive integer, at most 100,000 |
 
