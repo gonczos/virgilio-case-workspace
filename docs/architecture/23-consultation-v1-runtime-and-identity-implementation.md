@@ -19,8 +19,8 @@ The cumulative correction review from baseline
 fail closed on invalid authentication-duration configuration, cap in-memory
 login and session state, bind the ID-token subject to the access-token subject,
 and materialize public OpenAPI discovery from deployment configuration. UI
-representation and PDF reads use the same reauthentication behavior as JSON
-reads. Optional MCP metadata fields are published only when their target
+representation reads and native PDF preflight checks use the same
+reauthentication behavior as JSON reads. Optional MCP metadata fields are published only when their target
 resource exists. These corrections do not change the frozen data model or
 consultation response schemas.
 
@@ -39,8 +39,8 @@ API, MCP, and gateway use distinct roles granted only `CONNECT`, schema
 `USAGE`, and table `SELECT`, with `default_transaction_read_only=on`.
 
 The release UI builds with `VITE_CONSULTATION_V1=true`. It calls `/api/v1`,
-redirects rejected JSON, representation, and PDF reads to the versioned login
-operation, and
+redirects rejected JSON and representation reads plus native PDF preflight
+checks to the versioned login operation, and
 hides experimental coverage, graph, procedural-flow, and Directus navigation.
 Development builds retain their existing routes.
 

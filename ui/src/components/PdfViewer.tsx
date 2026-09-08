@@ -27,34 +27,32 @@ export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
   const [zoom, setZoom] = useState(1.1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [nativeUrl, setNativeUrl] = useState<string | null>(null);
+  const [nativeReady, setNativeReady] = useState(false);
 
   useEffect(() => {
     let active = true;
     let loadingTask: ReturnType<typeof getDocument> | null = null;
-    let objectUrl: string | null = null;
     setLoading(true);
     setError(null);
     setDocumentProxy(null);
-    setNativeUrl(null);
+    setNativeReady(false);
     setPageNumber(1);
     void (async () => {
       try {
-        const response = await fetch(url);
+        const response = await fetch(url, preferNativeViewer ? { method: "HEAD" } : undefined);
         requireAuthenticatedResponse(response);
         if (!response.ok) {
           throw new Error(`PDF request failed with ${response.status}`);
         }
+        if (preferNativeViewer) {
+          if (active) setNativeReady(true);
+          return;
+        }
         const data = await response.arrayBuffer();
         if (!active) return;
-        if (preferNativeViewer) {
-          objectUrl = URL.createObjectURL(new Blob([data], { type: response.headers.get("content-type") ?? "application/pdf" }));
-          if (active) setNativeUrl(objectUrl);
-        } else {
-          loadingTask = getDocument({ data });
-          const proxy = await loadingTask.promise;
-          if (active) setDocumentProxy(proxy);
-        }
+        loadingTask = getDocument({ data });
+        const proxy = await loadingTask.promise;
+        if (active) setDocumentProxy(proxy);
       } catch (loadError) {
         if (active) {
           setError(loadError instanceof Error ? loadError.message : String(loadError));
@@ -67,7 +65,6 @@ export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
     })();
     return () => {
       active = false;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
       void loadingTask?.destroy();
     };
   }, [preferNativeViewer, url]);
@@ -151,11 +148,11 @@ export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
           bgcolor: "#ebe4d7",
         }}
       >
-        {preferNativeViewer && nativeUrl ? (
+        {preferNativeViewer && nativeReady ? (
           <Stack spacing={1.5} sx={{ width: "100%" }}>
             <Box
               component="iframe"
-              src={nativeUrl}
+              src={url}
               title="Original PDF"
               sx={{
                 width: "100%",
