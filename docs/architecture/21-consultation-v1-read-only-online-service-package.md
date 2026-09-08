@@ -212,11 +212,13 @@ maximum accepted revocation latency is therefore five minutes. Offline access
 tokens are not permitted. Refresh-token rotation is enabled where the client
 supports it. Resource servers fail closed when they cannot validate a token.
 
-Keycloak administration is bound to a loopback-only host port and is not
-published through Cloudflare. The public authentication hostname blocks the
-`/admin` and `/realms/master` path prefixes at the Cloudflare edge because
-Keycloak's separate administration URL controls generated URLs but does not
-disable the administration API on its frontend listener.
+Keycloak administration uses a local maintenance mode and is not published
+through Cloudflare. Normal operation maps no Keycloak host port. Maintenance
+stops public ingress and temporarily restarts Keycloak with both its frontend
+and administration URLs on a loopback-bound port, then restores the public
+frontend configuration before ingress resumes. The public authentication
+hostname blocks the `/admin` and `/realms/master` path prefixes at the
+Cloudflare edge.
 
 ## Identity And Application Authorization
 
@@ -282,8 +284,9 @@ Administrative responsibilities are separated:
 
 Routine accounts do not receive unrestricted master-realm administration.
 Administrator MFA is mandatory. The administration console is available only
-through a loopback-bound local URL on the deployment host and is absent from
-public DNS and Tunnel routes.
+through a loopback-bound maintenance mode on the deployment host and is absent
+from public DNS and Tunnel routes. Public consultation is unavailable during
+that bounded maintenance window.
 
 ## Transactional Email
 
@@ -316,14 +319,15 @@ OIDC_ISSUER=https://auth.example.invalid/realms/consultation
 ```
 
 These variables retain explicit and portable URL semantics. Public hostnames
-are deployment values; the Keycloak administration port remains loopback-only.
+are deployment values; the Keycloak administration port exists only while the
+local maintenance override is active.
 
 OAuth redirect URIs, post-logout redirect URIs, allowed origins, token
 audiences, MCP resource identifiers, and Cloudflare Tunnel host mappings are
 configured explicitly. Production must use exact HTTPS origins and redirect
-URIs rather than permissive wildcards. The local administration URL is the only
-HTTP URL and is permitted only because its published port is bound to
-`127.0.0.1`.
+URIs rather than permissive wildcards. The temporary local administration URL
+is the only HTTP URL and is permitted only because its maintenance port is
+bound to `127.0.0.1` while public ingress is stopped.
 
 Secrets are supplied separately from this public-URL configuration and remain
 outside Git and exported realm configuration.
@@ -488,8 +492,10 @@ use observed idle, login, search, and concurrent-request measurements.
 ### V1.4: Publish a candidate environment
 
 - configure domain-independent public URLs and exact redirect/origin lists;
-- bind Keycloak administration to loopback only and block the `/admin` and
-  `/realms/master` path prefixes on the public authentication hostname;
+- validate the Keycloak local maintenance override, including stopping ingress,
+  loopback-only administration, and restoring normal public identity settings;
+- block the `/admin` and `/realms/master` path prefixes on the public
+  authentication hostname;
 - retain the application login-admission limits and optionally apply a stricter
   Cloudflare edge limit to `/api/v1/auth/login`;
 - publish through Cloudflare Tunnel;

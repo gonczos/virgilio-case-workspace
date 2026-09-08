@@ -132,6 +132,27 @@ traffic out of Cloudflare's shared cache.
       API, or MCP hostnames; doing so would add a second authentication protocol
       that can break OIDC and MCP clients.
 
+### Local Keycloak administration
+
+Normal operation publishes no Keycloak host port. Administration is a bounded
+maintenance operation:
+
+1. Stop `cloudflared` so public authentication and consultation are offline.
+2. Recreate only Keycloak with both Compose files:
+
+   ```powershell
+   docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml -f deploy/consultation-v1/compose.admin-local.yml up -d --no-deps --force-recreate keycloak
+   ```
+
+3. Open `http://localhost:8088/admin/` on the deployment host and perform the
+   administration.
+4. Recreate Keycloak from the base Compose file only.
+5. Verify public OIDC discovery and login, then restart `cloudflared`.
+
+The override binds only `127.0.0.1` and temporarily makes the Keycloak frontend
+and admin URLs local. Do not use it while public consultation is expected to
+remain available. Do not add a local site, API, MCP, gateway, or database port.
+
 Cache Rule documentation:
 <https://developers.cloudflare.com/cache/how-to/cache-rules/>.
 
@@ -215,8 +236,9 @@ true:
 - [ ] The remotely managed tunnel and four routes exist.
 - [ ] The tunnel token is present only in its ignored secret file.
 - [ ] Cache bypass and public Keycloak administration-block rules are configured.
-- [ ] Keycloak administration works through the loopback-only local URL and no
-      public administration hostname or Tunnel route exists.
+- [ ] Keycloak local maintenance mode has been tested end to end: public ingress
+      stops, the loopback console login works, normal public identity settings
+      are restored, and no public administration hostname or Tunnel route exists.
 - [ ] No direct public origin port or gateway/database route exists.
 - [ ] The replacement Google app password is present only in its ignored secret
       file.

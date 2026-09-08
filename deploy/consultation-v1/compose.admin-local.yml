@@ -1,0 +1,7 @@
+services:
+  keycloak:
+    ports:
+      - "127.0.0.1:${AUTH_ADMIN_LOCAL_PORT:-8088}:8080"
+    environment:
+      KC_HOSTNAME: http://localhost:${AUTH_ADMIN_LOCAL_PORT:-8088}
+      KC_HOSTNAME_ADMIN: http://localhost:${AUTH_ADMIN_LOCAL_PORT:-8088}

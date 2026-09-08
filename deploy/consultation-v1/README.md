@@ -4,9 +4,9 @@ This directory implements the local, unexposed V1.2/V1.3 package. It restores
 the frozen V1.1 `casework` snapshot into a dedicated PostgreSQL volume, serves
 only the versioned read surfaces, and uses a separate Keycloak database.
 
-Only Keycloak declares a host port, bound to the loopback address for local
-administration. The `cloudflared` service is disabled unless the `publish`
-profile is selected; publication belongs to V1.4.
+No service declares a host port in normal operation. The `cloudflared` service
+is disabled unless the `publish` profile is selected; publication belongs to
+V1.4.
 
 ## Prepare
 
@@ -43,13 +43,30 @@ TOTP on first login. Access tokens last at most five minutes, refresh-token
 reuse is zero, and the application accepts only `consultation.read` plus the
 correct API or MCP audience.
 
-Keycloak administration is local-only at
-`http://localhost:${AUTH_ADMIN_LOCAL_PORT:-8088}/admin/`. The port binds to
-`127.0.0.1`; do not change it to a wildcard or LAN address. The public
-Cloudflare authentication route must block the `/admin` and `/realms/master`
-path prefixes because Keycloak's admin hostname changes generated URLs but does
-not itself disable administration through the frontend listener. The public
-Tunnel has no administration hostname or route.
+Keycloak administration uses an explicit local maintenance mode. Stop public
+ingress before entering it, recreate only Keycloak with
+`compose.admin-local.yml`, and open
+`http://localhost:${AUTH_ADMIN_LOCAL_PORT:-8088}/admin/`:
+
+```powershell
+docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml --profile publish stop cloudflared
+docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml -f deploy/consultation-v1/compose.admin-local.yml up -d --no-deps --force-recreate keycloak
+```
+
+The override binds Keycloak to `127.0.0.1` and makes both its frontend and admin
+URLs local so the master-realm login completes without public ingress. After
+administration, restore normal Keycloak configuration before restarting the
+Tunnel:
+
+```powershell
+docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml up -d --no-deps --force-recreate keycloak
+docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml --profile publish up -d cloudflared
+```
+
+Do not use maintenance mode while public consultation is expected to remain
+available. The public Cloudflare authentication route must block the `/admin`
+and `/realms/master` path prefixes. The public Tunnel has no administration
+hostname or route.
 
 ## Login admission settings
 
