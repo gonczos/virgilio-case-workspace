@@ -275,6 +275,20 @@ Routine accounts do not receive unrestricted master-realm administration.
 Administrator MFA is mandatory. The administration hostname is separately
 protected and is not advertised as part of the public consultation product.
 
+## Transactional Email
+
+Keycloak uses a configurable SMTP provider for account invitations, email
+verification, credential recovery, and administrative notifications. SMTP
+host, port, transport security, username, sender identity, and credentials are
+deployment configuration rather than application code.
+
+Google Mail may be used for initial SMTP testing. Google app passwords are
+managed and revoked at <https://myaccount.google.com/apppasswords>. An app
+password is a deployment secret: it must be entered directly into untracked
+local or server secret configuration and must never appear in Git,
+documentation, screenshots, logs, or conversation messages. The SMTP provider
+can later be replaced without an application-code change.
+
 ## Configurable Public URLs
 
 No real domain, hostname, redirect URI, issuer URL, or origin is compiled into
@@ -491,6 +505,8 @@ Consultation v1 is ready only when all of the following are evidenced:
   <https://www.keycloak.org/docs/latest/server_admin/>
 - Keycloak OpenID Connect endpoints and token validation guidance:
   <https://www.keycloak.org/securing-apps/oidc-layers>
+- Google app-password management:
+  <https://myaccount.google.com/apppasswords>
 - Keycloak production container guidance:
   <https://www.keycloak.org/server/containers>
 - Cloudflare Tunnel documentation:
