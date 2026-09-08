@@ -710,6 +710,18 @@ production volumes, secrets, hostnames, and Compose project name separate from
 development. See
 `deploy/consultation-v1/README.md` for secret rotation and backup boundaries.
 
+### Keycloak subject claim
+
+The custom Keycloak `consultation.read` scope must include the standard
+`Subject (sub)` protocol mapper (`oidc-sub-mapper`), with access-token and
+introspection inclusion enabled. Keycloak 26 does not supply the access-token
+subject automatically when the built-in `basic` scope is omitted. The realm
+template includes this mapper. Existing realms must add it through Keycloak
+administration: startup import does not update an existing realm. Missing `sub`
+previously surfaced as `INVALID_ID_TOKEN` / `subject_mismatch` at the browser
+callback; access-token validation now rejects a missing subject directly.
+After changing the mapper, start a fresh login to obtain newly issued tokens.
+
 ### Remaining setup gaps
 
 The following are not yet fully documented as reproducible end-to-end

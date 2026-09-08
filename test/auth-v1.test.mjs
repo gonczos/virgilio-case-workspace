@@ -86,6 +86,10 @@ test("V1 token validation enforces issuer, audience, scope, role, and five-minut
     await assert.rejects(async () => validate(await token(privateKey, { scope: "openid" })), /consultation\.read/u);
     await assert.rejects(async () => validate(await token(privateKey, { realm_access: { roles: [] } })), /consultation_user/u);
     const now = Math.floor(Date.now() / 1000);
+    const noSubject = await new SignJWT({ scope: "consultation.read", realm_access: { roles: ["consultation_user"] } })
+      .setProtectedHeader({ alg: "RS256", kid: "test" }).setIssuer("https://auth.example.test/realms/consultation")
+      .setAudience("consultation-api").setIssuedAt(now).setExpirationTime(now + 300).sign(privateKey);
+    await assert.rejects(() => validate(noSubject), /must contain a subject/u);
     const tooLong = await new SignJWT({ scope: "consultation.read", realm_access: { roles: ["consultation_user"] } })
       .setProtectedHeader({ alg: "RS256", kid: "test" }).setIssuer("https://auth.example.test/realms/consultation")
       .setAudience("consultation-api").setSubject("user-1").setIssuedAt(now).setExpirationTime(now + 600).sign(privateKey);

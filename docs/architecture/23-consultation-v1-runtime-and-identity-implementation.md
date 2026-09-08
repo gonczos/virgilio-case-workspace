@@ -58,6 +58,13 @@ zero reuse. Offline access is not assigned to the clients. Runtime validation
 requires issuer, resource audience, `consultation.read`, and
 `consultation_user`.
 
+The shared `consultation.read` scope explicitly includes Keycloak's
+`oidc-sub-mapper` for access tokens and introspection. This supplies `sub` even
+though the restricted clients do not use the built-in `basic` scope. Validators
+reject missing/empty subjects and still require matching ID/access-token
+subjects for browser login. See the pinned
+[Keycloak 26.7.3 subject mapper](https://github.com/keycloak/keycloak/blob/26.7.3/services/src/main/java/org/keycloak/protocol/oidc/mappers/SubMapper.java).
+
 The browser uses Authorization Code plus PKCE. The BFF validates state, nonce,
 issuer, signatures, matching ID/access-token subjects, token audience,
 lifetime, scope, and role. It keeps access

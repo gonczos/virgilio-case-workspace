@@ -228,6 +228,9 @@ export function createTokenValidator({
       throw authError("INVALID_TOKEN", "access token is invalid or expired");
     }
     assertTokenLifetime(payload, maximumLifetimeSeconds);
+    if (typeof payload.sub !== "string" || !payload.sub.trim()) {
+      throw authError("INVALID_TOKEN", "access token must contain a subject");
+    }
     if (!parseScopes(payload.scope).has(requiredScope)) {
       throw authError("INSUFFICIENT_SCOPE", `${requiredScope} is required`, 403);
     }
