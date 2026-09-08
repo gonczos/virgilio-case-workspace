@@ -64,7 +64,8 @@ function requireOnly(searchParams, permitted) {
   }
 }
 
-function versionBinaryUrls(value) {
+export function versionBinaryUrls(value) {
+  if (value instanceof Date) return value.toJSON();
   if (Array.isArray(value)) return value.map(versionBinaryUrls);
   if (value && typeof value === "object") {
     return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, versionBinaryUrls(child)]));

@@ -2,8 +2,18 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
 
-import { createConsultationV1Handler, materializeOpenApi } from "../app/consultation-v1-api.mjs";
+import { createConsultationV1Handler, materializeOpenApi, versionBinaryUrls } from "../app/consultation-v1-api.mjs";
 import { createMcpV1HttpHandler } from "../app/text-consultation-mcp-v1-http-server.mjs";
+
+test("V1 URL conversion preserves nested database timestamps in JSON responses", () => {
+  const created = new Date("2026-09-08T12:34:56.000Z");
+  const hash = "a".repeat(64);
+  const input = { items: [{ created_at: created, original_binary_url: `/binary/${hash}`, absent: null }] };
+  assert.deepEqual(JSON.parse(JSON.stringify(versionBinaryUrls(input))), {
+    items: [{ created_at: created.toISOString(), original_binary_url: `/api/v1/binaries/${hash}/content`, absent: null }],
+  });
+  assert.equal(input.items[0].created_at, created);
+});
 
 async function serve(handler, work) {
   const server = createServer((request, response) => void handler(request, response));

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   Alert,
@@ -132,9 +132,23 @@ export function nextInspectionMatchCursor(current: number, step: number, count: 
   return ((current + step) % count + count) % count;
 }
 
-function SearchHighlightedText({ value, matches, current }: { value: string; matches: InspectionMatch[]; current: number }) {
+export function scrollInspectionMatch(container: HTMLElement, match: HTMLElement) {
+  const target = match.getBoundingClientRect();
+  const viewport = container.getBoundingClientRect();
+  container.scrollTo({ top: container.scrollTop + target.top - viewport.top - container.clientTop - (container.clientHeight - target.height) / 2, behavior: "smooth" });
+}
+
+export function formatInspectionCreatedAt(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return "Creation date unavailable";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Creation date unavailable" : `Created ${date.toLocaleString()}`;
+}
+
+function SearchHighlightedText({ value, matches, current, containerRef }: { value: string; matches: InspectionMatch[]; current: number; containerRef: RefObject<HTMLDivElement | null> }) {
   const currentRef = useRef<HTMLElement | null>(null);
-  useEffect(() => { currentRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }); }, [current]);
+  useEffect(() => {
+    if (currentRef.current && containerRef.current) scrollInspectionMatch(containerRef.current, currentRef.current);
+  }, [current, value, matches, containerRef]);
   if (!matches.length) return <>{value}</>;
   const parts: ReactNode[] = [];
   let cursor = 0;
@@ -183,6 +197,7 @@ export function InspectionViewer({
   const [crossViewMatches, setCrossViewMatches] = useState<CrossViewMatch[]>([]);
   const [crossViewCursor, setCrossViewCursor] = useState(-1);
   const searchRequest = useRef(0);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const selectedOption = options.find((option) => option.id === selectedId) ?? null;
   const searchableText = typeof content === "string" ? content : content === null ? "" : JSON.stringify(content, null, 2);
   const matches = useMemo(() => findInspectionMatches(searchableText, activeSearch), [activeSearch, searchableText]);
@@ -278,8 +293,8 @@ export function InspectionViewer({
     setSelectedId(crossViewMatches[next].optionId);
   }
 
-  return <Paper elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", height, minHeight: 520, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-    <Box sx={{ px: 2, pt: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)", flexShrink: 0 }}>
+  return <Paper elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", height, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <Box sx={{ px: 2, py: 1, borderBottom: "1px solid rgba(31,79,95,0.12)", flexShrink: 0 }}>
       <Typography variant="overline" fontWeight={800}>Inspect</Typography>
       <Stack direction="row" spacing={0.25} alignItems="center">
         <TextField value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void runSearch(); } }} size="small" fullWidth placeholder="Find across available views" />
@@ -289,7 +304,7 @@ export function InspectionViewer({
         <Tooltip title="Clear and collapse inspection"><IconButton size="small" aria-label="Clear and collapse inspection" onClick={() => { ++searchRequest.current; setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); setCrossViewMatches([]); setCrossViewCursor(-1); setSearchMiss(false); onCloseInspection?.(); }}>×</IconButton></Tooltip>
       </Stack>
       {searchMiss ? <Typography variant="caption" color="text.secondary">No match in the available readable views.</Typography> : null}
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1.5 }}>
       <Autocomplete
         fullWidth
         size="small"
@@ -309,22 +324,22 @@ export function InspectionViewer({
             {option.representation ? <Typography variant="caption" color="text.secondary">{option.representation.processor_version}</Typography> : null}
           </Stack>
         </li>}
-        sx={{ mt: 1, mb: 1, flex: 1, minWidth: 0 }}
+        sx={{ flex: 1, minWidth: 0 }}
       />
       {activeSearch ? <Typography variant="caption" color="text.secondary" sx={{ minWidth: 76, textAlign: "right" }}>{matches.length ? `${currentMatch + 1}/${matches.length} in view` : "0/0 in view"}</Typography> : null}
       </Stack>
-      {selectedOption?.representation ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pb: 1.5 }}>
+      {selectedOption?.representation ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pt: 0.5 }}>
         <Typography variant="caption" color="text.secondary">
-          Created {new Date(selectedOption.representation.created_at).toLocaleString()}
+          {formatInspectionCreatedAt(selectedOption.representation.created_at)}
         </Typography>
       </Stack> : null}
     </Box>
-    <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2, bgcolor: "#fffaf2" }}>
+    <Box ref={contentRef} sx={{ flex: 1, minHeight: 0, overflow: "auto", overscrollBehavior: "contain", p: 2, bgcolor: "#fffaf2" }}>
       {selectedOption?.category === "original" && originalPdf ? <Box sx={{ height: "100%", "& > .MuiPaper-root": { height: "100%", minHeight: 0, border: 0 } }}><Suspense fallback={<CircularProgress />}><PdfViewer url={originalPdf.url} preferNativeViewer={originalPdf.preferNativeViewer} /></Suspense></Box>
         : options.length === 0 ? <Alert severity="info">No extracted data is available for this binary.</Alert>
         : loading ? <Stack alignItems="center" justifyContent="center" spacing={2} sx={{ minHeight: 260 }}><CircularProgress /><Typography color="text.secondary">Loading extracted data...</Typography></Stack>
           : error ? <Alert severity="warning">Extracted data unavailable.</Alert>
-            : activeSearch && searchableText ? <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", fontFamily: "\"Cascadia Code\", Consolas, monospace", fontSize: 13, lineHeight: 1.55 }}><SearchHighlightedText value={searchableText} matches={matches} current={currentMatch} /></Box>
+            : activeSearch && searchableText ? <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", fontFamily: "\"Cascadia Code\", Consolas, monospace", fontSize: 13, lineHeight: 1.55 }}><SearchHighlightedText value={searchableText} matches={matches} current={currentMatch} containerRef={contentRef} /></Box>
             : selectedOption?.format === "native-json" ? <JsonView value={content} />
               : selectedOption?.format === "markdown" && selectedOption.renderMode === "rendered" ? <Box sx={{ "& h1, & h2, & h3": { color: "primary.main" }, "& p, & li": { lineHeight: 1.7 } }}><ReactMarkdown>{typeof content === "string" ? content : ""}</ReactMarkdown></Box>
                 : <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", fontFamily: "\"Cascadia Code\", Consolas, monospace", fontSize: 13, lineHeight: 1.55 }}>{typeof content === "string" ? content : ""}</Box>}

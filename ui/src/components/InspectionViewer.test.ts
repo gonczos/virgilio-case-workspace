@@ -97,3 +97,24 @@ test("cross-view match navigation advances and wraps in both directions", () => 
   expect(nextInspectionMatchCursor(-1, -1, 3)).toBe(2);
   expect(nextInspectionMatchCursor(0, 1, 0)).toBe(-1);
 });
+import { formatInspectionCreatedAt, scrollInspectionMatch } from "./InspectionViewer";
+
+test("inspection dates distinguish valid timestamps from unavailable metadata", () => {
+  for (const value of [null, undefined, {}, "", "not-a-date"]) {
+    expect(formatInspectionCreatedAt(value)).toBe("Creation date unavailable");
+  }
+  const value = "2026-09-08T12:34:56.000Z";
+  expect(formatInspectionCreatedAt(value)).toBe(`Created ${new Date(value).toLocaleString()}`);
+});
+
+test("match navigation scrolls only the text viewport", () => {
+  const calls: ScrollToOptions[] = [];
+  const container = {
+    scrollTop: 100, clientTop: 0, clientHeight: 400,
+    getBoundingClientRect: () => ({ top: 200 }),
+    scrollTo: (options: ScrollToOptions) => calls.push(options),
+  } as unknown as HTMLElement;
+  const match = { getBoundingClientRect: () => ({ top: 700, height: 20 }) } as HTMLElement;
+  scrollInspectionMatch(container, match);
+  expect(calls).toEqual([{ top: 410, behavior: "smooth" }]);
+});
