@@ -14,6 +14,16 @@ not yet a published release candidate. V1.4 must supply real hostnames, test
 the Cloudflare routes and OAuth clients, and exercise ChatGPT plus an
 independent MCP client.
 
+The cumulative correction review from baseline
+`003e3642883a127fd021b6653cd8af5d66adf0d5` requires the V1.2/V1.3 runtime to
+fail closed on invalid authentication-duration configuration, cap in-memory
+login and session state, bind the ID-token subject to the access-token subject,
+and materialize public OpenAPI discovery from deployment configuration. UI
+representation and PDF reads use the same reauthentication behavior as JSON
+reads. Optional MCP metadata fields are published only when their target
+resource exists. These corrections do not change the frozen data model or
+consultation response schemas.
+
 ## Runtime boundary
 
 `deploy/consultation-v1/compose.yml` defines separate UI, API/BFF, MCP, private
@@ -29,7 +39,8 @@ API, MCP, and gateway use distinct roles granted only `CONNECT`, schema
 `USAGE`, and table `SELECT`, with `default_transaction_read_only=on`.
 
 The release UI builds with `VITE_CONSULTATION_V1=true`. It calls `/api/v1`,
-redirects a rejected browser session to the versioned login operation, and
+redirects rejected JSON, representation, and PDF reads to the versioned login
+operation, and
 hides experimental coverage, graph, procedural-flow, and Directus navigation.
 Development builds retain their existing routes.
 
@@ -48,10 +59,12 @@ requires issuer, resource audience, `consultation.read`, and
 `consultation_user`.
 
 The browser uses Authorization Code plus PKCE. The BFF validates state, nonce,
-issuer, signatures, token audience, lifetime, scope, and role. It keeps access
+issuer, signatures, matching ID/access-token subjects, token audience,
+lifetime, scope, and role. It keeps access
 and refresh tokens in an in-memory server session and gives the browser only a
 Secure, HttpOnly, SameSite=Lax opaque cookie. Refresh is serialized per session
-and a failed refresh destroys it. A restart invalidates sessions.
+and a failed refresh destroys it. Pending logins and sessions have fixed
+capacity bounds. A restart invalidates sessions.
 
 The MCP endpoint publishes RFC 9728 protected-resource metadata, returns the
 metadata URI in bearer challenges, and requires the exact MCP audience. The
@@ -63,6 +76,10 @@ Every public URL, issuer, audience, allowed host, storage path, and SMTP field
 is environment configuration. Credentials are Docker secret files ignored by
 Git and loaded at process startup. The repository records no domain, user,
 SMTP password, database password, client secret, or tunnel token.
+
+The served OpenAPI document retains the frozen portable contract but replaces
+its example server and OAuth URLs at startup with `API_PUBLIC_URL` and the
+authorization and token endpoints returned by OIDC discovery.
 
 The deployment and rotation procedure is in
 `deploy/consultation-v1/README.md`. Google app-password management remains

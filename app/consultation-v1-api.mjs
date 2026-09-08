@@ -17,6 +17,19 @@ import { isRepresentationArtifactError } from "./representation-artifacts.mjs";
 
 const PRIVATE_CACHE_CONTROL = "private, no-store";
 
+export function materializeOpenApi(openApi, { apiPublicUrl, oidcMetadata }) {
+  const publicUrl = new URL(apiPublicUrl);
+  const authorizationUrl = new URL(oidcMetadata.authorization_endpoint);
+  const tokenUrl = new URL(oidcMetadata.token_endpoint);
+  const materialized = structuredClone(openApi);
+  materialized.servers = [{ url: publicUrl.toString().replace(/\/$/u, "") }];
+  const flow = materialized.components?.securitySchemes?.oauth2?.flows?.authorizationCode;
+  if (!flow) throw new Error("OpenAPI contract is missing the OAuth authorization-code flow");
+  flow.authorizationUrl = authorizationUrl.toString();
+  flow.tokenUrl = tokenUrl.toString();
+  return materialized;
+}
+
 function json(response, request, statusCode, body, headers = {}) {
   response.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
@@ -236,10 +249,14 @@ export async function main() {
   const workspaceRoot = getWorkspaceRoot();
   loadDotEnv(path.join(workspaceRoot, ".env"));
   const config = loadAuthV1Config();
-  const [auth, openApi] = await Promise.all([
+  const [auth, openApiTemplate] = await Promise.all([
     createBffAuth({ config }),
     fs.promises.readFile(path.join(workspaceRoot, "release", "consultation-v1", "contracts", "openapi-v1.yaml"), "utf8").then(YAML.parse),
   ]);
+  const openApi = materializeOpenApi(openApiTemplate, {
+    apiPublicUrl: process.env.API_PUBLIC_URL,
+    oidcMetadata: auth.metadata,
+  });
   const client = createDbClient("consultation-api-v1");
   await client.connect();
   const handler = createConsultationV1Handler({

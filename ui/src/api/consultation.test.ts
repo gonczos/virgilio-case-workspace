@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 
 import {
+  getRepresentationContent,
   lookupPilotReference,
   lookupRecordedReferences,
   normalizeBinaryDetailResponse,
@@ -98,4 +99,18 @@ test("recorded-reference client preserves independent scope, lifecycle and pagin
   expect(fetchMock.mock.calls[0][0]).toBe(
     "/api/consultation/references/lookup?value=REF+%2F+123&scope=full&lifecycle=include_history&limit=25&offset=50",
   );
+});
+
+test("representation reads restart login after a 401 response", async () => {
+  const assign = vi.fn();
+  vi.stubGlobal("window", {
+    location: { pathname: "/binaries/example", search: "?view=text", hash: "#page", assign },
+  });
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+    ok: false,
+    status: 401,
+    json: async () => ({ error: { code: "UNAUTHORIZED", message: "authentication required" } }),
+  }));
+  await expect(getRepresentationContent(10, "text")).rejects.toThrow("Authentication required");
+  expect(assign).toHaveBeenCalledWith("/api/v1/auth/login?return_to=%2Fbinaries%2Fexample%3Fview%3Dtext%23page");
 });

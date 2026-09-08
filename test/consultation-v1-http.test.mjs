@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
 
-import { createConsultationV1Handler } from "../app/consultation-v1-api.mjs";
+import { createConsultationV1Handler, materializeOpenApi } from "../app/consultation-v1-api.mjs";
 import { createMcpV1HttpHandler } from "../app/text-consultation-mcp-v1-http-server.mjs";
 
 async function serve(handler, work) {
@@ -77,4 +77,24 @@ test("MCP V1 publishes protected-resource metadata and challenges unauthenticate
     assert.equal(denied.status, 401);
     assert.match(denied.headers.get("www-authenticate"), /oauth-protected-resource\/mcp\/v1/u);
   });
+});
+
+test("V1 OpenAPI discovery uses configured public and identity-provider URLs", () => {
+  const template = {
+    servers: [{ url: "https://consultation.example.invalid" }],
+    components: { securitySchemes: { oauth2: { flows: { authorizationCode: {
+      authorizationUrl: "https://auth.example.invalid/auth",
+      tokenUrl: "https://auth.example.invalid/token",
+    } } } } },
+  };
+  const result = materializeOpenApi(template, {
+    apiPublicUrl: "https://api.example.test/",
+    oidcMetadata: {
+      authorization_endpoint: "https://identity.example.test/realms/consultation/auth",
+      token_endpoint: "https://identity.example.test/realms/consultation/token",
+    },
+  });
+  assert.equal(result.servers[0].url, "https://api.example.test");
+  assert.equal(result.components.securitySchemes.oauth2.flows.authorizationCode.authorizationUrl, "https://identity.example.test/realms/consultation/auth");
+  assert.equal(template.servers[0].url, "https://consultation.example.invalid");
 });

@@ -5,6 +5,8 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 const DEFAULT_ACCESS_TOKEN_MAX_SECONDS = 300;
 const DEFAULT_SESSION_IDLE_SECONDS = 30 * 60;
 const DEFAULT_SESSION_ABSOLUTE_SECONDS = 8 * 60 * 60;
+const DEFAULT_MAX_PENDING_LOGINS = 512;
+const DEFAULT_MAX_SESSIONS = 2048;
 const CLOCK_TOLERANCE_SECONDS = 5;
 const SESSION_COOKIE = "__Host-consultation_v1";
 
@@ -19,6 +21,14 @@ function requiredString(value, name) {
   const normalized = String(value ?? "").trim();
   if (!normalized) throw new Error(`${name} is required`);
   return normalized;
+}
+
+function positiveIntegerSetting(value, name, fallback, { maximum = Number.MAX_SAFE_INTEGER } = {}) {
+  const parsed = Number(value ?? fallback);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0 || parsed > maximum) {
+    throw new Error(`${name} must be a positive integer no greater than ${maximum}`);
+  }
+  return parsed;
 }
 
 function base64Url(bytes) {
@@ -63,7 +73,7 @@ function assertTokenLifetime(payload, maximumSeconds) {
 
 export function loadAuthV1Config(env = process.env) {
   const issuer = requiredString(env.OIDC_ISSUER, "OIDC_ISSUER").replace(/\/$/u, "");
-  return {
+  const config = {
     issuer,
     clientId: requiredString(env.OIDC_CLIENT_ID, "OIDC_CLIENT_ID"),
     clientSecret: String(env.OIDC_CLIENT_SECRET ?? "").trim(),
@@ -72,10 +82,19 @@ export function loadAuthV1Config(env = process.env) {
     mcpAudience: requiredString(env.OIDC_MCP_AUDIENCE, "OIDC_MCP_AUDIENCE"),
     requiredScope: env.OIDC_REQUIRED_SCOPE?.trim() || "consultation.read",
     requiredRole: env.OIDC_REQUIRED_ROLE?.trim() || "consultation_user",
-    accessTokenMaxSeconds: Number(env.OIDC_ACCESS_TOKEN_MAX_SECONDS ?? DEFAULT_ACCESS_TOKEN_MAX_SECONDS),
-    sessionIdleSeconds: Number(env.BFF_SESSION_IDLE_SECONDS ?? DEFAULT_SESSION_IDLE_SECONDS),
-    sessionAbsoluteSeconds: Number(env.BFF_SESSION_ABSOLUTE_SECONDS ?? DEFAULT_SESSION_ABSOLUTE_SECONDS),
+    accessTokenMaxSeconds: positiveIntegerSetting(
+      env.OIDC_ACCESS_TOKEN_MAX_SECONDS,
+      "OIDC_ACCESS_TOKEN_MAX_SECONDS",
+      DEFAULT_ACCESS_TOKEN_MAX_SECONDS,
+      { maximum: DEFAULT_ACCESS_TOKEN_MAX_SECONDS },
+    ),
+    sessionIdleSeconds: positiveIntegerSetting(env.BFF_SESSION_IDLE_SECONDS, "BFF_SESSION_IDLE_SECONDS", DEFAULT_SESSION_IDLE_SECONDS),
+    sessionAbsoluteSeconds: positiveIntegerSetting(env.BFF_SESSION_ABSOLUTE_SECONDS, "BFF_SESSION_ABSOLUTE_SECONDS", DEFAULT_SESSION_ABSOLUTE_SECONDS),
   };
+  if (config.sessionIdleSeconds > config.sessionAbsoluteSeconds) {
+    throw new Error("BFF_SESSION_IDLE_SECONDS must not exceed BFF_SESSION_ABSOLUTE_SECONDS");
+  }
+  return config;
 }
 
 export async function discoverOidc(issuer, fetchImpl = fetch) {
@@ -156,7 +175,13 @@ async function tokenRequest(endpoint, config, parameters, fetchImpl) {
   return result;
 }
 
-export async function createBffAuth({ config, fetchImpl = fetch, now = () => Date.now() }) {
+export async function createBffAuth({
+  config,
+  fetchImpl = fetch,
+  now = () => Date.now(),
+  maxPendingLogins = DEFAULT_MAX_PENDING_LOGINS,
+  maxSessions = DEFAULT_MAX_SESSIONS,
+}) {
   requiredString(config.clientSecret, "OIDC_CLIENT_SECRET");
   requiredString(config.redirectUri, "OIDC_REDIRECT_URI");
   const metadata = await discoverOidc(config.issuer, fetchImpl);
@@ -182,6 +207,9 @@ export async function createBffAuth({ config, fetchImpl = fetch, now = () => Dat
 
   async function beginLogin(returnTo = "/") {
     cleanup();
+    if (pending.size >= maxPendingLogins || sessions.size >= maxSessions) {
+      throw authError("AUTH_CAPACITY_REACHED", "authentication capacity is temporarily exhausted", 503);
+    }
     const state = randomToken();
     const nonce = randomToken();
     const verifier = randomToken(48);
@@ -205,6 +233,7 @@ export async function createBffAuth({ config, fetchImpl = fetch, now = () => Dat
     const pendingLogin = pending.get(String(state));
     pending.delete(String(state));
     if (!pendingLogin || pendingLogin.expiresAt <= now()) throw authError("INVALID_LOGIN_STATE", "login state is invalid or expired", 400);
+    if (sessions.size >= maxSessions) throw authError("AUTH_CAPACITY_REACHED", "authentication capacity is temporarily exhausted", 503);
     const tokens = await tokenRequest(metadata.token_endpoint, config, {
       grant_type: "authorization_code",
       code: requiredString(code, "authorization code"),
@@ -221,10 +250,12 @@ export async function createBffAuth({ config, fetchImpl = fetch, now = () => Dat
         clockTolerance: CLOCK_TOLERANCE_SECONDS,
       });
       if (verifiedId.payload.nonce !== pendingLogin.nonce) throw new Error("nonce mismatch");
+      if (!verifiedId.payload.sub || verifiedId.payload.sub !== access.payload.sub) throw new Error("subject mismatch");
     } catch {
       throw authError("INVALID_ID_TOKEN", "identity token is invalid");
     }
     if (!tokens.refresh_token) throw authError("REFRESH_TOKEN_REQUIRED", "identity provider did not issue a refresh token");
+    if (sessions.size >= maxSessions) throw authError("AUTH_CAPACITY_REACHED", "authentication capacity is temporarily exhausted", 503);
     const id = randomToken(32);
     const timestamp = now();
     sessions.set(id, {
@@ -315,7 +346,6 @@ export function oauthProtectedResourceMetadata({ resource, issuer, scope = "cons
     authorization_servers: [issuer],
     scopes_supported: [scope],
     bearer_methods_supported: ["header"],
-    resource_documentation: `${resource.replace(/\/mcp\/v1$/u, "")}/docs/mcp/v1`,
   };
 }
 

@@ -670,6 +670,9 @@ Edit the ignored `.env` with exact public URLs and existing read-only host
 paths. Put the SMTP credential in the generated ignored
 `deploy/consultation-v1/secrets/smtp_password.txt`. The immutable database dump
 remains `data/releases/consultation-v1/consultation-v1-input.dump` by default.
+The API uses `API_PUBLIC_URL` and OIDC discovery to materialize its served
+OpenAPI document. Invalid, nonpositive, or excessive token/session duration
+settings stop the API or MCP process at startup.
 Then build and start without public ingress:
 
 ```powershell

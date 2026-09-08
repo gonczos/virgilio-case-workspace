@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { GlobalWorkerOptions, getDocument, type PDFDocumentProxy } from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { requireAuthenticatedResponse } from "../api/consultation";
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
@@ -26,32 +27,33 @@ export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
   const [zoom, setZoom] = useState(1.1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [nativeUrl, setNativeUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (preferNativeViewer) {
-      setLoading(false);
-      setError(null);
-      setDocumentProxy(null);
-      setPageNumber(1);
-      return;
-    }
     let active = true;
     let loadingTask: ReturnType<typeof getDocument> | null = null;
+    let objectUrl: string | null = null;
     setLoading(true);
     setError(null);
     setDocumentProxy(null);
+    setNativeUrl(null);
     setPageNumber(1);
     void (async () => {
       try {
         const response = await fetch(url);
+        requireAuthenticatedResponse(response);
         if (!response.ok) {
           throw new Error(`PDF request failed with ${response.status}`);
         }
         const data = await response.arrayBuffer();
-        loadingTask = getDocument({ data });
-        const proxy = await loadingTask.promise;
-        if (active) {
-          setDocumentProxy(proxy);
+        if (!active) return;
+        if (preferNativeViewer) {
+          objectUrl = URL.createObjectURL(new Blob([data], { type: response.headers.get("content-type") ?? "application/pdf" }));
+          if (active) setNativeUrl(objectUrl);
+        } else {
+          loadingTask = getDocument({ data });
+          const proxy = await loadingTask.promise;
+          if (active) setDocumentProxy(proxy);
         }
       } catch (loadError) {
         if (active) {
@@ -65,6 +67,7 @@ export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
     })();
     return () => {
       active = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
       void loadingTask?.destroy();
     };
   }, [preferNativeViewer, url]);
@@ -148,11 +151,11 @@ export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
           bgcolor: "#ebe4d7",
         }}
       >
-        {preferNativeViewer ? (
+        {preferNativeViewer && nativeUrl ? (
           <Stack spacing={1.5} sx={{ width: "100%" }}>
             <Box
               component="iframe"
-              src={url}
+              src={nativeUrl}
               title="Original PDF"
               sx={{
                 width: "100%",
