@@ -62,6 +62,23 @@ test("V1 BFF routes keep login and session operations in the API version", async
   });
 });
 
+test("V1 login admission failures return 429 with Retry-After", async () => {
+  const auth = {
+    metadata: { issuer: "https://auth.example.test/realms/consultation" },
+    beginLogin: async () => {
+      throw Object.assign(new Error("too many login requests"), {
+        code: "LOGIN_RATE_LIMITED", statusCode: 429, retryAfterSeconds: 37,
+      });
+    },
+  };
+  await serve(apiHandler(auth), async (base) => {
+    const response = await fetch(`${base}/api/v1/auth/login`, { redirect: "manual" });
+    assert.equal(response.status, 429);
+    assert.equal(response.headers.get("retry-after"), "37");
+    assert.equal((await response.json()).error.code, "LOGIN_RATE_LIMITED");
+  });
+});
+
 test("MCP V1 publishes protected-resource metadata and challenges unauthenticated calls", async () => {
   const handler = createMcpV1HttpHandler({
     callTool: async () => ({}),

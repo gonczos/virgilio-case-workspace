@@ -76,7 +76,7 @@ function versionBinaryUrls(value) {
 }
 
 function mapReadError(error) {
-  if (isAuthError(error)) return { status: error.statusCode, code: error.code, message: error.message };
+  if (isAuthError(error)) return { status: error.statusCode, code: error.code, message: error.message, retryAfterSeconds: error.retryAfterSeconds };
   const safe = new Set([
     "INVALID_SHA256", "INVALID_REPRESENTATION_ID", "INVALID_REPRESENTATION_FORMAT",
     "INVALID_COURT_RECORD_FILTER", "UNKNOWN_COURT_RECORD_FILTER", "UNKNOWN_QUERY_PARAMETER",
@@ -134,7 +134,7 @@ export function createConsultationV1Handler({
       }
       if (requestUrl.pathname === "/api/v1/auth/login" && request.method === "GET") {
         requireOnly(requestUrl.searchParams, new Set(["return_to"]));
-        response.writeHead(302, { Location: await auth.beginLogin(requestUrl.searchParams.get("return_to") ?? "/"), "Cache-Control": PRIVATE_CACHE_CONTROL });
+        response.writeHead(302, { Location: await auth.beginLogin(requestUrl.searchParams.get("return_to") ?? "/", request), "Cache-Control": PRIVATE_CACHE_CONTROL });
         response.end();
         return;
       }
@@ -239,7 +239,11 @@ export function createConsultationV1Handler({
       errorResponse(response, request, 404, "NOT_FOUND", "route not found");
     } catch (error) {
       const mapped = mapReadError(error);
-      const headers = mapped.status === 401 ? { "WWW-Authenticate": "Bearer" } : {};
+      const headers = mapped.status === 401
+        ? { "WWW-Authenticate": "Bearer" }
+        : mapped.status === 429 && mapped.retryAfterSeconds
+          ? { "Retry-After": String(mapped.retryAfterSeconds) }
+          : {};
       errorResponse(response, request, mapped.status, mapped.code, mapped.message, headers);
     }
   };

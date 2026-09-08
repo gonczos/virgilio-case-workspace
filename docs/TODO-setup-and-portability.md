@@ -36,7 +36,8 @@ That note fixes the release product boundary. The deterministic
 full-payload/database inventory and hashed HTTP/MCP wire contracts have been
 generated and verified under `release/consultation-v1/`; V1.1 is complete.
 The local V1.2/V1.3 package builds, restores the snapshot, imports the identity
-realm, and enforces read-only roles. V1.4 public ingress and client
+realm, enforces read-only roles, and provides validated application login
+limits. V1.4 public ingress, edge-policy verification, and client
 interoperability testing have not started.
 
 That means today:

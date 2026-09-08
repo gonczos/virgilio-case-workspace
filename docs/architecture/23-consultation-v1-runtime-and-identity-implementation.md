@@ -66,6 +66,15 @@ Secure, HttpOnly, SameSite=Lax opaque cookie. Refresh is serialized per session
 and a failed refresh destroys it. Pending logins and sessions have fixed
 capacity bounds. A restart invalidates sessions.
 
+Before allocating login state, the BFF applies fixed-window admission limits
+per Cloudflare client address and globally. The configured global rate and
+window are validated against the five-minute pending-state lifetime and the
+pending-state capacity, so accepted traffic cannot exhaust the state map.
+Rejected requests use `429 LOGIN_RATE_LIMITED` and `Retry-After`. Tracked
+client addresses are also bounded. Because the public client address comes
+from `CF-Connecting-IP`, the deployment keeps every origin port private to the
+tunnel; local unexposed requests fall back to the socket address.
+
 API and MCP containers perform discovery, token exchange, refresh, and JWKS
 retrieval through the Docker-internal Keycloak origin. They still validate the
 public issuer exactly, and discovery continues to publish the public browser

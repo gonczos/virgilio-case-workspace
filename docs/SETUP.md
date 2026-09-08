@@ -677,6 +677,11 @@ Within Compose, API and MCP reach Keycloak through the private
 `http://keycloak:8080` backchannel while retaining the exact public issuer for
 token validation and browser authorization. This lets the unexposed topology
 become healthy before Cloudflare Tunnel starts.
+The login-admission and BFF-capacity settings in `.env.example` have validated
+defaults. Invalid combinations stop API startup. The origin must remain
+reachable only through the tunnel because the API accepts Cloudflare's
+`CF-Connecting-IP` as the public client address. See the deployment README for
+the complete setting constraints and required cache-bypass rule.
 Then build and start without public ingress:
 
 ```powershell

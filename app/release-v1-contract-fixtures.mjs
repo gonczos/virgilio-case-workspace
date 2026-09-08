@@ -86,6 +86,11 @@ export async function buildGoldenFixture(client, workspaceRoot) {
     "error not found": { status: 404, body: { error: { code: "NOT_FOUND", message: "requested object was not found" } } },
     "error unauthorized": { status: 401, body: { error: { code: "UNAUTHORIZED", message: "authentication required" } } },
     "error forbidden": { status: 403, body: { error: { code: "FORBIDDEN", message: "consultation.read is required" } } },
+    "error login rate limited": {
+      status: 429,
+      headers: { "retry-after": "60" },
+      body: { error: { code: "LOGIN_RATE_LIMITED", message: "too many login requests" } },
+    },
   };
   const mcp = {
     search_document_text: await callMcp("search_document_text", {

@@ -6,8 +6,9 @@ Last updated: 2026-09-08
 
 Authoritative architecture and acceptance contract for the final Consultation
 v1 phase. V1.1 through V1.3 are implemented on the release branch: the frozen
-inputs, local Docker package, versioned read services, and shared authentication
-foundation exist. Public hosting, client interoperability, release backup,
+inputs, local Docker package, versioned read services, shared authentication
+foundation, and bounded login-admission configuration exist. Public hosting,
+edge-policy verification, client interoperability, release backup,
 capacity measurement, and final handoff remain V1.4/V1.5 work.
 
 The verified current setup remains documented in `docs/SETUP.md`. Unresolved
@@ -485,11 +486,15 @@ use observed idle, login, search, and concurrent-request measurements.
 ### V1.4: Publish a candidate environment
 
 - configure domain-independent public URLs and exact redirect/origin lists;
+- retain the application login-admission limits and optionally apply a stricter
+  Cloudflare edge limit to `/api/v1/auth/login`;
 - publish through Cloudflare Tunnel;
 - test OAuth/MCP interoperability using the owner's ChatGPT account and an
   independent MCP client;
 - test direct site and API access, session-cookie security, bounded revocation,
   expired tokens, wrong audiences, and insufficient scopes;
+- test per-client and global login limits, `Retry-After`, trusted
+  `CF-Connecting-IP`, and recovery after the configured window;
 - test account disabling and session revocation through both a browser cookie
   and bearer-token clients, including the five-minute maximum delay;
 - test that anonymous and unauthorized requests cannot retrieve metadata,

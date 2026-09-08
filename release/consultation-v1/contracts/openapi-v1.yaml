@@ -42,6 +42,7 @@ paths:
       responses:
         "302": { description: Redirect to the configured OIDC authorization endpoint. }
         "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /api/v1/auth/callback:
     get:
       operationId: completeLoginV1
@@ -258,6 +259,10 @@ components:
       content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     Forbidden:
       description: Required audience, role, or scope is absent.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    TooManyRequests:
+      description: Login admission limit reached; retry after the declared delay.
+      headers: { Retry-After: { schema: { type: string } } }
       content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     NotFound:
       description: Requested object was not found.

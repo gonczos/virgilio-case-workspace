@@ -38,6 +38,33 @@ TOTP on first login. Access tokens last at most five minutes, refresh-token
 reuse is zero, and the application accepts only `consultation.read` plus the
 correct API or MCP audience.
 
+## Login admission settings
+
+The API limits unauthenticated login starts before allocating OIDC state. The
+defaults permit 10 starts per client and 60 starts globally per 60-second
+window. It tracks at most 256 client addresses, retains at most 512 pending
+logins, and retains at most 2,048 authenticated sessions. A rejected login
+returns `429 LOGIN_RATE_LIMITED` with `Retry-After`.
+
+Configure these non-secret settings in `.env` only when measured traffic
+requires different bounds:
+
+| Setting | Default | Constraint |
+| --- | ---: | --- |
+| `LOGIN_RATE_LIMIT_WINDOW_SECONDS` | 60 | Positive integer, at most 3,600 |
+| `LOGIN_RATE_LIMIT_PER_CLIENT` | 10 | No greater than the global limit |
+| `LOGIN_RATE_LIMIT_GLOBAL` | 60 | Positive integer, at most 10,000 |
+| `LOGIN_RATE_LIMIT_MAX_CLIENTS` | 256 | At least the global limit |
+| `BFF_MAX_PENDING_LOGINS` | 512 | Must cover the maximum admitted requests during the five-minute state lifetime |
+| `BFF_MAX_SESSIONS` | 2,048 | Positive integer, at most 100,000 |
+
+Client identity uses Cloudflare's validated `CF-Connecting-IP` header and
+falls back to the direct socket address for unexposed/local operation. Keep the
+origin services private so clients cannot forge that Cloudflare header. The
+Cloudflare configuration must still bypass cache for `/api/v1/**` and
+`/mcp/v1`, and may add a stricter edge login limit without changing the
+application contract.
+
 For initial Google SMTP testing, manage the app password at
 <https://myaccount.google.com/apppasswords>. Put only the credential value in
 the ignored `smtp_password.txt`; do not add it to `.env`, Compose, realm JSON,

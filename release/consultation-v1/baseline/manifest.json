@@ -279,10 +279,10 @@
   },
   "inventories": {
     "contracts": {
-      "bytes": 78776,
+      "bytes": 79352,
       "file": "contracts.json",
       "files": 3,
-      "sha256": "9f5eda6cebad586550be614fc7e47fcaa5fbb5527ffb053da374d040a5fa31c9"
+      "sha256": "bc1b271e1c5ea6692b824d49b6c7439e9980b8d50d4aff3f344ccc7fe2f535a4"
     },
     "representation_artifacts": {
       "bytes": 156742695,
@@ -305,5 +305,5 @@
   },
   "manifest_kind": "consultation_v1_release_input",
   "manifest_version": "1.0.0",
-  "source_git_commit": "eaa391f414f91ed08f5478f65bb9a9d6d6ea0481"
+  "source_git_commit": "c5831212beae3e11981990ea6719ac8814b9034e"
 }

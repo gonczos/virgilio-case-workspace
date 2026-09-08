@@ -76,7 +76,7 @@
     "representation_artifact_inventory_sha256": "f792351ab190aa0c3283f301a45a063a72ba437cf644f341da1b8887d2134472",
     "v1_1_input_database_snapshot_sha256": "8d4f7f917c9b038a3c47a4678710c5e7a4d9db513c926cc9af89ace8a3ff9d10",
     "final_release_backup_sha256": null,
-    "http_openapi_sha256": "b7bbf4934e65fa5d2318808465b6717c76540cf76e724d1175d76b660d81aab7",
+    "http_openapi_sha256": "1d0e50e2c20e3c5d3eb49a6143bc2d14aeccc0407840548a910caf9e94b16111",
     "mcp_contract_sha256": "72fd24110642e6cd5b09760e1e730b4dac4e05d591d5f0ff19c679607f4050ce",
     "application_release_tag": null,
     "container_image_digests": null,
@@ -84,6 +84,6 @@
   },
   "generated_release_input": {
     "path": "release/consultation-v1/baseline/manifest.json",
-    "sha256": "e766d9e0c8e70e4d937bc0f6068446b7780440c9630108cb999513495740fc61"
+    "sha256": "bee2669eef0639d73102313d87a448219cd257ee497c20788915f5c92bb7ee14"
   }
 }

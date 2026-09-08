@@ -975,6 +975,18 @@
       },
       "status": 400
     },
+    "error login rate limited": {
+      "body": {
+        "error": {
+          "code": "LOGIN_RATE_LIMITED",
+          "message": "too many login requests"
+        }
+      },
+      "headers": {
+        "retry-after": "60"
+      },
+      "status": 429
+    },
     "error not found": {
       "body": {
         "error": {

@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import net from "node:net";
 
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
@@ -7,6 +8,11 @@ const DEFAULT_SESSION_IDLE_SECONDS = 30 * 60;
 const DEFAULT_SESSION_ABSOLUTE_SECONDS = 8 * 60 * 60;
 const DEFAULT_MAX_PENDING_LOGINS = 512;
 const DEFAULT_MAX_SESSIONS = 2048;
+const DEFAULT_LOGIN_RATE_LIMIT_WINDOW_SECONDS = 60;
+const DEFAULT_LOGIN_RATE_LIMIT_PER_CLIENT = 10;
+const DEFAULT_LOGIN_RATE_LIMIT_GLOBAL = 60;
+const DEFAULT_LOGIN_RATE_LIMIT_MAX_CLIENTS = 256;
+const LOGIN_STATE_TTL_SECONDS = 5 * 60;
 const CLOCK_TOLERANCE_SECONDS = 5;
 const SESSION_COOKIE = "__Host-consultation_v1";
 
@@ -14,6 +20,12 @@ function authError(code, message, statusCode = 401) {
   const error = new Error(message);
   error.code = code;
   error.statusCode = statusCode;
+  return error;
+}
+
+function loginRateLimitError(retryAfterSeconds) {
+  const error = authError("LOGIN_RATE_LIMITED", "too many login requests", 429);
+  error.retryAfterSeconds = retryAfterSeconds;
   return error;
 }
 
@@ -39,6 +51,54 @@ function optionalOrigin(value, name) {
     throw new Error(`${name} must be an HTTP(S) origin without a path, query, or fragment`);
   }
   return parsed.origin;
+}
+
+function clientAddress(request) {
+  const cloudflareAddress = String(request?.headers?.["cf-connecting-ip"] ?? "").trim();
+  if (net.isIP(cloudflareAddress)) return cloudflareAddress;
+  const remoteAddress = String(request?.socket?.remoteAddress ?? "unknown");
+  return remoteAddress.startsWith("::ffff:") ? remoteAddress.slice(7) : remoteAddress;
+}
+
+export function createLoginRateLimiter({
+  windowSeconds,
+  perClientMax,
+  globalMax,
+  maxTrackedClients,
+  now = () => Date.now(),
+}) {
+  const windowMs = windowSeconds * 1000;
+  let globalWindow = { startedAt: now(), count: 0 };
+  const clients = new Map();
+
+  function resetExpired(timestamp) {
+    if (timestamp - globalWindow.startedAt >= windowMs) globalWindow = { startedAt: timestamp, count: 0 };
+    for (const [key, value] of clients) {
+      if (timestamp - value.startedAt >= windowMs) clients.delete(key);
+    }
+  }
+
+  function retryAfter(startedAt, timestamp) {
+    return Math.max(1, Math.ceil((startedAt + windowMs - timestamp) / 1000));
+  }
+
+  return {
+    admit(request) {
+      const timestamp = now();
+      resetExpired(timestamp);
+      if (globalWindow.count >= globalMax) throw loginRateLimitError(retryAfter(globalWindow.startedAt, timestamp));
+      const key = clientAddress(request);
+      let client = clients.get(key);
+      if (!client) {
+        if (clients.size >= maxTrackedClients) throw loginRateLimitError(retryAfter(globalWindow.startedAt, timestamp));
+        client = { startedAt: timestamp, count: 0 };
+        clients.set(key, client);
+      }
+      if (client.count >= perClientMax) throw loginRateLimitError(retryAfter(client.startedAt, timestamp));
+      client.count += 1;
+      globalWindow.count += 1;
+    },
+  };
 }
 
 export function oidcBackchannelUrl(publicUrl, backchannelOrigin) {
@@ -99,6 +159,12 @@ export function loadAuthV1Config(env = process.env) {
     requiredScope: env.OIDC_REQUIRED_SCOPE?.trim() || "consultation.read",
     requiredRole: env.OIDC_REQUIRED_ROLE?.trim() || "consultation_user",
     backchannelOrigin: optionalOrigin(env.OIDC_BACKCHANNEL_BASE_URL, "OIDC_BACKCHANNEL_BASE_URL"),
+    maxPendingLogins: positiveIntegerSetting(env.BFF_MAX_PENDING_LOGINS, "BFF_MAX_PENDING_LOGINS", DEFAULT_MAX_PENDING_LOGINS, { maximum: 10_000 }),
+    maxSessions: positiveIntegerSetting(env.BFF_MAX_SESSIONS, "BFF_MAX_SESSIONS", DEFAULT_MAX_SESSIONS, { maximum: 100_000 }),
+    loginRateLimitWindowSeconds: positiveIntegerSetting(env.LOGIN_RATE_LIMIT_WINDOW_SECONDS, "LOGIN_RATE_LIMIT_WINDOW_SECONDS", DEFAULT_LOGIN_RATE_LIMIT_WINDOW_SECONDS, { maximum: 3600 }),
+    loginRateLimitPerClient: positiveIntegerSetting(env.LOGIN_RATE_LIMIT_PER_CLIENT, "LOGIN_RATE_LIMIT_PER_CLIENT", DEFAULT_LOGIN_RATE_LIMIT_PER_CLIENT, { maximum: 10_000 }),
+    loginRateLimitGlobal: positiveIntegerSetting(env.LOGIN_RATE_LIMIT_GLOBAL, "LOGIN_RATE_LIMIT_GLOBAL", DEFAULT_LOGIN_RATE_LIMIT_GLOBAL, { maximum: 10_000 }),
+    loginRateLimitMaxClients: positiveIntegerSetting(env.LOGIN_RATE_LIMIT_MAX_CLIENTS, "LOGIN_RATE_LIMIT_MAX_CLIENTS", DEFAULT_LOGIN_RATE_LIMIT_MAX_CLIENTS, { maximum: 100_000 }),
     accessTokenMaxSeconds: positiveIntegerSetting(
       env.OIDC_ACCESS_TOKEN_MAX_SECONDS,
       "OIDC_ACCESS_TOKEN_MAX_SECONDS",
@@ -110,6 +176,17 @@ export function loadAuthV1Config(env = process.env) {
   };
   if (config.sessionIdleSeconds > config.sessionAbsoluteSeconds) {
     throw new Error("BFF_SESSION_IDLE_SECONDS must not exceed BFF_SESSION_ABSOLUTE_SECONDS");
+  }
+  if (config.loginRateLimitPerClient > config.loginRateLimitGlobal) {
+    throw new Error("LOGIN_RATE_LIMIT_PER_CLIENT must not exceed LOGIN_RATE_LIMIT_GLOBAL");
+  }
+  if (config.loginRateLimitMaxClients < config.loginRateLimitGlobal) {
+    throw new Error("LOGIN_RATE_LIMIT_MAX_CLIENTS must be at least LOGIN_RATE_LIMIT_GLOBAL");
+  }
+  const maximumAdmissionsDuringLoginTtl = config.loginRateLimitGlobal
+    * (Math.ceil(LOGIN_STATE_TTL_SECONDS / config.loginRateLimitWindowSeconds) + 1);
+  if (maximumAdmissionsDuringLoginTtl > config.maxPendingLogins) {
+    throw new Error("login rate-limit settings can exceed BFF_MAX_PENDING_LOGINS during the login-state lifetime");
   }
   return config;
 }
@@ -196,8 +273,8 @@ export async function createBffAuth({
   config,
   fetchImpl = fetch,
   now = () => Date.now(),
-  maxPendingLogins = DEFAULT_MAX_PENDING_LOGINS,
-  maxSessions = DEFAULT_MAX_SESSIONS,
+  maxPendingLogins = config.maxPendingLogins ?? DEFAULT_MAX_PENDING_LOGINS,
+  maxSessions = config.maxSessions ?? DEFAULT_MAX_SESSIONS,
 }) {
   requiredString(config.clientSecret, "OIDC_CLIENT_SECRET");
   requiredString(config.redirectUri, "OIDC_REDIRECT_URI");
@@ -219,6 +296,13 @@ export async function createBffAuth({
   const idTokenJwks = createRemoteJWKSet(new URL(jwksUri));
   const pending = new Map();
   const sessions = new Map();
+  const loginRateLimiter = createLoginRateLimiter({
+    windowSeconds: config.loginRateLimitWindowSeconds ?? DEFAULT_LOGIN_RATE_LIMIT_WINDOW_SECONDS,
+    perClientMax: config.loginRateLimitPerClient ?? DEFAULT_LOGIN_RATE_LIMIT_PER_CLIENT,
+    globalMax: config.loginRateLimitGlobal ?? DEFAULT_LOGIN_RATE_LIMIT_GLOBAL,
+    maxTrackedClients: config.loginRateLimitMaxClients ?? DEFAULT_LOGIN_RATE_LIMIT_MAX_CLIENTS,
+    now,
+  });
 
   function cleanup() {
     const timestamp = now();
@@ -228,8 +312,9 @@ export async function createBffAuth({
     }
   }
 
-  async function beginLogin(returnTo = "/") {
+  async function beginLogin(returnTo = "/", request = null) {
     cleanup();
+    loginRateLimiter.admit(request);
     if (pending.size >= maxPendingLogins || sessions.size >= maxSessions) {
       throw authError("AUTH_CAPACITY_REACHED", "authentication capacity is temporarily exhausted", 503);
     }
@@ -237,7 +322,7 @@ export async function createBffAuth({
     const nonce = randomToken();
     const verifier = randomToken(48);
     const challenge = base64Url(crypto.createHash("sha256").update(verifier).digest());
-    pending.set(state, { nonce, verifier, returnTo: validateReturnTo(returnTo), expiresAt: now() + 5 * 60 * 1000 });
+    pending.set(state, { nonce, verifier, returnTo: validateReturnTo(returnTo), expiresAt: now() + LOGIN_STATE_TTL_SECONDS * 1000 });
     const url = new URL(metadata.authorization_endpoint);
     url.searchParams.set("client_id", config.clientId);
     url.searchParams.set("redirect_uri", config.redirectUri);
