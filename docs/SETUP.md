@@ -748,11 +748,25 @@ only in ChatGPT's Client Secret field.
 
 Client ID: `consultation-chatgpt`. Callback allowlist:
 `https://chatgpt.com/connector_platform_oauth_redirect`, confirmed by the app
-creator. Set default OAuth scopes to `openid consultation.read`. The client
+creator. ChatGPT requests `openid offline_access consultation.read`. The client
 requires S256 PKCE, user consent and the existing invited-user login; it grants
 the MCP audience, not the API audience. Password grants and service accounts
-are disabled. Standard refresh tokens follow the realm's session limits;
-this configuration does not request offline access. A changed callback URL
+are disabled. The user-approved ChatGPT exception (2026-09-09) attaches the
+existing `offline_access` scope as optional. Its realm role is inherited by
+default users; keep that role in the offline scope's role mappings. Set realm
+`offlineSessionIdleTimeout=1800`, `offlineSessionMaxLifespanEnabled=true` and
+`offlineSessionMaxLifespan=28800`, plus the same client limits through
+`client.offline.session.idle.timeout` and `client.offline.session.max.lifespan`.
+The realm ceiling must permit eight hours; other consultation clients do not
+have the offline scope. Keep five-minute access tokens and refresh rotation.
+These live settings must also be applied to existing realms and clients;
+changing the templates alone does not update them.
+
+Offline access survives browser logout. Users can revoke the ChatGPT grant in
+the Keycloak Account Console's applications area; administrators can revoke
+the user's client consent/offline sessions. Already issued access tokens can
+remain valid for up to five minutes. After 30 minutes idle or eight hours
+maximum, ChatGPT must authorize again. A changed callback URL
 requires an explicit client allowlist update.
 
 ### Browser logout and application title

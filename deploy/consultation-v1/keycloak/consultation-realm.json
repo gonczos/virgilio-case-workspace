@@ -21,7 +21,8 @@
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 28800,
   "offlineSessionMaxLifespanEnabled": true,
-  "offlineSessionMaxLifespan": 1,
+  "offlineSessionIdleTimeout": 1800,
+  "offlineSessionMaxLifespan": 28800,
   "roles": {
     "realm": [
       { "name": "consultation_user", "description": "May use the read-only Consultation V1 corpus" }

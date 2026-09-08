@@ -13,7 +13,11 @@
   "fullScopeAllowed": false,
   "redirectUris": ["https://chatgpt.com/connector_platform_oauth_redirect"],
   "webOrigins": [],
-  "attributes": { "pkce.code.challenge.method": "S256" },
+  "attributes": {
+    "pkce.code.challenge.method": "S256",
+    "client.offline.session.idle.timeout": "1800",
+    "client.offline.session.max.lifespan": "28800"
+  },
   "defaultClientScopes": ["consultation.read", "consultation-mcp-audience"],
-  "optionalClientScopes": []
+  "optionalClientScopes": ["offline_access"]
 }

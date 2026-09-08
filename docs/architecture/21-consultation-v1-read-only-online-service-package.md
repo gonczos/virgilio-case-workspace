@@ -484,8 +484,10 @@ use observed idle, login, search, and concurrent-request measurements.
 - bind each BFF session to current Keycloak access/refresh token state,
   serialize refresh-token rotation, and destroy sessions on failed renewal;
 - protect the programmatic API and MCP with distinct clients/audiences;
-- configure a five-minute maximum access-token lifetime, prohibit offline
-  access, and enable refresh-token rotation where supported;
+- configure a five-minute maximum access-token lifetime; permit offline access
+  only for the dedicated ChatGPT client with a 30-minute idle timeout and an
+  eight-hour absolute maximum (user-approved exception on 2026-09-09); prohibit offline
+  access for other clients, and enable refresh-token rotation where supported;
 - configure invite-only administration, recovery, MFA, session, and audit
   policies.
 
