@@ -199,7 +199,7 @@ services:
       SMTP_FROM_DISPLAY_NAME: ${SMTP_FROM_DISPLAY_NAME:-Virgilio Consultation}
       SMTP_USER: ${SMTP_USER:?set SMTP_USER}
     secrets: [keycloak_db_password, keycloak_bootstrap_password, oidc_client_secret, smtp_password]
-    volumes: ["./keycloak:/opt/keycloak/data/import:ro"]
+    volumes: ["./keycloak/consultation-realm.json:/opt/keycloak/data/import/consultation-realm.json:ro"]
     networks: [identity, edge]
     depends_on:
       keycloak-db: { condition: service_healthy }

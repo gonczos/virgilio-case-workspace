@@ -743,7 +743,10 @@ template is `deploy/consultation-v1/keycloak/chatgpt-client.json`; create it in
 the `consultation` realm through authenticated administration, then add only
 the `consultation_user` realm role to its role scope mappings. The template is
 not automatically imported with the realm. Keycloak generates its client
-secret; keep it in the operator's ignored `secrets/` directory and enter it
+secret. Compose mounts only `consultation-realm.json` into the startup import
+directory: standalone client templates must not be mounted there, because
+Keycloak parses every import JSON file as a realm. Keep the client
+secret in the operator's ignored `secrets/` directory and enter it
 only in ChatGPT's Client Secret field.
 
 Client ID: `consultation-chatgpt`. Callback allowlist:
