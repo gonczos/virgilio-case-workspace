@@ -40,7 +40,10 @@ Requirements:
 
 - [x] Every final hostname is under the intended Cloudflare-managed zone.
 - [x] Each hostname is distinct.
-- [ ] No hostname is already used by another service.
+- [x] No hostname is already used by another service. Verified on 2026-09-08:
+      public DNS returned no A, AAAA, or CNAME record; both authoritative
+      Cloudflare nameservers returned no A or CNAME answer; and a random
+      hostname confirmed that no wildcard DNS record occupies them.
 - [x] The site, API, MCP, issuer, audiences, redirects, and tunnel routes will
       use these exact names.
 
