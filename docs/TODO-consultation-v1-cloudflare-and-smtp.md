@@ -24,26 +24,27 @@ conversation. Record only that rotation was completed.
 
 ## 1. Record The Public Names
 
-Choose one base domain and reserve these single-level subdomains. The labels are
-recommendations and may be changed before `.env` is created.
+The chosen base domain is `asiloveit.com`. Use single-level subdomains so the
+hostnames fit normal `*.asiloveit.com` certificate coverage without depending
+on a certificate for `*.virgilio.asiloveit.com`.
 
-| Purpose | Recommended hostname | Final hostname |
-| --- | --- | --- |
-| Consultation website and browser API | `consultation.<domain>` | TODO |
-| Direct programmatic API | `api.<domain>` | TODO |
-| Remote MCP | `mcp.<domain>` | TODO |
-| Keycloak login and account pages | `auth.<domain>` | TODO |
-| Restricted Keycloak administration | `identity-admin.<domain>` | TODO |
+| Purpose | Final hostname |
+| --- | --- |
+| Consultation website and browser API | `virgilio.asiloveit.com` |
+| Direct programmatic API | `api-virgilio.asiloveit.com` |
+| Remote MCP | `mcp-virgilio.asiloveit.com` |
+| Keycloak login and account pages | `auth-virgilio.asiloveit.com` |
+| Restricted Keycloak administration | `identity-admin-virgilio.asiloveit.com` |
 
 Requirements:
 
-- [ ] Every final hostname is under the Cloudflare-managed zone.
-- [ ] Each hostname is distinct.
+- [x] Every final hostname is under the intended Cloudflare-managed zone.
+- [x] Each hostname is distinct.
 - [ ] No hostname is already used by another service.
-- [ ] The site, API, MCP, issuer, audiences, redirects, and tunnel routes will
+- [x] The site, API, MCP, issuer, audiences, redirects, and tunnel routes will
       use these exact names.
 
-Do not create the final `.env` until this table is complete. Changing the
+Treat these names as frozen when creating the final `.env`. Changing the
 authentication hostname later changes the OIDC issuer identity.
 
 ## 2. Finish The Cloudflare Domain Prerequisites
@@ -77,11 +78,11 @@ this deployment.
 
 | Public hostname | Tunnel service URL |
 | --- | --- |
-| Consultation website | `http://ui:8080` |
-| Programmatic API | `http://api:8091` |
-| Remote MCP | `http://mcp:8092` |
-| Authentication | `http://keycloak:8080` |
-| Identity administration | `http://keycloak:8080` |
+| `virgilio.asiloveit.com` | `http://ui:8080` |
+| `api-virgilio.asiloveit.com` | `http://api:8091` |
+| `mcp-virgilio.asiloveit.com` | `http://mcp:8092` |
+| `auth-virgilio.asiloveit.com` | `http://keycloak:8080` |
+| `identity-admin-virgilio.asiloveit.com` | `http://keycloak:8080` |
 
 - [ ] Confirm Cloudflare created proxied DNS records for all published routes.
 - [ ] Do not create a public route to `gateway`, either PostgreSQL database, or
@@ -94,15 +95,14 @@ Cloudflare's current dashboard procedure is documented in
 
 ## 4. Configure Cloudflare Safety Rules
 
-Create a Cache Rule whose action is **Bypass cache**. Substitute the chosen
-hostnames in this expression:
+Create a Cache Rule whose action is **Bypass cache** with this expression:
 
 ```text
-(http.host eq "api.<domain>") or
-(http.host eq "mcp.<domain>") or
-(http.host eq "auth.<domain>") or
-(http.host eq "identity-admin.<domain>") or
-((http.host eq "consultation.<domain>") and
+(http.host eq "api-virgilio.asiloveit.com") or
+(http.host eq "mcp-virgilio.asiloveit.com") or
+(http.host eq "auth-virgilio.asiloveit.com") or
+(http.host eq "identity-admin-virgilio.asiloveit.com") or
+((http.host eq "virgilio.asiloveit.com") and
  starts_with(http.request.uri.path, "/api/v1/"))
 ```
 
@@ -169,15 +169,15 @@ When Sections 1-5 are complete, provide or record these non-secret values:
 
 | `.env` setting | Value to derive |
 | --- | --- |
-| `SITE_PUBLIC_URL` | `https://<consultation-hostname>` |
-| `API_PUBLIC_URL` | `https://<api-hostname>` |
-| `MCP_PUBLIC_URL` | `https://<mcp-hostname>/mcp/v1` |
-| `AUTH_PUBLIC_URL` | `https://<auth-hostname>` |
-| `AUTH_ADMIN_PUBLIC_URL` | `https://<identity-admin-hostname>` |
-| `OIDC_ISSUER` | `https://<auth-hostname>/realms/consultation` |
-| `API_AUDIENCE` | `https://<api-hostname>/api/v1` |
-| `MCP_AUDIENCE` | `https://<mcp-hostname>/mcp/v1` |
-| `MCP_ALLOWED_HOSTS` | `<mcp-hostname>` |
+| `SITE_PUBLIC_URL` | `https://virgilio.asiloveit.com` |
+| `API_PUBLIC_URL` | `https://api-virgilio.asiloveit.com` |
+| `MCP_PUBLIC_URL` | `https://mcp-virgilio.asiloveit.com/mcp/v1` |
+| `AUTH_PUBLIC_URL` | `https://auth-virgilio.asiloveit.com` |
+| `AUTH_ADMIN_PUBLIC_URL` | `https://identity-admin-virgilio.asiloveit.com` |
+| `OIDC_ISSUER` | `https://auth-virgilio.asiloveit.com/realms/consultation` |
+| `API_AUDIENCE` | `https://api-virgilio.asiloveit.com/api/v1` |
+| `MCP_AUDIENCE` | `https://mcp-virgilio.asiloveit.com/mcp/v1` |
+| `MCP_ALLOWED_HOSTS` | `mcp-virgilio.asiloveit.com` |
 | `SMTP_HOST` | `smtp.gmail.com` |
 | `SMTP_PORT` | `587` |
 | `SMTP_USER` | Full Google mailbox address |
@@ -201,7 +201,7 @@ Cloudflare and SMTP are ready for `.env` work when all of these statements are
 true:
 
 - [ ] The Cloudflare zone is Active.
-- [ ] The five exact hostnames are recorded.
+- [x] The five exact hostnames are recorded.
 - [ ] The remotely managed tunnel and five routes exist.
 - [ ] The tunnel token is present only in its ignored secret file.
 - [ ] Cache bypass and identity-admin Access rules are configured.
