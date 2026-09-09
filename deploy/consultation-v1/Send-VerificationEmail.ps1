@@ -10,6 +10,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+if ($Email.Contains('\')) {
+    throw "Email must contain '@' directly; do not escape it with a backslash. Received: $Email"
+}
+
 $composeFile = Join-Path $PSScriptRoot 'compose.yml'
 $envFile = Join-Path $PSScriptRoot '.env'
 
@@ -37,6 +41,50 @@ function Invoke-Docker {
     return $output
 }
 
+function Invoke-DockerShell {
+    param(
+        [Parameter(Mandatory)]
+        [ValidatePattern('^[a-f0-9]+$')]
+        [string]$Container,
+
+        [Parameter(Mandatory)]
+        [string]$Script
+    )
+
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = 'docker'
+    $startInfo.Arguments = "exec -i $Container /bin/sh"
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardInput = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+    if ($null -ne $startInfo.PSObject.Properties['StandardInputEncoding']) {
+        $startInfo.StandardInputEncoding = [Text.UTF8Encoding]::new($false)
+    }
+
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) {
+        throw 'Failed to start Docker.'
+    }
+
+    $process.StandardInput.Write($Script)
+    $process.StandardInput.Close()
+    $standardOutput = $process.StandardOutput.ReadToEnd()
+    $standardError = $process.StandardError.ReadToEnd()
+    $process.WaitForExit()
+
+    if ($process.ExitCode -ne 0) {
+        if ($standardError) {
+            Write-Error $standardError.Trim()
+        }
+        throw "Docker shell command failed with exit code $($process.ExitCode)."
+    }
+
+    return $standardOutput
+}
+
 $composeArguments = @(
     'compose',
     '--env-file', $envFile,
@@ -62,12 +110,10 @@ if (@($tunnelContainer).Count -ne 1) {
 
 $kcadm = '/opt/keycloak/bin/kcadm.sh'
 $authenticateCommand = @'
-/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user bootstrap-admin --password "$(cat /run/secrets/keycloak_bootstrap_password)"
+export KC_CLI_PASSWORD="$(cat /run/secrets/keycloak_bootstrap_password)"
+/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user bootstrap-admin
 '@
-Invoke-Docker -Arguments @(
-    'exec', $keycloakContainer,
-    '/bin/sh', '-c', $authenticateCommand.Trim()
-) -AllowEmptyOutput | Out-Null
+Invoke-DockerShell -Container $keycloakContainer -Script $authenticateCommand | Out-Null
 
 $userJson = Invoke-Docker -Arguments @(
     'exec', $keycloakContainer,
