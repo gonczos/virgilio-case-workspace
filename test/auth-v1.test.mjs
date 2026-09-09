@@ -121,6 +121,7 @@ test("V1 authentication configuration rejects unsafe duration values", () => {
   assert.throws(() => loadAuthV1Config({ ...base, OIDC_ACCESS_TOKEN_MAX_SECONDS: "301" }), /no greater than 300/u);
   assert.throws(() => loadAuthV1Config({ ...base, BFF_SESSION_IDLE_SECONDS: "60", BFF_SESSION_ABSOLUTE_SECONDS: "30" }), /must not exceed/u);
   assert.throws(() => loadAuthV1Config({ ...base, OIDC_BACKCHANNEL_BASE_URL: "http://keycloak:8080/path" }), /without a path/u);
+  assert.throws(() => loadAuthV1Config({ ...base, BFF_LOGIN_STATE_TTL_SECONDS: "3601" }), /no greater than 3600/u);
   assert.throws(() => loadAuthV1Config({ ...base, LOGIN_RATE_LIMIT_PER_CLIENT: "61" }), /must not exceed LOGIN_RATE_LIMIT_GLOBAL/u);
   assert.throws(() => loadAuthV1Config({ ...base, LOGIN_RATE_LIMIT_MAX_CLIENTS: "119" }), /must be at least twice LOGIN_RATE_LIMIT_GLOBAL/u);
   assert.throws(() => loadAuthV1Config({ ...base, BFF_MAX_PENDING_LOGINS: "100" }), /can exceed BFF_MAX_PENDING_LOGINS/u);
@@ -175,7 +176,8 @@ test("V1 login limiter evicts the oldest client window when global and client wi
   assert.doesNotThrow(() => limiter.admit(request("203.0.113.4")));
 });
 
-test("V1 pending login state is bounded", async () => {
+test("V1 pending login state remains bounded for the configured onboarding lifetime", async () => {
+  let timestamp = 0;
   const config = {
     ...loadAuthV1Config({
       OIDC_ISSUER: "https://auth.example.test/realms/consultation",
@@ -188,6 +190,7 @@ test("V1 pending login state is bounded", async () => {
   };
   const auth = await createBffAuth({
     config,
+    now: () => timestamp,
     maxPendingLogins: 1,
     fetchImpl: async () => new Response(JSON.stringify({
       issuer: config.issuer,
@@ -198,6 +201,10 @@ test("V1 pending login state is bounded", async () => {
   });
   await auth.beginLogin("/");
   await assert.rejects(() => auth.beginLogin("/"), (error) => error.code === "AUTH_CAPACITY_REACHED" && error.statusCode === 503);
+  timestamp = 3_599_000;
+  await assert.rejects(() => auth.beginLogin("/"), (error) => error.code === "AUTH_CAPACITY_REACHED" && error.statusCode === 503);
+  timestamp = 3_600_000;
+  await assert.doesNotReject(() => auth.beginLogin("/"));
 });
 
 test("V1 login binds the ID-token subject to the access-token subject", async () => {

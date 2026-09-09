@@ -110,7 +110,7 @@ test("V1 login admission failures return 429 with Retry-After", async () => {
   });
 });
 
-test("V1 callback accepts provider error fields without reflecting their contents", async () => {
+test("V1 callback redirects provider failures to a safe restart page", async () => {
   let received;
   const auth = {
     metadata: { issuer: "https://auth.example.test/realms/consultation" },
@@ -121,12 +121,25 @@ test("V1 callback accepts provider error fields without reflecting their content
   };
   await serve(apiHandler(auth), async (base) => {
     const response = await fetch(`${base}/api/v1/auth/callback?state=state&error=access_denied&error_description=private-detail&error_uri=https%3A%2F%2Fexample.invalid`, { redirect: "manual" });
-    assert.equal(response.status, 401);
-    const body = await response.json();
-    assert.equal(body.error.code, "LOGIN_FAILED");
-    assert.doesNotMatch(JSON.stringify(body), /private-detail|example.invalid/u);
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("location"), "/signed-out?reason=login-failed");
+    assert.match(response.headers.get("set-cookie"), /Max-Age=0/u);
     assert.deepEqual(received, { code: null, state: "state", error: "access_denied" });
-    assert.equal(response.headers.get("set-cookie"), null);
+  });
+});
+
+test("V1 expired callback redirects to an explicit setup-expired page", async () => {
+  const auth = {
+    metadata: { issuer: "https://auth.example.test/realms/consultation" },
+    completeLogin: async () => {
+      throw Object.assign(new Error("login state is invalid or expired"), { code: "INVALID_LOGIN_STATE", statusCode: 400 });
+    },
+  };
+  await serve(apiHandler(auth), async (base) => {
+    const response = await fetch(`${base}/api/v1/auth/callback?code=x&state=expired`, { redirect: "manual" });
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("location"), "/signed-out?reason=setup-expired");
+    assert.match(response.headers.get("set-cookie"), /Max-Age=0/u);
   });
 });
 

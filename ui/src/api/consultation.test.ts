@@ -101,10 +101,12 @@ test("recorded-reference client preserves independent scope, lifecycle and pagin
   );
 });
 
-test("representation reads restart login after a 401 response", async () => {
-  const assign = vi.fn();
+test("representation reads hide protected content and restart login after a 401 response", async () => {
+  const replace = vi.fn();
+  const dispatchEvent = vi.fn();
   vi.stubGlobal("window", {
-    location: { pathname: "/binaries/example", search: "?view=text", hash: "#page", assign },
+    location: { pathname: "/binaries/example", search: "?view=text", hash: "#page", replace },
+    dispatchEvent,
   });
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
     ok: false,
@@ -112,5 +114,6 @@ test("representation reads restart login after a 401 response", async () => {
     json: async () => ({ error: { code: "UNAUTHORIZED", message: "authentication required" } }),
   }));
   await expect(getRepresentationContent(10, "text")).rejects.toThrow("Authentication required");
-  expect(assign).toHaveBeenCalledWith("/api/v1/auth/login?return_to=%2Fbinaries%2Fexample%3Fview%3Dtext%23page");
+  expect(dispatchEvent).toHaveBeenCalledOnce();
+  expect(replace).toHaveBeenCalledWith("/api/v1/auth/login?return_to=%2Fbinaries%2Fexample%3Fview%3Dtext%23page");
 });

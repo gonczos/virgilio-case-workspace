@@ -40,7 +40,9 @@ API, MCP, and gateway use distinct roles granted only `CONNECT`, schema
 
 The release UI builds with `VITE_CONSULTATION_V1=true`. It calls `/api/v1`,
 redirects rejected JSON and representation reads plus native PDF preflight
-checks to the versioned login operation, and
+checks to the versioned login operation. Before mounting the consultation
+layout or any document component, it verifies the BFF session and otherwise
+shows only a neutral session-check or sign-in screen. It also
 hides experimental coverage, graph, procedural-flow, and Directus navigation.
 Development builds retain their existing routes.
 
@@ -73,9 +75,16 @@ Secure, HttpOnly, SameSite=Lax opaque cookie. Refresh is serialized per session
 and a failed refresh destroys it. Pending logins and sessions have fixed
 capacity bounds. A restart invalidates sessions.
 
+First-login state is retained for 60 minutes in both Keycloak and the BFF so
+email, temporary-password, and TOTP setup do not expire on different clocks.
+The longer onboarding window does not change the five-minute access-token
+lifetime or the 60-second authorization-code lifetime. The pending-login map
+remains capacity bounded against the configured login admission rate.
+
 Provider error callbacks accept the standard `error`, `error_description`, and
-`error_uri` parameters. They consume valid pending state and return a generic
-`LOGIN_FAILED` response without exchanging tokens or reflecting provider text.
+`error_uri` parameters. They consume valid pending state and redirect to a
+generic restart screen without exchanging tokens or reflecting provider text.
+Expired pending state redirects to a dedicated setup-expired message.
 ID-token rejection remains fail-closed; server diagnostics record only a bounded
 failure category (such as nonce/subject mismatch or a JOSE verification code),
 never tokens or claim values. These diagnostics distinguish causes that the
@@ -83,7 +92,7 @@ public `INVALID_ID_TOKEN` response deliberately does not expose.
 
 Before allocating login state, the BFF applies fixed-window admission limits
 per Cloudflare client address and globally. The configured global rate and
-window are validated against the five-minute pending-state lifetime and the
+window are validated against the configured pending-state lifetime and the
 pending-state capacity, so accepted traffic cannot exhaust the state map.
 Rejected requests use `429 LOGIN_RATE_LIMITED` and `Retry-After`. Tracked
 client addresses are also bounded. Because the public client address comes

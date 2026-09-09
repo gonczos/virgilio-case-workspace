@@ -60,7 +60,8 @@ export interface BucketExpansionResponse {
 export function requireAuthenticatedResponse(response: Response): void {
   if (response.status === 401 && typeof window !== "undefined" && !window.location.pathname.startsWith("/api/")) {
     const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    window.location.assign(`/api/v1/auth/login?return_to=${encodeURIComponent(returnTo)}`);
+    window.dispatchEvent(new Event("consultation-auth-required"));
+    window.location.replace(`/api/v1/auth/login?return_to=${encodeURIComponent(returnTo)}`);
     throw new Error("Authentication required");
   }
 }

@@ -6,13 +6,13 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 const DEFAULT_ACCESS_TOKEN_MAX_SECONDS = 300;
 const DEFAULT_SESSION_IDLE_SECONDS = 30 * 60;
 const DEFAULT_SESSION_ABSOLUTE_SECONDS = 8 * 60 * 60;
-const DEFAULT_MAX_PENDING_LOGINS = 512;
+const DEFAULT_MAX_PENDING_LOGINS = 4096;
 const DEFAULT_MAX_SESSIONS = 2048;
 const DEFAULT_LOGIN_RATE_LIMIT_WINDOW_SECONDS = 60;
 const DEFAULT_LOGIN_RATE_LIMIT_PER_CLIENT = 10;
 const DEFAULT_LOGIN_RATE_LIMIT_GLOBAL = 60;
 const DEFAULT_LOGIN_RATE_LIMIT_MAX_CLIENTS = 256;
-const LOGIN_STATE_TTL_SECONDS = 5 * 60;
+const DEFAULT_LOGIN_STATE_TTL_SECONDS = 60 * 60;
 const CLOCK_TOLERANCE_SECONDS = 5;
 const SESSION_COOKIE = "__Host-consultation_v1";
 
@@ -163,6 +163,7 @@ export function loadAuthV1Config(env = process.env) {
     requiredRole: env.OIDC_REQUIRED_ROLE?.trim() || "consultation_user",
     backchannelOrigin: optionalOrigin(env.OIDC_BACKCHANNEL_BASE_URL, "OIDC_BACKCHANNEL_BASE_URL"),
     maxPendingLogins: positiveIntegerSetting(env.BFF_MAX_PENDING_LOGINS, "BFF_MAX_PENDING_LOGINS", DEFAULT_MAX_PENDING_LOGINS, { maximum: 10_000 }),
+    loginStateTtlSeconds: positiveIntegerSetting(env.BFF_LOGIN_STATE_TTL_SECONDS, "BFF_LOGIN_STATE_TTL_SECONDS", DEFAULT_LOGIN_STATE_TTL_SECONDS, { maximum: 3600 }),
     maxSessions: positiveIntegerSetting(env.BFF_MAX_SESSIONS, "BFF_MAX_SESSIONS", DEFAULT_MAX_SESSIONS, { maximum: 100_000 }),
     loginRateLimitWindowSeconds: positiveIntegerSetting(env.LOGIN_RATE_LIMIT_WINDOW_SECONDS, "LOGIN_RATE_LIMIT_WINDOW_SECONDS", DEFAULT_LOGIN_RATE_LIMIT_WINDOW_SECONDS, { maximum: 3600 }),
     loginRateLimitPerClient: positiveIntegerSetting(env.LOGIN_RATE_LIMIT_PER_CLIENT, "LOGIN_RATE_LIMIT_PER_CLIENT", DEFAULT_LOGIN_RATE_LIMIT_PER_CLIENT, { maximum: 10_000 }),
@@ -187,7 +188,7 @@ export function loadAuthV1Config(env = process.env) {
     throw new Error("LOGIN_RATE_LIMIT_MAX_CLIENTS must be at least twice LOGIN_RATE_LIMIT_GLOBAL");
   }
   const maximumAdmissionsDuringLoginTtl = config.loginRateLimitGlobal
-    * (Math.ceil(LOGIN_STATE_TTL_SECONDS / config.loginRateLimitWindowSeconds) + 1);
+    * (Math.ceil(config.loginStateTtlSeconds / config.loginRateLimitWindowSeconds) + 1);
   if (maximumAdmissionsDuringLoginTtl > config.maxPendingLogins) {
     throw new Error("login rate-limit settings can exceed BFF_MAX_PENDING_LOGINS during the login-state lifetime");
   }
@@ -329,7 +330,7 @@ export async function createBffAuth({
     const nonce = randomToken();
     const verifier = randomToken(48);
     const challenge = base64Url(crypto.createHash("sha256").update(verifier).digest());
-    pending.set(state, { nonce, verifier, returnTo: validateReturnTo(returnTo), expiresAt: now() + LOGIN_STATE_TTL_SECONDS * 1000 });
+    pending.set(state, { nonce, verifier, returnTo: validateReturnTo(returnTo), expiresAt: now() + config.loginStateTtlSeconds * 1000 });
     const url = new URL(metadata.authorization_endpoint);
     url.searchParams.set("client_id", config.clientId);
     url.searchParams.set("redirect_uri", config.redirectUri);

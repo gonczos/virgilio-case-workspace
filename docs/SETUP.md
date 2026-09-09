@@ -690,8 +690,30 @@ local API profile and must not be rebound to a LAN or wildcard address. Public
 Cloudflare ingress exposes only the Keycloak login/account surface and must
 block the `/admin` and `/realms/master` path prefixes on the authentication
 hostname. See the deployment README for the exact enter/exit commands.
+
+### Consultation V1 new-user onboarding
+
+Enter local Keycloak maintenance mode and create an enabled user with the
+correct email address. Assign the `consultation_user` realm role and create a
+temporary password. Send the verification email before giving the user the
+public consultation URL and temporary password. Confirm that Keycloak reports
+`Email verified` before asking the user to sign in.
+
+The first application login changes the temporary password and then configures
+and confirms TOTP. If an unverified user starts login early, Keycloak's fallback
+order is email verification, password change, then TOTP. Login and user-action
+state last 60 minutes; an administrator-issued verification link lasts 12
+hours. Access tokens remain limited to five minutes and the final authorization
+code remains limited to 60 seconds.
+
+The release UI checks `/api/v1/auth/session` before mounting any consultation
+layout or document component. A missing session shows only the neutral sign-in
+transition. Expired onboarding callbacks show a restart message and state that
+completed actions remain saved.
+
 The login-admission and BFF-capacity settings in `.env.example` have validated
-defaults. Invalid combinations stop API startup. The origin must remain
+defaults. The first-login state is retained for 60 minutes and the default
+pending-login capacity is 4,096. Invalid combinations stop API startup. The origin must remain
 reachable only through the tunnel because the API accepts Cloudflare's
 `CF-Connecting-IP` as the public client address. See the deployment README for
 the complete setting constraints and required cache-bypass rule.

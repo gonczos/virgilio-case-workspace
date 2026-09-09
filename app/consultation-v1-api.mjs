@@ -243,6 +243,17 @@ export function createConsultationV1Handler({
       }
       errorResponse(response, request, 404, "NOT_FOUND", "route not found");
     } catch (error) {
+      if (requestUrl.pathname === "/api/v1/auth/callback" && request.method === "GET") {
+        const reason = error?.code === "INVALID_LOGIN_STATE" ? "setup-expired" : "login-failed";
+        response.writeHead(303, {
+          Location: `/signed-out?reason=${reason}`,
+          "Set-Cookie": sessionCookie("", { clear: true }),
+          "Cache-Control": PRIVATE_CACHE_CONTROL,
+          "Referrer-Policy": "no-referrer",
+        });
+        response.end();
+        return;
+      }
       const mapped = mapReadError(error);
       const headers = mapped.status === 401
         ? { "WWW-Authenticate": "Bearer" }

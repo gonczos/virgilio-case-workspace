@@ -79,7 +79,7 @@ hostname or route.
 
 The API limits unauthenticated login starts before allocating OIDC state. The
 defaults permit 10 starts per client and 60 starts globally per 60-second
-window. It tracks at most 256 client addresses, retains at most 512 pending
+window. It tracks at most 256 client addresses, retains at most 4,096 pending
 logins, and retains at most 2,048 authenticated sessions. A rejected login
 returns `429 LOGIN_RATE_LIMITED` with `Retry-After`.
 
@@ -92,7 +92,8 @@ requires different bounds:
 | `LOGIN_RATE_LIMIT_PER_CLIENT` | 10 | No greater than the global limit |
 | `LOGIN_RATE_LIMIT_GLOBAL` | 60 | Positive integer, at most 10,000 |
 | `LOGIN_RATE_LIMIT_MAX_CLIENTS` | 256 | At least twice the global limit and at most 100,000; the oldest active client window is evicted only as a defensive fallback |
-| `BFF_MAX_PENDING_LOGINS` | 512 | Must cover the maximum admitted requests during the five-minute state lifetime |
+| `BFF_LOGIN_STATE_TTL_SECONDS` | 3,600 | First-login state lifetime; positive integer, at most 3,600 |
+| `BFF_MAX_PENDING_LOGINS` | 4,096 | Must cover the maximum admitted requests during the configured state lifetime |
 | `BFF_MAX_SESSIONS` | 2,048 | Positive integer, at most 100,000 |
 
 Client identity uses Cloudflare's validated `CF-Connecting-IP` header and
@@ -106,6 +107,20 @@ For initial Google SMTP testing, manage the app password at
 <https://myaccount.google.com/apppasswords>. Put only the credential value in
 the ignored `smtp_password.txt`; do not add it to `.env`, Compose, realm JSON,
 logs, or documentation.
+
+## New-user onboarding
+
+Use local Keycloak administration to create each user, assign the
+`consultation_user` realm role, and set a temporary password. Send the
+verification email before giving the user the consultation sign-in link. Wait
+until Keycloak reports the address as verified. The user's first application
+login then changes the temporary password and configures and confirms TOTP.
+
+As a fallback for users who start login before verification, required actions
+run in this order: verify email, change password, configure TOTP. Keycloak and
+the BFF retain that first-login transaction for 60 minutes. An expired callback
+returns to an explicit restart screen; completed password, email, or confirmed
+TOTP actions remain saved.
 
 ## Secret rotation
 
