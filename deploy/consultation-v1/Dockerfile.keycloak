@@ -1,6 +1,7 @@
 FROM quay.io/keycloak/keycloak:26.7.3
 USER root
 COPY deploy/consultation-v1/keycloak-entrypoint.sh /opt/keycloak/bin/consultation-entrypoint.sh
+COPY deploy/consultation-v1/keycloak/themes/virgilio-consultation /opt/keycloak/themes/virgilio-consultation
 RUN chmod 0555 /opt/keycloak/bin/consultation-entrypoint.sh
 USER 1000
 ENTRYPOINT ["/opt/keycloak/bin/consultation-entrypoint.sh"]

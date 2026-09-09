@@ -147,6 +147,23 @@ if ($matches[0].emailVerified) {
     throw "User '$Email' is already verified."
 }
 
+$requiredActions = @($matches[0].requiredActions)
+$missingActions = @('UPDATE_PASSWORD', 'CONFIGURE_TOTP') |
+    Where-Object { $_ -notin $requiredActions }
+if ($missingActions.Count -gt 0) {
+    throw "User '$Email' is missing required setup actions: $($missingActions -join ', ')."
+}
+
+$realmRolesJson = Invoke-Docker -Arguments @(
+    'exec', $keycloakContainer,
+    $kcadm, 'get', "users/$($matches[0].id)/role-mappings/realm",
+    '-r', $Realm
+)
+$realmRoles = @($realmRolesJson | Out-String | ConvertFrom-Json)
+if ('consultation_user' -notin @($realmRoles.name)) {
+    throw "User '$Email' does not have the consultation_user realm role."
+}
+
 $clientJson = Invoke-Docker -Arguments @(
     'exec', $keycloakContainer,
     $kcadm, 'get', 'clients',

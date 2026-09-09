@@ -110,11 +110,14 @@ logs, or documentation.
 
 ## New-user onboarding
 
-Use local Keycloak administration to create each user, assign the
-`consultation_user` realm role, and set a temporary password. Exit maintenance
-mode and restore Keycloak plus Cloudflare Tunnel before sending email; otherwise
-Keycloak may generate a loopback action link. From the repository root, request
-the verification message with:
+Use local Keycloak administration to create each user and assign the
+`consultation_user` realm role. Add the `Update Password` and `Configure OTP`
+required actions; do not create or distribute a temporary password. The signed
+invitation link establishes the one-time setup session in which the user creates
+their password and configures TOTP. Exit maintenance mode and restore Keycloak
+plus Cloudflare Tunnel before sending email; otherwise Keycloak may generate a
+loopback action link. From the repository root, request the verification message
+with:
 
 ```powershell
 .\deploy\consultation-v1\Send-VerificationEmail.ps1 -Email "user@example.com"
@@ -125,12 +128,10 @@ Tunnel is running, and exactly one enabled unverified user matches the address.
 It also binds the email action to the `consultation-web` client so successful
 verification returns the browser to the public consultation site. Use `-WhatIf`
 to validate those conditions without sending. Wait until Keycloak reports the
-address as verified before giving the user the consultation sign-in link. The
-user's first application login then changes the temporary password and
-configures and confirms TOTP.
+address as verified before giving the user the consultation sign-in link.
 
 As a fallback for users who start login before verification, required actions
-run in this order: verify email, change password, configure TOTP. Keycloak and
+run in this order: verify email, create password, configure TOTP. Keycloak and
 the BFF retain that first-login transaction for 60 minutes. An expired callback
 returns to an explicit restart screen; completed password, email, or confirmed
 TOTP actions remain saved.

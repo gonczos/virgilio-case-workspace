@@ -694,21 +694,22 @@ hostname. See the deployment README for the exact enter/exit commands.
 ### Consultation V1 new-user onboarding
 
 Enter local Keycloak maintenance mode and create an enabled user with the
-correct email address. Assign the `consultation_user` realm role and create a
-temporary password. Restore normal public mode and Cloudflare Tunnel before
-requesting the verification message; sending from maintenance mode can produce
-a loopback action link. Run
+correct email address. Assign the `consultation_user` realm role and add the
+`Update Password` and `Configure OTP` required actions. Do not create or
+distribute a temporary password: the signed invitation establishes the one-time
+setup session in which the user creates a password and configures TOTP. Restore
+normal public mode and Cloudflare Tunnel before requesting the verification
+message; sending from maintenance mode can produce a loopback action link. Run
 `deploy/consultation-v1/Send-VerificationEmail.ps1 -Email
 "user@example.com"` from the repository root. The script checks the public
 Keycloak hostname, running Tunnel, and exact unverified user before sending;
 it binds the action to `consultation-web` and returns successful verification
 to `SITE_PUBLIC_URL`. `-WhatIf` performs the checks without sending. Confirm
-that Keycloak reports `Email verified` before giving the user the public URL
-and temporary password.
+that Keycloak reports `Email verified` before giving the user the public URL.
 
-The first application login changes the temporary password and then configures
-and confirms TOTP. If an unverified user starts login early, Keycloak's fallback
-order is email verification, password change, then TOTP. Login and user-action
+The invitation flow creates the password and then configures and confirms TOTP.
+If an unverified user starts login early, Keycloak's fallback order is email
+verification, password creation, then TOTP. Login and user-action
 state last 60 minutes; an administrator-issued verification link lasts 12
 hours. Access tokens remain limited to five minutes and the final authorization
 code remains limited to 60 seconds.

@@ -295,6 +295,13 @@ verification, credential recovery, and administrative notifications. SMTP
 host, port, transport security, username, sender identity, and credentials are
 deployment configuration rather than application code.
 
+Consultation accounts use an administrator-issued invitation rather than
+self-registration. The signed verification link establishes a one-time setup
+session: the recipient verifies the invited address, creates a password, and
+configures TOTP before returning to the consultation site. Administrators do
+not create or distribute temporary user passwords. Subsequent sign-ins require
+the user's password and TOTP.
+
 Google Mail may be used for initial SMTP testing. Google app passwords are
 managed and revoked at <https://myaccount.google.com/apppasswords>. An app
 password is a deployment secret: it must be entered directly into untracked

@@ -2,6 +2,7 @@
   "realm": "consultation",
   "enabled": true,
   "displayName": "Virgilio Consultation",
+  "emailTheme": "virgilio-consultation",
   "registrationAllowed": false,
   "registrationEmailAsUsername": true,
   "resetPasswordAllowed": true,
