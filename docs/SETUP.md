@@ -703,6 +703,23 @@ docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/
 docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml ps
 ```
 
+On a Windows deployment host using Rancher Desktop, enable **Start Rancher
+Desktop when you log in** and **Start in the background** under Rancher
+Desktop's application behavior settings. The equivalent CLI operation is:
+
+```powershell
+rdctl set --application.auto-start --application.start-in-background
+```
+
+Compose restart policies can restart the containers only after the Rancher
+Desktop Docker engine is running. If Windows restarts while Rancher Desktop
+auto-start is disabled, every public route remains configured in Cloudflare but
+the Tunnel has no connector; visitors receive Cloudflare error 1033. Rancher
+Desktop auto-start occurs at user login, so the service remains unavailable
+between a machine reboot and that Windows user's login. After a reboot, verify
+that Docker is reachable, every service is healthy, and `cloudflared` is
+running before treating the public service as restored.
+
 The base topology maps no host ports. It restores the `casework` snapshot only
 on first creation of its dedicated volume
 and imports the secret-free Keycloak realm only when the realm is absent. Keep

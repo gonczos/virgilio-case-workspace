@@ -30,6 +30,13 @@ docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/
 docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml ps
 ```
 
+For Rancher Desktop on Windows, enable application auto-start and background
+startup. Container `restart: unless-stopped` policies do not start the Rancher
+Desktop Docker engine itself. After a Windows reboot, the public service cannot
+recover until the deployment user logs in and Rancher Desktop starts. Confirm
+all service health and the `cloudflared` connector before declaring recovery;
+an inactive connector produces Cloudflare error 1033.
+
 The initial database startup restores the snapshot and creates three distinct
 login roles. Each has only `CONNECT`, schema `USAGE`, and table `SELECT`; its
 `default_transaction_read_only` setting is also enabled. Original and derived
