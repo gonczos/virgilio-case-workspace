@@ -186,10 +186,11 @@ Local paths and internal errors are never contract fields.
 ## MCP V1 Contract
 
 The V1 MCP is published at `/mcp/v1`, declares the Consultation V1 application
-contract in server metadata, and retains exactly four tools:
+contract in server metadata, and retains exactly five tools:
 
 | Tool | Purpose | Mutation |
 | --- | --- | --- |
+| `hello` | Verify the authenticated MCP connection without reading case data | None |
 | `search_document_text` | Search selected or full corpus text | None |
 | `query_court_records` | Query structured case, bucket, document, and binary metadata | None |
 | `get_binary_details` | Retrieve structured details for one SHA-256 identity | None |

@@ -7,8 +7,22 @@ const sha256 = "a".repeat(64);
 
 test("publishes the bounded read-only text and court-metadata consultation tools", () => {
   assert.deepEqual(TEXT_CONSULTATION_MCP_TOOLS.map((tool) => tool.name), [
-    "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
+    "hello", "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
   ]);
+});
+
+test("hello verifies the V1 MCP application layer without querying case data", async () => {
+  let queried = false;
+  const call = createTextConsultationMcpTools({ client: { query: async () => { queried = true; } } });
+  assert.deepEqual(await call("hello"), {
+    status: "ok",
+    message: "Hello from Virgilio Consultation MCP.",
+    service: "virgilio-consultation-mcp",
+    contract_version: "v1",
+    data_access: "none",
+  });
+  assert.equal(queried, false);
+  await assert.rejects(call("hello", { extra: true }), { code: "UNKNOWN_ARGUMENT" });
 });
 
 test("binary details omit the local download URL and declare content unavailable through MCP", () => {

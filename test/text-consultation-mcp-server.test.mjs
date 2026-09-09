@@ -19,9 +19,17 @@ test("MCP initialize and tools/list expose the implemented MVP tools", async (co
   context.after(async () => { await pair.client.close(); await pair.server.close(); });
   const response = await pair.client.listTools();
   assert.deepEqual(response.tools.map((tool) => tool.name), [
-    "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
+    "hello", "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
   ]);
   assert.ok(response.tools.every((tool) => tool.annotations?.readOnlyHint === true));
+});
+
+test("hello is callable with no arguments", async (context) => {
+  const pair = await connectedPair(async (name, args) => ({ name, args, status: "ok" }));
+  context.after(async () => { await pair.client.close(); await pair.server.close(); });
+  const response = await pair.client.callTool({ name: "hello", arguments: {} });
+  assert.equal(response.isError, false);
+  assert.deepEqual(JSON.parse(response.content[0].text), { name: "hello", args: {}, status: "ok" });
 });
 
 test("tools/call delegates validated arguments and returns JSON text", async (context) => {

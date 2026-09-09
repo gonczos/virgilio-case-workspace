@@ -1264,6 +1264,13 @@
       "total_characters": 11,
       "truncated": false
     },
+    "hello": {
+      "contract_version": "v1",
+      "data_access": "none",
+      "message": "Hello from Virgilio Consultation MCP.",
+      "service": "virgilio-consultation-mcp",
+      "status": "ok"
+    },
     "query_court_records": {
       "coverage": {
         "no_match_does_not_prove_absence_from_the_original_court_file": true,

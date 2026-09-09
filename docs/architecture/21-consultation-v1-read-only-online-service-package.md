@@ -364,6 +364,7 @@ to the v1 contract audit, not yet the released public contract.
 
 The current candidate MCP surface contains:
 
+- `hello`;
 - `search_document_text`;
 - `query_court_records`;
 - `get_binary_details`;
@@ -461,7 +462,7 @@ use observed idle, login, search, and concurrent-request measurements.
 
 - identify the exact code, schema, corpus, representations, and indexes to
   release;
-- audit the current UI, API, binary gateway, and four MCP tool contracts;
+- audit the current UI, API, binary gateway, and five MCP tool contracts;
 - record compatibility rules and version identifiers;
 - inventory every route that returns consultation data and classify it as an
   authenticated browser, programmatic API, or MCP surface;

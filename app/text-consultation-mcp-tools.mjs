@@ -10,6 +10,15 @@ const REPRESENTATION_FORMATS = new Set(["text", "markdown", "complete-text", "na
 
 export const TEXT_CONSULTATION_MCP_TOOLS = [
   {
+    name: "hello",
+    description: "Verify the MCP session and identify the Consultation V1 service. Performs no case-data access.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {},
+    },
+  },
+  {
     name: "search_document_text",
     description: "Search existing indexed document text. Results preserve binary, representation, processor, location, and procedural context provenance.",
     inputSchema: {
@@ -173,6 +182,17 @@ export function createTextConsultationMcpTools({ client, workspaceRoot = getWork
 
   return async function callTool(name, args = {}) {
     assertObject(args);
+    if (name === "hello") {
+      rejectUnknown(args, new Set());
+      return {
+        status: "ok",
+        message: "Hello from Virgilio Consultation MCP.",
+        service: "virgilio-consultation-mcp",
+        contract_version: "v1",
+        data_access: "none",
+      };
+    }
+
     if (name === "search_document_text") {
       rejectUnknown(args, new Set(["query", "scope", "order", "limit", "offset"]));
       const query = String(args.query ?? "").trim();

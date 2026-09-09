@@ -336,8 +336,8 @@ the local consultation API and binary gateway.
 
 ### 6. Optional read-only text-consultation MCP (v1 MVP)
 
-The optional local stdio MCP exposes existing text consultation through
-`search_document_text`, `get_binary_details`, and
+The optional local stdio MCP exposes a no-data connection check through
+`hello`, and existing text consultation through `search_document_text`, `get_binary_details`, and
 `get_representation_content`, plus the occurrence-centred court metadata read
 model through `query_court_records`. It does not expose recorded-reference lookup,
 graphs, reviews, ingestion, writes, or original-binary downloads. Binary detail

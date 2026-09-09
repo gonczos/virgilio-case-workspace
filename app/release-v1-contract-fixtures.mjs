@@ -94,6 +94,7 @@ export async function buildGoldenFixture(client, workspaceRoot) {
     },
   };
   const mcp = {
+    hello: await callMcp("hello"),
     search_document_text: await callMcp("search_document_text", {
       query: "tribunal", scope: "full", order: "relevance", limit: 1, offset: 0,
     }),

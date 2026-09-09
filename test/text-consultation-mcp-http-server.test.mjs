@@ -112,7 +112,7 @@ test("HTTP MCP connects and exposes the implemented MVP tools", async (context) 
   await client.connect(transport);
   const result = await client.listTools();
   assert.deepEqual(result.tools.map((tool) => tool.name), [
-    "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
+    "hello", "search_document_text", "query_court_records", "get_binary_details", "get_representation_content",
   ]);
 });
 

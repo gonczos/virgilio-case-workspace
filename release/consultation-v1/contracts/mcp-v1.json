@@ -12,6 +12,21 @@
   },
   "content_encoding": "Each successful or failed tool call returns one MCP text content item containing compact UTF-8 JSON conforming to the selected output or error schema.",
   "tools": {
+    "hello": {
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "input": { "type": "object", "additionalProperties": false, "properties": {} },
+      "output": {
+        "type": "object", "additionalProperties": false,
+        "required": ["status", "message", "service", "contract_version", "data_access"],
+        "properties": {
+          "status": { "type": "string", "const": "ok" },
+          "message": { "type": "string", "const": "Hello from Virgilio Consultation MCP." },
+          "service": { "type": "string", "const": "virgilio-consultation-mcp" },
+          "contract_version": { "type": "string", "const": "v1" },
+          "data_access": { "type": "string", "const": "none" }
+        }
+      }
+    },
     "search_document_text": {
       "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
       "input": {

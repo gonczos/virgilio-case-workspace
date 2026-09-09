@@ -24,6 +24,11 @@ const READ_ONLY_ANNOTATIONS = {
 
 const TOOL_CONFIGS = [
   {
+    name: "hello",
+    description: "Verify the MCP session and identify the Consultation V1 service. Performs no case-data access.",
+    inputSchema: {},
+  },
+  {
     name: "search_document_text",
     description: "Search existing indexed document text. Results preserve binary, representation, processor, location, and procedural context provenance.",
     inputSchema: {

@@ -1,17 +1,17 @@
 [
   {
     "path": "release/consultation-v1/contracts/golden-v1.json",
-    "sha256": "a1729adffb3e253cc1a79ac47aa7e558d21edb6b65be3f4515658387000f5737",
-    "size_bytes": 57357
+    "sha256": "92c39d2ac295880ade045f4fa2d449f1835334301fb79a38983c567074297ef2",
+    "size_bytes": 57565
   },
   {
     "path": "release/consultation-v1/contracts/mcp-v1.json",
-    "sha256": "72fd24110642e6cd5b09760e1e730b4dac4e05d591d5f0ff19c679607f4050ce",
-    "size_bytes": 6577
+    "sha256": "2964025f46c14b1456cd2256939ca7bdb9f75088bcf53afb17c7151376ef1739",
+    "size_bytes": 7373
   },
   {
     "path": "release/consultation-v1/contracts/openapi-v1.yaml",
-    "sha256": "1d0e50e2c20e3c5d3eb49a6143bc2d14aeccc0407840548a910caf9e94b16111",
-    "size_bytes": 15418
+    "sha256": "6c8bc1b8de3a572fb25c4af4734bf1cc156d6cf6a846f1c4638aed2d599694ea",
+    "size_bytes": 15734
   }
 ]

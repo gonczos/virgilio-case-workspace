@@ -279,10 +279,10 @@
   },
   "inventories": {
     "contracts": {
-      "bytes": 79352,
+      "bytes": 80672,
       "file": "contracts.json",
       "files": 3,
-      "sha256": "bc1b271e1c5ea6692b824d49b6c7439e9980b8d50d4aff3f344ccc7fe2f535a4"
+      "sha256": "5874804b67e27eb3b7d0688ac1681a8c9534cbc285d61fcdc611b638066b16e3"
     },
     "representation_artifacts": {
       "bytes": 156742695,
