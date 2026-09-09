@@ -33,7 +33,6 @@ import {
   formatFileType,
   getShortSha,
   isPdfBinary,
-  prefersNativePdfViewer,
   normalizeStableId,
 } from "../utils/consultation";
 
@@ -163,10 +162,7 @@ export function BinaryDetailPage() {
           <Grid container spacing={2.5}>
             <Grid size={{ xs: 12, xl: 6 }} sx={{ "& > .MuiPaper-root": { height: INSPECTION_HEIGHT } }}>
               {isPdfBinary(detail) ? (
-                <PdfViewer
-                  url={detail.binary.original_binary_url}
-                  preferNativeViewer={prefersNativePdfViewer(detail)}
-                />
+                <PdfViewer url={detail.binary.original_binary_url} />
               ) : (
                 <Paper elevation={0} sx={{ p: 3, border: "1px solid rgba(31,79,95,0.12)", minHeight: 520 }}>
                   <Stack spacing={2}>

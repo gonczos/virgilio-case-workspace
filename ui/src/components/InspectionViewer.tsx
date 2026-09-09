@@ -40,7 +40,7 @@ interface InspectionViewerProps {
   initialCategory?: InspectionCategory;
   height: string | Record<string, string>;
   onViewedRepresentationChange: (representation: RepresentationListItem | null) => void;
-  originalPdf?: { url: string; preferNativeViewer?: boolean };
+  originalPdf?: { url: string };
   initialSearchTerm?: string;
   onCloseInspection?: () => void;
 }
@@ -335,7 +335,7 @@ export function InspectionViewer({
       </Stack> : null}
     </Box>
     <Box ref={contentRef} sx={{ flex: 1, minHeight: 0, overflow: "auto", overscrollBehavior: "contain", p: 2, bgcolor: "#fffaf2" }}>
-      {selectedOption?.category === "original" && originalPdf ? <Box sx={{ height: "100%", "& > .MuiPaper-root": { height: "100%", minHeight: 0, border: 0 } }}><Suspense fallback={<CircularProgress />}><PdfViewer url={originalPdf.url} preferNativeViewer={originalPdf.preferNativeViewer} /></Suspense></Box>
+      {selectedOption?.category === "original" && originalPdf ? <Box sx={{ height: "100%", "& > .MuiPaper-root": { height: "100%", minHeight: 0, border: 0 } }}><Suspense fallback={<CircularProgress />}><PdfViewer url={originalPdf.url} /></Suspense></Box>
         : options.length === 0 ? <Alert severity="info">No extracted data is available for this binary.</Alert>
         : loading ? <Stack alignItems="center" justifyContent="center" spacing={2} sx={{ minHeight: 260 }}><CircularProgress /><Typography color="text.secondary">Loading extracted data...</Typography></Stack>
           : error ? <Alert severity="warning">Extracted data unavailable.</Alert>

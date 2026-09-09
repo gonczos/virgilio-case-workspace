@@ -113,7 +113,10 @@ authorization and token endpoints returned by OIDC discovery.
 
 Original-file links open a same-origin UI route that checks the current session
 and performs a protected `HEAD` request before navigating the new tab to the
-original content URL. The embedded native PDF viewer uses the same preflight.
+original content URL. Every embedded PDF uses the browser's native viewer and
+the same preflight.
+The UI proxy permits authenticated binary-content responses to be framed only
+by the same origin; all other responses retain the stricter no-framing policy.
 Development retains both `/api` and `/binary` Vite proxies.
 
 The deployment and rotation procedure is in

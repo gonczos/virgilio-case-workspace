@@ -76,7 +76,7 @@ function BinaryInspection({ target, initialSearchTerm, onCollapse }: { target: E
       evidence={detail.evidence?.items ?? []}
       effectiveRepresentationId={normalizeStableId(detail.representations.effective?.representation_id)}
       initialCategory={isPdfBinary(detail) ? "original" : "evidence"}
-      originalPdf={isPdfBinary(detail) ? { url: detail.binary.original_binary_url, preferNativeViewer: true } : undefined}
+      originalPdf={isPdfBinary(detail) ? { url: detail.binary.original_binary_url } : undefined}
       height="100%"
       onViewedRepresentationChange={ignoreViewedRepresentation}
       initialSearchTerm={initialSearchTerm}

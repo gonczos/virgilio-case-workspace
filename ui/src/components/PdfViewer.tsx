@@ -1,102 +1,36 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
-import { GlobalWorkerOptions, getDocument, type PDFDocumentProxy } from "pdfjs-dist";
-import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import { requireAuthenticatedResponse } from "../api/consultation";
+import { useEffect, useState } from "react";
+import { Alert, Box, CircularProgress, Paper, Stack, Typography } from "@mui/material";
 
-// Use a new URL after correcting the deployed worker's cached MIME type.
-GlobalWorkerOptions.workerSrc = `${pdfWorkerUrl}?delivery=javascript-v1`;
+import { requireAuthenticatedResponse } from "../api/consultation";
 
 interface PdfViewerProps {
   url: string;
-  preferNativeViewer?: boolean;
 }
 
-export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [documentProxy, setDocumentProxy] = useState<PDFDocumentProxy | null>(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [zoom, setZoom] = useState(1.1);
-  const [loading, setLoading] = useState(true);
+export function PdfViewer({ url }: PdfViewerProps) {
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [nativeReady, setNativeReady] = useState(false);
 
   useEffect(() => {
     let active = true;
-    let loadingTask: ReturnType<typeof getDocument> | null = null;
-    setLoading(true);
+    setReady(false);
     setError(null);
-    setDocumentProxy(null);
-    setNativeReady(false);
-    setPageNumber(1);
     void (async () => {
       try {
-        const response = await fetch(url, preferNativeViewer ? { method: "HEAD" } : undefined);
+        const response = await fetch(url, { method: "HEAD" });
         requireAuthenticatedResponse(response);
         if (!response.ok) {
           throw new Error(`PDF request failed with ${response.status}`);
         }
-        if (preferNativeViewer) {
-          if (active) setNativeReady(true);
-          return;
-        }
-        const data = await response.arrayBuffer();
-        if (!active) return;
-        loadingTask = getDocument({ data });
-        const proxy = await loadingTask.promise;
-        if (active) setDocumentProxy(proxy);
+        if (active) setReady(true);
       } catch (loadError) {
         if (active) {
           setError(loadError instanceof Error ? loadError.message : String(loadError));
         }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
       }
     })();
-    return () => {
-      active = false;
-      void loadingTask?.destroy();
-    };
-  }, [preferNativeViewer, url]);
-
-  useEffect(() => {
-    if (preferNativeViewer) {
-      return;
-    }
-    if (!documentProxy || !canvasRef.current) {
-      return;
-    }
-    let active = true;
-    void (async () => {
-      const page = await documentProxy.getPage(pageNumber);
-      const viewport = page.getViewport({ scale: zoom });
-      const canvas = canvasRef.current;
-      if (!canvas || !active) {
-        return;
-      }
-      const context = canvas.getContext("2d");
-      if (!context) {
-        return;
-      }
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      await page.render({ canvas, canvasContext: context, viewport }).promise;
-    })();
-    return () => {
-      active = false;
-    };
-  }, [documentProxy, pageNumber, preferNativeViewer, zoom]);
+    return () => { active = false; };
+  }, [url]);
 
   return (
     <Paper
@@ -111,67 +45,36 @@ export function PdfViewer({ url, preferNativeViewer = false }: PdfViewerProps) {
     >
       <Stack
         direction="row"
-        spacing={1}
         alignItems="center"
-        sx={{ px: 2, py: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)", flexWrap: "wrap" }}
+        sx={{ px: 2, py: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)" }}
       >
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Original PDF
-        </Typography>
-        {documentProxy ? (
-          <Chip size="small" label={`${pageNumber} / ${documentProxy.numPages}`} variant="outlined" />
-        ) : null}
-        <Button size="small" disabled={!documentProxy || pageNumber <= 1} onClick={() => setPageNumber((value) => value - 1)}>
-          Previous
-        </Button>
-        <Button
-          size="small"
-          disabled={!documentProxy || pageNumber >= (documentProxy?.numPages ?? 0)}
-          onClick={() => setPageNumber((value) => value + 1)}
-        >
-          Next
-        </Button>
-        <Button size="small" disabled={!documentProxy} onClick={() => setZoom((value) => Math.max(0.7, value - 0.15))}>
-          Zoom -
-        </Button>
-        <Button size="small" disabled={!documentProxy} onClick={() => setZoom((value) => Math.min(2.2, value + 0.15))}>
-          Zoom +
-        </Button>
+        <Typography variant="h6">Original PDF</Typography>
       </Stack>
       <Box
         sx={{
           flex: 1,
-          overflow: "auto",
-          p: 2,
+          overflow: "hidden",
+          p: ready ? 0 : 2,
           display: "flex",
           justifyContent: "center",
-          alignItems: loading || error ? "center" : "flex-start",
+          alignItems: ready ? "stretch" : "center",
           bgcolor: "#ebe4d7",
         }}
       >
-        {preferNativeViewer && nativeReady ? (
-          <Stack spacing={1.5} sx={{ width: "100%" }}>
-            <Box
-              component="iframe"
-              src={url}
-              title="Original PDF"
-              sx={{
-                width: "100%",
-                minHeight: 680,
-                border: 0,
-                bgcolor: "#ffffff",
-              }}
-            />
-          </Stack>
-        ) : loading ? (
+        {ready ? (
+          <Box
+            component="iframe"
+            src={url}
+            title="Original PDF"
+            sx={{ width: "100%", minHeight: 680, border: 0, bgcolor: "#ffffff" }}
+          />
+        ) : error ? (
+          <Alert severity="warning">PDF preview unavailable: {error}</Alert>
+        ) : (
           <Stack spacing={2} alignItems="center">
             <CircularProgress />
             <Typography color="text.secondary">Loading PDF...</Typography>
           </Stack>
-        ) : error ? (
-          <Alert severity="warning">PDF preview unavailable: {error}</Alert>
-        ) : (
-          <canvas ref={canvasRef} style={{ maxWidth: "100%", height: "auto", boxShadow: "0 20px 45px rgba(0,0,0,0.18)" }} />
         )}
       </Box>
     </Paper>

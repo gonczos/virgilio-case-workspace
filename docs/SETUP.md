@@ -738,19 +738,13 @@ rebuilding and recreating `ui`; check `/api/v1/health` through the UI proxy,
 not only directly against the API. The latter can succeed while the proxy
 returns 502.
 
-### PDF worker delivery
+### Native PDF viewer delivery
 
-The UI nginx MIME table explicitly maps `.mjs` to `text/javascript`. The PDF.js
-worker is a JavaScript module; serving it as `application/octet-stream` prevents
-browser loading and produces a PDF preview worker error. After rebuilding and
-recreating `ui`, verify the worker asset's public `Content-Type` as well as its
-HTTP status. Keep `X-Content-Type-Options: nosniff` enabled.
-
-The UI requests the worker with a delivery-version query parameter to avoid
-reusing responses cached before the MIME correction. Static UI responses use
-`Cache-Control: no-cache` so browsers revalidate before reuse, including the
-HTML entry point after deployment. This allows storage but requires validation;
-it does not change the API's private, no-store policy.
+All PDFs use the browser's native PDF viewer in a same-origin iframe.
+The UI proxy therefore returns `frame-ancestors 'self'` only for authenticated
+`/api/v1/binaries/{sha256}/content` responses. Other UI and API responses retain
+`frame-ancestors 'none'`. If the native viewer shows a broken-document icon
+while the content request returns `200`, verify this path-specific CSP header.
 
 ### ChatGPT MCP client registration
 

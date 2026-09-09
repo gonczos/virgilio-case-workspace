@@ -143,11 +143,6 @@ export function isPdfBinary(detail: BinaryDetailResponse): boolean {
     || detail.binary.file_extension === ".pdf";
 }
 
-export function prefersNativePdfViewer(detail: BinaryDetailResponse): boolean {
-  return detail.binary.machine_readability_status === "image_only_pdf"
-    || detail.binary.machine_readability_status === "mostly_image_pdf";
-}
-
 export interface GroupedReferenceTextHits {
   sha256: string;
   source_contexts: ReferenceTextHit["source_contexts"];
