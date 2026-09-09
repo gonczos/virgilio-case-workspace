@@ -111,10 +111,21 @@ logs, or documentation.
 ## New-user onboarding
 
 Use local Keycloak administration to create each user, assign the
-`consultation_user` realm role, and set a temporary password. Send the
-verification email before giving the user the consultation sign-in link. Wait
-until Keycloak reports the address as verified. The user's first application
-login then changes the temporary password and configures and confirms TOTP.
+`consultation_user` realm role, and set a temporary password. Exit maintenance
+mode and restore Keycloak plus Cloudflare Tunnel before sending email; otherwise
+Keycloak may generate a loopback action link. From the repository root, request
+the verification message with:
+
+```powershell
+.\deploy\consultation-v1\Send-VerificationEmail.ps1 -Email "user@example.com"
+```
+
+The script refuses to send unless Keycloak has an HTTPS public hostname, the
+Tunnel is running, and exactly one enabled unverified user matches the address.
+Use `-WhatIf` to validate those conditions without sending. Wait until Keycloak
+reports the address as verified before giving the user the consultation sign-in
+link. The user's first application login then changes the temporary password
+and configures and confirms TOTP.
 
 As a fallback for users who start login before verification, required actions
 run in this order: verify email, change password, configure TOTP. Keycloak and

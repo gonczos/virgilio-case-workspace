@@ -695,9 +695,14 @@ hostname. See the deployment README for the exact enter/exit commands.
 
 Enter local Keycloak maintenance mode and create an enabled user with the
 correct email address. Assign the `consultation_user` realm role and create a
-temporary password. Send the verification email before giving the user the
-public consultation URL and temporary password. Confirm that Keycloak reports
-`Email verified` before asking the user to sign in.
+temporary password. Restore normal public mode and Cloudflare Tunnel before
+requesting the verification message; sending from maintenance mode can produce
+a loopback action link. Run
+`deploy/consultation-v1/Send-VerificationEmail.ps1 -Email
+"user@example.com"` from the repository root. The script checks the public
+Keycloak hostname, running Tunnel, and exact unverified user before sending;
+`-WhatIf` performs the checks without sending. Confirm that Keycloak reports
+`Email verified` before giving the user the public URL and temporary password.
 
 The first application login changes the temporary password and then configures
 and confirms TOTP. If an unverified user starts login early, Keycloak's fallback
