@@ -294,9 +294,9 @@ export function InspectionViewer({
   }
 
   return <Paper elevation={0} sx={{ border: "1px solid rgba(31,79,95,0.12)", height, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-    <Box sx={{ px: 2, py: 1, borderBottom: "1px solid rgba(31,79,95,0.12)", flexShrink: 0 }}>
-      <Typography variant="overline" fontWeight={800}>Inspect</Typography>
+    <Box sx={{ px: 1.5, py: 0.75, borderBottom: "1px solid rgba(31,79,95,0.12)", flexShrink: 0 }}>
       <Stack direction="row" spacing={0.25} alignItems="center">
+        <Typography variant="overline" fontWeight={800} sx={{ mr: 0.75, display: { xs: "none", sm: "block" } }}>Inspect</Typography>
         <TextField value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void runSearch(); } }} size="small" fullWidth placeholder="Find across available views" />
         <Tooltip title="Search available extracted views"><span><IconButton size="small" aria-label="Search available inspection views" disabled={!canSearch || !searchDraft.trim() || searchingViews} onClick={() => void runSearch()} sx={{ fontSize: "0.9rem" }}>{searchingViews ? <CircularProgress size={16} /> : "🔍"}</IconButton></span></Tooltip>
         <Tooltip title="Previous match across views"><span><IconButton size="small" aria-label="Previous inspection match across views" disabled={!crossViewMatches.length} onClick={() => moveMatch(-1)}>↑</IconButton></span></Tooltip>
@@ -304,7 +304,7 @@ export function InspectionViewer({
         <Tooltip title="Clear and collapse inspection"><IconButton size="small" aria-label="Clear and collapse inspection" onClick={() => { ++searchRequest.current; setSearchDraft(""); setActiveSearch(""); setCurrentMatch(-1); setCrossViewMatches([]); setCrossViewCursor(-1); setSearchMiss(false); onCloseInspection?.(); }}>×</IconButton></Tooltip>
       </Stack>
       {searchMiss ? <Typography variant="caption" color="text.secondary">No match in the available readable views.</Typography> : null}
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1.5 }}>
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
       <Autocomplete
         fullWidth
         size="small"
@@ -328,14 +328,14 @@ export function InspectionViewer({
       />
       {activeSearch ? <Typography variant="caption" color="text.secondary" sx={{ minWidth: 76, textAlign: "right" }}>{matches.length ? `${currentMatch + 1}/${matches.length} in view` : "0/0 in view"}</Typography> : null}
       </Stack>
-      {selectedOption?.representation ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pt: 0.5 }}>
+      {selectedOption?.representation ? <Stack direction="row" spacing={1} alignItems="center" sx={{ pt: 0.25 }}>
         <Typography variant="caption" color="text.secondary">
           {formatInspectionCreatedAt(selectedOption.representation.created_at)}
         </Typography>
       </Stack> : null}
     </Box>
-    <Box ref={contentRef} sx={{ flex: 1, minHeight: 0, overflow: "auto", overscrollBehavior: "contain", p: 2, bgcolor: "#fffaf2" }}>
-      {selectedOption?.category === "original" && originalPdf ? <Box sx={{ height: "100%", "& > .MuiPaper-root": { height: "100%", minHeight: 0, border: 0 } }}><Suspense fallback={<CircularProgress />}><PdfViewer url={originalPdf.url} /></Suspense></Box>
+    <Box ref={contentRef} sx={{ flex: 1, minHeight: 0, overflow: "auto", overscrollBehavior: "contain", p: selectedOption?.category === "original" ? 0 : 2, bgcolor: "#fffaf2" }}>
+      {selectedOption?.category === "original" && originalPdf ? <Box sx={{ height: "100%", "& > .MuiPaper-root": { height: "100%", minHeight: 0, border: 0 } }}><Suspense fallback={<CircularProgress />}><PdfViewer url={originalPdf.url} embedded /></Suspense></Box>
         : options.length === 0 ? <Alert severity="info">No extracted data is available for this binary.</Alert>
         : loading ? <Stack alignItems="center" justifyContent="center" spacing={2} sx={{ minHeight: 260 }}><CircularProgress /><Typography color="text.secondary">Loading extracted data...</Typography></Stack>
           : error ? <Alert severity="warning">Extracted data unavailable.</Alert>

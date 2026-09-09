@@ -188,10 +188,9 @@ export function ReferenceSearchPage() {
     } catch (error) { if (currentRef(submitted.generation, request)) setRefs((old) => ({ ...old, more: false, moreError: message(error) })); }
   }
 
-  return <Stack spacing={1.5} sx={{ height: { xs: "auto", lg: "calc(100vh - 112px)" }, minHeight: 0, overflow: { lg: "hidden" } }}>
-    <Box><Typography variant="h4" gutterBottom>Reference and text search</Typography><Typography color="text.secondary">Search extracted text and source-recorded references without merging their meanings.</Typography></Box>
-    <Box sx={{ display: { xs: "block", lg: "grid" }, gridTemplateColumns: inspectionCollapsed ? "minmax(0, 1fr) 48px" : "minmax(420px, 7fr) minmax(420px, 5fr)", gap: 2, minHeight: 0, flex: 1, transition: "grid-template-columns 180ms ease" }}>
-      <Box sx={{ minWidth: 0, minHeight: 0, overflowY: { lg: "auto" }, pr: { lg: 0.5 } }}><Stack spacing={2.5}>
+  return <Box sx={{ display: { xs: "block", lg: "grid" }, gridTemplateColumns: inspectionCollapsed ? "minmax(0, 1fr) 48px" : "minmax(360px, 5fr) minmax(520px, 7fr)", gap: 2, alignItems: "start", transition: "grid-template-columns 180ms ease" }}>
+      <Box sx={{ minWidth: 0, pr: { lg: 0.5 } }}><Stack spacing={2.5}>
+    <Box><Typography variant="h5" gutterBottom>Reference and text search</Typography><Typography variant="body2" color="text.secondary">Search extracted text and source-recorded references without merging their meanings.</Typography></Box>
     <Coverage />
     <Paper component="form" onSubmit={submit} elevation={0} sx={{ p: 2.5 }}><Stack spacing={2}>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}><TextField fullWidth value={query} onChange={(e) => setQuery(e.target.value)} label="Search terms or reference" helperText="Changes take effect when you select Search." /><Button type="submit" variant="contained" disabled={!query.trim()} sx={{ minWidth: 120, height: 56 }}>Search</Button></Stack>
@@ -239,7 +238,7 @@ export function ReferenceSearchPage() {
       {text.data && text.hasMore ? <Button variant="outlined" disabled={text.more || text.sorting} onClick={() => void moreText()} sx={{ alignSelf: "center" }}>{text.more ? <CircularProgress size={22} /> : "Load more document text"}</Button> : null}
     </Stack> : null}
       </Stack></Box>
-      <Box sx={{ minWidth: 0, minHeight: { xs: 520, lg: 0 }, height: { xs: 620, lg: "100%" }, mt: { xs: 2, lg: 0 } }}>
+      <Box sx={{ minWidth: 0, minHeight: { xs: 620, lg: 0 }, height: { xs: 720, lg: "calc(100dvh - 96px)" }, mt: { xs: 2, lg: 0 }, position: { lg: "sticky" }, top: { lg: 80 } }}>
         <SearchInspectionPane
           target={inspected}
           initialSearchTerm={submitted?.query ?? ""}
@@ -248,6 +247,5 @@ export function ReferenceSearchPage() {
           onNavigate={inspect}
         />
       </Box>
-    </Box>
-  </Stack>;
+  </Box>;
 }

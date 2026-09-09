@@ -5,9 +5,10 @@ import { requireAuthenticatedResponse } from "../api/consultation";
 
 interface PdfViewerProps {
   url: string;
+  embedded?: boolean;
 }
 
-export function PdfViewer({ url }: PdfViewerProps) {
+export function PdfViewer({ url, embedded = false }: PdfViewerProps) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,19 +38,20 @@ export function PdfViewer({ url }: PdfViewerProps) {
       elevation={0}
       sx={{
         border: "1px solid rgba(31,79,95,0.12)",
-        minHeight: 520,
+        minHeight: embedded ? 0 : 520,
+        height: embedded ? "100%" : undefined,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
       }}
     >
-      <Stack
+      {!embedded ? <Stack
         direction="row"
         alignItems="center"
         sx={{ px: 2, py: 1.5, borderBottom: "1px solid rgba(31,79,95,0.12)" }}
       >
         <Typography variant="h6">Original PDF</Typography>
-      </Stack>
+      </Stack> : null}
       <Box
         sx={{
           flex: 1,
@@ -66,7 +68,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
             component="iframe"
             src={url}
             title="Original PDF"
-            sx={{ width: "100%", minHeight: 680, border: 0, bgcolor: "#ffffff" }}
+            sx={{ width: "100%", height: "100%", minHeight: embedded ? 0 : 680, border: 0, bgcolor: "#ffffff" }}
           />
         ) : error ? (
           <Alert severity="warning">PDF preview unavailable: {error}</Alert>
