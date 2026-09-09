@@ -701,8 +701,10 @@ a loopback action link. Run
 `deploy/consultation-v1/Send-VerificationEmail.ps1 -Email
 "user@example.com"` from the repository root. The script checks the public
 Keycloak hostname, running Tunnel, and exact unverified user before sending;
-`-WhatIf` performs the checks without sending. Confirm that Keycloak reports
-`Email verified` before giving the user the public URL and temporary password.
+it binds the action to `consultation-web` and returns successful verification
+to `SITE_PUBLIC_URL`. `-WhatIf` performs the checks without sending. Confirm
+that Keycloak reports `Email verified` before giving the user the public URL
+and temporary password.
 
 The first application login changes the temporary password and then configures
 and confirms TOTP. If an unverified user starts login early, Keycloak's fallback

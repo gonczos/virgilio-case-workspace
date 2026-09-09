@@ -5,7 +5,10 @@ param(
     [string]$Email,
 
     [ValidateNotNullOrEmpty()]
-    [string]$Realm = 'consultation'
+    [string]$Realm = 'consultation',
+
+    [ValidateNotNullOrEmpty()]
+    [string]$ClientId = 'consultation-web'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -103,6 +106,12 @@ if ($publicHostname -notmatch '^https://[^/]+/?$' -or $publicHostname -match '(?
     throw "Keycloak is not in public mode (KC_HOSTNAME=$publicHostname). Restore public mode before sending email."
 }
 
+$sitePublicUrl = Invoke-Docker -Arguments @('exec', $keycloakContainer, 'printenv', 'SITE_PUBLIC_URL')
+$sitePublicUrl = "$sitePublicUrl".TrimEnd('/')
+if ($sitePublicUrl -notmatch '^https://[^/]+(?:/.*)?$') {
+    throw "SITE_PUBLIC_URL must be an absolute HTTPS URL. Received: $sitePublicUrl"
+}
+
 $tunnelContainer = Invoke-Docker -Arguments ($composeArguments + @('--profile', 'publish', 'ps', '--status', 'running', '-q', 'cloudflared'))
 if (@($tunnelContainer).Count -ne 1) {
     throw 'Cloudflare Tunnel is not running. Restore public mode before sending email.'
@@ -138,12 +147,29 @@ if ($matches[0].emailVerified) {
     throw "User '$Email' is already verified."
 }
 
-$target = "$Email in Keycloak realm $Realm"
+$clientJson = Invoke-Docker -Arguments @(
+    'exec', $keycloakContainer,
+    $kcadm, 'get', 'clients',
+    '-r', $Realm,
+    '-q', "clientId=$ClientId"
+)
+$clients = @($clientJson | Out-String | ConvertFrom-Json)
+$clientMatches = @($clients | Where-Object { $_.clientId -ceq $ClientId })
+if ($clientMatches.Count -ne 1) {
+    throw "Expected exactly one '$ClientId' client in realm '$Realm'."
+}
+if ($sitePublicUrl -notin @($clientMatches[0].redirectUris)) {
+    throw "Client '$ClientId' does not allow the post-verification return URL '$sitePublicUrl'."
+}
+
+$target = "$Email in Keycloak realm $Realm, returning to $sitePublicUrl"
 if ($PSCmdlet.ShouldProcess($target, 'Send verification email')) {
     Invoke-Docker -Arguments @(
         'exec', $keycloakContainer,
         $kcadm, 'update', "users/$($matches[0].id)/send-verify-email",
-        '-r', $Realm
+        '-r', $Realm,
+        '-q', "client_id=$ClientId",
+        '-q', "redirect_uri=$sitePublicUrl"
     ) -AllowEmptyOutput | Out-Null
 
     Write-Host "Verification email requested for $Email."

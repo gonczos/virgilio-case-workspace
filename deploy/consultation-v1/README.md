@@ -122,10 +122,12 @@ the verification message with:
 
 The script refuses to send unless Keycloak has an HTTPS public hostname, the
 Tunnel is running, and exactly one enabled unverified user matches the address.
-Use `-WhatIf` to validate those conditions without sending. Wait until Keycloak
-reports the address as verified before giving the user the consultation sign-in
-link. The user's first application login then changes the temporary password
-and configures and confirms TOTP.
+It also binds the email action to the `consultation-web` client so successful
+verification returns the browser to the public consultation site. Use `-WhatIf`
+to validate those conditions without sending. Wait until Keycloak reports the
+address as verified before giving the user the consultation sign-in link. The
+user's first application login then changes the temporary password and
+configures and confirms TOTP.
 
 As a fallback for users who start login before verification, required actions
 run in this order: verify email, change password, configure TOTP. Keycloak and
