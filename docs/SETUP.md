@@ -778,6 +778,9 @@ while the content request returns `200`, verify this path-specific CSP header.
 
 ### Codex hosted MCP connection
 
+For end users, share [Connect to Virgilio Consultation](MCP-CLIENT-HOWTO.md),
+which covers ChatGPT and Codex without deployment credentials.
+
 Create `consultation-codex` from
 `deploy/consultation-v1/keycloak/codex-client.json` through authenticated
 Keycloak administration and assign only `consultation_user` to its realm role
