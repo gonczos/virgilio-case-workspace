@@ -1,0 +1,18 @@
+{
+  "clientId": "consultation-codex",
+  "name": "Virgilio Consultation - Codex",
+  "protocol": "openid-connect",
+  "enabled": true,
+  "publicClient": true,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "consentRequired": true,
+  "fullScopeAllowed": false,
+  "redirectUris": ["http://127.0.0.1:8787/callback"],
+  "webOrigins": [],
+  "attributes": { "pkce.code.challenge.method": "S256" },
+  "defaultClientScopes": ["consultation.read", "consultation-mcp-audience"],
+  "optionalClientScopes": []
+}

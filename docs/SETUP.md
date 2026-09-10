@@ -776,6 +776,32 @@ The UI proxy therefore returns `frame-ancestors 'self'` only for authenticated
 `frame-ancestors 'none'`. If the native viewer shows a broken-document icon
 while the content request returns `200`, verify this path-specific CSP header.
 
+### Codex hosted MCP connection
+
+Create `consultation-codex` from
+`deploy/consultation-v1/keycloak/codex-client.json` through authenticated
+Keycloak administration and assign only `consultation_user` to its realm role
+scope mappings. This standalone client template is not a startup realm import.
+It is a public client with S256 PKCE and user consent, no application secret,
+no password/service-account grants and no offline access.
+
+Add the snippet in `deploy/consultation-v1/codex-hosted.toml` to each computer's
+user Codex `config.toml`. The callback is exactly
+`http://127.0.0.1:8787/callback`, with listener port 8787; that port must be free
+during login. The identity provider advertises issuer identification, allowing
+Codex to use the fixed pre-registered callback. The same client registration
+works on multiple computers; each user signs in separately and credentials
+stay in Codex's OAuth credential store on that computer.
+
+Leave `oauth_resource` unset: Codex obtains it from protected-resource
+discovery. Setting it explicitly with the currently installed CLI duplicates
+the `resource` parameter and Keycloak rejects login as `invalid_request`.
+
+Run `codex mcp login virgilio-hosted --scopes openid,consultation.read` and
+complete browser login and consent. Reload Codex/start a new task to load the
+hosted tools. `codex mcp logout virgilio-hosted` removes local authorization.
+The existing `virgilio-text-consultation` local connection is separate.
+
 ### ChatGPT MCP client registration
 
 Use **User-Defined OAuth Client** in ChatGPT. Anonymous dynamic registration
