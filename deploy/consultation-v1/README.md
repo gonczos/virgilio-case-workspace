@@ -61,7 +61,12 @@ docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/
 ```
 
 The override binds Keycloak to `127.0.0.1` and makes both its frontend and admin
-URLs local so the master-realm login completes without public ingress. After
+URLs local so the master-realm login completes without public ingress. For a
+new invitation, create an enabled user in the `consultation` realm with the
+exact email address, leave email unverified, assign the `consultation_user`
+realm role, and add the **Update Password** and **Configure OTP** required
+actions. Do not create a temporary password or send the invitation while in
+local maintenance mode. After
 administration, restore normal Keycloak configuration before restarting the
 Tunnel:
 
@@ -69,6 +74,26 @@ Tunnel:
 docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml up -d --no-deps --force-recreate keycloak
 docker compose --env-file deploy/consultation-v1/.env -f deploy/consultation-v1/compose.yml --profile publish up -d cloudflared
 ```
+
+**Finish onboarding by sending the verification email after public mode is
+restored.** Wait for Keycloak and the Tunnel to be ready, then run this from
+`C:\repos\virgilio-case-workspace`, replacing the example email with the user's
+actual address:
+
+```powershell
+.\deploy\consultation-v1\Send-VerificationEmail.ps1 -Email "user@example.com"
+```
+
+Write `@` directly; do not escape it with `\`. The script checks that Keycloak
+uses its public hostname, the Tunnel is running, and the exact user is enabled,
+unverified, and has the required role and setup actions. It also checks the
+client's allowed return URL. Add `-WhatIf` to perform these checks without
+sending an email. The message lets the user verify their email and complete
+password and authenticator setup, with a return to the public site. Confirm
+completion before asking the user to test normal login. See the
+[email-first onboarding instructions](../../docs/SETUP.md#consultation-v1-new-user-onboarding)
+for the full flow. If an email was sent in local mode, request a fresh one in
+public mode so its link uses the public hostname.
 
 Do not use maintenance mode while public consultation is expected to remain
 available. The public Cloudflare authentication route must block the `/admin`
