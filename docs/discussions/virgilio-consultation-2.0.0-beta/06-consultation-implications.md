@@ -119,3 +119,38 @@ It advances the earlier open question about the normal consultation experience:
 multiple entry perspectives are required, while exact views, default selections,
 management actions and first-increment priorities remain to be planned. No runtime
 or schema changes are authorized. Preserve prior proposals above as discussion history.
+
+## Retry relevance clarification — aligned with scraper
+
+User supplied the scraper's updated context; checked commit
+5e5b50951d34532a0e773138f379e225aa2abb62 and its changes to the evidence inventory,
+phase index and decision record read-only. It preserves the earlier inventory findings
+while recording the user's requirement that routine recovered scrape difficulties
+need not appear in consultation.
+
+Separate three boundaries:
+
+1. Upstream retention: original observation/attempt history follows existing obligations;
+   no deletion or rewritten source history is authorized.
+2. Required delivery: routine operational diagnostics with no evidentiary consequence
+   may remain scraper-side under a proposed R3 boundary. Exclusion/summary criteria
+   still need joint R3/R4 agreement; this is not an accepted contract amendment.
+3. Consultation presentation: a recovered timeout with no gap or uncertainty need not
+   create a case warning or unresolved-failure item. Earlier suggestions to expose
+   attempts/retries describe possible inspection, not a requirement to show all retries.
+
+Context remains relevant if it leaves a gap, affects supported coverage/matching,
+produces distinct bytes/assertions, or supports an accepted claim or derivation.
+R2-required supporting material remains required even when hidden by default.
+A later success cannot erase obtained evidence or imply simultaneous observations;
+observation times and collection intervals remain honest.
+
+Management of Virgilio ingestion is distinct from the scraper's internal retry log.
+The requested management interfaces should identify delivery/acceptance questions,
+missing required evidence, unresolved associations or availability failures. They need
+not reproduce routine resolved upstream diagnostics. Exact first-scope and management
+actions remain to be selected.
+
+Both projects remain aligned on the accepted foundation and open R3–R5 work. Next:
+bound the first evidence/claim scope, then agree required-versus-operational delivery
+contents without expanding into detailed screen design. No runtime changes.

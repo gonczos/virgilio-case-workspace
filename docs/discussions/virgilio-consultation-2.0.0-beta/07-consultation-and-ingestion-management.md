@@ -91,3 +91,12 @@ then identify which questions the first management interface must allow a person
 resolve. Prioritize those capabilities with the user before selecting the first exchange
 scope or detailed delivery schema. Keep required preservation independent of what is
 prominent on screen.
+
+## Scope clarification: operational retries
+
+Routine resolved upstream scrape difficulties need not appear in consultation or
+be mirrored into Virgilio management. The [retry relevance clarification](06-consultation-implications.md)
+separates upstream retention, proposed delivery exclusions and display needs. Ingestion
+management concerns incoming delivery/acceptance and material requiring decisions;
+it does not imply a full scraper operations console. Evidence/coverage consequences
+and required supporting material remain preserved. No workflow is implemented here.

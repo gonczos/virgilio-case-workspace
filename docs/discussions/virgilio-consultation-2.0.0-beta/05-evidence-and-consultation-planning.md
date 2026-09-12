@@ -93,3 +93,12 @@ The user has requested [connected consultation views and ingestion management](0
 Use case/document/binary navigation and a delivery-question-decision journey to map
 required evidence before fixing R3. Detailed actions, R4/R5 rules and implementation
 remain open. This is an additional product-planning requirement, not runtime authority.
+
+## Updated scraper alignment
+
+Scraper checkpoint 5e5b50951d34532a0e773138f379e225aa2abb62 clarifies that routine
+recovered retries without evidence/coverage consequences need not be presented in
+consultation. See [Virgilio's recorded distinction](06-consultation-implications.md).
+Potential exclusion from required delivery remains joint R3/R4 planning, separate
+from display choice and upstream retention. This preserves the evidence inventory
+and accepted R1/R2 obligations; no detailed UI work is the immediate next step.
