@@ -102,3 +102,12 @@ review findings remain historical. The follow-up must use this incorporation's G
 commit plus the scraper's amended checkpoint, which has not yet been supplied.
 The same reviewer will assess R1/R2 only, including consistency with prior obligations;
 R3–R5 remain visible and neither contract is accepted by this drafting step.
+
+## Focused follow-up completed
+
+The [follow-up result](review/06-follow-up-result.md) verifies R1/R2 resolved in
+Virgilio a1051bc94a6180652483e1e7f5fd62ba875b8690 and scraper
+8a046a37fabe1cace268ed40e0ad4be944f94f57. This supersedes the pending-review status
+above without changing those historical inputs. R3–R5 remain open; neither contract
+is accepted or implementation-authorized. Next: decide contract acceptance explicitly
+and plan the owned R3–R5 conformance, coverage/matching and revision-resolution work.

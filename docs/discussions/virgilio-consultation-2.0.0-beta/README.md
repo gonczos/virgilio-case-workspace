@@ -15,6 +15,7 @@ Use Virgilio rather than VC in new discussion and documentation.
 - [Joint review scenarios and open decisions](04-review-and-next-steps.md)
 - [Independent joint review findings](review/02-findings.md)
 - [Joint review resolution tracker](review/03-resolution-tracker.md)
+- [Focused R1/R2 follow-up result](review/06-follow-up-result.md)
 - [Supplied source reports and drafts](sources/README.md)
 
 ## Purpose
@@ -29,7 +30,8 @@ The scope of the rest of 2.0.0 beta has not yet been established.
 
 Agreed planning principles are distinguished from unaccepted contract rules.
 Neither contract is accepted. An independent joint review of the pinned drafts is recorded
-under review/; its findings remain open and do not authorize implementation. No implementation,
+under review/. Follow-up verified R1/R2 resolved in the pinned drafts; R3–R5 remain open.
+These reviews do not authorize implementation. No implementation,
 API transport, schema, migration, scrape or import is authorized by these files.
 Current architecture remains under ../../architecture/ and setup remains in
 ../../SETUP.md. These proposals must not silently override either.

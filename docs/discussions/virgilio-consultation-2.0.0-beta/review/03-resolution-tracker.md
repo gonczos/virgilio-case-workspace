@@ -1,6 +1,6 @@
 # Joint review resolution tracker
 
-Status: R1/R2 wording jointly agreed for draft incorporation, 2026-09-12; focused verification pending. Neither contract is accepted.
+Status: R1/R2 verified resolved in the paired draft checkpoints, 2026-09-12. Neither contract is accepted.
 This is the shared planning decision record, maintained in Virgilio. Each project
 owns amendments to its own draft. Earlier proposal entries are historical; the latest incorporation entry records current draft status.
 
@@ -16,8 +16,8 @@ The same reviewer should inspect both revised checkpoints after joint agreement.
 
 | Finding | Status | Owner | Next action |
 | --- | --- | --- | --- |
-| R1 Comparison applicability | Jointly agreed wording; verification pending | Joint | Obtain amended scraper checkpoint and focused review |
-| R2 Evidence custody and retrieval | Jointly agreed wording; verification pending | Joint | Obtain amended scraper checkpoint and focused review |
+| R1 Comparison applicability | Verified resolved in reviewed drafts | Joint | Preserve verified wording; contract acceptance remains separate |
+| R2 Evidence custody and retrieval | Verified resolved in reviewed drafts | Joint | Preserve verified wording; operational R3–R5 remain open |
 | R3 Acceptance conformance | Open; before implementation | Virgilio leads, scraper agrees profile | Define delivery unit and dependencies |
 | R4 Coverage/matching policies | Open; before implementation | Scraper, adapter validates support | Define versioned policy and limits |
 | R5 Revision-resolution scope | Open; before implementation | Joint | Define scope, authority and late-branch behavior |
@@ -174,3 +174,15 @@ The scraper reports no amendments saved yet. Next dependency: its amended upstre
 commit. Pair it with the Git commit containing this revision-3 incorporation and ask
 the same independent reviewer for a bounded R1/R2 follow-up. Do not review the old
 upstream commit as if it already contains the new clauses. No development is authorized.
+
+## Focused review verification
+
+The scraper supplied amended revision 4 at 8a046a37fabe1cace268ed40e0ad4be944f94f57.
+The same independent reviewer checked it with Virgilio revision 3 at
+ a1051bc94a6180652483e1e7f5fd62ba875b8690. See the
+[follow-up request](05-follow-up-request.md) and [result](06-follow-up-result.md).
+
+R1 and R2 are verified resolved at the semantic draft level with no new contradiction
+or regression found in scope. Earlier pending entries above are history, not the
+current status. Neither contract is accepted; no implementation is authorized.
+R3–R5 remain open implementation-readiness decisions with their existing owners.
