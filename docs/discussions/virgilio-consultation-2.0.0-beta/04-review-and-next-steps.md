@@ -158,3 +158,17 @@ is authorized by this investigation. The earlier retained-data scope remains inp
 The offline investigation is complete and the consumer/source priorities are aligned,
 paired with scraper 127463a8e9e4e1e4358af810df646ecefd9c10f7. Findings and the narrow
 future-access decision are recorded in the scope document. No live access was performed.
+
+## Scraper detour received: return to consumer and delivery planning
+
+The [handoff assessment](10-scraper-extension-handoff.md) supersedes the earlier pending
+live-access status. Read scraper c6956c2b07cdbb0aacbc9df87113de6e9d8cbcf3 with its pinned
+implementation/results reports. Bounded scraper development and validation were explicitly
+authorized there; no Virgilio runtime work or import is authorized. Next: candidate R3
+evidence/dependency inventory and participant exposure decisions, coordinated with R4/R5.
+
+The user's subsequent direction is to reevaluate what the scraper should collect using
+the new findings before fixing delivery requirements. The handoff assessment records
+a revised candidate scope, separating collection, preservation, interpretation and
+consultation exposure; it also identifies future binary-refresh policy as an explicit
+R4 decision. No further capture or implementation is started by this planning step.

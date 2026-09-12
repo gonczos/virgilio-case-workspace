@@ -163,3 +163,13 @@ requested in chat. This status is a coordination snapshot, not a completed inspe
 Resume the same authorized limited scope after authentication; no repeat authorization
 is needed. The scraper has uncommitted planning status updates at this point, so no new
 scraper result checkpoint is claimed. No substantive live source findings are available.
+
+## Superseding status: scraper extension and validation completed
+
+Authentication succeeded and the limited inspection completed. Subsequent explicit
+user authorizations in the scraper task permitted a bounded case-context extension
+and six-case validation/selective retrieval. The [handoff assessment](10-scraper-extension-handoff.md)
+records exact checkpoints, implemented versus proposed scope, results and remaining
+consumer/delivery decisions. Its input is scraper c6956c2b07cdbb0aacbc9df87113de6e9d8cbcf3.
+The authentication-in-progress entry above is historical. No Virgilio implementation,
+import or full-contract acceptance follows from the scraper detour.
