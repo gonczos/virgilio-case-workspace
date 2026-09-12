@@ -234,3 +234,16 @@ format. [Responsibility clarification](13-retained-response-usefulness.md) separ
 parsing/normalization from adapter-to-VIEC mapping and broker acceptance. Original-response
 preservation/custody remains intact. Continue by agreeing producer output semantics and
 consumer requirements, not duplicating Citius parsing within Virgilio.
+
+## Producer-prepared exchange coordination
+
+The user asked to coordinate scraper work under the clarified ownership boundary.
+The [producer format coordination](14-scraper-prepared-exchange.md) requests a concrete
+normalized/versioned draft with synthetic examples and implementation gaps. Review
+consumer adequacy before new preparation/output implementation. No live source access,
+normalization implementation or import is authorized by this planning slice.
+
+Producer draft received at scraper 25bce3d84e700e3ce738c44925554471bd99bc5d;
+consumer adequacy review recorded in the coordination document. Source preparation is
+scraper-owned; no material foundation contradiction found. Format agreement, complete
+fixtures and detailed R3–R5 decisions precede new normalized-output implementation.
