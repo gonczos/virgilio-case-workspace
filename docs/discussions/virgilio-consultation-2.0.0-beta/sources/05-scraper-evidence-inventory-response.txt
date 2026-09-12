@@ -1,0 +1,57 @@
+**The scraper retains substantially richer evidence than the portable export exposes.** Much of the missing context could be exposed from existing artifacts without another collection. However, the consolidated package cannot reliably substitute for those original observations.
+
+The full [evidence inventory](C:/repos/scraper/repository/docs/20-roadmap/phase-04-evidence-contracts/evidence-availability-investigation.md) records locations, implementation references, limitations and exposure routes for ten categories.
+
+**Inventory and possible consultation questions**
+
+| Category | Retained evidence versus current export | Possible supported question / exposure route |
+|---|---|---|
+| Case metadata | Full listing JSON includes participant attributes, additional dates, flags and HTML. Export carries selected canonical values. | “What case details were reported at this collection?” Expose retained records and reconcile their provenance. |
+| Bucket metadata | Original rows include metadata, captures, context and opening/closing times. Export selects one metadata record, using SQL ordering. | “Which details were observed, and when?” Reconstruct from retained observations, not canonical tables alone. |
+| Listings and membership | Individual rows, multiplicity and case/bucket context survive collection. Export accumulates membership and reduces duplication to counts. | “What was listed in this case during this collection?” Expose original occurrences. |
+| Identifiers and request context | Tokens and representative retrieval context are retained; export omits attempt-level context. Recorded context is not always identical to transmitted parameters. | “Through which case did we request this?” Expose actual attempt records; do not infer from token equality. |
+| Captures and responses | HTML fragments, successful bodies and some failure responses remain outside the package. | “What evidence supports this assertion?” Resolve and expose supporting artifacts. These are not complete network/session recordings. |
+| Acquisitions and retries | Separate failure and retry results survive. Export’s global document/binary links lose acquisition scope. | “Which binary did we actually obtain through A?” Reconcile retained attempts; acquisition through unrequested B remains unknown. |
+| Scope and times | Run scope, outcomes, attempts and timing exist. Package selection and export time do not describe collection coverage. | “Outside scope, failed, or absent?” Expose coverage evidence; qualified absence still depends on R4 policy. |
+| Differences and corrections | Retained runs permit some comparisons. A general interpretation/correction ledger is not implemented. | “What changed?” New attributed reconstruction is possible; source-versus-parser attribution requires sufficient original inputs and lineage. |
+| Relationships | Listing membership is observed. Parent assignments and binary reuse can be application rules or inferences. | “Observed or inferred?” Expose origins explicitly; grouping does not prove a court relationship. |
+| Validation/readability | Detailed assessment reports survive separately; export carries selected summaries. | “Which check produced this status?” Expose original assessments and their input/rule provenance. |
+
+Two concrete findings illustrate the consequences:
+
+- The sampled collection contains **2,137 listing occurrences**, while the package has **2,133 aggregated bucket/document links**. Those are different units—not proof of lost evidence.
+- The package labels **217 binaries “unchecked,”** while retained documentation and qpdf results identify warning assessments. “Unchecked” therefore cannot safely mean “never assessed.” Historical readability reports also exist despite missing readability status in the sampled September package.
+
+**Recommended first exposure scope — proposal**
+
+Start with a bounded set of **existing collection evidence** containing:
+
+- Original occurrences, metadata and multiplicity.
+- Actual acquisitions, failures, retries and binaries.
+- Supporting captures and original assertions.
+- Known scope, times, provenance and explicit unknowns.
+- Clearly attributed inferred associations.
+- Required inputs and rules for any delivered assessments or derivations.
+
+Richer default presentation, new OCR/readability processing and computed historical comparisons can be deferred. **Supporting evidence required under R2 cannot become optional merely because it is not displayed by default.**
+
+Further local investigation is needed for path/hash reconciliation, legacy interpretation recovery and unexplained assessment differences. Independent acquisitions through other cases or unseen source surfaces require separately authorized collection. New collection cannot recover an unobserved historical event.
+
+**Questions for Virgilio before R3**
+
+1. Which collections and claims should the first consultation scope support?
+2. Which assessments and interpretations will be delivered initially, making their supporting material required?
+3. How will the profile preserve occurrences, actual acquisitions, inferred reuse and unresolved associations distinctly?
+4. Which Citius-specific fields require adapter interpretation, and which should remain preserved source context?
+5. Which dependencies already exist under Virgilio custody, and which must accompany delivery?
+6. How will delivery express unavailable comparisons and insufficient historical coverage without overstating them?
+
+These inform R3; they do not resolve acceptance units, R4 policies, R5 or consultation design.
+
+**Documentation and checkpoint**
+
+Created the inventory and updated the [phase index](C:/repos/scraper/repository/docs/20-roadmap/phase-04-evidence-contracts/README.md) and [decision record](C:/repos/scraper/repository/docs/20-roadmap/phase-04-evidence-contracts/decisions-and-review.md).
+
+**Commit:** `a895190b96c1a2313d7d67f09f3881d6b0a199e2`
+
+Validation: bounded artifact/field/count inspection, implementation tracing, link checks, staged-diff review and whitespace checks. No collections, imports, database queries, exports or new binary processing ran. Documentation only; working tree clean.

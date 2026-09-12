@@ -14,3 +14,9 @@ verification in Virgilio. Original wording (including VC) is retained.
 Each original attachment was named pasted-text.txt. Copied 2026-09-12; byte hashes
 were checked against the source attachments. Later joint positions from the chat
 are consolidated in the parent planning documents rather than inserted here.
+
+The later [scraper evidence inventory response](05-scraper-evidence-inventory-response.txt)
+was supplied as attachment b661eacb-9e09-4ffe-ac28-f5d8ba2211e4/pasted-text.txt and
+copied with matching SHA-256 on 2026-09-12. Its detailed report is pinned in the
+parent consultation-implications document. It is attributed investigation input,
+not independent artifact verification or an accepted delivery scope.

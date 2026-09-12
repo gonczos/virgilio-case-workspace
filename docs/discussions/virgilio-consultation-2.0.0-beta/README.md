@@ -12,7 +12,8 @@ Use Virgilio rather than VC in new discussion and documentation.
 [Evidence availability and consultation needs](05-evidence-and-consultation-planning.md)
 comes before detailed R3 delivery/acceptance planning. The
 [scraper inventory handoff](prompts/01-scraper-evidence-inventory.md) is saved;
-investigation results and consultation decisions remain pending.
+the inventory is received and [consultation implications](06-consultation-implications.md)
+are recorded as proposals. First-scope and default-view decisions remain pending.
 
 ## Start here
 

@@ -29,7 +29,8 @@ implemented or that all potentially useful features belong in the first incremen
 
 The [scraper handoff prompt](prompts/01-scraper-evidence-inventory.md) is recorded
 for use in the scraper chat. Saving it is not dispatch or completion of its task.
-No scraper investigation result has yet been received for this slice.
+The scraper inventory has now been received at a895190b96c1a2313d7d67f09f3881d6b0a199e2.
+See [consultation implications](06-consultation-implications.md) for provenance and proposed next decisions.
 
 ## Proposed consultation mapping — questions, not approved features
 
@@ -79,10 +80,9 @@ and R5 revision-resolution remain owned open work, not implicitly resolved by in
 ## Status and next checkpoint
 
 - Planning scope and scraper prompt: recorded here.
-- Scraper inventory: pending, no dispatch implied.
-- Virgilio consultation assessment: pending.
+- Scraper inventory: received; pinned report read, underlying artifact checks not repeated here.
+- Virgilio consultation assessment: [initial proposals recorded](06-consultation-implications.md); user scope/default-view decisions pending.
 - First exchange scope and detailed R3 rules: pending.
 
-Next: send the saved prompt to the scraper project; receive its documentation checkpoint
-and inventory; assess consultation consequences here. Preserve results and new decisions
+Next: discuss the candidate first scope and normal consultation view using the received inventory. Preserve results and new decisions
 under this planning directory without treating them as accepted architecture.
