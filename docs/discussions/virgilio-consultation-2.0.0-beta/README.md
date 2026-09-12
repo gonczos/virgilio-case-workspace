@@ -14,6 +14,7 @@ Use Virgilio rather than VC in new discussion and documentation.
 - [Citius scraper integration and upstream contract](03-citius-integration-proposal.md)
 - [Joint review scenarios and open decisions](04-review-and-next-steps.md)
 - [Independent joint review findings](review/02-findings.md)
+- [Joint review resolution tracker](review/03-resolution-tracker.md)
 - [Supplied source reports and drafts](sources/README.md)
 
 ## Purpose
