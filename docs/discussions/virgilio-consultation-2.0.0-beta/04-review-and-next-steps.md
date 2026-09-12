@@ -226,3 +226,11 @@ examines six case entries, fifteen acts/39 nested document appearances and 21 pa
 entries with recomputed source hashes. These earlier originals can inform field choices
 without renewed authentication; the preservation module's live check remains a separate
 validation need. No new collection or implementation was performed.
+
+## Source preparation ownership clarified
+
+The user assigned source-material preparation to the scraper; Virgilio consumes the agreed
+format. [Responsibility clarification](13-retained-response-usefulness.md) separates source
+parsing/normalization from adapter-to-VIEC mapping and broker acceptance. Original-response
+preservation/custody remains intact. Continue by agreeing producer output semantics and
+consumer requirements, not duplicating Citius parsing within Virgilio.

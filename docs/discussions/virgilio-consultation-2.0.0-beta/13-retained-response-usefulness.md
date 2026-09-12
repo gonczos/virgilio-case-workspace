@@ -95,3 +95,30 @@ unestablished here. No fresh collection is requested by this analysis.
 The three agreed directions remain intact. R3–R5/full-contract acceptance and Virgilio
 runtime work remain open. Validation comprised parsing, aggregate comparisons and original
 hash verification plus documentation link/whitespace checks; no corpus-wide audit.
+
+## User decision: source preparation belongs to the scraper
+
+Following this analysis, the user clarified: "cleaning up the source material should
+stay with the scraper. we just need to consume the agreed format".
+
+The scraper owns Citius-specific parsing and normalization: response wrappers, repeated
+payload arrays, raw/display field distinctions, source identifiers, date/null handling
+and source-level interpretation under declared/versioned rules. It preserves original
+evidence and uncertainty; cleaning means preparing attributed structured output, not
+rewriting original evidence, merging distinct events or inventing settled meanings.
+
+Virgilio specifies its consumer needs and agrees the exchange format, then validates
+and consumes that format. Its adapter maps delivered contract fields into VIEC with
+exact upstream and mapping-rule provenance. It does not independently parse Citius HTML,
+unwrap raw source payloads or repair producer normalization defects to make deliveries
+fit. Such defects are reported back to the scraper for attributed correction. Adapter
+mapping defects remain Virgilio's responsibility and distinct from scraper corrections.
+The Evidence Broker retains final acceptance and preservation authority.
+
+Original responses may remain required supporting material under R2 and be available
+for inspection/custody without becoming Virgilio's operational ingestion interface.
+This bounded source analysis informed requirements; it does not transfer ongoing Citius
+source preparation to Virgilio. Next coordination should ask for the scraper's proposed
+versioned output format and assess its consumer semantics, dependencies and limitations,
+rather than design a second source-cleaning pipeline in Virgilio. R3–R5 and full-contract
+acceptance remain open. No implementation or import is authorized by this clarification.
