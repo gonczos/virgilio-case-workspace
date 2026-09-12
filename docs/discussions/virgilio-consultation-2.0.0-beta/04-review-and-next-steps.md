@@ -145,3 +145,16 @@ The coordinated proposal and pre-database omission analysis are now recorded in 
 scope document, paired with scraper 0ee30fe42b1d0f53cd411e7d35a119f1eaf914a3.
 The first relevance scope and collection/assessment selection remain proposals for
 user decision. Required evidence availability/mapping checks precede detailed R3 rules.
+
+## Broader collection planning authorized
+
+The user selected option 3 for planning and asked both projects to work together.
+The [future collection scope investigation](09-future-collection-scope.md) now precedes
+first-increment selection. Scraper investigates existing code/captures for additional
+meaningful information; Virgilio evaluates consultation value and records coordination.
+Any fresh Citius access is a separate explicit step. No collection or implementation
+is authorized by this investigation. The earlier retained-data scope remains input.
+
+The offline investigation is complete and the consumer/source priorities are aligned,
+paired with scraper 127463a8e9e4e1e4358af810df646ecefd9c10f7. Findings and the narrow
+future-access decision are recorded in the scope document. No live access was performed.
