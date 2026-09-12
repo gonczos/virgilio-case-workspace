@@ -130,3 +130,18 @@ to consultation questions and proposed default/history views before selecting th
 first exchange's required contents. The [scraper prompt](prompts/01-scraper-evidence-inventory.md)
 is saved; no investigation result or dispatch is implied. This refines the sequence
 above without changing the accepted foundation or closing R3–R5. Planning only.
+
+## Direct evidence-scope coordination
+
+The user authorized direct coordination with the scraper task to determine meaningful
+collected data. The [request](prompts/02-meaningful-evidence-coordination.md) and
+[Virgilio evaluation criteria](08-meaningful-evidence-scope.md) are recorded.
+This replaces manual message relay for this planning slice. Propose structured data,
+required supporting material, conditional evidence and upstream-only diagnostics
+before detailed R3/R4 rules. It does not accept the complete contracts or authorize
+implementation. Screen design remains deferred.
+
+The coordinated proposal and pre-database omission analysis are now recorded in the
+scope document, paired with scraper 0ee30fe42b1d0f53cd411e7d35a119f1eaf914a3.
+The first relevance scope and collection/assessment selection remain proposals for
+user decision. Required evidence availability/mapping checks precede detailed R3 rules.
