@@ -93,3 +93,12 @@ with R1–R2 recommended for resolution before contract acceptance and R3–R5 r
 as implementation-readiness decisions. The review did not alter the contracts or
 approve development. Next: discuss R1–R2 jointly and return proposed clauses for a
 bounded follow-up review; keep owner-assigned R3–R5 visible in implementation planning.
+
+## Follow-up preparation after joint wording agreement
+
+R1/R2 clauses are incorporated on the Virgilio side in planning revision 3. See the
+[resolution tracker](review/03-resolution-tracker.md). The prior pinned inputs and
+review findings remain historical. The follow-up must use this incorporation's Git
+commit plus the scraper's amended checkpoint, which has not yet been supplied.
+The same reviewer will assess R1/R2 only, including consistency with prior obligations;
+R3–R5 remain visible and neither contract is accepted by this drafting step.

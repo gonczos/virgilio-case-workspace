@@ -1,7 +1,8 @@
 # VIEC — Virgilio Evidence Ingestion Contract
 
-Status: 1.0.0-draft proposal, planning revision 2, 2026-09-12.
-Not accepted, independently reviewed or implemented.
+Status: 1.0.0-draft proposal, planning revision 3, 2026-09-12.
+Not accepted or implemented. Revision 2 was independently reviewed; the R1/R2
+wording in revision 3 is jointly agreed for the draft, pending focused verification.
 
 ## Boundary
 
@@ -88,3 +89,59 @@ API versus portable package delivery, endpoints and database changes remain unde
 Virgilio Evidence Broker is the proposed name of the component receiving mapped
 provider evidence and managing acceptance/preservation under VIEC. The broker is
 a component; VIEC is its contract. No messaging infrastructure is implied or chosen.
+
+## R1 — Applicability to exact revisions
+
+A comparison applies only to its declared input revisions, including evidence,
+interpretations, coverage assessments and any adapter mappings it depends on.
+Superseding an input preserves the comparison as a historical derivation; it does
+not automatically establish applicability to the successor. Applying its conclusions
+to different inputs requires an explicit attributed derivation identifying those
+inputs and its justification.
+
+Where no applicable comparison exists for selected revisions, declare that absence
+of a comparison. Do not silently retain an earlier conclusion as a conclusion about
+corrected evidence. Immediate recalculation is not required. A missing comparison
+is distinct from a supplied comparison whose result is not assessed.
+
+Providers identify exact comparison dependencies and correction/supersession links.
+Adapters preserve them and separately identify mapping revisions. The broker and
+Virgilio preserve historical results and prevent silent application to other selected
+revisions. For example, an absence result based on complete-listing assessment A1
+remains historical when correction A2 declares incomplete coverage; it cannot support
+an absence claim over A2 without a new justified derivation.
+
+## R2 — Custody and continued retrieval
+
+Material required to inspect accepted claims, establish provenance and understand
+declared derivations must have an explicit preservation custodian and durable
+resolution commitment. Acceptance establishes that required material is retrievable
+under that commitment, whether held by Virgilio or an explicitly agreed external
+custodian. A transient path alone is insufficient. The provider profile defines
+required material; optional or limited legacy material must not silently satisfy a
+required dependency. Previously accepted material may satisfy required dependencies.
+
+Preservation supports inspection of historical results, their exact retained inputs,
+applicable rules and lineage. This alone does not guarantee executable replay of old
+software or identical rerun results. Any such guarantee separately identifies retained
+implementation, configuration, runtime dependencies and known nondeterminism or
+external dependencies. A mutable or unavailable rule-version reference is insufficient
+where that rule definition is required to understand the accepted derivation.
+
+Legitimate relocation changes resolution information, not evidence identity. Later
+custody transfer requires explicit receiving-custodian acknowledgement, verified
+access and integrity of required material, and traceable responsibility/resolution
+updates before the preceding obligation is released. Transfer is not deletion
+permission and does not release a separate upstream retention obligation.
+
+Each custodian records detected availability failures and affected material, attempts
+recovery under an agreed policy, and reports impact to the broker. The broker records
+affected evidence/dependencies and inspection limits. Preserve historical acceptance
+and earlier evidence history without implying continued accessibility, silently
+substituting content or representing unavailable material as retrievable.
+
+Distinguish preserved/retrievable, previously available but now unavailable, and
+reference-only material never supplied or held under a preservation commitment.
+Unknown availability remains explicit. Detection schedules, recovery objectives and
+notification mechanisms are implementation-readiness decisions, not guarantees
+established by this draft. The Citius integration proposal sets the first profile's custody/retention boundary; other providers need an explicit profile rather than an invented Citius model.

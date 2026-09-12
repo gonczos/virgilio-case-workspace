@@ -1,8 +1,8 @@
 # Joint review resolution tracker
 
-Status: proposed resolutions, 2026-09-12. Neither contract is accepted.
+Status: R1/R2 wording jointly agreed for draft incorporation, 2026-09-12; focused verification pending. Neither contract is accepted.
 This is the shared planning decision record, maintained in Virgilio. Each project
-owns amendments to its own draft. Contract drafts remain unchanged by this entry.
+owns amendments to its own draft. Earlier proposal entries are historical; the latest incorporation entry records current draft status.
 
 Review baseline: 9b58b9c (report commit). Reviewed inputs remain Virgilio
  da7948d9279f7a6209dcf027c7c85781076901c1 and scraper
@@ -16,8 +16,8 @@ The same reviewer should inspect both revised checkpoints after joint agreement.
 
 | Finding | Status | Owner | Next action |
 | --- | --- | --- | --- |
-| R1 Comparison applicability | Proposed resolution | Joint | Agree wording, amend each draft, obtain paired commits |
-| R2 Evidence custody and retrieval | Proposed resolution | Joint | Decide required categories, custodians, retention and transfer/failure rules |
+| R1 Comparison applicability | Jointly agreed wording; verification pending | Joint | Obtain amended scraper checkpoint and focused review |
+| R2 Evidence custody and retrieval | Jointly agreed wording; verification pending | Joint | Obtain amended scraper checkpoint and focused review |
 | R3 Acceptance conformance | Open; before implementation | Virgilio leads, scraper agrees profile | Define delivery unit and dependencies |
 | R4 Coverage/matching policies | Open; before implementation | Scraper, adapter validates support | Define versioned policy and limits |
 | R5 Revision-resolution scope | Open; before implementation | Joint | Define scope, authority and late-branch behavior |
@@ -155,3 +155,22 @@ or adopted policy:
 R1 and R2 remain proposed resolutions. Contract drafts are unchanged. R3–R5 remain
 separate implementation-readiness decisions; these proposals do not select their
 manifest schema, transaction boundaries, coverage policies or resolution encoding.
+
+## Joint wording agreement and Virgilio incorporation
+
+The user relayed the scraper-side agreement to no automatic expiry, acceptance-based
+Virgilio custody after retention/validation, verified acknowledged transfer, and
+recorded unavailability/recovery with historical acceptance preserved. The independent
+scraper obligation remains intact and upstream deletion is not authorized. Together
+with R1 exact-input applicability, this is agreement on draft wording only.
+
+Virgilio incorporated that wording and the required-material/inspection clarification
+into VIEC and the Citius integration proposal, planning revision 3. Earlier proposal
+sections above are preserved as discussion history and do not override this status.
+R1/R2 are jointly agreed for the draft, not verified closed or contract-accepted.
+R3–R5 remain open implementation-readiness decisions.
+
+The scraper reports no amendments saved yet. Next dependency: its amended upstream
+commit. Pair it with the Git commit containing this revision-3 incorporation and ask
+the same independent reviewer for a bounded R1/R2 follow-up. Do not review the old
+upstream commit as if it already contains the new clauses. No development is authorized.

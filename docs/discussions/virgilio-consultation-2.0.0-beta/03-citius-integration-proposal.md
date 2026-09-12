@@ -1,6 +1,6 @@
 # Citius integration — contract proposal
 
-Status: unaccepted planning revision 2, 2026-09-12. No implementation authority.
+Status: unaccepted planning revision 3, 2026-09-12. No implementation authority.
 
 ## Boundaries
 
@@ -97,6 +97,69 @@ attribution and inferred reuse without strengthening their evidentiary status.
 
 Mapping corrections retain earlier mappings and their lineage. They must not be
 labelled as scraper-issued corrections or as new court observations/acquisitions.
-The upstream contract has no assigned version; use revision 3 and the pinned scraper
+The upstream contract has no assigned version; the initial review used revision 3 and the pinned scraper
 commit in the review brief. The earlier 1.0.0-draft entry was a local suggestion,
 not a joint upstream version assignment.
+
+## Joint R1/R2 draft amendments — pending follow-up verification
+
+For R1, the scraper identifies exact comparison dependencies and supersession links;
+the adapter preserves them and records mapping revisions separately. Virgilio enforces
+applicability to selected revisions under the VIEC R1 clause. An earlier comparison
+remains a historical result, not a conclusion automatically rebound to corrected
+coverage, evidence, interpretation or mapping. No immediate recomputation is required.
+
+For the first Citius integration, Virgilio assumes preservation responsibility for
+the required material of each accepted delivery unit, including original scraper
+assertions consumed by its adapter. Before broker acceptance, required material must
+be retained under Virgilio's custody and its identity, integrity and dependencies
+validated. Previously accepted material may satisfy dependencies. Broker acceptance
+records the custody commitment; receipt, staging or adapter success does not.
+
+Mapping to VIEC does not replace preservation of original assertions and context.
+The scraper's original-evidence retention obligation remains independent. Virgilio
+acceptance or a later custody transfer never authorizes upstream deletion.
+
+### Minimum required material
+
+Required means necessary to inspect accepted claims, establish provenance and
+understand their derivations, rather than every incidental collection file.
+
+| Category | Preservation obligation |
+| --- | --- |
+| Original artifacts and binaries | Exact bytes of binaries delivered as obtained evidence and source captures/responses supporting accepted observations, interpretations or coverage; available supporting failure-response artifacts |
+| Scraper assertions/context | Original consumed payloads; event identities; listing occurrences and attempts; source/request context and times; intended scope, actual coverage, failures/gaps; exact snapshot, assessment and evidence-set revisions |
+| Interpretations/corrections | Historical results, exact inputs, parser/processor and rule/configuration identity, reasons and supersession lineage |
+| Delivered comparisons | Results, exact baseline/target inputs and interpretation/coverage revisions, dimensions, reasons, compatibility basis and matching/normalization/comparison rules |
+| Adapter mappings | Exact consumed upstream assertions, mapped results, rule/version identity, relevant configuration and correction lineage; retained by Virgilio |
+| Required rule definitions | Retained identifiable definitions sufficient to understand derivations, not just labels pointing at mutable or unavailable documentation |
+
+Missing required bytes/assertions, integrity failure, unresolved required input
+revisions/provenance or missing required derivation basis blocks acceptance of the
+unit. Temporary scraper-only storage cannot satisfy Virgilio's custody commitment.
+The exact unit, manifest and conformance checks remain R3.
+
+Incidental diagnostics, redundant copies and material not needed to support accepted
+claims may be optional. Legacy/reference-only limitations require explicit profile
+permission and attribution as never obtained, never supplied, later lost or unknown.
+Required historical evidence must not silently become optional to pass acceptance.
+A failed acquisition does not require a successful binary: retain available support
+for the reported attempt/outcome and explicit limits, without inventing artifacts.
+
+### Retention, transfer and later unavailability
+
+There is no automatic expiry of required material in the first increment. Disposal
+requires a separate explicit decision; acceptance, software upgrades and supersession
+do not trigger deletion. This is a retention obligation, not a promise that physical
+loss can never occur. Upstream retention remains separate and has no implied expiry
+on downstream acceptance or transfer.
+
+Later transfer follows VIEC's verified-access, integrity and explicit acknowledgement
+rules before the previous custody commitment is released. Retain traceable custody
+and locator changes. Transfer itself does not authorize disposal.
+
+The responsible custodian records detected failure, affected evidence and inspection
+limits and attempts recovery under an agreed policy; the broker preserves historical
+acceptance and separately records present availability. No silent substitution or
+claim of continued accessibility is permitted. Operational recovery details remain
+open; executable reproduction is not promised by preservation alone.
