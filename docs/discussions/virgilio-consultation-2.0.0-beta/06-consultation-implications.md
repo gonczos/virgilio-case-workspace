@@ -108,3 +108,14 @@ user decisions. No implicit latest-arrival-wins or strongest-truth rule is propo
 This checkpoint records the received investigation and a consultation assessment. It
 neither accepts all inventory conclusions as canonical facts nor chooses features,
 contracts, imports, collection enhancements or runtime changes.
+
+## User direction after the inventory
+
+The user wants connected case/bucket/document and binary/document-centred views over
+rich structured evidence, plus management interfaces for ingestions and ingested
+material with explicit decisions where questions arise. This is recorded in
+[consultation and ingestion management](07-consultation-and-ingestion-management.md).
+It advances the earlier open question about the normal consultation experience:
+multiple entry perspectives are required, while exact views, default selections,
+management actions and first-increment priorities remain to be planned. No runtime
+or schema changes are authorized. Preserve prior proposals above as discussion history.

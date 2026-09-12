@@ -86,3 +86,10 @@ and R5 revision-resolution remain owned open work, not implicitly resolved by in
 
 Next: discuss the candidate first scope and normal consultation view using the received inventory. Preserve results and new decisions
 under this planning directory without treating them as accepted architecture.
+
+## Consultation direction now specified
+
+The user has requested [connected consultation views and ingestion management](07-consultation-and-ingestion-management.md).
+Use case/document/binary navigation and a delivery-question-decision journey to map
+required evidence before fixing R3. Detailed actions, R4/R5 rules and implementation
+remain open. This is an additional product-planning requirement, not runtime authority.

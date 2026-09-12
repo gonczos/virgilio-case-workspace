@@ -13,7 +13,9 @@ Use Virgilio rather than VC in new discussion and documentation.
 comes before detailed R3 delivery/acceptance planning. The
 [scraper inventory handoff](prompts/01-scraper-evidence-inventory.md) is saved;
 the inventory is received and [consultation implications](06-consultation-implications.md)
-are recorded as proposals. First-scope and default-view decisions remain pending.
+are recorded as proposals. The user has specified
+[connected consultation views and ingestion management](07-consultation-and-ingestion-management.md).
+First-scope, screen and management-workflow decisions remain pending.
 
 ## Start here
 
