@@ -180,3 +180,11 @@ original preservation, structured interpretation and proposed consultation expos
 It includes site download locators as distinct from acquisition events and saved bytes.
 User decisions remain original-response scope, binary assurance/context coverage and
 participant interpretation/exposure. Scope precedes detailed R3 work; no live actions.
+
+## First collection-scope choice agreed
+
+The user agreed that the scraper should retain capturable source responses for the
+discussed cases/acts/documents/participants and separate acquisitions. Recorded in
+[decision 1](11-revised-collection-scope.md); sent to the scraper for alignment.
+This is preservation scope, not development/full-contract acceptance. Continue with
+binary refresh and participant exposure; R3–R5 remain open.

@@ -149,3 +149,39 @@ Virgilio has reviewed the proposed scope and recorded its consumer recommendatio
 remaining choices above. Coordination is complete for this matrix; scope acceptance is
 pending. R1/R2 and the accepted semantic foundation are unchanged, R3–R5 remain open.
 No live requests, imports, implementation or assessments were performed in this slice.
+
+## Decision 1 agreed: preserve capturable source responses
+
+The user was led through the three open decisions as planning choices, explicitly not
+development authorization. After clarifying that the proposal covers backend responses
+for cases, buckets/acts and nested documents as well as participant popups, the user
+stated: "The scraper should keep the responses we can capture".
+
+Record this as agreed collection/preservation direction for source responses supporting
+the declared activities: case listings/context; bucket/act and nested document responses,
+including pagination; participant expansion; and separate download responses with actual
+acquisition context. Preserve original captured bodies, actual response scope, observation
+and request context, provenance and integrity identity. Required broader response contents
+are not silently rewritten into a narrower original. Binary evidence retains its separate
+identity and acquisition lineage.
+
+Some popups render previously received data; this decision does not require duplicate
+requests solely to manufacture a popup response. The discussed scope is selected source
+responses supporting collection, not unrelated network traffic, credentials or speculative
+endpoint exploration. Capture limitations stay explicit; no promise of full wire/session
+recording or recovery of unobserved past responses follows.
+
+Original preservation is distinct from interpreting fields, showing them by default,
+certifying source correctness or accepting a delivery. Participant response preservation
+is already implemented; general case/act preservation remains to be implemented in a
+separately authorized slice. Exact capture/dependency/acceptance rules remain R3/R4 work;
+R5 and complete contracts remain open. No runtime action is authorized by this decision.
+
+The decision was sent directly to the scraper for matching planning documentation.
+Decision 1 supersedes the pending-original-response choice above. Decisions 2 (binary
+refresh assurance, context coverage and budget/cadence) and 3 (participant interpreted
+exposure) remain open. Continue guiding the user through decision 2 next.
+
+Scraper aligned decision 1 at cf8d72cb55aae35f4b3ddc0f056aa0fae29f272b,
+with no material scope conflict reported. Its matrix, index and decision record were
+updated; no runtime changes. General case/act preservation remains unimplemented.
