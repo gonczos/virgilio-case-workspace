@@ -203,3 +203,18 @@ all participant occurrences and other source fields without automatic person mer
 unestablished relationship interpretation. [Decision 3](11-revised-collection-scope.md)
 completes the three high-level scope directions; detailed R3–R5 remain open. Proceed to
 concrete delivery/dependency planning under that scope, not implementation or import.
+
+## Response preservation before delivery design
+
+The user corrected the sequence and explicitly authorized coordinating a bounded
+[intermediate scraper development slice](12-response-preservation-development.md).
+Inspect existing samples, preserve case/act responses, validate a bounded collection,
+then assess actual evidence before fixing R3 delivery requirements. The prior next-step
+recommendation to proceed directly to delivery design is superseded. No Virgilio
+runtime/import work is authorized; R3–R5 remain open.
+
+Scraper implementation received at 537bdfa34626e9755cda50bab8a1cb2df5de9cde:
+35 offline tests passed; bounded live validation stopped at login without source data.
+The development record distinguishes committed implementation from pending live validation
+and prior sample captures. Sign-in and the already authorized bounded check precede final
+response assessment/delivery design. Virgilio remains documentation-only.

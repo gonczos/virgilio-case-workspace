@@ -1,6 +1,6 @@
 # Virgilio Consultation 2.0.0 beta — Planning
 
-Status: semantic foundation accepted for planning on 2026-09-12. R3–R5 open; development unauthorized.
+Status: semantic foundation accepted for planning on 2026-09-12. R3–R5 open; Virgilio development unauthorized. Bounded scraper development is separately authorized as recorded below.
 
 The user named this phase Virgilio Consultation 2.0.0 beta and agreed that
 submodules and contracts should have independent versions. This is a planning
@@ -15,7 +15,7 @@ comes before detailed R3 delivery/acceptance planning. The
 the inventory is received and [consultation implications](06-consultation-implications.md)
 are recorded as proposals. The user has specified
 [connected consultation views and ingestion management](07-consultation-and-ingestion-management.md).
-The [future collection investigation](09-future-collection-scope.md) led to a separately authorized scraper extension and completed validation. The [scraper handoff assessment](10-scraper-extension-handoff.md) records current results and proposed consumer/delivery decisions. The [revised collection-scope matrix](11-revised-collection-scope.md) coordinates that reevaluation before fixing R3 delivery requirements. The three high-level directions are agreed: preserve capturable collection responses, normally target differences in open cases, and structure participants as reported without automatic identity resolution. Detailed R3 delivery, R4 policy and R5 revision work remain open; these decisions do not authorize implementation or import.
+The [future collection investigation](09-future-collection-scope.md) led to a separately authorized scraper extension and completed validation. The [scraper handoff assessment](10-scraper-extension-handoff.md) records current results and proposed consumer/delivery decisions. The [revised collection-scope matrix](11-revised-collection-scope.md) coordinates that reevaluation before fixing R3 delivery requirements. The three high-level directions are agreed: preserve capturable collection responses, normally target differences in open cases, and structure participants as reported without automatic identity resolution. The user subsequently authorized [intermediate scraper response-preservation development](12-response-preservation-development.md), to inspect actual retained responses before delivery design. Detailed R3–R5 and all Virgilio implementation/import work remain open or unauthorized.
 
 ## Start here
 
