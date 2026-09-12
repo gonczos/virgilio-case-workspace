@@ -1,0 +1,61 @@
+**I support this custody boundary.** For the first Citius integration, Virgilio should preserve the required evidence it accepts, without depending on continued access to the scraper’s local storage. The scraper’s upstream retention obligation remains separate; acceptance does not authorize deletion.
+
+No objection to VIEC allowing explicitly agreed external custodians for other integrations.
+
+**Proposed custody clause**
+
+> For the first Citius integration, Virgilio assumes preservation responsibility for the required material of each accepted delivery unit, including original scraper assertions consumed by its adapter.
+>
+> Before acceptance, required material must be retained under Virgilio’s custody and its identity, integrity and dependencies validated. Previously accepted material may satisfy dependencies.
+>
+> Mapping the delivery into VIEC does not replace the obligation to preserve its original assertions and their context. Scraper retention remains independent: downstream receipt or acceptance is not permission to delete upstream evidence.
+
+**Proposed minimum required material**
+
+“Required” should mean material necessary to inspect the accepted claims, establish their provenance and understand their derivations—not every incidental file produced during collection.
+
+| Category | Minimum preservation obligation |
+|---|---|
+| **Original artifacts and binaries** | Exact bytes of binaries delivered as obtained evidence, and source captures or retained responses on which accepted observations, interpretations or coverage claims depend. Preserve available failure-response artifacts where they support an accepted claim. |
+| **Scraper assertions and collection context** | Original assertion payloads used by the adapter; event-scoped identities; listing occurrences and acquisition attempts; source/request context; observation times; intended scope, actual coverage, failures and gaps; snapshot, assessment and evidence-set revisions. |
+| **Interpretations and corrections** | Historical results, exact input references, processor/parser identity, applicable rule/configuration versions, correction reasons and supersession lineage. Required referenced inputs must remain resolvable. |
+| **Comparisons** | Delivered results, exact baseline and target inputs—including interpretation and coverage revisions—assessed dimensions, reasons, compatibility basis and matching/normalization/comparison rules. |
+| **Adapter mappings** | Exact upstream assertions consumed, mapped results, mapping-rule/version identity, relevant configuration and correction lineage. This is Virgilio’s preservation responsibility. |
+| **Rule definitions** | A retained, identifiable definition of the rules needed to interpret the derivation. A version label pointing to mutable or unavailable documentation is insufficient. |
+
+**Absence that must block acceptance**
+
+For the proposed unit, block acceptance when:
+
+- Required bytes or original assertions are missing or fail integrity validation.
+- Required input revisions or provenance dependencies cannot be resolved.
+- An interpretation or comparison lacks the basis required to understand its declared meaning.
+- Evidence is claimed as preserved and retrievable, but exists only at an unsecured temporary scraper location.
+
+Previously accepted dependencies need not be retransmitted. The exact unit and conformance checks remain **R3**, not resolved here.
+
+**Optional and legacy material**
+
+Incidental diagnostics, redundant copies and artifacts not needed to support accepted claims may be optional.
+
+Legacy or reference-only material may remain explicitly unavailable when the profile permits acceptance with that limitation. Record whether it was never obtained, never supplied, subsequently lost, or of unknown availability. Do not infer an acquisition or completeness from its reference.
+
+A reported failed acquisition does not require a successful binary. It requires the available evidence supporting the reported attempt and outcome. Missing historical material must not silently become optional merely to pass acceptance.
+
+**Meaning of “reproduce”**
+
+I suggest replacing an unqualified reproduction guarantee with:
+
+> Preservation must allow inspection of historical results, their exact retained inputs, applicable rules and lineage. This does not by itself guarantee executable replay of historical software or identical rerun results.
+>
+> Any executable-reproduction guarantee must separately identify the retained implementation, configuration, runtime dependencies and known nondeterminism or external dependencies.
+
+Thus, preserving rule definitions and version identities is required; preserving every historical executable environment is not automatically required.
+
+**Remaining joint decisions for R2**
+
+1. **Retention duration:** How long must Virgilio and the scraper retain their respective material? Neither obligation should expire implicitly on acceptance or release of a new software version.
+2. **Custody establishment and transfer:** What confirms Virgilio’s preservation responsibility has begun, and what verification is required before any later custodian can replace it? This must not imply upstream deletion permission.
+3. **Later unavailability:** Who records and reports loss, attempts recovery, and identifies affected claims or inspection capabilities? Earlier acceptance remains historical fact; current availability must be represented separately.
+
+R1 remains ready for consideration, and R2 remains a proposed resolution. Neither is marked agreed or verified; R3–R5 remain separate. No files or runtime state were changed.

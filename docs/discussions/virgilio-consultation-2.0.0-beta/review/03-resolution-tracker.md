@@ -94,3 +94,64 @@ Next message to scraper should seek agreement on R1 and discuss the R2 custody c
 not claim either finding closed. Each project then amends its draft and returns an exact
 commit. Record those paired inputs and request bounded R1/R2 follow-up review. Preserve
 R3–R5 as separate planning decisions. No runtime changes are part of this process.
+
+## R2 refinement — required material and inspection
+
+The user supplied the [scraper custody response](04-scraper-custody-response.txt),
+attachment 4b0302ef-9b32-44fe-9eaf-8940a1a1491f/pasted-text.txt. The preserved copy
+was checked byte-for-byte by SHA-256. It supports Virgilio custody for the first
+integration and retains the independent upstream obligation. It remains a proposal.
+
+Required material is that needed to inspect accepted claims, establish provenance
+and understand derivations, not every incidental collection file:
+
+- Exact obtained binary bytes and source captures/responses supporting accepted
+  observations, interpretations or coverage, including available supporting failure artifacts.
+- Original scraper assertions and their event identities, occurrences, acquisition
+  attempts, request context, times, scope/coverage, gaps and exact revisions.
+- Interpretation results, exact inputs, parser/rule/configuration identities,
+  correction reasons and supersession lineage.
+- Delivered comparison results, exact baseline/target and interpretation/coverage
+  revisions, dimensions, reasons, compatibility basis and applicable rules.
+- Adapter inputs, mapped results, rule/configuration identities and correction lineage.
+- Retained identifiable rule definitions, not just labels pointing to mutable material.
+
+Missing required bytes/assertions, integrity failures, unresolved required dependencies
+or missing derivation basis block acceptance of the proposed unit. Already accepted
+dependencies can be reused. Incidental diagnostics and unnecessary duplicate copies
+can be optional. Legacy/reference-only limitations need explicit profile treatment;
+required evidence must not silently become optional to pass acceptance. A failed
+acquisition does not require a successful binary or an invented failure artifact.
+Preserve available support for the actual attempt and outcome and its known limits.
+
+The proposed guarantee is inspection of historical results, exact retained inputs,
+rules and lineage. Executable replay and identical rerun results require a separate
+explicit guarantee, including runtime, configuration and external/nondeterministic
+limitations. Preserving every historical runtime is not automatically required.
+
+## Proposed completion of remaining custody rules
+
+The following are Virgilio-side suggestions for joint/user agreement, not amendments
+or adopted policy:
+
+1. Retention: first increment has no automatic expiry of required accepted evidence.
+   Acceptance, successful transfer, software upgrade and comparison supersession do
+   not trigger deletion. Any future retention/disposal policy requires an explicit
+   separate decision. Do not promise permanent physical availability or set the
+   scraper's independent retention period unilaterally.
+2. Establishment: broker acceptance records Virgilio's custody commitment, after
+   required content is retained and identity/integrity/dependencies are validated.
+   Receipt/staging is not acceptance. Later transfer requires explicit receiving
+   custodian acknowledgement, verified required-content access/integrity and traceable
+   responsibility/resolution updates before the earlier commitment can be released.
+   Transfer does not authorize deletion; upstream custody remains independent.
+3. Unavailability: each custodian records detected failures affecting its material,
+   attempts recovery under an agreed operational policy, and reports impact to the
+   broker. The broker records affected evidence/dependencies and current availability,
+   including limitations on inspection. Historical acceptance remains intact;
+   unavailable content is not silently substituted or presented as retrievable.
+   Detection schedules, recovery objectives and notification mechanisms remain open.
+
+R1 and R2 remain proposed resolutions. Contract drafts are unchanged. R3–R5 remain
+separate implementation-readiness decisions; these proposals do not select their
+manifest schema, transaction boundaries, coverage policies or resolution encoding.
