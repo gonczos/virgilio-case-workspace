@@ -17,6 +17,8 @@ Status: review preparation only, 2026-09-12. No independent review performed.
 | Parser correction | New interpretation, not new source observation |
 | Coverage correction | Original declaration plus attributed revised assessment |
 | Omitted historical artifact | Supported supplement or unresolved attribution; discovery time is separate |
+| Adapter succeeds but broker rejects | No accepted evidence; final acceptance belongs to broker |
+| Mapping rules corrected | Exact upstream lineage, attributed mapping revision; no invented scraper correction/source event |
 | Incomplete delivery then retry | No partial accepted evidence or duplicated source events |
 | Same bytes repackaged or relocated | Operational change alone is not immutable evidence conflict |
 | Conflicting revisions | Explicit attributed resolution; no arrival-order winner |
@@ -52,3 +54,33 @@ Status: review preparation only, 2026-09-12. No independent review performed.
 Do not run imports, scrapes, migrations, expensive processing or deployment as part
 of planning. No runtime prerequisite or startup procedure changed in this checkpoint.
 The local API idea is a candidate delivery mechanism, not an agreed implementation.
+
+## Coordinated review inputs and alignment outcome
+
+The user supplied the scraper alignment response against Virgilio checkpoint
+`a175724e7e8fdbf08718837d08ab38071c701c4f`. It reported no substantive contradiction
+and requested explicit acceptance authority, mapping provenance and version-label
+clarification. Those clarifications are incorporated in Virgilio planning revision 2.
+This is alignment work, not independent review or contract acceptance.
+
+Pinned scraper input: `8f6b1b7e42406387d38040e6b652def5ae706153`, tag
+`scraper-0.2.6-baseline`, in `C:/repos/scraper/repository`:
+
+- `docs/20-roadmap/phase-04-evidence-contracts/citius-scraper-contract-proposal.md` — revision 3.
+- `docs/20-roadmap/phase-04-evidence-contracts/decisions-and-review.md` — revision 3.
+- `docs/20-roadmap/phase-04-evidence-contracts/implementation-grounding.md`.
+
+The tag-to-commit resolution, both revision headers and grounding-file existence
+were checked locally read-only. This does not independently verify every reported
+implementation finding. The scraper's preserved exchange draft is historical input;
+Virgilio's current checkpoint supplies the broker/VIEC split and mapping clarification.
+
+Use the Git commit containing this revision-2 brief as the updated Virgilio review
+input, rather than silently treating the earlier a175724 checkpoint as amended.
+Record that resolved full commit hash in the independent-review prompt. The upstream
+contract version remains unassigned; the pinned revision/commit provides exact identity.
+The scraper application tag is not a contract version or a 0.3.0 release commitment.
+
+Matching, completion criteria, acceptance granularity, supplement attribution,
+revision resolution and comparison details remain open review questions. No
+additional implementation decisions are required merely to select these inputs.

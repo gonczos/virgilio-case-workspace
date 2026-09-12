@@ -1,6 +1,6 @@
 # VIEC — Virgilio Evidence Ingestion Contract
 
-Status: 1.0.0-draft proposal, planning revision 1, 2026-09-12.
+Status: 1.0.0-draft proposal, planning revision 2, 2026-09-12.
 Not accepted, independently reviewed or implemented.
 
 ## Boundary
@@ -57,10 +57,21 @@ Do not invent completeness or collection events to fit a generic structure.
 
 ## Validation and consultation
 
-The adapter validates supported versions, identity consistency, required provenance,
-referential dependencies and integrity of included content. Faithful ingestion does
-not certify an external assertion as true. Consolidated views must retain lineage
-and must not silently replace the underlying evidence history.
+The adapter validates the provider exchange and its mapping to VIEC, including
+supported versions, upstream identity/provenance, dependencies and content integrity.
+The Virgilio Evidence Broker owns final VIEC acceptance and preservation enforcement.
+Adapter success alone never means accepted evidence. The broker must establish that
+the declared unit satisfies VIEC acceptance obligations before exposing it as accepted;
+how validation results are reused internally remains an implementation decision.
+
+Mapped evidence retains references to exact upstream input identities and revisions,
+the adapter identity, and mapping-rule/version identity. Delivered source/provider
+assertions remain distinguishable from adapter transformations and derivations.
+A corrected mapping creates an attributed mapping revision with its prior lineage;
+it is neither a scraper correction nor a new source observation or acquisition.
+
+Faithful ingestion does not certify an external assertion as true. Consolidated
+views retain lineage and must not silently replace the underlying evidence history.
 
 Exact minimum required fields, acceptance granularity, compatibility rules and
 representation of unresolved input remain review questions. This is a semantic

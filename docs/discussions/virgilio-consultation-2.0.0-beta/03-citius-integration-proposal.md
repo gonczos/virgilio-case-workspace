@@ -1,6 +1,6 @@
 # Citius integration — contract proposal
 
-Status: unaccepted planning revision 1, 2026-09-12. No implementation authority.
+Status: unaccepted planning revision 2, 2026-09-12. No implementation authority.
 
 ## Boundaries
 
@@ -8,7 +8,8 @@ Citius -> Scraper -> Virgilio's Citius Scraper Adapter -> Virgilio Evidence Brok
 -> Virgilio Consultation.
 
 - Citius–Scraper defines collection and interpretation of the external source.
-- Scraper–Virgilio defines the provider-specific exchange profile and mapping to VIEC.
+- Scraper–Virgilio defines the provider-specific delivered exchange profile.
+- The adapter maps that exchange to VIEC as a separately attributed transformation.
 - VIEC defines provider-independent acceptance and preservation obligations.
 - The Evidence Broker is the proposed Virgilio component enforcing those obligations.
 
@@ -84,3 +85,18 @@ Matching rules; completion criteria; collection-window/resume conditions; baseli
 selection across unequal coverage; summary aggregation; version compatibility;
 minimum supplement-attribution evidence; delivery acceptance granularity; revision
 branch resolution; required/optional comparison fields and status vocabulary.
+
+## Alignment clarification: adapter mapping and acceptance
+
+The adapter validates the scraper exchange and its mapping. The Evidence Broker
+owns final VIEC acceptance; successful adapter processing alone is not acceptance.
+Preserve the scraper-delivered assertions with exact upstream input/revision references.
+Mapped outputs identify their adapter and mapping rules/version and remain traceable
+to those inputs. In particular, mapping must preserve scoped coverage, unresolved
+attribution and inferred reuse without strengthening their evidentiary status.
+
+Mapping corrections retain earlier mappings and their lineage. They must not be
+labelled as scraper-issued corrections or as new court observations/acquisitions.
+The upstream contract has no assigned version; use revision 3 and the pinned scraper
+commit in the review brief. The earlier 1.0.0-draft entry was a local suggestion,
+not a joint upstream version assignment.

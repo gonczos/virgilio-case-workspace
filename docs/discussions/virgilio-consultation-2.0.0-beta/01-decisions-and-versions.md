@@ -36,7 +36,7 @@ Status: planning register, 2026-09-12. No implementation changes.
 | --- | --- | --- |
 | Virgilio Consultation | 2.0.0 beta | User-agreed planning milestone; no runtime bump |
 | VIEC | 1.0.0-draft | Proposed initial contract label |
-| Citius–Scraper collection contract | 1.0.0-draft | Proposed initial contract label |
+| Citius–Scraper collection contract | Unassigned | Upstream revision 3 and exact Git commit identify review input |
 | Scraper–Virgilio exchange profile | 1.0.0-draft | Proposed provider mapping; boundary still under review |
 | Citius Scraper Adapter implementation | Unassigned | Independent version to be chosen before development |
 | Scraper application | 0.3.0 | Proposed milestone in supplied upstream draft, not a release verified here |
