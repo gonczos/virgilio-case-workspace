@@ -129,3 +129,37 @@ offline investigation. Fresh access remains a separate user decision; priorities
 remain proposals and R3–R5 stay open. No development, live access, new collection or
 runtime modification occurred. Virgilio validation covers documentation links and
 working/staged whitespace/diff review; scraper's bounded findings remain attributed.
+
+## Bounded live inspection authorized
+
+After the offline checkpoint, the user explicitly answered yes to inspecting case
+13608/14.8T2SNT's participant expansion and one act's response in Citius. The request
+was dispatched directly to the scraper task with inputs scraper 127463a and Virgilio
+0557ac3. This supersedes the pending-access decision above for this specific scope.
+
+Authorize ordinary supported authenticated navigation and the minimal source requests
+needed for the named participant expansion and one readily available act. Record the
+act selection and actual response scope: if normal page loading returns a multi-act
+response, inspect the selected act and disclose the wider response rather than claiming
+a one-act request. No broad scrape, speculative endpoints, document downloads,
+executive-account inspection, DB import or runtime implementation is authorized.
+
+Compare actual participant fields/labels with case-row slots, and actual act response
+fields with rendered dates, descriptions and document membership. Record observation
+context/time, source artifacts and limitations under existing storage policy. Keep
+credentials/session values and personal participant contents out of Git/reports.
+If supported authentication is unavailable, report the precise user action needed.
+The scraper records its planning findings; Virgilio reviews their consultation value.
+
+## Live access status: authentication in progress
+
+The scraper's supported session check reported expired/login-required and stopped
+before participant or act inspection. The user then directly asked the scraper task
+to authenticate and keep the investigation browser visible. The scraper opened its
+supported authentication browser and awaits operator sign-in; it reports that the
+login launcher saves/verifies the session and allows 15 minutes. No credentials are
+requested in chat. This status is a coordination snapshot, not a completed inspection.
+
+Resume the same authorized limited scope after authentication; no repeat authorization
+is needed. The scraper has uncommitted planning status updates at this point, so no new
+scraper result checkpoint is claimed. No substantive live source findings are available.
