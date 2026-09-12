@@ -172,3 +172,11 @@ the new findings before fixing delivery requirements. The handoff assessment rec
 a revised candidate scope, separating collection, preservation, interpretation and
 consultation exposure; it also identifies future binary-refresh policy as an explicit
 R4 decision. No further capture or implementation is started by this planning step.
+
+## Revised collection matrix coordinated
+
+The [revised scope matrix](11-revised-collection-scope.md) separates observation/acquisition,
+original preservation, structured interpretation and proposed consultation exposure.
+It includes site download locators as distinct from acquisition events and saved bytes.
+User decisions remain original-response scope, binary assurance/context coverage and
+participant interpretation/exposure. Scope precedes detailed R3 work; no live actions.

@@ -15,7 +15,7 @@ comes before detailed R3 delivery/acceptance planning. The
 the inventory is received and [consultation implications](06-consultation-implications.md)
 are recorded as proposals. The user has specified
 [connected consultation views and ingestion management](07-consultation-and-ingestion-management.md).
-The [future collection investigation](09-future-collection-scope.md) led to a separately authorized scraper extension and completed validation. The [scraper handoff assessment](10-scraper-extension-handoff.md) records current results and proposed consumer/delivery decisions. The user now asks to reevaluate collection scope using those findings before fixing R3 delivery requirements. Virgilio runtime work remains unauthorized; participant exposure and first delivery acceptance remain open.
+The [future collection investigation](09-future-collection-scope.md) led to a separately authorized scraper extension and completed validation. The [scraper handoff assessment](10-scraper-extension-handoff.md) records current results and proposed consumer/delivery decisions. The [revised collection-scope matrix](11-revised-collection-scope.md) coordinates that reevaluation before fixing R3 delivery requirements. Virgilio runtime work remains unauthorized; participant exposure and first delivery acceptance remain open.
 
 ## Start here
 
