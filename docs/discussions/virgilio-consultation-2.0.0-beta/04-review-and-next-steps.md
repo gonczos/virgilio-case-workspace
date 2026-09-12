@@ -1,6 +1,6 @@
 # Joint review and next steps
 
-Status: review preparation only, 2026-09-12. No independent review performed.
+Status: independent joint review completed 2026-09-12; findings open, contracts unaccepted.
 
 ## Review scenarios
 
@@ -84,3 +84,12 @@ The scraper application tag is not a contract version or a 0.3.0 release commitm
 Matching, completion criteria, acceptance granularity, supplement attribution,
 revision resolution and comparison details remain open review questions. No
 additional implementation decisions are required merely to select these inputs.
+
+## Independent review result
+
+The [review request](review/01-request.md) pins both inputs explicitly.
+The [findings](review/02-findings.md) report no substantive cross-project contradiction,
+with R1–R2 recommended for resolution before contract acceptance and R3–R5 retained
+as implementation-readiness decisions. The review did not alter the contracts or
+approve development. Next: discuss R1–R2 jointly and return proposed clauses for a
+bounded follow-up review; keep owner-assigned R3–R5 visible in implementation planning.

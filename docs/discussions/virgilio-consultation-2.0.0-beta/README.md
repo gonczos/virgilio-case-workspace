@@ -13,6 +13,7 @@ Use Virgilio rather than VC in new discussion and documentation.
 - [VIEC: provider-independent contract proposal](02-viec-proposal.md)
 - [Citius scraper integration and upstream contract](03-citius-integration-proposal.md)
 - [Joint review scenarios and open decisions](04-review-and-next-steps.md)
+- [Independent joint review findings](review/02-findings.md)
 - [Supplied source reports and drafts](sources/README.md)
 
 ## Purpose
@@ -26,7 +27,8 @@ The scope of the rest of 2.0.0 beta has not yet been established.
 ## Status and authority
 
 Agreed planning principles are distinguished from unaccepted contract rules.
-Neither contract is accepted or independently reviewed. No implementation,
+Neither contract is accepted. An independent joint review of the pinned drafts is recorded
+under review/; its findings remain open and do not authorize implementation. No implementation,
 API transport, schema, migration, scrape or import is authorized by these files.
 Current architecture remains under ../../architecture/ and setup remains in
 ../../SETUP.md. These proposals must not silently override either.
