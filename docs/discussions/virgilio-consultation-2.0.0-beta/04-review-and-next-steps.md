@@ -218,3 +218,11 @@ Scraper implementation received at 537bdfa34626e9755cda50bab8a1cb2df5de9cde:
 The development record distinguishes committed implementation from pending live validation
 and prior sample captures. Sign-in and the already authorized bounded check precede final
 response assessment/delivery design. Virgilio remains documentation-only.
+
+## Existing-response usefulness analysis precedes fresh validation
+
+The user asked to analyse the saved responses first. The [direct analysis](13-retained-response-usefulness.md)
+examines six case entries, fifteen acts/39 nested document appearances and 21 participant
+entries with recomputed source hashes. These earlier originals can inform field choices
+without renewed authentication; the preservation module's live check remains a separate
+validation need. No new collection or implementation was performed.
