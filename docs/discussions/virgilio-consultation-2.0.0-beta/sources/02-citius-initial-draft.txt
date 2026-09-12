@@ -1,0 +1,119 @@
+**Citius–Scraper contract proposal — draft for review**
+
+Architecture: Citius → Scraper → VC’s Scraper Adapter → Virgilio Consultation.
+
+This contract defines how the scraper collects and interprets source evidence. It is our collection policy, not a guarantee made by Citius. Delivery to VC remains a separate contract.
+
+**Agreed principles**
+
+- Preserve what Citius reported, the bytes obtained, and the observed connections between them, with their collection context.
+- Later observations add evidence. They do not silently replace earlier observations.
+- A document listing and an acquisition through that case are separate observations. Shared bytes do not establish independent acquisitions.
+- Source-reported relationships, scraper inferences and consultation grouping are distinct.
+- Correcting our collection or interpretation defect is explicit and traceable.
+- Unknown coverage or history remains unknown. Package differences alone do not establish court-level changes.
+
+**Proposed rules**
+
+1. **Snapshots and coverage.** Each snapshot has an immutable identity and a collection-contract version. It records intended scope, actual coverage, collection start/end and available observation times, failures, gaps and supporting artifacts. A snapshot covers a collection interval; it does not imply an instantaneous view of Citius.
+
+   “Full” means successfully complete within its declared scope and completion criteria. Listing coverage and acquisition coverage are separate: complete listings can coexist with failed acquisitions. A partial snapshot may contain successfully completed subscopes.
+
+2. **Distinct identities and meanings.**
+
+   | Concept | Proposed meaning |
+   |---|---|
+   | Case | A source case reference, preserving its visible number and observed system/context identifiers. Matching across snapshots follows explicit rules. |
+   | Bucket | A source-listed container within a case. Its identity is scoped to that context unless stronger evidence establishes otherwise. |
+   | Document listing/occurrence | An observed appearance within a case and bucket, retaining snapshot, row context and multiplicity. Row position alone is not durable identity. |
+   | Description variant | A particular set of reported document attributes. Equal descriptions may be shared without proving one permanent court-document identity. |
+   | Retrieval token | An opaque source value used with its observed retrieval context. It is not a binary identity. |
+   | Binary | Immutable bytes identified by a cryptographic digest and byte length. Storage copies and locations are separate. |
+   | Acquisition | An individual retrieval attempt: context, time, outcome and any returned binary or failure response. |
+
+   In the inspected collector, **`data-proc` supplies the bucket identifier; `data-procinfo` supplies the document retrieval token**. Preserve both without assuming stability or uniqueness beyond established evidence. Existing canonical keys identify current canonical variants, not permanent court entities.
+
+3. **Relationships.** Record each relationship with its origin and supporting observation. Listing membership is source evidence; matching tokens across cases does not itself establish a procedural relationship. Scraper inferences must identify their basis and remain distinguishable from source assertions.
+
+4. **Comparisons.** Identify the baseline snapshot explicitly and evaluate only compatible, comparable scopes. Every classification records its level, baseline, supporting observations and reason:
+
+   - **New:** observed now, with no match in sufficiently covered baseline scope.
+   - **Unchanged:** matched and equal on the assessed attributes or relationships.
+   - **Altered:** matched, with a difference in assessed attributes, membership or acquisition association.
+   - **Absent:** not observed in a successfully completed scope expected to include it.
+   - **Not assessed:** insufficient coverage, failure, incompatibility or unresolved matching prevents a supported comparison.
+
+   An item first encountered without an adequate baseline is “first observed”; that alone does not justify calling it new relative to Citius.
+
+   Bucket metadata and membership are assessed separately. A bucket can have unchanged metadata but altered membership. A child change does not automatically imply changed parent metadata.
+
+5. **Compatibility.** Cross-version comparisons require explicit compatibility rules for identity matching, field interpretation and coverage. Incompatible dimensions remain not assessed. Any comparison-time transformation must be traceable and leave original evidence intact.
+
+6. **Collection, replay and correction.** A fresh collection creates new observations even when values are identical. Unchanged import replay does not create another source observation or acquisition. A corrected parser creates a traceable revised interpretation of the same artifact, retaining the earlier interpretation, correction reason and affected results.
+
+   Preserve source artifacts, obtained binaries, observation context and interpretation lineage. A correction may supersede an interpretation for current use without erasing it. Legacy evidence retains its known provenance and explicit unknowns; it must not receive invented snapshot completeness, absences or acquisitions.
+
+**Concrete examples**
+
+| Example | Evidence preserved | Supported classification and scope | Cannot conclude |
+|---|---|---|---|
+| **1. Identical information collected again** | Both collections and their times/context; both acquisition attempts if retrieval was repeated. Identical bytes may share storage. | Unchanged for the comparable information actually assessed. | Nothing changed between collections, or uncollected information was unchanged. |
+| **2. Metadata changes for an apparently matching item** | Earlier and later attributes plus the evidence and rule supporting the match. | Altered metadata within that occurrence/item’s scope **if matching is justified**; otherwise correspondence remains unresolved. | A token or canonical-key match proves permanent court identity, or which version is true. |
+| **3. Bucket gains a document whose information is unchanged** | Both membership observations and the document description. | Bucket membership altered; document description unchanged where comparably observed. | The document itself is new, or the bucket’s metadata changed. |
+| **4. Earlier item missing from a completed listing** | Baseline presence, later completed listing and its coverage evidence. | Absent from that listing scope. | Citius deleted it, it ceased to exist, or it is absent elsewhere. |
+| **5. Earlier item missing from partial/failed collection** | Earlier presence, collected results, failures and gaps. | Not assessed where coverage is insufficient. A separately completed subscope may support absence. | Failure to observe proves absence. |
+| **6. A returns Y instead of X; B was not scraped** | A’s earlier X and new Y acquisitions, their contexts, and B’s earlier evidence. | Altered acquired-binary association in A, where token/context matching is justified. B is not assessed. | B returned Y, B changed, X became invalid, or the token universally switched to Y. |
+| **7. One representative retrieved for several cases’ listings** | Each actual listing observation; the single representative acquisition and returned bytes. | Binary obtained through the representative context. Reuse elsewhere is a derived association, explicitly labelled. | Every referencing case returned those bytes, or would return them now. |
+| **8. Same artifact imported again** | Artifact identity and import provenance. For a corrected parser, both interpretations and correction lineage. | Unchanged replay adds no source change. Parser correction changes our interpretation and may revise derived comparisons explicitly. | Citius changed, another collection occurred, or another acquisition happened. |
+| **9. Cases grouped for consultation** | Grouping decision, origin and purpose; any separate source relationship evidence. | Consultation grouping may change independently of source evidence. | Grouping establishes a court-observed parent relationship. |
+
+**Open decisions**
+
+- What evidence establishes cross-snapshot matching at each level, and how are ambiguous matches represented?
+- What completion criteria apply to each listing and acquisition scope, including resumed collections?
+- How is the baseline chosen when coverage differs? If several baselines are allowed, how is each comparison’s basis exposed?
+- Which fields are compared, and which normalization rules preserve meaningful source differences?
+- How do corrections supersede interpretations and revise earlier comparison results without concealing their history?
+
+**Current implementation gaps**
+
+The inspected implementation retains useful run artifacts and observations, but does not yet meet this proposal:
+
+- Collection provenance is marked `legacy-unversioned`; coverage is not a unified snapshot contract.
+- Reimport can delete and recreate a run-file’s observations without interpretation history.
+- Canonical refresh combines selected bucket metadata with accumulated membership.
+- Global document/binary links lose the acquisition’s case scope in exports.
+- Representative downloading leaves other cases’ binary responses unverified.
+- Canonical IDs and package-local keys do not provide permanent source identities.
+- Portable packages omit much of the evidence context needed for these comparisons.
+
+These are implementation limitations, not proof that particular historical evidence has been irretrievably lost.
+
+**Minimum information Scraper–VC will need to carry**
+
+- Snapshot identity, collection-contract version, declared scope, actual coverage, times, failures and gaps.
+- Evidence identities and source identifiers with their scope and matching semantics.
+- Listing occurrences, description variants, relationship origins and supporting provenance.
+- Acquisition attempts, their actual retrieval contexts, outcomes and binary identities.
+- Explicit distinction between observed acquisition links and inferred reuse.
+- Baseline identities, compatibility basis, classifications and reasons, if comparisons are delivered.
+- Artifact references, correction/supersession lineage and legacy unknowns.
+- Enough replay identity to avoid duplicating source observations.
+
+**Questions for VC**
+
+- Can VC preserve listing occurrences and acquisitions separately while offering a consolidated consultation view?
+- How should users see absence, not-assessed status, conflicting observations and inferred binary reuse?
+- Which comparison responsibilities belong to the scraper, adapter and VC?
+- How should corrected interpretations affect current views while keeping earlier interpretations inspectable?
+- How will consultation grouping remain separate from procedural relationships?
+
+**What the independent reviewer should challenge**
+
+- Whether matching rules overstate source-token stability or canonical identity.
+- Whether completion criteria genuinely justify absence, especially after partial work or resume.
+- Whether any shared-document or binary reuse rule invents an acquisition in another case.
+- Whether metadata, membership and acquisition changes remain correctly scoped.
+- Whether replay and correction rules preserve history without creating fictitious source events.
+- Whether cross-version comparisons and legacy handling introduce unsupported certainty.
+- Whether the proposed downstream information is sufficient to preserve these distinctions through VC’s adapter.

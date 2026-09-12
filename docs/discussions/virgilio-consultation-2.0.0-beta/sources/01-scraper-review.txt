@@ -1,0 +1,78 @@
+The main gap is between retained observations and the consolidated corpus exposed to VC. The scraper already preserves substantial evidence, but its canonical tables and portable export do not represent a coherent historical snapshot.
+I inspected the local project rules, architecture, collectors, ingestion SQL, canonical refresh and portable exporter. Everything remained read-only; I ran no scrapes, imports or database operations. VC’s importer behavior below is reported by the retained handoff, not independently verified against VC’s current implementation.
+1. What is preserved today
+There are three materially different layers:
+Layer	Verified behavior
+Collection artifacts	Run manifests, JSONL checkpoints, HTML captures, retrieval results, downloaded responses, hashes and failure information. Recent tooling also records scope, build provenance and recovery attempts.
+Observation tables	Case, bucket, document, file and validation observations retain run references and source-row JSON. Separate runs can coexist.
+Canonical tables and portable packages	Consolidate observations into case, bucket, document-variant and binary records. They discard much of the observation-level context.
+
+
+The observation tables are not an append-only ledger. Reimporting the same (run_id, source_file_name) deletes that run-file’s observation records and reinserts them. It does not retain the previous imported interpretation as a traceable correction. Reference case/court tables also use updating merges. [Ingestion implementation (line 253)](C:/repos/scraper/repository/scripts/node/tribunais-ingest-sqlserver.mjs:253)
+Recent collection work does preserve separate retry evidence: the September run’s five failed requests and subsequent successful retry were retained separately. That is useful groundwork, but not yet a general snapshot contract. [Recorded collection outcome (line 3)](C:/repos/scraper/repository/docs/30-deliveries/phase-02-container-scraper/full-live-2026-09-10.md:3)
+2. Identity—and the important data-proc distinction
+In the inspected collector, data-proc is a bucket attribute; data-procinfo is the document retrieval token. They should not share one contract term.
+Level	Current identity or interpretation
+Collection provenance	SQL identifies a run-file by (run_id, source_file_name), with local numeric IDs for its observations. One collection can therefore occupy several SQL run records.
+Case	Raw reference tables constrain processo and idprocesso separately. Canonical case identity uses source system + processo.
+Bucket	Canonical identity is case + source system + bucket_id, extracted from data-proc. Row position is observational.
+Document token	document_procinfo comes from data-procinfo and is passed as infotecnica during retrieval, alongside case/client/court/unit/content-type context.
+Canonical document	Source system + procinfo + name + date + type + claimed size. This identifies a description variant, shared across cases and buckets.
+Bucket membership	Bucket + canonical document variant; repeated rows are consolidated with a duplication count.
+Binary	SHA-256 of obtained bytes.
+Portable document key	doc-<local SQL document ID>; it is not stable across rebuilds.
+
+
+The source documentation treats procinfo stability as empirical, not a formal Citius guarantee. Repeated appearances across buckets are known; the inspected implementation does not establish universal uniqueness or prove that the token always returns the same bytes. Its internal components should remain opaque until their meaning is established. [Collector attributes (line 200)](C:/repos/scraper/repository/scripts/node/tribunais-playwright-multicase-audit.mjs:200)
+The implemented stable alternate keys solve insertion-order differences for the existing canonical identities. They do not establish immutable observation identities or a permanent court-document identity. In particular, changing a document’s name/date/type/size changes its variant key. Existing portable keys remain unchanged by that additive facility. [Identity contract (line 1)](C:/repos/scraper/repository/docs/50-decisions/ADR-004-stable-canonical-alternate-keys.md:1)
+3. What repeated collection changes
+Canonical refresh deletes and rebuilds the canonical tables from retained inputs. Its consolidation rules matter more than the deletion itself:
+- Buckets: select one metadata record per case/bucket, ordered by descending SQL run ID and observation ID—not necessarily source collection time.
+- Documents: preserve distinct description tuples, but select one representative for attributes outside that tuple.
+- Membership: accumulate bucket/document pairs across runs. Earlier membership remains even when a later listing omits it.
+- Binaries: preserve distinct successful hashes, while selecting representative storage/metadata and latest validation results per hash.
+- Document/binary links: preserve multiple variants, but consolidate the links globally by document variant. The primary binary is selected by observation count, then local binary ID—not by latest observation.
+Consequently, a bucket can expose its latest recorded document_count alongside membership accumulated over several runs. That is neither one source snapshot nor a complete relationship history. [Canonical refresh (line 10)](C:/repos/scraper/repository/scripts/sql/tribunais-canonical-refresh.sql:10)
+Case relationships have a separate provenance problem: refresh explicitly assigns A/C/D/E to the base case using hard-coded rules. Those are application assignments, not court-observed relationship records. The current exporter preserves registered links and leaves E.L1 unassigned, with a provenance caveat. [Relationship assignment (line 113)](C:/repos/scraper/repository/scripts/sql/tribunais-canonical-refresh.sql:113), [export policy (line 1)](C:/repos/scraper/repository/scripts/pipeline/portable-parent-policy.mjs:1)
+4. Can collecting A change what appears under unobserved B?
+Yes, in the canonical/exported representation.
+Suppose A and B refer to the same canonical document variant:
+1. An acquisition in A obtains Y.
+2. The raw file observation retains A’s context.
+3. Refresh creates a global document-variant → Y link.
+4. Exporting B follows B → bucket → shared document variant → binaries, and therefore includes Y.
+Earlier X may remain, so this is not necessarily replacement. But the exported association no longer says that Y was obtained only through A. Global counts, primary selection and representative metadata can also change.
+This depends on sharing the whole canonical variant, not merely procinfo. [Binary-link consolidation (line 389)](C:/repos/scraper/repository/scripts/sql/tribunais-canonical-refresh.sql:389), [export query (line 415)](C:/repos/scraper/repository/scripts/node/tribunais-build-portable-case-package.mjs:415)
+There is an upstream limitation too: the unique-document downloader deduplicates that description tuple across cases and retrieves one representative. It therefore does not independently observe the returned binary in every referencing case. [Target selection (line 303)](C:/repos/scraper/repository/scripts/node/tribunais-direct-post-download-unique-docs.mjs:303)
+5. What history can be reconstructed—and what cannot
+Partially reconstructable: retained run artifacts and observation rows can support comparisons of metadata, membership, retrieval outcomes and binary hashes. Recent collectors distinguish completed, bounded and stopped work, and pagination rejects incomplete loading. Those are meaningful coverage signals.
+Not currently a contracted snapshot: build provenance explicitly labels the collection contract legacy-unversioned. SQL and portable payloads do not provide a unified contract-versioned snapshot with declared coverage, baseline identity and the five agreed classifications. Export time and package identity describe delivery, not when every source item was observed. [Build provenance (line 49)](C:/repos/scraper/repository/scripts/container/runtime.mjs:49), [package manifest (line 707)](C:/repos/scraper/repository/scripts/node/tribunais-build-portable-case-package.mjs:707)
+The reconstruction limits are:
+- From canonical tables/packages alone, prior selected metadata, observation chronology and case-scoped binary association history cannot reliably be recovered.
+- Historical membership unions cannot establish when an item became absent.
+- If a run-file was reimported with changed contents, its previous SQL interpretation survives only if another retained artifact or backup contains it.
+- A binary response never requested in B cannot be reconstructed from a request made in A.
+- Missing scope/completeness evidence cannot safely be manufactured retrospectively.
+- Collection cannot establish what happened between observations.
+I did not establish that particular original evidence has been irretrievably destroyed. The code establishes destructive consolidation/reimport behavior; proving actual loss requires comparing retained artifacts and backups. Indeed, existing reconciliation reports show that the inspected August canonical content was recoverable, despite changed local IDs. That is evidence against assuming wholesale historical loss. [Historical reconciliation (line 23)](C:/repos/scraper/repository/docs/30-deliveries/phase-03-legacy-pipeline/gap-closure.md:23)
+The supplied September comparison—63 added document identities, four hashes and retained earlier identities—remains a package comparison. It does not establish court-level additions or a complete source delta.
+6. Proposed responsibility boundary
+These are proposed allocations, not an agreed schema:
+Concern	Responsible boundary
+Interpret source fields, token scope and retrieval context	Citius–Scraper
+Define collection scope, successful coverage, gaps, times and full/partial meaning	Citius–Scraper
+Preserve source observations and context-specific binary associations	Citius–Scraper
+Define baseline comparisons, membership changes, absence and cross-version compatibility	Citius–Scraper, with semantics exposed downstream
+Publish stable evidence identities and enough provenance to interpret them independently of SQL	Scraper–VC
+Specify replay, duplicates, corrections, compatibility and delivery completeness	Scraper–VC
+Import evidence without silently replacing earlier evidence	VC adapter, under Scraper–VC obligations
+Consultation grouping, preferred views and user annotations	VC, kept distinct from court evidence
+
+
+A useful boundary rule is: VC may derive its consultation view, but should not have to reconstruct collection semantics from a consolidated export.
+7. Smallest planning sequence with VC
+1. Agree a short semantic contract using concrete examples. Cover metadata changes, membership-only changes, partial collection, qualified absence, A-only X→Y acquisition, replay, explicit defect correction and workspace grouping.
+2. Settle identity and preservation responsibilities. Distinguish source tokens, document variants, occurrences, binaries, observations and snapshots. Decide how legacy packages are labelled when their history or coverage is unknown.
+3. Define the minimum Scraper–VC exchange and adapter acceptance rules. Include provenance, compatibility, replay and preservation behavior. Resolve binary metadata ownership and E.L1 grouping here.
+4. Only then choose delivery and implementation. Evaluate API versus packages, schema changes, historical backfill and migration against the agreed examples.
+The next joint decision should be the evidence semantics and preservation obligations. HTTP, schema and migration choices can follow without being assumed now.

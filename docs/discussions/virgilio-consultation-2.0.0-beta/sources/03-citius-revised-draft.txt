@@ -1,0 +1,139 @@
+**Citius–Scraper contract proposal — revised draft**
+
+Status: proposal for scraper 0.3.0 planning. Neither contract is accepted or independently reviewed. Current implemented capabilities remain separate from these proposed guarantees.
+
+Architecture: Citius → Scraper → VC’s Scraper Adapter → Virgilio Consultation.
+
+**Agreed principles**
+
+- Preserve source observations, obtained binaries and their observed connections. Later differences add evidence.
+- Listing a document in a case and obtaining a binary through that case are separate observations.
+- Source assertions, scraper inferences and VC consultation grouping remain distinguishable.
+- Correcting our interpretation is a traceable operation, not a new court observation.
+- Unknown history, insufficient coverage and unresolved matching must remain explicit. Package differences do not prove court-level changes.
+
+**New proposals**
+
+1. **Snapshots describe bounded collection activity.**
+
+   Each snapshot identifies its collection-contract version, intended scope, actual coverage, observation times, attempts, failures and gaps.
+
+   “Full” means complete within declared scope and completion criteria. Listing and acquisition coverage are assessed separately. A partial snapshot may contain completed subscopes.
+
+   A snapshot describes observations collected over an interval—not a simultaneous source state.
+
+2. **Evidence identities retain their meaning and scope.**
+
+   Preserve distinct records for:
+
+   - Cases and buckets, with observed source identifiers and context.
+   - Document listing occurrences, including case, bucket and multiplicity.
+   - Description variants: reported attributes, not permanent court-document identities.
+   - Opaque retrieval tokens and their request context.
+   - Binaries: immutable bytes identified by digest and byte length.
+   - Acquisitions: individual retrieval attempts, times, contexts and outcomes.
+
+   In the inspected collector, `data-proc` supplies the bucket identifier; `data-procinfo` supplies the document retrieval token. Neither receives stronger stability or uniqueness guarantees than the evidence supports. Existing canonical keys are not permanent court identities.
+
+3. **Comparisons are versioned derivations.**
+
+   The scraper produces source comparisons because it understands collection coverage and matching. Each comparison identifies:
+
+   - Baseline and target snapshots.
+   - The observations and interpretation revisions compared.
+   - Collection-contract versions and compatibility basis.
+   - Comparison-rule version, including matching and normalization rules.
+   - Assessed dimensions, results, reasons and supporting evidence.
+
+   A parser correction can produce a revised comparison without another source observation. Preserve the previous interpretation and comparison, correction reason and supersession lineage. A corrected interpretation may become VC’s default view without erasing earlier versions.
+
+   Cross-contract-version comparisons require explicit compatibility rules. Incompatible dimensions remain unassessed.
+
+4. **Every classification has an assessment boundary.**
+
+   Classify individual dimensions—such as metadata, listing membership and acquired-binary associations—rather than treating an item as wholly assessed.
+
+   | Classification | Proposed meaning |
+   |---|---|
+   | **New** | Observed in the target, with no match in sufficiently covered, compatible baseline scope. This means new relative to that baseline, not newly created by the court. |
+   | **Unchanged** | Matched and equal on explicitly assessed dimensions. |
+   | **Altered** | Matched, with a supported difference on an assessed dimension. |
+   | **Absent** | Previously observed, but not observed within successfully completed target scope expected to include it. |
+   | **Not assessed** | A supported comparison could not be made; the reason is mandatory. |
+
+   Unchanged document metadata says nothing about binary content when no retrieval occurred. Binary content must then be marked not assessed, with reason `retrieval_not_performed`.
+
+   Bucket metadata and membership receive separate results. A bucket gaining a document can have altered membership while that document’s metadata remains unchanged.
+
+   A case/bucket summary must retain the dimension results and assessment completeness:
+
+   - **Altered** if an assessed dimension changed, stating whether this concerns own metadata, membership or contained evidence.
+   - **Unchanged within assessed scope** if compared dimensions are equal, with unassessed dimensions disclosed.
+   - **Not assessed** if no supported comparison is possible.
+
+   New and absent apply where entity-level evidence supports them. A child’s change does not establish changed parent metadata or changes in unobserved children.
+
+5. **First observation and unresolved matching are separate reasons, not failures.**
+
+   Record these alongside the comparison classification:
+
+   - **First observed in retained evidence:** no earlier supported observation is known. With insufficient baseline coverage, classify the comparison as not assessed—reason `baseline_insufficient` or `no_baseline`.
+   - **Unresolved matching:** observations exist, but correspondence is ambiguous. Preserve candidates and matching evidence; classify affected comparisons as not assessed—reason `matching_unresolved`.
+   - **Collection failure:** collection could not establish the relevant evidence—reason `collection_failed`.
+   - Other reasons include outside scope, retrieval not performed and incompatible contract versions.
+
+   An unresolved match must not automatically generate a “new” item and an “absent” predecessor. Successful collection can still yield an unassessable comparison.
+
+6. **Resumption preserves attempts and finalization.**
+
+   Proposed rule: a retry continues an **open snapshot** only when it addresses unfinished or failed work within the same declared scope, collection-contract version and predeclared collection window. Its source context must remain compatible.
+
+   Start another snapshot when the earlier snapshot is finalized, the window expires, scope or contract changes, or the work intentionally re-observes successfully completed scope.
+
+   Preserve every attempt’s time, context and outcome. Earlier failures remain even when a later attempt succeeds. Combined coverage may establish completion over the collection interval; it must not imply simultaneity or prove that all observed values coexisted.
+
+   Finalization freezes the snapshot’s evidence membership and coverage assessment. Previously delivered provisional states remain identifiable and inspectable. Finalization adds an explicit final state; it does not silently replace a delivered state. Later acquisitions belong to another linked snapshot; later interpretation corrections retain the original snapshot and create explicit revisions.
+
+7. **Representative acquisition is valid when honestly scoped.**
+
+   Retrieving one representative for listings across several cases is a legitimate strategy. Preserve all actual listing observations and the representative acquisition. Any use of its binary for other occurrences is an explicitly inferred reuse association.
+
+   If A now returns Y instead of X, preserve both acquisitions and binaries. Classify A’s association as altered where matching supports it. B, which was not retrieved, has no newly observed acquisition and must not be classified as changed merely because it shares a variant.
+
+8. **Preservation, replay and legacy evidence.**
+
+   Fresh collection creates fresh observations, even when unchanged. Reimporting identical artifacts creates no new source observations or acquisitions.
+
+   Retain artifacts, interpretations, acquisitions, comparison results and correction lineage. Legacy evidence carries its known provenance and unknowns; do not invent coverage, absence or acquisitions.
+
+   Consultation grouping belongs to VC. It does not establish a court-observed parent relationship.
+
+**Current implementation gaps**
+
+The inspected implementation does not yet provide these guarantees: run-file reimport can replace observations, canonical refresh combines selected metadata with accumulated membership, and exported global binary links omit acquisition scope. Versioned comparison lineage and unified snapshot finalization are also not established.
+
+Representative downloading itself is **not** a defect. Presenting its result as independently acquired through every referencing case is the defect.
+
+**Remaining joint decisions**
+
+- Matching criteria, ambiguity handling and comparison-rule governance.
+- Required assessment dimensions and precise case/bucket summary rules.
+- Collection-window limits and source-context conditions permitting resumption.
+- Whether provisional snapshots are delivered and what finalization guarantees the adapter requires.
+- Baseline selection across unequal coverage.
+- How supersession identifies the current interpretation/comparison while preserving earlier results.
+
+**Resulting Scraper–VC obligations**
+
+The exchange contract should require:
+
+- Snapshot identity, contract version, lifecycle state, collection interval and per-attempt scope, times and outcomes.
+- Separate listing, description, acquisition and binary evidence, with scoped identities and relationship origins.
+- Explicitly labelled inferred binary reuse.
+- Versioned comparisons containing baseline, target, interpretation references, rule version, compatibility basis, assessed dimensions and reasons.
+- Distinct reasons for insufficient baseline, unresolved matching, collection failure and retrieval not performed.
+- Replay identity and explicit finalization, revision and supersession lineage.
+- Preservation of earlier delivered evidence and derivations.
+- Adapter validation and faithful preservation of scraper comparisons. Additional VC comparisons must be attributed to VC and retain their own basis.
+
+These are proposed obligations for the VC exchange draft. Both concrete drafts should undergo independent review before implementation.

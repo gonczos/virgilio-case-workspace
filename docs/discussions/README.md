@@ -27,6 +27,9 @@ Always read the status and decision boundary inside the document itself.
 
 ## Current open directions
 
+* [Virgilio Consultation 2.0.0 beta — Planning](virgilio-consultation-2.0.0-beta/README.md)
+  — evidence ingestion, independent module/contract versions, provider adapters and joint review.
+
 * [Reference investigation and human review](2026-09-03-reference-investigation-and-review-direction.md)
   — deterministic observations, AI proposals, and human decisions.
 * [Relational evidence graph](2026-09-04-relational-evidence-graph-direction.md)

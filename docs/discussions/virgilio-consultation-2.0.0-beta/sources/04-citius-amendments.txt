@@ -1,0 +1,63 @@
+These qualifications fit the upstream proposal. The clauses below replace the earlier replay and finalization wording. They remain proposals pending joint review; no files have been changed.
+
+**Amended clauses**
+
+**1. Collection identity and replay**
+
+A source observation belongs to an identified collection event and its context. An acquisition belongs to an identified retrieval attempt.
+
+Two separate collections may produce identical artifact bytes and still constitute distinct observations. Content hashes identify bytes and may support storage deduplication; **they do not establish replay identity**.
+
+Replay means processing evidence already attributed to the same collection event or acquisition attempt, using its evidence identity and provenance. It creates no additional source event. A fresh collection of identical content preserves the new event, times and context.
+
+If legacy provenance cannot establish whether identical artifacts represent replay or separate collections, preserve that uncertainty rather than silently merging them.
+
+**2. Finalization and later corrections**
+
+Finalization means collection has ended and its known coverage has been declared. A finalized snapshot may be full or partial.
+
+Preserve each finalized snapshot’s original evidence membership and coverage declaration. Later discoveries produce explicit, linked revisions; they do not silently rewrite an earlier delivered state.
+
+| Situation | Proposed representation | Source-event consequence |
+|---|---|---|
+| **Incorrect coverage assessment** | A revised assessment referencing the existing snapshot and evidence, with reason, supporting basis and supersession lineage. Preserve the original declaration. | No new collection or acquisition. Comparisons may require revised derivations. |
+| **Previously omitted artifact from that collection** | An explicit evidence supplement linked to the snapshot, identifying the artifact, its original collection provenance, when it was discovered and why it was omitted. Preserve the earlier membership and identify a revised evidence set and any revised assessment. | May reveal a previously unrepresented historical observation or acquisition; does not claim a newly performed event. |
+| **New collection or acquisition** | A new collection event or retrieval attempt in another snapshot, linked to earlier evidence where appropriate. | A genuinely new source event, even if the returned bytes are identical. |
+
+An omitted artifact may be attributed to an earlier collection only when provenance supports that attribution. Otherwise, retain it with unresolved provenance. Discovery time must not substitute for collection time.
+
+Corrections and supplements must identify which evidence/assessment revision subsequent comparisons use. Earlier comparison results remain accessible.
+
+**3. Finalized-only delivery for the first increment**
+
+The proposed first increment exchanges **only finalized snapshots**, together with any subsequent explicit corrections or supplements. Open/provisional snapshot management remains within the scraper. Provisional delivery is optional future work.
+
+This boundary does not prevent faithful preservation or useful incremental delivery, provided:
+
+- The scraper retains individual attempts, times, outcomes and supporting evidence.
+- Finalization includes partial or failed collection outcomes, rather than withholding them indefinitely.
+- Later finalized snapshots can cover additional scope or new observations.
+- Corrections and supplements to previously delivered snapshots remain deliverable.
+
+The tradeoff is delayed visibility while collection remains open, not loss of evidence. **A complete delivery of a finalized partial snapshot is still a complete delivery; it is not a complete collection.**
+
+**Consequential Scraper–VC obligations**
+
+The exchange contract should:
+
+- Distinguish collection-event, acquisition-attempt and evidence identity from content hashes and delivery identity.
+- Make replay recognition depend on event-scoped evidence identity and provenance, not byte equality alone.
+- Identify the exact snapshot evidence revision, coverage assessment and interpretation revisions delivered.
+- Preserve original finalized declarations and accept traceable assessment corrections and evidence supplements without duplicating source events.
+- Distinguish original observation times from discovery, correction and delivery times.
+- Carry revised comparison lineage when corrections affect earlier results.
+- Require finalized status for the first increment, while independently expressing collection coverage and delivery completeness.
+- Preserve unresolved legacy provenance rather than manufacturing replay certainty.
+
+**Remaining questions requiring joint agreement**
+
+1. Can the first-increment exchange support evidence supplements and revised coverage assessments alongside finalized snapshots, using the same preservation obligations?
+2. What minimum provenance must a supplement provide to establish that an omitted artifact belongs to an earlier collection, and how should unresolved attribution be carried?
+3. How will the exchange identify the current evidence/assessment revision and affected comparison revisions while retaining every previously accepted state?
+
+Finalized-only delivery otherwise needs no additional upstream capability to preserve the proposed semantics.
