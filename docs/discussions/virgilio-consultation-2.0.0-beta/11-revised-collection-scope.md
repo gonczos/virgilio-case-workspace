@@ -213,3 +213,26 @@ full-scrape listing versus retrieval scope, and when to suggest broader checks. 
 cadence or budget is selected. Closed cases are not excluded from explicit broader scope
 by this normal focus. Decision 3 (participant interpreted exposure) also remains open.
 R1/R2 and the semantic foundation are unchanged; R3–R5/full contracts remain open.
+
+## Decision 3 agreed: reported participants without automatic identity resolution
+
+After concrete fictional examples distinguishing source reporting from identity/relationship
+interpretation, the user agreed to the recommendation: structure reported participant names,
+source designations and observation context; retain every occurrence; preserve other source
+fields without automatically merging people or assigning unestablished relationships.
+
+Keep summary slots and expanded entries distinct. Repeated names within or across cases
+remain recorded appearances, not proof of duplicate defects or a single verified person.
+Preserve scoped IDs, sensitive identifiers and possible association fields in original
+support/context. Their preservation does not make them default searchable identity fields
+or establish representation/principal/legal relationships. Verified identity resolution,
+automatic cross-case person merging and such relationship interpretation are outside this
+agreed first-phase participant direction. No source field is erased by deferring its use.
+
+This supersedes the pending decision-3 status above. All three high-level directions are
+now agreed: preserve capturable responses supporting collection; normally target differences
+in open cases with broader checks separately available/proposed; and structure participants
+as reported with occurrence/provenance intact. This does not close detailed R3 delivery,
+R4 coverage/matching/refresh policy or R5 revision questions, accept full contracts, define
+final UI/access behavior or authorize implementation/imports. Next planning step: turn the
+agreed scope into concrete delivery/dependency requirements, coordinating remaining R4/R5.

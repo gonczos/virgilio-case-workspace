@@ -195,3 +195,11 @@ The user confirmed routine collection should target differences in open cases. T
 [scope record](11-revised-collection-scope.md) records decision 2's direction, optional
 broader checks and separate listing/binary coverage. Detailed R4 policy and participant
 exposure remain open. No schedule, automatic trigger, scrape or development authorized.
+
+## Participant direction agreed
+
+The user agreed to structure reported names/designations and observation context, retaining
+all participant occurrences and other source fields without automatic person merging or
+unestablished relationship interpretation. [Decision 3](11-revised-collection-scope.md)
+completes the three high-level scope directions; detailed R3–R5 remain open. Proceed to
+concrete delivery/dependency planning under that scope, not implementation or import.

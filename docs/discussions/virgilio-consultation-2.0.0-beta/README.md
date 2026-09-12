@@ -15,7 +15,7 @@ comes before detailed R3 delivery/acceptance planning. The
 the inventory is received and [consultation implications](06-consultation-implications.md)
 are recorded as proposals. The user has specified
 [connected consultation views and ingestion management](07-consultation-and-ingestion-management.md).
-The [future collection investigation](09-future-collection-scope.md) led to a separately authorized scraper extension and completed validation. The [scraper handoff assessment](10-scraper-extension-handoff.md) records current results and proposed consumer/delivery decisions. The [revised collection-scope matrix](11-revised-collection-scope.md) coordinates that reevaluation before fixing R3 delivery requirements. The user agreed to preserve capturable source responses supporting the declared collection. Binary refresh and participant exposure remain open; implementation and first delivery acceptance are not authorized by that planning decision.
+The [future collection investigation](09-future-collection-scope.md) led to a separately authorized scraper extension and completed validation. The [scraper handoff assessment](10-scraper-extension-handoff.md) records current results and proposed consumer/delivery decisions. The [revised collection-scope matrix](11-revised-collection-scope.md) coordinates that reevaluation before fixing R3 delivery requirements. The three high-level directions are agreed: preserve capturable collection responses, normally target differences in open cases, and structure participants as reported without automatic identity resolution. Detailed R3 delivery, R4 policy and R5 revision work remain open; these decisions do not authorize implementation or import.
 
 ## Start here
 
