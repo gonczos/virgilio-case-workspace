@@ -154,3 +154,26 @@ actions remain to be selected.
 Both projects remain aligned on the accepted foundation and open R3–R5 work. Next:
 bound the first evidence/claim scope, then agree required-versus-operational delivery
 contents without expanding into detailed screen design. No runtime changes.
+
+## Responsibility clarification: Virgilio does not supervise scraper operations
+
+The user questioned why upstream diagnostic retention would concern consultation.
+The resulting clarification supersedes any reading of the preceding discussion as
+requiring Virgilio approval for individual log exclusions or internal scraper policies.
+
+Virgilio defines and validates the evidence contract: collected evidence, declared
+coverage, meaningful limitations and required supporting material. The scraper owns
+its internal logging, timeouts, retries and retention under its own obligations.
+Routine recovered difficulties with no evidence/coverage consequence need not be
+reported to Virgilio. Their internal handling is not a consultation workflow.
+
+The proposed exchange boundary is: operational diagnostics may be omitted unless
+needed to explain delivered evidence, coverage or an unresolved limitation. R3 defines
+required delivery semantics and R4 supports collection/coverage assertions; neither
+requires Virgilio to supervise internal logs or approve each omission.
+
+The earlier upstream-deletion reminder acknowledged the scraper's separate retention
+obligations. It did not assign Virgilio management authority over scraper logs. This
+clarification changes no evidence-custody obligations, authorizes no deletion and
+introduces no implementation work. Preserve evidence and provenance needed by accepted
+claims without treating all operational diagnostics as required court evidence.
