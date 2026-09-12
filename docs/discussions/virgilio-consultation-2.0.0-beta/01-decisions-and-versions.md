@@ -36,7 +36,7 @@ Status: planning register, 2026-09-12. No implementation changes.
 | --- | --- | --- |
 | Virgilio Consultation | 2.0.0 beta | User-agreed planning milestone; no runtime bump |
 | VIEC | 1.0.0-draft | Proposed initial contract label |
-| Citius–Scraper collection contract | Unassigned | Upstream revision 3 and exact Git commit identify review input |
+| Citius–Scraper collection contract | Unassigned | Upstream revision 4 at 8a046a37fabe1cace268ed40e0ad4be944f94f57 supplies accepted semantic input |
 | Scraper–Virgilio exchange profile | 1.0.0-draft | Proposed provider mapping; boundary still under review |
 | Citius Scraper Adapter implementation | Unassigned | Independent version to be chosen before development |
 | Scraper application | 0.3.0 | Proposed milestone in supplied upstream draft, not a release verified here |
@@ -68,3 +68,12 @@ The user proposed Virgilio Evidence Broker as the name for the receiving capabil
 Use Virgilio Evidence Broker for the component, and VIEC for the contract it enforces.
 The exact component/module boundary and implementation version remain to be reviewed.
 This naming does not authorize message brokers, queues or new infrastructure.
+
+## User acceptance of the semantic planning baseline
+
+The user agreed to accept the reviewed semantic foundation and continue planning only.
+The bounded accepted source of truth is now
+[architecture baseline 24](../../architecture/24-virgilio-2-semantic-planning-baseline.md).
+This deliberately promotes the accepted scope only. Complete contracts remain
+unaccepted, final contract versions unassigned, R3–R5 open and development unauthorized.
+No scraper 0.3.0 release commitment or runtime version bump follows from this decision.

@@ -1,6 +1,6 @@
 # Joint review resolution tracker
 
-Status: R1/R2 verified resolved in the paired draft checkpoints, 2026-09-12. Neither contract is accepted.
+Status: R1/R2 verified resolved; semantic foundation accepted for planning on 2026-09-12. Complete contracts remain unaccepted.
 This is the shared planning decision record, maintained in Virgilio. Each project
 owns amendments to its own draft. Earlier proposal entries are historical; the latest incorporation entry records current draft status.
 
@@ -16,7 +16,7 @@ The same reviewer should inspect both revised checkpoints after joint agreement.
 
 | Finding | Status | Owner | Next action |
 | --- | --- | --- | --- |
-| R1 Comparison applicability | Verified resolved in reviewed drafts | Joint | Preserve verified wording; contract acceptance remains separate |
+| R1 Comparison applicability | Verified resolved in reviewed drafts | Joint | Preserve accepted semantic baseline; complete-contract acceptance remains separate |
 | R2 Evidence custody and retrieval | Verified resolved in reviewed drafts | Joint | Preserve verified wording; operational R3–R5 remain open |
 | R3 Acceptance conformance | Open; before implementation | Virgilio leads, scraper agrees profile | Define delivery unit and dependencies |
 | R4 Coverage/matching policies | Open; before implementation | Scraper, adapter validates support | Define versioned policy and limits |
@@ -186,3 +186,15 @@ R1 and R2 are verified resolved at the semantic draft level with no new contradi
 or regression found in scope. Earlier pending entries above are history, not the
 current status. Neither contract is accepted; no implementation is authorized.
 R3–R5 remain open implementation-readiness decisions with their existing owners.
+
+## User decision — semantic foundation accepted
+
+The user's explicit agreement accepts the reviewed semantic foundation as the planning
+baseline, using Virgilio a1051bc94a6180652483e1e7f5fd62ba875b8690 and scraper
+8a046a37fabe1cace268ed40e0ad4be944f94f57, verified by report commit
+8fd9f6b14176b806b49d48275e9012b45b94acfd. See
+[accepted architecture baseline](../../../architecture/24-virgilio-2-semantic-planning-baseline.md).
+R3–R5 remain open. This is not complete-contract acceptance, implementation readiness,
+final version assignment, development authorization or a scraper release commitment.
+Earlier entries remain historical. Only Virgilio documentation is updated here;
+the scraper project should record the corresponding user decision in its own documents.

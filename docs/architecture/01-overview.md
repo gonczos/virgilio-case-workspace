@@ -1,5 +1,8 @@
 # Architecture Notes
 
+Accepted future planning foundation: [Virgilio Consultation 2.0.0 beta semantic baseline](24-virgilio-2-semantic-planning-baseline.md)
+(planning only; complete contracts and development are not authorized).
+
 Consultation v1 inventory and public contract boundary:
 [Consultation v1 contract and runtime baseline](22-consultation-v1-contract-and-runtime-baseline.md)
 (documented, not implemented).

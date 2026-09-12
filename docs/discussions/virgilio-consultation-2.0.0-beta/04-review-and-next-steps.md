@@ -111,3 +111,11 @@ Virgilio a1051bc94a6180652483e1e7f5fd62ba875b8690 and scraper
 above without changing those historical inputs. R3–R5 remain open; neither contract
 is accepted or implementation-authorized. Next: decide contract acceptance explicitly
 and plan the owned R3–R5 conformance, coverage/matching and revision-resolution work.
+
+## Accepted semantic planning baseline
+
+The user accepted the reviewed foundation for planning only. Its bounded scope is
+[recorded in architecture](../../architecture/24-virgilio-2-semantic-planning-baseline.md).
+The previous pending-acceptance entries are historical. Complete-contract acceptance
+and development remain outside this decision. Continue with R3 delivery/acceptance
+planning, coordinate scraper-owned R4, and keep joint R5 visible. No runtime actions.

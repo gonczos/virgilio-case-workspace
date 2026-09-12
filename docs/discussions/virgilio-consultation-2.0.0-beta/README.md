@@ -1,6 +1,6 @@
 # Virgilio Consultation 2.0.0 beta — Planning
 
-Status: open planning phase. Established 2026-09-12.
+Status: semantic foundation accepted for planning on 2026-09-12. R3–R5 open; development unauthorized.
 
 The user named this phase Virgilio Consultation 2.0.0 beta and agreed that
 submodules and contracts should have independent versions. This is a planning
@@ -8,6 +8,8 @@ milestone, not a released version, development authorization or a package versio
 Use Virgilio rather than VC in new discussion and documentation.
 
 ## Start here
+
+- [Accepted semantic planning baseline](../../architecture/24-virgilio-2-semantic-planning-baseline.md)
 
 - [Decisions, boundaries and versions](01-decisions-and-versions.md)
 - [VIEC: provider-independent contract proposal](02-viec-proposal.md)
@@ -28,8 +30,10 @@ The scope of the rest of 2.0.0 beta has not yet been established.
 
 ## Status and authority
 
-Agreed planning principles are distinguished from unaccepted contract rules.
-Neither contract is accepted. An independent joint review of the pinned drafts is recorded
+The user accepted the reviewed semantic foundation as the planning baseline.
+Its bounded authority is recorded in the architecture document linked above;
+other draft details remain proposals.
+Neither complete contract is accepted. An independent joint review of the pinned drafts is recorded
 under review/. Follow-up verified R1/R2 resolved in the pinned drafts; R3–R5 remain open.
 These reviews do not authorize implementation. No implementation,
 API transport, schema, migration, scrape or import is authorized by these files.
