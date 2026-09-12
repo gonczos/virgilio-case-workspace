@@ -7,6 +7,13 @@ submodules and contracts should have independent versions. This is a planning
 milestone, not a released version, development authorization or a package version bump.
 Use Virgilio rather than VC in new discussion and documentation.
 
+## Current planning slice
+
+[Evidence availability and consultation needs](05-evidence-and-consultation-planning.md)
+comes before detailed R3 delivery/acceptance planning. The
+[scraper inventory handoff](prompts/01-scraper-evidence-inventory.md) is saved;
+investigation results and consultation decisions remain pending.
+
 ## Start here
 
 - [Accepted semantic planning baseline](../../architecture/24-virgilio-2-semantic-planning-baseline.md)

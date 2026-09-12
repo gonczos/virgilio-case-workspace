@@ -119,3 +119,14 @@ The user accepted the reviewed foundation for planning only. Its bounded scope i
 The previous pending-acceptance entries are historical. Complete-contract acceptance
 and development remain outside this decision. Continue with R3 delivery/acceptance
 planning, coordinate scraper-owned R4, and keep joint R5 visible. No runtime actions.
+
+## Current sequencing refinement — evidence and consultation first
+
+The user raised richer scraper evidence and its effect on consultation before detailed
+R3 planning. The current slice is
+[evidence availability and consultation needs](05-evidence-and-consultation-planning.md).
+Inventory retained versus exported versus newly collectable information, then map it
+to consultation questions and proposed default/history views before selecting the
+first exchange's required contents. The [scraper prompt](prompts/01-scraper-evidence-inventory.md)
+is saved; no investigation result or dispatch is implied. This refines the sequence
+above without changing the accepted foundation or closing R3–R5. Planning only.
