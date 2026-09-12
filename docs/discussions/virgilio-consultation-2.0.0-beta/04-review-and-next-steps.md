@@ -188,3 +188,10 @@ discussed cases/acts/documents/participants and separate acquisitions. Recorded 
 [decision 1](11-revised-collection-scope.md); sent to the scraper for alignment.
 This is preservation scope, not development/full-contract acceptance. Continue with
 binary refresh and participant exposure; R3–R5 remain open.
+
+## Normal operating focus agreed
+
+The user confirmed routine collection should target differences in open cases. The
+[scope record](11-revised-collection-scope.md) records decision 2's direction, optional
+broader checks and separate listing/binary coverage. Detailed R4 policy and participant
+exposure remain open. No schedule, automatic trigger, scrape or development authorized.

@@ -185,3 +185,31 @@ exposure) remain open. Continue guiding the user through decision 2 next.
 Scraper aligned decision 1 at cf8d72cb55aae35f4b3ddc0f056aa0fae29f272b,
 with no material scope conflict reported. Its matrix, index and decision record were
 updated; no runtime changes. General case/act preservation remains unimplemented.
+
+## Decision 2: normal focus on differences in open cases
+
+The user proposed focusing normally on open cases, keeping full scrapes possible on
+demand and potentially suggested periodically (monthly was an example), following
+scrape-contract changes or unexpected binary hashes for known retrieval references.
+After discussing the qualifications, the user confirmed: "So yes, normally we target
+diff in open cases."
+
+Agreed planning direction: routine collection targets differences in open cases.
+Preserve new observations and their exact comparison basis rather than replacing history.
+Full scrapes remain an on-demand capability to plan. Periodic or anomaly/contract-driven
+suggestions are candidates for a broader check, not an automatic execution policy.
+No monthly schedule, monitoring automation, live scrape or implementation is requested.
+
+Keep listing coverage and binary retrieval coverage separate. A normal diff-focused run
+does not establish unchanged current bytes for historical acquisitions it did not refresh.
+Known retrieval references do not guarantee identical contents. Preserve an unexpected
+returned hash/body as a scoped acquisition observation, then investigate its reference
+and case before broadening; do not propagate a source-change claim to unobserved cases.
+A contract change may require reinterpretation of retained inputs rather than recollection.
+
+Direction is agreed; detailed R4 policy remains open: how open cases are selected and
+status transitions detected, exact baselines/matching rules, ordinary binary selection,
+full-scrape listing versus retrieval scope, and when to suggest broader checks. No exact
+cadence or budget is selected. Closed cases are not excluded from explicit broader scope
+by this normal focus. Decision 3 (participant interpreted exposure) also remains open.
+R1/R2 and the semantic foundation are unchanged; R3–R5/full contracts remain open.
