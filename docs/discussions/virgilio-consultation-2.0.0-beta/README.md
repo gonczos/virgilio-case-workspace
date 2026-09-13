@@ -9,6 +9,11 @@ Use Virgilio rather than VC in new discussion and documentation.
 
 ## Current planning slice
 
+Current decision proposal: [R3 delivery and acceptance table](16-r3-delivery-and-acceptance.md),
+covering base evidence, replay, correction, supplement and listed-unacquired media.
+Bounded independent sample verification is complete; joint feasibility and user decisions
+on these acceptance proposals remain pending.
+
 Latest: [resumed output-sample consumer review](15-output-sample-consumer-review.md)
 checks the concrete fixtures and identifies bounded follow-ups for digest states,
 listed-unacquired media and contradictory source status. Media download support is
