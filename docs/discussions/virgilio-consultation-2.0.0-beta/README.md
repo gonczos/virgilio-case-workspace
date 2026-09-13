@@ -9,6 +9,11 @@ Use Virgilio rather than VC in new discussion and documentation.
 
 ## Current planning slice
 
+Latest: [resumed output-sample consumer review](15-output-sample-consumer-review.md)
+checks the concrete fixtures and identifies bounded follow-ups for digest states,
+listed-unacquired media and contradictory source status. Media download support is
+not a blocker for this phase. Format agreement and independent follow-up remain pending.
+
 [Evidence availability and consultation needs](05-evidence-and-consultation-planning.md)
 comes before detailed R3 delivery/acceptance planning. The
 [scraper inventory handoff](prompts/01-scraper-evidence-inventory.md) is saved;
