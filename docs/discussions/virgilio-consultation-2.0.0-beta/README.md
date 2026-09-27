@@ -9,6 +9,10 @@ Use Virgilio rather than VC in new discussion and documentation.
 
 ## Current planning slice
 
+Newest negotiation: [Case-only units, configurable acceptance and required support](17-r3-case-profiles-and-support.md).
+This qualifies the earlier table using scraper revision 18; binary-excluding export
+success remains distinct from broker acceptance and actual binary custody.
+
 Current decision proposal: [R3 delivery and acceptance table](16-r3-delivery-and-acceptance.md),
 covering base evidence, replay, correction, supplement and listed-unacquired media.
 Bounded independent sample verification is complete; joint feasibility and user decisions

@@ -1,5 +1,9 @@
 # R3: delivery and acceptance decision table
 
+Subsequent qualification: [case units and configurable acceptance profiles](17-r3-case-profiles-and-support.md)
+incorporates newer user decisions. Case is the only export granularity; the scenario rows
+below no longer suggest independently selectable document/acquisition exports.
+
 Recorded 2026-09-13. Proposed positions for joint review and user decision, not accepted
 contract clauses, a schema or development authorization.
 

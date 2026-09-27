@@ -50,6 +50,10 @@ TOTP on first login. Access tokens last at most five minutes, refresh-token
 reuse is zero, and the application accepts only `consultation.read` plus the
 correct API or MCP audience.
 
+For the prepared, not-yet-activated protected admin hostname, follow
+[ADMIN-HOSTNAME.md](ADMIN-HOSTNAME.md). Once master's frontend URL is changed,
+restore its previous value before using the local-only procedure below.
+
 Keycloak administration uses an explicit local maintenance mode. Stop public
 ingress before entering it, recreate only Keycloak with
 `compose.admin-local.yml`, and open

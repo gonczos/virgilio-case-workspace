@@ -212,6 +212,22 @@ maximum accepted revocation latency is therefore five minutes. Offline access
 tokens are not permitted. Refresh-token rotation is enabled where the client
 supports it. Resource servers fail closed when they cannot validate a token.
 
+### Protected administration amendment (2026-09-20; activation pending)
+
+The approved target permits a dedicated administration hostname protected by
+Cloudflare Access and an exact administrator identity allowlist. This supersedes
+the local-only requirements below only after the activation checks pass.
+Public authentication continues to block `/admin` and `/realms/master`; public
+site/API/MCP/authentication hosts do not receive Access. No origin port is
+published. Optional `KEYCLOAK_ADMIN_URL` selects the admin hostname; only master's
+frontend URL is overridden to keep its authentication on the protected host.
+Consultation issuer and frontend URL remain unchanged. Administrator MFA is
+mandatory. Routine administration then requires no maintenance outage.
+
+The local-only model below remains the verified deployment until the
+[rollout runbook](../../deploy/consultation-v1/ADMIN-HOSTNAME.md) is completed.
+A persistent master frontend URL must be restored before local-only recovery.
+
 Keycloak administration uses a local maintenance mode and is not published
 through Cloudflare. Normal operation maps no Keycloak host port. Maintenance
 stops public ingress and temporarily restarts Keycloak with both its frontend

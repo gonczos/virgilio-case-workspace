@@ -14,6 +14,16 @@ today.
 
 ## Purpose
 
+### Protected Keycloak administration (2026-09-20)
+
+- [ ] Activate and verify the protected admin hostname using
+  [the runbook](../deploy/consultation-v1/ADMIN-HOSTNAME.md): exact-email Access
+  policy, master login redirects, public path blocks, and consultation login.
+  Configuration support is prepared; Cloudflare and realm changes are pending.
+- [ ] Replace `Send-VerificationEmail.ps1` authentication: it hardcodes the
+  now-deleted `bootstrap-admin`. Do not recreate that temporary identity for
+  routine invitations.
+
 Track what still needs to be defined or implemented so Virgilio can move
 from the current repository-grounded local setup to a more reproducible
 installation and portability story.

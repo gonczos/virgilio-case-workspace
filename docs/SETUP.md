@@ -680,6 +680,13 @@ Within Compose, API and MCP reach Keycloak through the private
 `http://keycloak:8080` backchannel while retaining the exact public issuer for
 token validation and browser authorization. This lets the unexposed topology
 become healthy before Cloudflare Tunnel starts.
+Protected remote administration support is prepared but not verified live.
+Follow [the activation runbook](../deploy/consultation-v1/ADMIN-HOSTNAME.md)
+before setting optional `KEYCLOAK_ADMIN_URL`. Without it, the local procedure
+below remains the verified setup. A persisted master frontend URL must be
+cleared before returning to local administration; the Compose override alone
+does not clear that realm setting.
+
 Keycloak administration uses `deploy/consultation-v1/compose.admin-local.yml`
 as a local maintenance override. Normal operation maps no host ports. Before
 using the override, stop `cloudflared`; the override binds Keycloak to
